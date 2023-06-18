@@ -18,6 +18,10 @@ import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 
+// routes
+import authRouter from "./routes/authRouter";
+
+
 // middlewares
 import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
@@ -32,9 +36,8 @@ app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-app.get("/api/v1", (req, res) => {
-    res.json({ result: "Success" });
-});
+
+app.use("/api/v1/auth", authRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

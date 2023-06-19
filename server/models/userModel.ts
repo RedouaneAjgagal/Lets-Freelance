@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import hashData from "../utils/hashToken";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;
@@ -10,7 +11,8 @@ interface IUser {
     verifiedDate: Date | null;
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;
-    role: null | "freelancer" | "client" | "admin" | "owner";
+    role: "user" | "admin" | "owner";
+    userAs: "freelancer" | "client";
     createdAt: Date;
     updatedAt: Date;
 }
@@ -61,11 +63,29 @@ const userSchema = new mongoose.Schema<IUser>({
     role: {
         type: String,
         enum: {
-            values: ["freelancer", "client", "admin", "owner"]
+            values: ["user", "admin", "owner"]
         },
-        default: null
+        default: "user",
+        required: true
+    },
+    userAs: {
+        type: String,
+        enum: {
+            values: ["freelancer", "client"]
+        },
+        default: "freelancer",
+        required: true
     }
 }, { timestamps: true });
+
+
+userSchema.pre("save", async function () {
+    if (this.isNew) {
+        const hashedPassword = await hashData(this.password, 10);
+        this.password = hashedPassword;
+        return;
+    }
+});
 
 const User = mongoose.model("User", userSchema);
 

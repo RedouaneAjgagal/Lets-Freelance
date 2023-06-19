@@ -6,7 +6,7 @@ import User from "../models/userModel";
 import crypto from "crypto";
 import hashData from "../utils/hashData";
 import sendRegisterEmail from "../utils/sendRegisterEmail";
-import { attachCookieToResponse } from "../utils/cookies";
+import { attachCookieToResponse, destroyCookie } from "../utils/cookies";
 
 
 //@desc Register a user
@@ -72,6 +72,14 @@ const login: RequestHandler = async (req, res) => {
     res.status(StatusCodes.OK).json({ msg: `Welcome back, ${user.name}` });
 }
 
+//@desc Logout the user
+//@route GET /api/v1/auth/logout 
+//@access public
+const logout: RequestHandler = async (req, res) => {
+    destroyCookie(res);
+    res.status(StatusCodes.OK).json({ msg: "Logged out successfully." });
+}
+
 
 //@desc Request a user's password (send token via enail)
 //@route POST /api/v1/auth/forget-password
@@ -92,6 +100,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 export {
     register,
     login,
+    logout,
     forgetPassword,
     resetPassword
 }

@@ -24,6 +24,17 @@ const attachCookieToResponse = (userInfo: Payload, res: Response) => {
     });
 }
 
+const destroyCookie = (res: Response) => {
+    res.cookie("accessToken", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+        signed: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production"
+    })
+}
+
 export {
-    attachCookieToResponse
+    attachCookieToResponse,
+    destroyCookie
 }

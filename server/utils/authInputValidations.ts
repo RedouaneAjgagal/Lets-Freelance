@@ -84,7 +84,16 @@ const loginInputValidations = ({ email, password }: { email: AuthInputs["email"]
     }
 }
 
+// validation for requesting password reset
+const forgetPasswordValidation = ({ email }: { email: AuthInputs["email"] }) => {
+    const isValidEmail = validEmail(email);
+    if (!isValidEmail.success) {
+        throw new BadRequestError(isValidEmail.reason!);
+    }
+}
+
 export {
     registerInputValidations,
-    loginInputValidations
+    loginInputValidations,
+    forgetPasswordValidation
 };

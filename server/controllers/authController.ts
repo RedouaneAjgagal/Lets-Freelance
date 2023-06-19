@@ -1,12 +1,13 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError, BadRequestError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../errors";
-import { registerInputValidations, loginInputValidations } from "../utils/authInputValidations";
+import { registerInputValidations, loginInputValidations, forgetPasswordValidation } from "../utils/authInputValidations";
 import User from "../models/userModel";
 import crypto from "crypto";
 import hashData from "../utils/hashData";
 import sendRegisterEmail from "../utils/sendRegisterEmail";
 import { attachCookieToResponse, destroyCookie } from "../utils/cookies";
+import sendResetPasswordEmail from "../utils/sendResetPasswordEmail";
 
 
 //@desc Register a user
@@ -85,7 +86,37 @@ const logout: RequestHandler = async (req, res) => {
 //@route POST /api/v1/auth/forget-password
 //@access public
 const forgetPassword: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ result: "success" });
+    const { email } = req.body;
+
+    // check if valid email
+    forgetPasswordValidation({ email });
+
+    const user = await User.findOne({ email });
+
+    // pretend to be valid even if there is no user with this email
+    if (!user) {
+        return res.status(StatusCodes.OK).json({ msg: `We have sent a reset password email to ${email}` });
+    }
+
+    // generate and hash reset password token
+    const resetPasswordToken = crypto.randomBytes(70).toString("hex");
+    const hashedToken = await hashData(resetPasswordToken, 10);
+
+    // insert reset token to user data
+    user.resetPasswordToken = hashedToken;
+
+    // add expiration time for the reset token
+    const resetTokenExipresIn = 15 * 60 * 1000 // 15 min
+    user.passwordTokenExpirationDate = new Date(Date.now() + resetTokenExipresIn);
+    await user.save();
+
+    // send reset passowrd email
+    sendResetPasswordEmail({
+        email: user.email,
+        resetPasswordToken
+    });
+
+    res.status(StatusCodes.OK).json({ msg: `We have sent a reset password email to ${email}` });
 }
 
 

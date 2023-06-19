@@ -48,7 +48,8 @@ const validRole = (userAs: AuthInputs["userAs"]) => {
     return { success: true, reason: null };
 }
 
-const authInputValidations = ({ name, email, password, userAs }: AuthInputs) => {
+// validation for register
+const registerInputValidations = ({ name, email, password, userAs }: AuthInputs) => {
     const isValidName = validName(name);
     if (!isValidName.success) {
         throw new BadRequestError(isValidName.reason!);
@@ -70,4 +71,20 @@ const authInputValidations = ({ name, email, password, userAs }: AuthInputs) => 
     }
 }
 
-export default authInputValidations;
+// validation for login
+const loginInputValidations = ({ email, password }: { email: AuthInputs["email"], password: AuthInputs["password"] }) => {
+    const isValidEmail = validEmail(email);
+    if (!isValidEmail.success) {
+        throw new BadRequestError(isValidEmail.reason!);
+    }
+
+    const isValidPassowrd = validPassowrd(password);
+    if (!isValidPassowrd.success) {
+        throw new BadRequestError(isValidPassowrd.reason!);
+    }
+}
+
+export {
+    registerInputValidations,
+    loginInputValidations
+};

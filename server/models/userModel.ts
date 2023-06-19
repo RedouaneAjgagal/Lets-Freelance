@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import hashData from "../utils/hashToken";
+import hashData from "../utils/hashData";
+import compareData from "../utils/compareData";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;
@@ -15,6 +16,7 @@ interface IUser {
     userAs: "freelancer" | "client";
     createdAt: Date;
     updatedAt: Date;
+    comparePassword: (unhashedPassword: string) => Promise<boolean>;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -78,9 +80,14 @@ const userSchema = new mongoose.Schema<IUser>({
     }
 }, { timestamps: true });
 
+userSchema.methods.comparePassword = async function (unhashedPassword: string) {
+    const isValidPassword = await compareData(unhashedPassword, this.password);
+    return isValidPassword;
+}
 
 userSchema.pre("save", async function () {
     if (this.isNew) {
+        // hash password
         const hashedPassword = await hashData(this.password, 10);
         this.password = hashedPassword;
         return;

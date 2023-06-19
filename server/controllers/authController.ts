@@ -1,11 +1,12 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError, BadRequestError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../errors";
-import authInputValidations from "../utils/authInputValidations";
+import { registerInputValidations, loginInputValidations } from "../utils/authInputValidations";
 import User from "../models/userModel";
 import crypto from "crypto";
-import hashData from "../utils/hashToken";
+import hashData from "../utils/hashData";
 import sendRegisterEmail from "../utils/sendRegisterEmail";
+import { attachCookieToResponse } from "../utils/cookies";
 
 
 //@desc Register a user
@@ -15,7 +16,7 @@ const register: RequestHandler = async (req, res) => {
     const { name, email, password, userAs } = req.body;
 
     // check if valid values
-    authInputValidations({ name, email, password, userAs });
+    registerInputValidations({ name, email, password, userAs });
 
     // check if email is not exist
     const user = await User.findOne({ email });
@@ -37,7 +38,7 @@ const register: RequestHandler = async (req, res) => {
     // create new user
     await User.create({ name, email, password, verificationToken: hashedToken, userAs });
 
-    res.status(StatusCodes.CREATED).json({ result: "You have created your account successfully." });
+    res.status(StatusCodes.CREATED).json({ msg: "You have created your account successfully." });
 }
 
 
@@ -45,7 +46,30 @@ const register: RequestHandler = async (req, res) => {
 //@route POST /api/v1/auth/login
 //@access public
 const login: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ result: "success" });
+    const { email, password } = req.body;
+
+    // check if valid values
+    loginInputValidations({ email, password });
+
+    // check if user email exist
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new BadRequestError("Invalid credentials");
+    }
+
+    // check if valid password
+    const isValidPassword = await user.comparePassword(password);
+    if (!isValidPassword) {
+        throw new BadRequestError("Invalid credentials");
+    }
+
+    // attach cookies to response
+    attachCookieToResponse({
+        userId: user._id.toString(),
+        userName: user.name
+    }, res);
+
+    res.status(StatusCodes.OK).json({ msg: `Welcome back, ${user.name}` });
 }
 
 

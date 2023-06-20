@@ -1,4 +1,5 @@
-import sendEmail from "./sendEmail";
+import origin from "../../../config/origin";
+import sendEmail from "../../../services/sendEmail";
 
 type ResetPasswordEmail = {
     email: string;
@@ -6,7 +7,7 @@ type ResetPasswordEmail = {
 }
 
 const sendResetPasswordEmail = ({ email, resetPasswordToken }: ResetPasswordEmail) => {
-    const confirmEmailUrl = `http://localhost:5000/api/v1/reset-password?token=${resetPasswordToken}&email=${email}`;
+    const confirmEmailUrl = `${origin}/auth/reset-password?token=${resetPasswordToken}&email=${email}`;
     const emailContent = `
     <div>
         <h1>We have received a reset password request</h1>
@@ -21,4 +22,4 @@ const sendResetPasswordEmail = ({ email, resetPasswordToken }: ResetPasswordEmai
     });
 }
 
-export default sendResetPasswordEmail;
+export default sendResetPasswordEmail

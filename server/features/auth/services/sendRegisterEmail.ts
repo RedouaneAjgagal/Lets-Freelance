@@ -1,4 +1,5 @@
-import sendEmail from "./sendEmail";
+import origin from "../../../config/origin";
+import sendEmail from "../../../services/sendEmail";
 
 type RegisterEmail = {
     name: string;
@@ -7,7 +8,7 @@ type RegisterEmail = {
 }
 
 const sendRegisterEmail = ({ name, verificationToken, email }: RegisterEmail) => {
-    const confirmEmailUrl = `http://localhost:5000/api/v1/verify-email?token=${verificationToken}&email=${email}`;
+    const confirmEmailUrl = `${origin}/auth/verify-email?token=${verificationToken}&email=${email}`;
     const emailContent = `
     <div>
         <h1>Thank you for joining us ${name}.</h1>

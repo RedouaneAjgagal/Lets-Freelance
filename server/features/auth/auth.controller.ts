@@ -1,15 +1,12 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { NotFoundError, BadRequestError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../errors";
-import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, tokenValidations } from "../utils/authInputValidations";
-import User from "../models/userModel";
+import { BadRequestError, UnauthenticatedError } from "../../errors";
+import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, verifyEmailValidation } from "./validations";
+import User from "./auth.model";
 import crypto from "crypto";
-import hashData from "../utils/hashData";
-import sendRegisterEmail from "../utils/sendRegisterEmail";
-import { attachCookieToResponse, destroyCookie } from "../utils/cookies";
-import sendResetPasswordEmail from "../utils/sendResetPasswordEmail";
-import createHash from "../utils/createHash";
-import compareData from "../utils/compareData";
+import { sendRegisterEmail, sendResetPasswordEmail } from "./services";
+import { attachCookieToResponse, destroyCookie } from "../../utils/cookies";
+import createHash from "../../utils/createHash";
 
 
 //@desc Register a user
@@ -95,7 +92,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
     const { email, token } = req.query;
 
     // Check for valid values
-    tokenValidations({
+    verifyEmailValidation({
         email: email?.toString(),
         token: token?.toString()
     });
@@ -189,8 +186,7 @@ const resetPassword: RequestHandler = async (req, res) => {
     // find the user
     const user = await User.findOne({ email });
     if (!user) {
-        // pretend to be valid even if there is no user with this email
-        return res.status(StatusCodes.OK).json({ msg: "You have changed your password successfully." });
+        throw new UnauthenticatedError("Verification failed.");
     }
 
     // check if the user already requested reset password
@@ -204,7 +200,7 @@ const resetPassword: RequestHandler = async (req, res) => {
         value: token!.toString()
     });
     if (providedHashedToken !== user.resetPasswordToken) {
-        throw new UnauthenticatedError("Invalid token.");
+        throw new UnauthenticatedError("Verification failed.");
     }
 
     // check if valid expiration date

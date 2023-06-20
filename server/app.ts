@@ -19,7 +19,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 
 // routes
-import authRouter from "./routes/authRouter";
+import { authRouter } from "./features/auth";
 
 
 // middlewares

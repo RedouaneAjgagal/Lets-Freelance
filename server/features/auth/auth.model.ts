@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import hashData from "../utils/hashData";
-import compareData from "../utils/compareData";
+import hashData from "../../utils/hashData";
+import compareData from "../../utils/compareData";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;

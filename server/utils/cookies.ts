@@ -1,16 +1,11 @@
 import { Response } from "express";
-import createToken from "./createToken"
+import createJwtToken from "./createJwtToken"
 
-type Payload = {
-    userId: string;
-    userName: string;
-}
-
-const attachCookieToResponse = (userInfo: Payload, res: Response) => {
+const attachCookieToResponse = (payload: {}, res: Response) => {
     const expiresIn = 2 * 60 * 60 * 1000; // 2h
     // create jwt token
-    const token = createToken({
-        payload: userInfo,
+    const token = createJwtToken({
+        payload,
         expiresIn
     });
 

@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError, BadRequestError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../errors";
-import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation } from "../utils/authInputValidations";
+import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, tokenValidations } from "../utils/authInputValidations";
 import User from "../models/userModel";
 import crypto from "crypto";
 import hashData from "../utils/hashData";
 import sendRegisterEmail from "../utils/sendRegisterEmail";
 import { attachCookieToResponse, destroyCookie } from "../utils/cookies";
 import sendResetPasswordEmail from "../utils/sendResetPasswordEmail";
-import compareData from "../utils/compareData";
 import createHash from "../utils/createHash";
+import compareData from "../utils/compareData";
 
 
 //@desc Register a user
@@ -29,7 +29,11 @@ const register: RequestHandler = async (req, res) => {
 
     // generate and hash the verification token
     const verificationToken = crypto.randomBytes(60).toString("hex");
-    const hashedToken = await hashData(verificationToken, 10);
+    const hashedToken = createHash({
+        algorithm: "sha256",
+        value: verificationToken
+    });
+
 
     // send unhashed verification token via email
     sendRegisterEmail({
@@ -81,6 +85,48 @@ const login: RequestHandler = async (req, res) => {
 const logout: RequestHandler = async (req, res) => {
     destroyCookie(res);
     res.status(StatusCodes.OK).json({ msg: "Logged out successfully." });
+}
+
+
+//@ desc verify user's account via email
+//@ route GET /api/v1/auth/verify-email
+//@ access public
+const verifyEmail: RequestHandler = async (req, res) => {
+    const { email, token } = req.query;
+
+    // Check for valid values
+    tokenValidations({
+        email: email?.toString(),
+        token: token?.toString()
+    });
+
+    // find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+        throw new UnauthenticatedError("Verification failed.");
+    }
+
+    // check if email is already verified
+    if (user.isVerified) {
+        return res.status(StatusCodes.OK).json({ msg: "Email is already verified." })
+    }
+
+    // check if token is valid
+    const providedHashedToken = createHash({
+        algorithm: "sha256",
+        value: token!.toString()
+    });
+    if (providedHashedToken !== user.verificationToken) {
+        throw new UnauthenticatedError("Verification failed.");
+    }
+
+    // verify email
+    user.isVerified = true;
+    user.verifiedDate = new Date(Date.now());
+    user.verificationToken = null;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ msg: "Email verified." });
 }
 
 
@@ -153,12 +199,12 @@ const resetPassword: RequestHandler = async (req, res) => {
     }
 
     // check if valid reset password token
-    const isValidToken = createHash({
+    const providedHashedToken = createHash({
         algorithm: "sha256",
         value: token!.toString()
     });
-    if (isValidToken !== user.resetPasswordToken) {
-        throw new UnauthenticatedError("Invalid credentials.");
+    if (providedHashedToken !== user.resetPasswordToken) {
+        throw new UnauthenticatedError("Invalid token.");
     }
 
     // check if valid expiration date
@@ -187,6 +233,7 @@ export {
     register,
     login,
     logout,
+    verifyEmail,
     forgetPassword,
     resetPassword
 }

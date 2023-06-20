@@ -8,7 +8,7 @@ interface IUser {
     email: string;
     password: string;
     isVerified: boolean;
-    verificationToken: string;
+    verificationToken: string | null;
     verifiedDate: Date | null;
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;

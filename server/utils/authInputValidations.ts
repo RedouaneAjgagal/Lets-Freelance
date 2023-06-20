@@ -104,17 +104,23 @@ type ResetPassword = {
     token: string | undefined;
 }
 
-// validation for reset the password
-const resetPasswordValidation = ({ email, newPassword, repeatNewPassword, token }: ResetPassword) => {
+const tokenValidations = ({ email, token }: { email: ResetPassword["email"], token: ResetPassword["token"] }) => {
     const isValidEmail = validEmail(email);
     if (!isValidEmail.success) {
         throw new BadRequestError(isValidEmail.reason!);
     }
-
     if (!token || token.trim() === "") {
-        throw new BadRequestError("Reset password token is required.");
+        throw new BadRequestError("Token is required.");
     }
+}
 
+
+// validation for reset the password
+const resetPasswordValidation = ({ email, newPassword, repeatNewPassword, token }: ResetPassword) => {
+    tokenValidations({
+        email,
+        token
+    });
     const isValidPassowrd = validPassowrd(newPassword);
     if (!isValidPassowrd.success) {
         throw new BadRequestError(isValidPassowrd.reason!);
@@ -130,5 +136,6 @@ export {
     registerInputValidations,
     loginInputValidations,
     forgetPasswordValidation,
-    resetPasswordValidation
+    resetPasswordValidation,
+    tokenValidations
 };

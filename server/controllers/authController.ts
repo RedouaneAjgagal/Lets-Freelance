@@ -57,13 +57,13 @@ const login: RequestHandler = async (req, res) => {
     // check if user email exist
     const user = await User.findOne({ email });
     if (!user) {
-        throw new BadRequestError("Invalid credentials");
+        throw new UnauthenticatedError("Invalid credentials");
     }
 
     // check if valid password
     const isValidPassword = await user.comparePassword(password);
     if (!isValidPassword) {
-        throw new BadRequestError("Invalid credentials");
+        throw new UnauthenticatedError("Invalid credentials");
     }
 
     // attach cookies to response

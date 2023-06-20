@@ -1,4 +1,4 @@
-import { BadRequestError } from "../errors";
+import { BadRequestError, UnauthorizedError } from "../errors";
 
 type AuthInputs = {
     name: string | undefined;
@@ -67,6 +67,9 @@ const registerInputValidations = ({ name, email, password, userAs }: AuthInputs)
 
     const isValidRole = validRole(userAs);
     if (!isValidRole.success) {
+        if (isValidRole.reason === "Can only be Freelancer or Client.") {
+            throw new UnauthorizedError(isValidRole.reason!);
+        }
         throw new BadRequestError(isValidRole.reason!);
     }
 }

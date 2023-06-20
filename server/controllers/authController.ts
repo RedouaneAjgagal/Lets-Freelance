@@ -1,13 +1,15 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError, BadRequestError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../errors";
-import { registerInputValidations, loginInputValidations, forgetPasswordValidation } from "../utils/authInputValidations";
+import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation } from "../utils/authInputValidations";
 import User from "../models/userModel";
 import crypto from "crypto";
 import hashData from "../utils/hashData";
 import sendRegisterEmail from "../utils/sendRegisterEmail";
 import { attachCookieToResponse, destroyCookie } from "../utils/cookies";
 import sendResetPasswordEmail from "../utils/sendResetPasswordEmail";
+import compareData from "../utils/compareData";
+import createHash from "../utils/createHash";
 
 
 //@desc Register a user
@@ -100,7 +102,10 @@ const forgetPassword: RequestHandler = async (req, res) => {
 
     // generate and hash reset password token
     const resetPasswordToken = crypto.randomBytes(70).toString("hex");
-    const hashedToken = await hashData(resetPasswordToken, 10);
+    const hashedToken = createHash({
+        algorithm: "sha256",
+        value: resetPasswordToken
+    });
 
     // insert reset token to user data
     user.resetPasswordToken = hashedToken;
@@ -124,7 +129,57 @@ const forgetPassword: RequestHandler = async (req, res) => {
 //@route PATCH /api/v1/auth/reset-password
 //@access public
 const resetPassword: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ result: "success" });
+    const { email, token } = req.query;
+    const { newPassword, repeatNewPassword } = req.body;
+
+    // check if valid inputs
+    resetPasswordValidation({
+        email: email?.toString(),
+        token: token?.toString(),
+        newPassword,
+        repeatNewPassword,
+    });
+
+    // find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+        // pretend to be valid even if there is no user with this email
+        return res.status(StatusCodes.OK).json({ msg: "You have changed your password successfully." });
+    }
+
+    // check if the user already requested reset password
+    if (user.resetPasswordToken === null || user.passwordTokenExpirationDate === null) {
+        throw new BadRequestError("Must request a reset password first.");
+    }
+
+    // check if valid reset password token
+    const isValidToken = createHash({
+        algorithm: "sha256",
+        value: token!.toString()
+    });
+    if (isValidToken !== user.resetPasswordToken) {
+        throw new UnauthenticatedError("Invalid credentials.");
+    }
+
+    // check if valid expiration date
+    const isTokenDateValid = new Date(user.passwordTokenExpirationDate).getTime() > new Date(Date.now()).getTime();
+    if (!isTokenDateValid) {
+        throw new UnauthenticatedError("Expired token.")
+    }
+
+    // check if old password
+    const isOldPassword = await user.comparePassword(newPassword);
+    if (isOldPassword) {
+        throw new BadRequestError("You cant use your old password");
+    }
+
+    // set new password
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.passwordTokenExpirationDate = null;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ msg: "You have changed your password successfully." });
 }
 
 

@@ -92,8 +92,40 @@ const forgetPasswordValidation = ({ email }: { email: AuthInputs["email"] }) => 
     }
 }
 
+
+
+type ResetPassword = {
+    email: string | undefined;
+    newPassword: string | undefined;
+    repeatNewPassword: string | undefined;
+    token: string | undefined;
+}
+
+// validation for reset the password
+const resetPasswordValidation = ({ email, newPassword, repeatNewPassword, token }: ResetPassword) => {
+    const isValidEmail = validEmail(email);
+    if (!isValidEmail.success) {
+        throw new BadRequestError(isValidEmail.reason!);
+    }
+
+    if (!token || token.trim() === "") {
+        throw new BadRequestError("Reset password token is required.");
+    }
+
+    const isValidPassowrd = validPassowrd(newPassword);
+    if (!isValidPassowrd.success) {
+        throw new BadRequestError(isValidPassowrd.reason!);
+    }
+
+    const isPasswordsMatch = newPassword === repeatNewPassword;
+    if (!isPasswordsMatch) {
+        throw new BadRequestError("Passwords does not match");
+    }
+}
+
 export {
     registerInputValidations,
     loginInputValidations,
-    forgetPasswordValidation
+    forgetPasswordValidation,
+    resetPasswordValidation
 };

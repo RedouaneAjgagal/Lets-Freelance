@@ -1,10 +1,10 @@
+import { RouterProvider } from "react-router-dom";
+import router from "./config/routes";
+
 
 function App() {
   return (
-    <div>
-      <h1>home page</h1>
-      <button>click me</button>
-    </div>
+    <RouterProvider router={router} />
   )
 }
 

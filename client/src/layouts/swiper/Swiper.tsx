@@ -1,10 +1,5 @@
 import { Swiper as SwiperContainer } from "swiper/react";
 
-import "swiper/css"
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import "swiper/swiper-bundle.esm.js"
-
 interface Props {
     spaceBetween: number;
     slidesPerView: number;

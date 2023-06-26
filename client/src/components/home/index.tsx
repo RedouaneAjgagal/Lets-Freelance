@@ -1,9 +1,6 @@
+import TrustedBy from "./TrustedBy";
 
 
-const index = () => {
-  return (
-    <div>Home</div>
-  )
+export {
+  TrustedBy
 }
-
-export default index

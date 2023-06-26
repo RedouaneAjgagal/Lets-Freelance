@@ -12,7 +12,7 @@ const SearchBy = (props: React.PropsWithoutRef<Props>) => {
         props.searchByHandler(e.currentTarget.value);
     }
     return (
-        <button onClick={searchByhandler} value={props.value.toLowerCase()} className={`${props.value.toLowerCase() === props.currentTarget ? "border-b-2 border-indigo-800 text-slate-950" : ""}`}>{props.value}</button>
+        <button onClick={searchByhandler} value={props.value.toLowerCase()} className={`${props.value.toLowerCase() === props.currentTarget ? "border-b-2 border-slate-800 text-slate-950" : ""}`}>{props.value}</button>
     )
 }
 

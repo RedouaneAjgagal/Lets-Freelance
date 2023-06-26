@@ -3,7 +3,7 @@ import Navbar from "../layouts/navbar";
 
 const Root = () => {
     return (
-        <div className="flex flex-col bg-indigo-100 min-h-screen">
+        <div>
             <Navbar />
             <Outlet />
         </div>

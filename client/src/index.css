@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        font-family: 'Montserrat Alternates', sans-serif;
+    }
+}
+
+,
+@layer components {
+    .carousel>* {
+        width: 100%;
+        flex-shrink: 0;
+        flex-grow: 1;
+    }
+}

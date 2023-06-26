@@ -43,7 +43,7 @@ const index = () => {
       <MenuModel isShown={isMenuOpen} />
       <SearchModel isShown={isSearchOpen} closeModel={searchHandler} />
       <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0" : "-left-full"}`}>
-        <Link to={"/auth/register"} className="p-3 flex justify-center bg-indigo-500 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
+        <Link to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
       </div>
     </div>
   )

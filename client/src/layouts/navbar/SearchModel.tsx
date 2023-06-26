@@ -26,14 +26,14 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
     }
 
     return (
-        <div className={`bg-white min-h-screen fixed top-0 w-full duration-150 ${props.isShown ? "right-0" : "-right-full"}`}>
+        <div className={`bg-white min-h-screen fixed top-0 w-full duration-150 z-50 ${props.isShown ? "right-0" : "-right-full"}`}>
             <div className="px-4 py-3 flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                     <button onClick={props.closeModel} className="text-2xl">
                         <BiArrowBack />
                     </button>
                     <form onSubmit={searchHandler} className="w-full">
-                        <div className="flex items-center border border-indigo-800 rounded h-8">
+                        <div className="flex items-center border border-slate-800 rounded h-8">
                             <button onClick={searchHandler} className="h-full px-2 text-lg">
                                 <BiSearch className="-mb-[0.1rem]" />
                             </button>
@@ -41,7 +41,7 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
                         </div>
                     </form>
                 </div>
-                <div className="flex items-start gap-6 border-b text-slate-600 text-[1.1rem]">
+                <div className="flex items-start gap-6 border-b text-slate-400 font-medium">
                     <SearchBy searchByHandler={searchByhandler} value="Talent" currentTarget={searchBy} />
                     <SearchBy searchByHandler={searchByhandler} value="Projects" currentTarget={searchBy} />
                     <SearchBy searchByHandler={searchByhandler} value="Jobs" currentTarget={searchBy} />

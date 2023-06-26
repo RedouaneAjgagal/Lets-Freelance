@@ -8,11 +8,12 @@
     }
 }
 
-,
-@layer components {
-    .carousel>* {
-        width: 100%;
-        flex-shrink: 0;
-        flex-grow: 1;
-    }
+:root {
+    --swiper-pagination-color: #2c2c2c;
+    --swiper-pagination-bullet-size: .5rem;
+    --swiper-pagination-bullet-width: .5rem;
+    --swiper-pagination-bullet-height: .5rem;
+    --swiper-pagination-bullet-inactive-color: #000000;
+    --swiper-pagination-bullet-inactive-opacity: 0.1;
+    --swiper-pagination-bullet-horizontal-gap: .4rem;
 }

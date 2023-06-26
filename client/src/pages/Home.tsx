@@ -1,15 +1,12 @@
 import { Link } from "react-router-dom";
-import { TrustedBy } from "../components/home";
-
-import "swiper/css"
-import 'swiper/css/navigation';
-import "swiper/swiper-bundle.esm.js"
+import { TrustedBy, TrendingServicesList } from "../components/home";
+import { BiArrowBack } from "react-icons/bi";
 
 const Home = () => {
 
 
   return (
-    <div>
+    <div className="flex flex-col gap-10">
       <div className="bg-purple-100/60 px-4 py-8">
         <div className="flex flex-col gap-6">
           <h1 className="text-4xl font-semibold text-purple-800 leading-[1.3]">Hire Experts & Get Your Job Done.</h1>
@@ -20,6 +17,12 @@ const Home = () => {
             <TrustedBy />
           </div>
         </div>
+      </div>
+      <div className="px-4 pb-7 flex flex-col gap-3">
+        <h2 className="text-2xl font-semibold text-slate-900">Trending Services</h2>
+        <p className="text-slate-500 text-sm leading-relaxed">Most viewed and all-time top-selling services</p>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Services <BiArrowBack className="rotate-180" /></Link>
+        <TrendingServicesList />
       </div>
     </div>
   )

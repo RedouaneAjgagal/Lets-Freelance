@@ -12,7 +12,7 @@ import "swiper/swiper-bundle.esm.js"
 const TrustedBy = () => {
     return (
         <div className="flex justify-center relative">
-            <button className="prev absolute left-0 z-20 w-7 h-7 flex justify-center items-center bg-white/90 rounded-full text-slate-500"><BiArrowBack /></button>
+            <button className="prev absolute left-0 z-20 w-7 h-7 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg"><BiArrowBack /></button>
             <Swiper
                 spaceBetween={20}
                 slidesPerView={3}
@@ -40,7 +40,7 @@ const TrustedBy = () => {
                     </div>
                 </SwiperSlide>
             </Swiper>
-            <button className="next absolute right-0 z-20 w-7 h-7 flex justify-center items-center bg-white/90 rounded-full text-slate-500"><BiArrowBack className="rotate-180" /></button>
+            <button className="next absolute right-0 z-20 w-7 h-7 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg"><BiArrowBack className="rotate-180" /></button>
         </div>
     )
 }

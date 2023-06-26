@@ -31,7 +31,7 @@ const dummyData = [
         price: 128
     },
     {
-        _id: "1",
+        _id: "3",
         img: "https://demoapus1.com/freeio/wp-content/uploads/2022/11/service13-495x370.jpg",
         category: "Development & IT",
         title: "Management software to help you manage your mobile",
@@ -44,7 +44,7 @@ const dummyData = [
         price: 89
     },
     {
-        _id: "2",
+        _id: "4",
         img: "https://demoapus1.com/freeio/wp-content/uploads/2022/11/service12-495x370.jpg",
         category: "Design & Creative",
         title: "Developers dron the framework folder into a new parent",
@@ -57,7 +57,7 @@ const dummyData = [
         price: 128
     },
     {
-        _id: "1",
+        _id: "5",
         img: "https://demoapus1.com/freeio/wp-content/uploads/2022/11/service13-495x370.jpg",
         category: "Development & IT",
         title: "Management software to help you manage your mobile",

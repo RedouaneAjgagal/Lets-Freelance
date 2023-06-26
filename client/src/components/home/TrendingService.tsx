@@ -27,7 +27,7 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
     const reviews = props.serviceInfo.reviews === 1 ? `(${props.serviceInfo.reviews} Review)` : `(${props.serviceInfo.reviews} Reviews)`
 
     return (
-        <div className="pb-9">
+        <div className="pb-10">
             <button onClick={onService} className="text-left border rounded">
                 <div>
                     <img src={props.serviceInfo.img} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />

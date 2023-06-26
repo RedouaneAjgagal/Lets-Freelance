@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrustedBy, TrendingServicesList } from "../components/home";
+import { TrustedBy, TrendingServicesList, TalentByCategoryList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
 
 const Home = () => {
@@ -18,11 +18,17 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="px-4 pb-7 flex flex-col gap-3">
+      <div className="px-4 flex flex-col gap-3">
         <h2 className="text-2xl font-semibold text-slate-900">Trending Services</h2>
         <p className="text-slate-500 text-sm leading-relaxed">Most viewed and all-time top-selling services</p>
         <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Services <BiArrowBack className="rotate-180" /></Link>
         <TrendingServicesList />
+      </div>
+      <div className="px-4 pb-7 flex flex-col gap-3">
+        <h2 className="text-2xl font-semibold text-slate-900">Browse talent by category</h2>
+        <p className="text-slate-500 text-sm leading-relaxed">Get some insirations from 1800+ skills</p>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Categories <BiArrowBack className="rotate-180" /></Link>
+        <TalentByCategoryList />
       </div>
     </div>
   )

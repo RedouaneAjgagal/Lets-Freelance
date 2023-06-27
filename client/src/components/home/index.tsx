@@ -3,6 +3,7 @@ import TrendingServicesList from "./TrendingServicesList";
 import TalentByCategoryList from "./TalentByCategoryList";
 import LatestJobsList from "./LatestJobsList";
 import HighestRatedFreelancersList from "./HighestRatedFreelancersList";
+import WhyUsProofList from "./WhyUsProofList";
 
 
 export {
@@ -10,5 +11,6 @@ export {
   TrendingServicesList,
   TalentByCategoryList,
   LatestJobsList,
-  HighestRatedFreelancersList
+  HighestRatedFreelancersList,
+  WhyUsProofList
 }

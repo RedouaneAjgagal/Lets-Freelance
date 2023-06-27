@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList, HighestRatedFreelancersList } from "../components/home";
+import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList, HighestRatedFreelancersList, WhyUsProofList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
 
 const Home = () => {
@@ -36,11 +36,17 @@ const Home = () => {
         <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Jobs<BiArrowBack className="rotate-180" /></Link>
         <LatestJobsList />
       </div>
-      <div className="px-4 pb-8 flex flex-col gap-3">
+      <div className="px-4 flex flex-col gap-3">
         <h2 className="text-2xl font-semibold text-slate-900">Highest Rated Freelancers</h2>
         <p className="text-slate-500 text-sm leading-relaxed">Work with the best freelancers for the best quality</p>
         <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Freelancers<BiArrowBack className="rotate-180" /></Link>
         <HighestRatedFreelancersList />
+      </div>
+      <div className="px-4 py-8 flex flex-col gap-3 bg-purple-100/30">
+        <h2 className="text-2xl font-semibold text-slate-900">A whole world of talent freelancers ready to ship the best content</h2>
+        <div>
+          <WhyUsProofList />
+        </div>
       </div>
     </div>
   )

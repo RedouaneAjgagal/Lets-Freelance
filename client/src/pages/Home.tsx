@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList } from "../components/home";
+import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList, HighestRatedFreelancersList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
 
 const Home = () => {
@@ -33,8 +33,14 @@ const Home = () => {
       <div className="bg-purple-100/30 px-4 py-8 flex flex-col gap-3">
         <h2 className="text-2xl font-semibold text-slate-900">Latest Jobs</h2>
         <p className="text-slate-500 text-sm leading-relaxed">Know your worth and find the job that qualify your life</p>
-        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">Browse Jobs By Latest<BiArrowBack className="rotate-180" /></Link>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Jobs<BiArrowBack className="rotate-180" /></Link>
         <LatestJobsList />
+      </div>
+      <div className="px-4 pb-8 flex flex-col gap-3">
+        <h2 className="text-2xl font-semibold text-slate-900">Highest Rated Freelancers</h2>
+        <p className="text-slate-500 text-sm leading-relaxed">Work with the best freelancers for the best quality</p>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Freelancers<BiArrowBack className="rotate-180" /></Link>
+        <HighestRatedFreelancersList />
       </div>
     </div>
   )

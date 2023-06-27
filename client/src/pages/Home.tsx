@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { TrustedBy, TrendingServicesList, TalentByCategoryList } from "../components/home";
+import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
 
 const Home = () => {
@@ -7,7 +7,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="bg-purple-100/60 px-4 py-8">
+      <div className="bg-purple-100/20 px-4 py-8">
         <div className="flex flex-col gap-6">
           <h1 className="text-4xl font-semibold text-purple-800 leading-[1.3]">Hire Experts & Get Your Job Done.</h1>
           <p className="text-slate-500 leading-[1.6]">Work with talented people at the most affordable price to get the most out of your time and cost.</p>
@@ -24,11 +24,17 @@ const Home = () => {
         <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Services <BiArrowBack className="rotate-180" /></Link>
         <TrendingServicesList />
       </div>
-      <div className="px-4 pb-7 flex flex-col gap-3">
+      <div className="px-4 flex flex-col gap-3">
         <h2 className="text-2xl font-semibold text-slate-900">Browse talent by category</h2>
         <p className="text-slate-500 text-sm leading-relaxed">Get some insirations from 1800+ skills</p>
-        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Categories <BiArrowBack className="rotate-180" /></Link>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Categories<BiArrowBack className="rotate-180" /></Link>
         <TalentByCategoryList />
+      </div>
+      <div className="bg-purple-100/30 px-4 py-8 flex flex-col gap-3">
+        <h2 className="text-2xl font-semibold text-slate-900">Latest Jobs</h2>
+        <p className="text-slate-500 text-sm leading-relaxed">Know your worth and find the job that qualify your life</p>
+        <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">Browse Jobs By Latest<BiArrowBack className="rotate-180" /></Link>
+        <LatestJobsList />
       </div>
     </div>
   )

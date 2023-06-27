@@ -7,6 +7,7 @@ interface Props {
     nextEl?: string;
     prevEl?: string;
     pagination: boolean;
+    autoPlay: boolean;
 }
 
 const Swiper = (props: React.PropsWithChildren<Props>) => {
@@ -17,6 +18,7 @@ const Swiper = (props: React.PropsWithChildren<Props>) => {
             navigation={props.navigation ? { nextEl: `.${props.nextEl}`, prevEl: `.${props.prevEl}` } : false}
             pagination={props.pagination ? { clickable: true } : false}
             wrapperTag="ul"
+            autoplay={props.autoPlay ? { disableOnInteraction: false, pauseOnMouseEnter: true, delay: 7000 } : false}
         >
             {props.children}
         </SwiperContainer>

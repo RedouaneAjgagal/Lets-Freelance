@@ -13,7 +13,7 @@ interface IUser {
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;
     role: "user" | "admin" | "owner";
-    userAs: "freelancer" | "client";
+    userAs: "freelancer" | "employee";
     createdAt: Date;
     updatedAt: Date;
     comparePassword: (unhashedPassword: string) => Promise<boolean>;
@@ -73,7 +73,7 @@ const userSchema = new mongoose.Schema<IUser>({
     userAs: {
         type: String,
         enum: {
-            values: ["freelancer", "client"]
+            values: ["freelancer", "employee"]
         },
         default: "freelancer",
         required: true

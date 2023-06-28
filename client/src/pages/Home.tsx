@@ -48,7 +48,7 @@ const Home = () => {
         <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Freelancers<BiArrowBack className="rotate-180" /></Link>
         <HighestRatedFreelancersList />
       </div>
-      <div className="px-4 flex flex-col gap-3 py-8 bg-purple-100/30">
+      <div className="px-4 flex flex-col gap-3 py-12 bg-purple-100/30">
         <h2 className="text-2xl font-semibold text-slate-900">Find the talent needed to get your business growing.</h2>
         <p className="text-slate-500 text-sm leading-relaxed">Advertise your jobs to millions of monthly users and search 15.8 million CVs</p>
         <Link to={"/"} className="text-white bg-purple-800 font-semibold flex items-center gap-2 self-start px-3 py-2 rounded">Get Started<BiArrowBack className="rotate-[135deg]" /></Link>

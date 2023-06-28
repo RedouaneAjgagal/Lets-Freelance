@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList, HighestRatedFreelancersList, WhyUsProofList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
+import { PrimaryLink } from "../layouts/brand";
 
 const Home = () => {
 
@@ -11,7 +12,10 @@ const Home = () => {
         <div className="flex flex-col gap-6">
           <h1 className="text-4xl font-semibold text-purple-800 leading-[1.3]">Hire Experts & Get Your Job Done.</h1>
           <p className="text-slate-500 leading-[1.6]">Work with talented people at the most affordable price to get the most out of your time and cost.</p>
-          <Link to="/auth/register" className="self-start px-3 py-2 bg-purple-800 text-white font-medium rounded">Get started</Link>
+          <PrimaryLink to="/auth/register" justifyConent="start" fullWith={false} x="lg" y="md">
+            Get started
+            <BiArrowBack className="rotate-[135deg]" />
+          </PrimaryLink>
           <div className="flex flex-col gap-4">
             <p className="text-slate-400 font-medium"><span>Trusted by</span></p>
             <TrustedBy />
@@ -52,7 +56,10 @@ const Home = () => {
         <article className="px-4 flex flex-col gap-3 py-12 bg-purple-100/30">
           <h2 className="text-2xl font-semibold text-slate-900">Find the talent needed to get your business growing.</h2>
           <p className="text-slate-500 text-sm leading-relaxed">Advertise your jobs to millions of monthly users and search 15.8 million CVs</p>
-          <Link to={"/"} className="text-white bg-purple-800 font-semibold flex items-center gap-2 self-start px-3 py-2 rounded">Get Started<BiArrowBack className="rotate-[135deg]" /></Link>
+          <PrimaryLink to="/auth/register" justifyConent="start" fullWith={false} x="lg" y="md">
+            Get started
+            <BiArrowBack className="rotate-[135deg]" />
+          </PrimaryLink>
         </article>
       </main>
     </div>

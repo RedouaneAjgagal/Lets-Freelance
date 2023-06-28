@@ -1,5 +1,5 @@
 import { BiMenuAltRight, BiX, BiSearch } from "react-icons/bi";
-import Logo from "../brand/Logo";
+import { Logo } from "../brand";
 import { useState } from "react";
 import MenuModel from "./MenuModel";
 import SearchModel from "./SearchModel";

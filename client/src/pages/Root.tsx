@@ -10,7 +10,9 @@ import "swiper/swiper-bundle.esm.js"
 const Root = () => {
     return (
         <div>
-            <Navbar />
+            <header>
+                <Navbar />
+            </header>
             <Outlet />
             <Footer />
         </div>

@@ -3,7 +3,6 @@ import RoleButton from "./RoleButton";
 import { BiArrowBack } from "react-icons/bi";
 import { PrimaryButton } from "../../../layouts/brand";
 import InputContainer from "./InputContainer";
-import { Link } from "react-router-dom";
 const RegisterForm = () => {
     const [userAs, setUserAs] = useState<"Freelancer" | "Employee">("Freelancer");
 
@@ -24,7 +23,6 @@ const RegisterForm = () => {
                 Register Now
                 <BiArrowBack className="rotate-[135deg]" />
             </PrimaryButton>
-            <p className="text-slate-600">Already have an account? <Link to="/auth/login" className="text-purple-600 font-medium">Log In</Link></p>
         </form>
     )
 }

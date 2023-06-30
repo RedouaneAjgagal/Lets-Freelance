@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { RegisterForm } from "../features/auth"
 
 const Register = () => {
@@ -7,7 +8,10 @@ const Register = () => {
                 <h1 className="text-3xl font-semibold">Register</h1>
                 <p className="text-slate-600 leading-[1.6]">Join us now, hundreds of Freelancers & Employees right now on Lets Freelance</p>
             </article>
-            <RegisterForm />
+            <div className="flex flex-col gap-4">
+                <RegisterForm />
+                <p className="text-slate-600 text-center">Already have an account? <Link to="/auth/login" className="text-purple-600 font-medium">Log In</Link></p>
+            </div>
         </main>
     )
 }

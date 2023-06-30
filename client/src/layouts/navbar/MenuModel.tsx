@@ -10,7 +10,7 @@ const MenuModel = (props: React.PropsWithoutRef<Props>) => {
             <li><Link to="/" className="py-2 px-4 flex">Home</Link></li>
             <li><Link to="/" className="py-2 px-4 flex">Find Talent</Link></li>
             <li><Link to="/" className="py-2 px-4 flex">Find Work</Link></li>
-            <li><Link to="/" className="py-2 px-4 flex">Login</Link></li>
+            <li><Link to="/auth/login" className="py-2 px-4 flex">Login</Link></li>
         </ul>
     )
 }

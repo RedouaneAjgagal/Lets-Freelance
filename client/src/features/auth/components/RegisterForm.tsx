@@ -4,15 +4,9 @@ import { BiArrowBack } from "react-icons/bi";
 import { PrimaryButton } from "../../../layouts/brand";
 import InputContainer from "./InputContainer";
 import { useAppSelector } from "../../../hooks/redux";
-import registerRequest from "../services/register";
-import { AxiosError } from "axios";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-
+import useRegisterMutation from "../hooks/useRegisterMutation";
 
 const RegisterForm = () => {
-    const navigate = useNavigate();
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [userAs, setUserAs] = useState<"Freelancer" | "Employee">("Freelancer");
     const { name, email, password } = useAppSelector(state => state.registerReducer);
@@ -21,19 +15,7 @@ const RegisterForm = () => {
         setUserAs(role);
     }
 
-    // On register request
-    const registerMutation = useMutation({
-        mutationFn: registerRequest,
-        onSuccess: ({ data }) => {
-            toast.success(data.msg, { duration: 4000 });
-            navigate("/auth/login");
-        },
-        onError: (error: AxiosError<{ msg: string }>) => {
-            const errorMsg = error.response?.data.msg || "Something went wrong!";
-            toast.error(errorMsg);
-        }
-    });
-
+    const registerMutation = useRegisterMutation();
 
     // Submit register form
     const submitRegister = (e: React.FormEvent<HTMLFormElement>) => {

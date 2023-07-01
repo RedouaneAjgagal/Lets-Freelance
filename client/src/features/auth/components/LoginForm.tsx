@@ -12,11 +12,11 @@ const LoginForm = () => {
     }
     return (
         <form className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
-            <InputContainer name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />
-            <InputContainer name="password" label="Password" placeholder="Password" type="password" requiredSign={false} />
+            <InputContainer name="email" label="Email" placeholder="Email address" type="email" for="email" requiredSign={false} />
+            <InputContainer name="password" label="Password" placeholder="Password" type="password" for="password" requiredSign={false} />
             <div className='flex flex-col gap-2'>
                 <Link to={"/auth/forget-password"} className='self-start text-sm font-medium text-purple-600'>Forgotten Password?</Link>
-                <PrimaryButton type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+                <PrimaryButton isLoading={false} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                     Login
                     <BiArrowBack className="rotate-[135deg]" />
                 </PrimaryButton>

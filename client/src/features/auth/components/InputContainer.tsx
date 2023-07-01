@@ -1,18 +1,31 @@
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
+import { useAppDispatch } from "../../../hooks/redux";
+import { registerAction } from "../redux/register";
 
 interface Props {
     requiredSign: boolean;
     label: string;
     placeholder: string;
     name: string;
-    type: "text" | "email" | "password"
+    type: "text" | "email" | "password";
+    for: "name" | "email" | "password";
+    error?: {
+        isError: boolean;
+        reason: string;
+    }
 }
 
 const InputContainer = (props: React.PropsWithoutRef<Props>) => {
+    const dispatch = useAppDispatch();
+
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const passwordToggleHandler = () => {
         setIsPasswordVisible((isVisible) => !isVisible);
+    }
+
+    const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(registerAction[props.for](e.currentTarget.value));
     }
 
     return (
@@ -26,7 +39,8 @@ const InputContainer = (props: React.PropsWithoutRef<Props>) => {
                 }
             </label>
             <div className="relative">
-                <input type={isPasswordVisible ? "text" : props.type} id={props.name} name={props.name} placeholder={props.placeholder} className={`${props.type === "password" && "pr-8"} border border-slate-300 rounded py-2 px-3 outline-none focus:border-slate-500 w-full`} />
+                <input onChange={inputChangeHandler} type={isPasswordVisible ? "text" : props.type} id={props.name} name={props.name} placeholder={props.placeholder} className={`${props.type === "password" && "pr-8"} ${props.error?.isError ? "border-red-600" : "border-slate-300"} border  rounded py-2 px-3 outline-none focus:border-slate-500 w-full`} />
+                {props.error?.isError && <span className="absolute right-0 -bottom-5 text-sm text-red-600">{props.error?.reason}</span>}
                 {props.type === "password" ?
                     <button onClick={passwordToggleHandler} type="button" className="absolute right-0 top-1/2 -translate-y-1/2 h-full px-2 text-slate-800">
                         {isPasswordVisible ?

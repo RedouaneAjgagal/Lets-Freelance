@@ -63,9 +63,9 @@ const RegisterForm = () => {
                 <RoleButton value="Employee" role={userAs} onSelectRole={selectRoleHandler} />
             </div>
             <div className="flex flex-col gap-6">
-                <InputContainer name="name" label="Name" placeholder="User name" type="text" for="name" error={isSubmitted ? { isError: name.error.isError, reason: name.error.reason } : { isError: false, reason: "" }} requiredSign />
-                <InputContainer name="email" label="Email" placeholder="Email address" type="email" for="email" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} requiredSign />
-                <InputContainer name="password" label="Password" placeholder="Password" type="password" for="password" error={isSubmitted ? { isError: password.error.isError, reason: password.error.reason } : { isError: false, reason: "" }} requiredSign />
+                <InputContainer form="register" name="name" label="Name" placeholder="User name" type="text" for="name" error={isSubmitted ? { isError: name.error.isError, reason: name.error.reason } : { isError: false, reason: "" }} requiredSign />
+                <InputContainer form="register" name="email" label="Email" placeholder="Email address" type="email" for="email" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} requiredSign />
+                <InputContainer form="register" name="password" label="Password" placeholder="Password" type="password" for="password" error={isSubmitted ? { isError: password.error.isError, reason: password.error.reason } : { isError: false, reason: "" }} requiredSign />
             </div>
             <PrimaryButton isLoading={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Register Now

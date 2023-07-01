@@ -13,13 +13,8 @@ const api = axios.create({
 export const getRequest = async (URL: string) => {
     return await api.get(`/${URL}`);
 }
-type Register = {
-    name: string;
-    email: string;
-    password: string;
-    userAs: "freelancer" | "employee";
-}
-export const postRequest = async (URL: string, payload: Register) => {
+
+export const postRequest = async (URL: string, payload: unknown) => {
     return await api.post(`/${URL}`, payload);
 }
 export const patchRequest = async (URL: string, payload: unknown) => {

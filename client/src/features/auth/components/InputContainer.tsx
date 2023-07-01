@@ -2,6 +2,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import { useAppDispatch } from "../../../hooks/redux";
 import { registerAction } from "../redux/register";
+import { loginAction } from "../redux/login";
 
 interface Props {
     requiredSign: boolean;
@@ -14,6 +15,7 @@ interface Props {
         isError: boolean;
         reason: string;
     }
+    form: "register" | "login" | "forgetPassword" | "resetPassword";
 }
 
 const InputContainer = (props: React.PropsWithoutRef<Props>) => {
@@ -25,7 +27,20 @@ const InputContainer = (props: React.PropsWithoutRef<Props>) => {
     }
 
     const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(registerAction[props.for](e.currentTarget.value));
+        if (props.for === "name") {
+            if (props.form === "register") dispatch(registerAction.name(e.currentTarget.value));
+        }
+
+        if (props.for === "email") {
+            if (props.form === "register") dispatch(registerAction.email(e.currentTarget.value));
+            if (props.form === "login") dispatch(loginAction.email(e.currentTarget.value));
+        }
+
+        if (props.for === "password") {
+            if (props.form === "register") dispatch(registerAction.password(e.currentTarget.value));
+            if (props.form === "login") dispatch(loginAction.password(e.currentTarget.value));
+        }
+
     }
 
     return (

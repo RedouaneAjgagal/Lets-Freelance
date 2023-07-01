@@ -1,18 +1,25 @@
+// import { useAppDispatch } from "../../../hooks/redux";
+// import { loginAction } from "../redux/login";
+import useLoginMutation from "../hooks/useLoginMutation";
 
 interface Props {
     value: "Owner Demo" | "Admin Demo" | "Employee Demo" | "Freelancer Demo"
 }
 
 const DemoButton = (props: React.PropsWithoutRef<Props>) => {
+    // const dispatch = useAppDispatch();
     const getValue = props.value.split(" ").join("-").toLowerCase();
     const getEmail = `${getValue}@letsfreelance.io`;
-    const getPassword = "quick-access";
+    const getPassword = `${getValue}-quick-access`;
+
+    const loginMutation = useLoginMutation();
+
     const demoHandler = () => {
         const demoInfo = {
             email: getEmail,
             password: getPassword
         }
-        console.log(demoInfo);
+        loginMutation.mutate(demoInfo);
     }
 
     return (

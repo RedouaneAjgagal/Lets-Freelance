@@ -12,6 +12,9 @@ const DemoButton = (props: React.PropsWithoutRef<Props>) => {
     const getEmail = `${getValue}@letsfreelance.io`;
     const getPassword = `${getValue}-quick-access`;
 
+    // owner-demo@letsfreelance.io
+    // owner-demo-quick-access
+
     const loginMutation = useLoginMutation();
 
     const demoHandler = () => {

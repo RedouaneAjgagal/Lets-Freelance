@@ -4,6 +4,7 @@ import registerReducer from "./redux/register";
 import loginReducer from "./redux/login";
 import forgetPasswordReducer from "./redux/forgetPassword";
 import resetPasswordReducer from "./redux/resetPassword";
+import useVerifyEmailQuery from "./hooks/useVerifyEmailQuery";
 
 
 export {
@@ -12,5 +13,6 @@ export {
     registerReducer,
     loginReducer,
     forgetPasswordReducer,
-    resetPasswordReducer
+    resetPasswordReducer,
+    useVerifyEmailQuery
 }

@@ -5,6 +5,15 @@ import { useState } from "react";
 import useForgetPasswordMutation from '../hooks/useForgetPasswordMutation';
 import { emailValidation } from '../validators/inputValidations';
 
+type SetInput = {
+    value: string;
+    key: "email";
+    validation: {
+        isError: boolean;
+        reason: string;
+    }
+}
+
 const ForgetPasswordForm = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [forgetPasswordInfo, setForgetPasswordinfo] = useState({
@@ -16,19 +25,22 @@ const ForgetPasswordForm = () => {
     })
     const forgetPasswordMutation = useForgetPasswordMutation();
 
-
-    const onChangeEmail = (value: string) => {
-        const isValidEmail = emailValidation(value);
+    const setInput = ({ value, key, validation }: SetInput) => {
         setForgetPasswordinfo(prev => {
             return {
                 ...prev,
-                email: {
+                [key]: {
                     value,
-                    isError: isValidEmail.isError,
-                    error: isValidEmail.reason
+                    isError: validation.isError,
+                    error: validation.reason
                 }
             }
         });
+    }
+
+    const onChangeEmail = (value: string) => {
+        const validation = emailValidation(value);
+        setInput({ value, key: "email", validation });
     }
 
     const forgetPassowrdSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {

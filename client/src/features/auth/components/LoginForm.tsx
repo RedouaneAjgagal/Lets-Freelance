@@ -7,6 +7,15 @@ import QuickAccess from './QuickAccess';
 import useLoginMutation from '../hooks/useLoginMutation';
 import { emailValidation, passwordValidation } from '../validators/inputValidations';
 
+type SetInput = {
+    value: string;
+    key: "email" | "password";
+    validation: {
+        isError: boolean;
+        reason: string;
+    }
+}
+
 const LoginForm = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
@@ -24,32 +33,27 @@ const LoginForm = () => {
         },
     });
 
-    const onChangeEmail = (value: string) => {
-        const isValidEmail = emailValidation(value);
+    const setInput = ({ value, key, validation }: SetInput) => {
         setLoginInfo(prev => {
             return {
                 ...prev,
-                email: {
+                [key]: {
                     value,
-                    isError: isValidEmail.isError,
-                    error: isValidEmail.reason
+                    isError: validation.isError,
+                    error: validation.reason
                 }
             }
         });
     }
 
+    const onChangeEmail = (value: string) => {
+        const validation = emailValidation(value);
+        setInput({ value, key: "email", validation });
+    }
+
     const onChangePassword = (value: string) => {
-        const isValidPassowrd = passwordValidation(value);
-        setLoginInfo(prev => {
-            return {
-                ...prev,
-                password: {
-                    value,
-                    isError: isValidPassowrd.isError,
-                    error: isValidPassowrd.reason
-                }
-            }
-        });
+        const validation = passwordValidation(value);
+        setInput({ value, key: "password", validation });
     }
 
     const quickAccessToggle = () => {

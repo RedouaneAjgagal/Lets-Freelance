@@ -6,6 +6,15 @@ import InputContainer from "./InputContainer";
 import useRegisterMutation from "../hooks/useRegisterMutation";
 import { emailValidation, nameValidation, passwordValidation } from "../validators/inputValidations";
 
+type SetInput = {
+    value: string;
+    key: "name" | "email" | "password";
+    validation: {
+        isError: boolean;
+        reason: string;
+    }
+}
+
 const RegisterForm = () => {
     const [registerInfo, setRegisterInfo] = useState({
         name: {
@@ -28,46 +37,33 @@ const RegisterForm = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [userAs, setUserAs] = useState<"Freelancer" | "Employee">("Freelancer");
 
-    const onChangeName = (value: string) => {
-        const isValidName = nameValidation(value);
+
+    const setInput = ({ value, key, validation }: SetInput) => {
         setRegisterInfo(prev => {
             return {
                 ...prev,
-                name: {
+                [key]: {
                     value,
-                    isError: isValidName.isError,
-                    error: isValidName.reason
+                    isError: validation.isError,
+                    error: validation.reason
                 }
             }
         });
+    }
+
+    const onChangeName = (value: string) => {
+        const validation = nameValidation(value);
+        setInput({ validation, key: "name", value });
     }
 
     const onChangeEmail = (value: string) => {
-        const isValidEmail = emailValidation(value);
-        setRegisterInfo(prev => {
-            return {
-                ...prev,
-                email: {
-                    value,
-                    isError: isValidEmail.isError,
-                    error: isValidEmail.reason
-                }
-            }
-        });
+        const validation = emailValidation(value);
+        setInput({ validation, key: "email", value });
     }
 
     const onChangePassword = (value: string) => {
-        const isValidPassword = passwordValidation(value);
-        setRegisterInfo(prev => {
-            return {
-                ...prev,
-                password: {
-                    value,
-                    isError: isValidPassword.isError,
-                    error: isValidPassword.reason
-                }
-            }
-        });
+        const validation = passwordValidation(value);
+        setInput({ validation, key: "password", value });
     }
 
     const selectRoleHandler = (role: "Freelancer" | "Employee") => {

@@ -7,6 +7,15 @@ import useResetPasswordMutation from '../hooks/useResetPasswordMutation'
 import { useSearchParams } from 'react-router-dom'
 import { passwordValidation } from '../validators/inputValidations'
 
+type SetInput = {
+    value: string;
+    key: "newPassword" | "repeatNewPassword";
+    validation: {
+        isError: boolean;
+        reason: string;
+    }
+}
+
 const ResetPasswordForm = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const resetPasswordMutation = useResetPasswordMutation();
@@ -25,25 +34,26 @@ const ResetPasswordForm = () => {
         }
     })
 
-    const setResetPassowrd = ({ value, key }: { value: string; key: "newPassword" | "repeatNewPassword" }) => {
-        const isValidPassword = passwordValidation(value);
+    const setInput = ({ value, key, validation }: SetInput) => {
         setResetPasswordInfo(prev => {
             return {
                 ...prev,
                 [key]: {
                     value,
-                    isError: isValidPassword.isError,
-                    error: isValidPassword.reason
+                    isError: validation.isError,
+                    error: validation.reason
                 }
             }
         });
     }
 
     const onChangeNewPassword = (value: string) => {
-        setResetPassowrd({ value, key: "newPassword" });
+        const validation = passwordValidation(value);
+        setInput({ value, key: "newPassword", validation });
     }
     const onChangeRepeatNewPassword = (value: string) => {
-        setResetPassowrd({ value, key: "repeatNewPassword" });
+        const validation = passwordValidation(value);
+        setInput({ value, key: "repeatNewPassword", validation });
     }
 
     const resetPasswordSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {

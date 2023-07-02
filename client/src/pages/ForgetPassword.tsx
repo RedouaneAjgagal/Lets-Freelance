@@ -10,7 +10,7 @@ const ForgetPassword = () => {
             </article>
             <div className="flex flex-col gap-4">
                 <ForgetPasswordForm />
-                <Link to="/auth/login" className="self-center underline text-purple-600 font-medium text-center">Back To Login</Link>
+                <Link to="/auth/login" className="self-center underline text-slate-600 font-medium text-center">Back To Login</Link>
             </div>
         </main>
     )

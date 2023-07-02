@@ -3,13 +3,72 @@ import RoleButton from "./RoleButton";
 import { BiArrowBack } from "react-icons/bi";
 import { PrimaryButton } from "../../../layouts/brand";
 import InputContainer from "./InputContainer";
-import { useAppSelector } from "../../../hooks/redux";
 import useRegisterMutation from "../hooks/useRegisterMutation";
+import { emailValidation, nameValidation, passwordValidation } from "../validators/inputValidations";
 
 const RegisterForm = () => {
+    const [registerInfo, setRegisterInfo] = useState({
+        name: {
+            value: "",
+            isError: true,
+            error: "Please provide a name"
+        },
+        email: {
+            value: "",
+            isError: true,
+            error: "Please provide an email"
+        },
+        password: {
+            value: "",
+            isError: true,
+            error: "Please provide a password"
+        },
+    });
+
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [userAs, setUserAs] = useState<"Freelancer" | "Employee">("Freelancer");
-    const { name, email, password } = useAppSelector(state => state.registerReducer);
+
+    const onChangeName = (value: string) => {
+        const isValidName = nameValidation(value);
+        setRegisterInfo(prev => {
+            return {
+                ...prev,
+                name: {
+                    value,
+                    isError: isValidName.isError,
+                    error: isValidName.reason
+                }
+            }
+        });
+    }
+
+    const onChangeEmail = (value: string) => {
+        const isValidEmail = emailValidation(value);
+        setRegisterInfo(prev => {
+            return {
+                ...prev,
+                email: {
+                    value,
+                    isError: isValidEmail.isError,
+                    error: isValidEmail.reason
+                }
+            }
+        });
+    }
+
+    const onChangePassword = (value: string) => {
+        const isValidPassword = passwordValidation(value);
+        setRegisterInfo(prev => {
+            return {
+                ...prev,
+                password: {
+                    value,
+                    isError: isValidPassword.isError,
+                    error: isValidPassword.reason
+                }
+            }
+        });
+    }
 
     const selectRoleHandler = (role: "Freelancer" | "Employee") => {
         setUserAs(role);
@@ -22,17 +81,18 @@ const RegisterForm = () => {
         e.preventDefault();
         setIsSubmitted(true);
 
+
         // check if valid values
-        if (name.error.isError || email.error.isError || password.error.isError || (userAs !== "Freelancer" && userAs !== "Employee")) {
+        if (registerInfo.name.isError || registerInfo.email.isError || registerInfo.password.isError || (userAs !== "Freelancer" && userAs !== "Employee")) {
             return;
         }
 
         // call register request
         const role = userAs.toLowerCase() as "freelancer" | "employee";
         const registerValues = {
-            name: name.value,
-            email: email.value,
-            password: password.value,
+            name: registerInfo.name.value,
+            email: registerInfo.email.value,
+            password: registerInfo.password.value,
             userAs: role
         }
         registerMutation.mutate(registerValues);
@@ -45,9 +105,9 @@ const RegisterForm = () => {
                 <RoleButton value="Employee" role={userAs} onSelectRole={selectRoleHandler} />
             </div>
             <div className="flex flex-col gap-6">
-                <InputContainer form="register" name="name" label="Name" placeholder="User name" type="text" for="name" error={isSubmitted ? { isError: name.error.isError, reason: name.error.reason } : { isError: false, reason: "" }} requiredSign />
-                <InputContainer form="register" name="email" label="Email" placeholder="Email address" type="email" for="email" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} requiredSign />
-                <InputContainer form="register" name="password" label="Password" placeholder="Password" type="password" for="password" error={isSubmitted ? { isError: password.error.isError, reason: password.error.reason } : { isError: false, reason: "" }} requiredSign />
+                <InputContainer onChange={onChangeName} isError={isSubmitted && registerInfo.name.isError} errorMsg={registerInfo.name.error} value={registerInfo.name.value} name="name" label="Name" placeholder="User name" type="text" requiredSign />
+                <InputContainer onChange={onChangeEmail} isError={isSubmitted && registerInfo.email.isError} errorMsg={registerInfo.email.error} value={registerInfo.email.value} name="email" label="Email" placeholder="Email address" type="email" requiredSign />
+                <InputContainer onChange={onChangePassword} isError={isSubmitted && registerInfo.password.isError} errorMsg={registerInfo.password.error} value={registerInfo.password.value} name="password" label="Password" placeholder="Password" type="password" requiredSign />
             </div>
             <PrimaryButton disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Register Now

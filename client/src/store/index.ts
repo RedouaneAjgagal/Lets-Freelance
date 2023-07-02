@@ -1,9 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { registerReducer, forgetPasswordReducer, resetPasswordReducer } from "../features/auth";
+import { forgetPasswordReducer, resetPasswordReducer } from "../features/auth";
 
 const store = configureStore({
     reducer: {
-        registerReducer,
         forgetPasswordReducer,
         resetPasswordReducer
     }

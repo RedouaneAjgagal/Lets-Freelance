@@ -2,27 +2,47 @@ import InputContainer from './InputContainer'
 import { PrimaryButton } from '../../../layouts/brand'
 import { BiArrowBack } from 'react-icons/bi'
 import { useState } from "react";
-import { useAppSelector } from '../../../hooks/redux';
 import useForgetPasswordMutation from '../hooks/useForgetPasswordMutation';
+import { emailValidation } from '../validators/inputValidations';
 
 const ForgetPasswordForm = () => {
-    const { email } = useAppSelector(state => state.forgetPasswordReducer);
     const [isSubmitted, setIsSubmitted] = useState(false);
-
+    const [forgetPasswordInfo, setForgetPasswordinfo] = useState({
+        email: {
+            value: "",
+            isError: true,
+            error: "Please provide an email"
+        }
+    })
     const forgetPasswordMutation = useForgetPasswordMutation();
+
+
+    const onChangeEmail = (value: string) => {
+        const isValidEmail = emailValidation(value);
+        setForgetPasswordinfo(prev => {
+            return {
+                ...prev,
+                email: {
+                    value,
+                    isError: isValidEmail.isError,
+                    error: isValidEmail.reason
+                }
+            }
+        });
+    }
 
     const forgetPassowrdSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitted(true);
 
         // check if valid values
-        if (email.error.isError) {
+        if (forgetPasswordInfo.email.isError) {
             return;
         }
 
         // call forget password request
         const forgetPasswordValues = {
-            email: email.value
+            email: forgetPasswordInfo.email.value
         }
         forgetPasswordMutation.mutate(forgetPasswordValues);
     }
@@ -33,7 +53,7 @@ const ForgetPasswordForm = () => {
                 <div className='px-3 py-7 text-center rounded bg-green-100 text-green-700'><p>{forgetPasswordMutation.data.data.msg}</p></div>
                 :
                 <form onSubmit={forgetPassowrdSubmitHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
-                    <InputContainer form="forgetPassword" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} name="email" label="Email" placeholder="Email address" type="email" for="email" requiredSign={false} />
+                    <InputContainer onChange={onChangeEmail} isError={isSubmitted && forgetPasswordInfo.email.isError} errorMsg={forgetPasswordInfo.email.error} value={forgetPasswordInfo.email.value} name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />
                     <PrimaryButton disabled={forgetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                         Get New Password
                         <BiArrowBack className="rotate-[135deg]" />

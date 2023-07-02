@@ -3,6 +3,7 @@ import LoginForm from "./components/LoginForm";
 import registerReducer from "./redux/register";
 import loginReducer from "./redux/login";
 import forgetPasswordReducer from "./redux/forgetPassword";
+import resetPasswordReducer from "./redux/resetPassword";
 
 
 export {
@@ -10,5 +11,6 @@ export {
     LoginForm,
     registerReducer,
     loginReducer,
-    forgetPasswordReducer
+    forgetPasswordReducer,
+    resetPasswordReducer
 }

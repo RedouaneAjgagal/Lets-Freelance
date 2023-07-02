@@ -49,7 +49,7 @@ const RegisterForm = () => {
                 <InputContainer form="register" name="email" label="Email" placeholder="Email address" type="email" for="email" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} requiredSign />
                 <InputContainer form="register" name="password" label="Password" placeholder="Password" type="password" for="password" error={isSubmitted ? { isError: password.error.isError, reason: password.error.reason } : { isError: false, reason: "" }} requiredSign />
             </div>
-            <PrimaryButton isLoading={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+            <PrimaryButton disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Register Now
                 <BiArrowBack className="rotate-[135deg]" />
             </PrimaryButton>

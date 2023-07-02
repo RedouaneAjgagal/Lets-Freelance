@@ -34,7 +34,7 @@ const ForgetPasswordForm = () => {
                 :
                 <form onSubmit={forgetPassowrdSubmitHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
                     <InputContainer form="forgetPassword" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} name="email" label="Email" placeholder="Email address" type="email" for="email" requiredSign={false} />
-                    <PrimaryButton isLoading={forgetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+                    <PrimaryButton disabled={forgetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                         Get New Password
                         <BiArrowBack className="rotate-[135deg]" />
                     </PrimaryButton>

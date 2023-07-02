@@ -4,6 +4,7 @@ import { useAppDispatch } from "../../../hooks/redux";
 import { registerAction } from "../redux/register";
 import { loginAction } from "../redux/login";
 import { forgetPasswordAction } from "../redux/forgetPassword";
+import { resetPasswordAction } from "../redux/resetPassword";
 
 interface Props {
     requiredSign: boolean;
@@ -41,8 +42,14 @@ const InputContainer = (props: React.PropsWithoutRef<Props>) => {
         if (props.for === "password") {
             if (props.form === "register") dispatch(registerAction.password(e.currentTarget.value));
             if (props.form === "login") dispatch(loginAction.password(e.currentTarget.value));
+            if (props.form === "resetPassword") {
+                if (props.name === "password") {
+                    dispatch(resetPasswordAction.newPassword(e.currentTarget.value));
+                } else {
+                    dispatch(resetPasswordAction.repeatNewPassword(e.currentTarget.value));
+                }
+            }
         }
-
     }
 
     return (

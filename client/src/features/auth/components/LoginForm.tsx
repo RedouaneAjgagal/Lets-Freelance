@@ -4,13 +4,53 @@ import { BiArrowBack } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import { useState } from "react";
 import QuickAccess from './QuickAccess';
-import { useAppSelector } from '../../../hooks/redux';
 import useLoginMutation from '../hooks/useLoginMutation';
+import { emailValidation, passwordValidation } from '../validators/inputValidations';
 
 const LoginForm = () => {
-    const { email, password } = useAppSelector(state => state.loginReducer);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
+
+    const [loginInfo, setLoginInfo] = useState({
+        email: {
+            value: "",
+            isError: true,
+            error: "Please provide an email"
+        },
+        password: {
+            value: "",
+            isError: true,
+            error: "Please provide a password"
+        },
+    });
+
+    const onChangeEmail = (value: string) => {
+        const isValidEmail = emailValidation(value);
+        setLoginInfo(prev => {
+            return {
+                ...prev,
+                email: {
+                    value,
+                    isError: isValidEmail.isError,
+                    error: isValidEmail.reason
+                }
+            }
+        });
+    }
+
+    const onChangePassword = (value: string) => {
+        const isValidPassowrd = passwordValidation(value);
+        setLoginInfo(prev => {
+            return {
+                ...prev,
+                password: {
+                    value,
+                    isError: isValidPassowrd.isError,
+                    error: isValidPassowrd.reason
+                }
+            }
+        });
+    }
 
     const quickAccessToggle = () => {
         setIsQuickAccessOpen(prevState => !prevState);
@@ -23,22 +63,22 @@ const LoginForm = () => {
         setIsSubmitted(true);
 
         // check if valid values
-        if (email.error.isError || password.error.isError) {
-            return;
+        if (loginInfo.email.isError || loginInfo.password.isError) {
+            return
         }
 
         // call login request 
         const loginValues = {
-            email: email.value,
-            password: password.value
+            email: loginInfo.email.value,
+            password: loginInfo.password.value
         }
         loginMutation.mutate(loginValues);
     }
 
     return (
         <form onSubmit={submitLoginHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
-            <InputContainer form="login" name="email" label="Email" placeholder="Email address" type="email" for="email" error={isSubmitted ? { isError: email.error.isError, reason: email.error.reason } : { isError: false, reason: "" }} requiredSign={false} />
-            <InputContainer form="login" name="password" label="Password" placeholder="Password" type="password" for="password" error={isSubmitted ? { isError: password.error.isError, reason: password.error.reason } : { isError: false, reason: "" }} requiredSign={false} />
+            <InputContainer onChange={onChangeEmail} value={loginInfo.email.value} isError={isSubmitted && loginInfo.email.isError} errorMsg={loginInfo.email.error} name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />
+            <InputContainer onChange={onChangePassword} value={loginInfo.password.value} isError={isSubmitted && loginInfo.password.isError} errorMsg={loginInfo.password.error} name="password" label="Password" placeholder="Password" type="password" requiredSign={false} />
             <div className='flex flex-col gap-2'>
                 <Link to={"/auth/forget-password"} className='self-start text-sm font-medium text-purple-600'>Forgotten Password?</Link>
                 <PrimaryButton disabled={loginMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">

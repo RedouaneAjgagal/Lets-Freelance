@@ -1,17 +1,30 @@
 import { BiMenuAltRight, BiX, BiSearch } from "react-icons/bi";
 import { Logo } from "../brand";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenuModel from "./MenuModel";
 import SearchModel from "./SearchModel";
 import { Link } from "react-router-dom";
 
-const index = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const Navbar = () => {
+  const [menu, setMenu] = useState({
+    isOpen: false,
+    overflowStyle: "auto"
+  });
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const menuHandler = () => {
-    setIsMenuOpen((isOpen) => !isOpen);
+    setMenu((isOpen) => {
+      if (isOpen.isOpen) {
+        return { isOpen: false, overflowStyle: "auto" };
+      } else {
+        return { isOpen: true, overflowStyle: "hidden" };
+      }
+    });
   }
+
+  useEffect(() => {
+    document.body.style.overflow = menu.overflowStyle;
+  }, [menu]);
 
   const searchHandler = () => {
     setIsSearchOpen((isOpen) => !isOpen);
@@ -22,7 +35,7 @@ const index = () => {
       <nav className="flex items-center justify-between py-3 px-2 border-b">
         <div className="flex items-center gap-2">
           <button onClick={menuHandler} className="text-[2.2rem] text-slate-700">
-            {isMenuOpen ?
+            {menu.isOpen ?
               <BiX />
               :
               <BiMenuAltRight />
@@ -31,7 +44,7 @@ const index = () => {
           <Logo />
         </div>
         <div>
-          {isMenuOpen ?
+          {menu.isOpen ?
             <button onClick={searchHandler} className="flex p-1 text-2xl text-slate-700">
               <BiSearch />
             </button>
@@ -40,13 +53,13 @@ const index = () => {
           }
         </div>
       </nav>
-      <MenuModel isShown={isMenuOpen} />
+      <MenuModel isShown={menu.isOpen} onClick={menuHandler} />
       <SearchModel isShown={isSearchOpen} closeModel={searchHandler} />
-      <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0" : "-left-full"}`}>
-        <Link to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
+      <div className={`fixed bottom-0 z-50 w-full bg-white duration-150 ${menu.isOpen ? "left-0" : "-left-full"}`}>
+        <Link onClick={menuHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
       </div>
     </div>
   )
 }
 
-export default index
+export default Navbar

@@ -3,13 +3,14 @@ import Navbar from "../layouts/navbar";
 import Footer from "../layouts/footer";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "../components/ScrollToTop";
+import useAuthChecker from "../hooks/useAuthChecker";
 import "swiper/css"
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import "swiper/swiper-bundle.esm.js"
 
 const Root = () => {
-
+    useAuthChecker();
     return (
         <div>
             <Toaster />

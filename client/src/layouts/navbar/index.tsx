@@ -4,8 +4,12 @@ import { useState, useEffect } from "react";
 import MenuModel from "./MenuModel";
 import SearchModel from "./SearchModel";
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../../hooks/redux";
+import useLogoutMutation from "../../features/auth/hooks/useLogoutMutation";
 
 const Navbar = () => {
+  const { userInfo } = useAppSelector(state => state.authReducer);
+
   const [menu, setMenu] = useState({
     isOpen: false,
     overflowStyle: "auto"
@@ -30,6 +34,11 @@ const Navbar = () => {
     setIsSearchOpen((isOpen) => !isOpen);
   }
 
+  const logoutMutation = useLogoutMutation("Logged out");
+  const logoutHandler = () => {
+    logoutMutation.mutate();
+  }
+
   return (
     <div className="bg-white">
       <nav className="flex items-center justify-between py-3 px-2 border-b">
@@ -44,12 +53,15 @@ const Navbar = () => {
           <Logo />
         </div>
         <div>
-          {menu.isOpen ?
-            <button onClick={searchHandler} className="flex p-1 text-2xl text-slate-700">
-              <BiSearch />
-            </button>
+          {userInfo ?
+            <button onClick={logoutHandler}>Logout</button>
             :
-            <Link to="/auth/register" className="p-2 font-medium text-slate-700">Sign Up</Link>
+            menu.isOpen ?
+              <button onClick={searchHandler} className="flex p-1 text-2xl text-slate-700">
+                <BiSearch />
+              </button>
+              :
+              <Link to="/auth/register" className="p-2 font-medium text-slate-700">Sign Up</Link>
           }
         </div>
       </nav>

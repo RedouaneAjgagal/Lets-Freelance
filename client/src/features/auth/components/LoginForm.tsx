@@ -79,6 +79,7 @@ const LoginForm = () => {
         loginMutation.mutate(loginValues);
     }
 
+
     return (
         <form onSubmit={submitLoginHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
             <InputContainer onChange={onChangeEmail} value={loginInfo.email.value} isError={isSubmitted && loginInfo.email.isError} errorMsg={loginInfo.email.error} name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />

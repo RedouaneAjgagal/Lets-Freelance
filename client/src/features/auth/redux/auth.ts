@@ -1,10 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { User } from "../services/getCurrentUser";
 
 type InitialAuthState = {
-    userInfo: {
-        name: string;
-        avatar: string
-    } | null
+    userInfo: User | null
 }
 
 const initialAuthState: InitialAuthState = {
@@ -18,7 +16,7 @@ const authSlice = createSlice({
         userInfo(state) {
             return state;
         },
-        setUser(_, action: { payload: { name: string; avatar: string } | null, type: string }) {
+        setUser(_, action: { payload: User | null, type: string }) {
             return { userInfo: action.payload }
         }
     }

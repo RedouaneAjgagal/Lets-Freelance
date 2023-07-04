@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { sendRegisterEmail, sendResetPasswordEmail } from "./services";
 import { attachCookieToResponse, destroyCookie } from "../../utils/cookies";
 import createHash from "../../utils/createHash";
+import { CustomAuthRequest } from "../../middlewares/authentication";
 
 
 //@desc Register a user
@@ -224,6 +225,14 @@ const resetPassword: RequestHandler = async (req, res) => {
     res.status(StatusCodes.OK).json({ msg: "You have changed your password successfully." });
 }
 
+//@desc Get current user info
+//@route GET /api/v1/auth/current-user
+//@acess Authenticated users
+const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { userId, userName } = req.user!;
+    res.status(StatusCodes.OK).json({ userId, userName });
+}
+
 
 export {
     register,
@@ -231,5 +240,6 @@ export {
     logout,
     verifyEmail,
     forgetPassword,
-    resetPassword
+    resetPassword,
+    userInfo
 }

@@ -3,6 +3,7 @@ import LoginForm from "./components/LoginForm";
 import useVerifyEmailQuery from "./hooks/useVerifyEmailQuery";
 import authReducer from "./redux/auth";
 import useLogoutMutation from "./hooks/useLogoutMutation";
+import useCurrentUserMutation from "./hooks/useCurrentUserMutation";
 
 
 export {
@@ -10,5 +11,6 @@ export {
     LoginForm,
     useVerifyEmailQuery,
     authReducer,
-    useLogoutMutation
+    useLogoutMutation,
+    useCurrentUserMutation
 }

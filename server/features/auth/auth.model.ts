@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import hashData from "../../utils/hashData";
 import compareData from "../../utils/compareData";
+import { Profile } from "../profile";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;
@@ -13,10 +14,10 @@ interface IUser {
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;
     role: "user" | "admin" | "owner";
-    userAs: "freelancer" | "employee";
     createdAt: Date;
     updatedAt: Date;
     comparePassword: (unhashedPassword: string) => Promise<boolean>;
+    createProfile: ({ userAs }: { userAs: "freelancer" | "employer" }) => Promise<void>
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -69,14 +70,6 @@ const userSchema = new mongoose.Schema<IUser>({
         },
         default: "user",
         required: true
-    },
-    userAs: {
-        type: String,
-        enum: {
-            values: ["freelancer", "employee"]
-        },
-        default: "freelancer",
-        required: true
     }
 }, { timestamps: true });
 
@@ -85,9 +78,19 @@ userSchema.methods.comparePassword = async function (unhashedPassword: string) {
     return isValidPassword;
 }
 
+userSchema.methods.createProfile = async function ({ userAs }: { userAs: "freelancer" | "employer" }) {
+    const avatar = `https://ui-avatars.com/api/?name=${this.name}&background=random`;
+    const profileInfo = {
+        user: this._id,
+        avatar,
+        userAs
+    }
+    await Profile.create(profileInfo);
+}
+
 userSchema.pre("save", async function () {
+    // hash password
     if (this.isNew || this.isModified("password")) {
-        // hash password
         const hashedPassword = await hashData(this.password, 10);
         this.password = hashedPassword;
         return;

@@ -41,7 +41,10 @@ const register: RequestHandler = async (req, res) => {
     });
 
     // create new user
-    await User.create({ name, email, password, verificationToken: hashedToken, userAs });
+    const newUser = await User.create({ name, email, password, verificationToken: hashedToken });
+
+    // create the user profile
+    await newUser.createProfile({ userAs });
 
     res.status(StatusCodes.CREATED).json({ msg: "You have created your account successfully." });
 }
@@ -78,7 +81,7 @@ const login: RequestHandler = async (req, res) => {
 }
 
 //@desc Logout the user
-//@route GET /api/v1/auth/logout 
+//@route GET /api/v1/auth/logout
 //@access public
 const logout: RequestHandler = async (req, res) => {
     destroyCookie(res);
@@ -224,6 +227,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 
     res.status(StatusCodes.OK).json({ msg: "You have changed your password successfully." });
 }
+
 
 //@desc Get current user info
 //@route GET /api/v1/auth/current-user

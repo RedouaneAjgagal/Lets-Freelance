@@ -4,7 +4,7 @@ export type AuthInputs = {
     name: string | undefined;
     email: string | undefined;
     password: string | undefined;
-    userAs: "freelancer" | "employee" | undefined;
+    userAs: "freelancer" | "employer" | undefined;
     token?: string;
 }
 
@@ -44,8 +44,8 @@ const roleValidation = (userAs: AuthInputs["userAs"]) => {
     if (!userAs || userAs.trim() === "") {
         throw new BadRequestError("Role is required.");
     }
-    if (userAs !== "freelancer" && userAs !== "employee") {
-        throw new UnauthorizedError("Can only be Freelancer or Employee.");
+    if (userAs !== "freelancer" && userAs !== "employer") {
+        throw new UnauthorizedError("Can only be Freelancer or Employer.");
     }
 }
 

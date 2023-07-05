@@ -20,6 +20,8 @@ import cookieParser from "cookie-parser";
 
 // routes
 import { authRouter } from "./features/auth";
+import { profileRouter } from "./features/profile";
+
 
 
 // middlewares
@@ -38,6 +40,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/profile", profileRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

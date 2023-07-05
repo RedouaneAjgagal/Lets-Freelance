@@ -1,6 +1,39 @@
 import mongoose from "mongoose";
 
-const profileSchema = new mongoose.Schema({
+interface IProfile {
+    user: typeof mongoose.Types.ObjectId;
+    name: string;
+    avatar: string;
+    showProfile: boolean;
+    userAs: "freelancer" | "employer";
+    location?: string;
+    phoneNumber?: number;
+    description?: string;
+    category?: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    roles: {
+        freelancer: IFreelancerRole | undefined;
+        employer: IEmployerRole | undefined;
+    }
+}
+
+interface IFreelancerRole {
+    ateOfBirth?: Date;
+    hourlyRate?: number;
+    jobTitle?: string;
+    skills?: string[];
+    portfolio?: string;
+    gender: "male" | "female";
+    englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
+    types: "agency freelancers" | "independent freelancers" | "single freelancer";
+}
+
+interface IEmployerRole {
+    employees: number;
+    company?: string;
+    website?: string;
+}
+
+const profileSchema = new mongoose.Schema<IProfile>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",

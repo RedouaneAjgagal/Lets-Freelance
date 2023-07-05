@@ -16,17 +16,12 @@ interface IUser {
     role: "user" | "admin" | "owner";
     createdAt: Date;
     updatedAt: Date;
+    profile?: { avatar: string, name: string };
     comparePassword: (unhashedPassword: string) => Promise<boolean>;
-    createProfile: ({ userAs }: { userAs: "freelancer" | "employer" }) => Promise<void>
+    createProfile: ({ userAs, name }: { userAs: "freelancer" | "employer", name: string }) => Promise<void>
 }
 
 const userSchema = new mongoose.Schema<IUser>({
-    name: {
-        type: String,
-        minLength: [3, "Name cannot be less than 3 characters."],
-        maxLength: [20, "Name cannot be more than 20 characters."],
-        required: [true, "Name is required."]
-    },
     email: {
         type: String,
         required: [true, "Email is required."],
@@ -71,17 +66,25 @@ const userSchema = new mongoose.Schema<IUser>({
         default: "user",
         required: true
     }
-}, { timestamps: true });
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
+
+userSchema.virtual("profile", {
+    ref: "Profile",
+    localField: "_id",
+    foreignField: "user",
+    justOne: true
+})
 
 userSchema.methods.comparePassword = async function (unhashedPassword: string) {
     const isValidPassword = await compareData(unhashedPassword, this.password);
     return isValidPassword;
 }
 
-userSchema.methods.createProfile = async function ({ userAs }: { userAs: "freelancer" | "employer" }) {
-    const avatar = `https://ui-avatars.com/api/?name=${this.name}&background=random`;
+userSchema.methods.createProfile = async function ({ userAs, name }: { userAs: "freelancer" | "employer", name: string }) {
+    const avatar = `https://ui-avatars.com/api/?name=${name}&background=random`;
     const profileInfo = {
         user: this._id,
+        name,
         avatar,
         userAs
     }

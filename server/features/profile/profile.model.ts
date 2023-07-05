@@ -3,8 +3,14 @@ import mongoose from "mongoose";
 const profileSchema = new mongoose.Schema({
     user: {
         type: mongoose.Types.ObjectId,
-        ref: "user",
+        ref: "User",
         required: true
+    },
+    name: {
+        type: String,
+        minLength: [3, "Name cannot be less than 3 characters."],
+        maxLength: [20, "Name cannot be more than 20 characters."],
+        required: [true, "Name is required."]
     },
     avatar: {
         type: String,

@@ -32,7 +32,6 @@ const register: RequestHandler = async (req, res) => {
         value: verificationToken
     });
 
-
     // send unhashed verification token via email
     sendRegisterEmail({
         name,
@@ -44,7 +43,7 @@ const register: RequestHandler = async (req, res) => {
     const newUser = await User.create({ name, email, password, verificationToken: hashedToken });
 
     // create the user profile
-    await newUser.createProfile({ userAs });
+    await newUser.createProfile({ userAs, name });
 
     res.status(StatusCodes.CREATED).json({ msg: "You have created your account successfully." });
 }
@@ -60,7 +59,8 @@ const login: RequestHandler = async (req, res) => {
     loginInputValidations({ email, password });
 
     // check if user email exist
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate({ path: "profile", select: "avatar name" });
+
     if (!user) {
         throw new UnauthenticatedError("Invalid credentials");
     }
@@ -74,11 +74,13 @@ const login: RequestHandler = async (req, res) => {
     // attach cookies to response
     attachCookieToResponse({
         userId: user._id.toString(),
-        userName: user.name
+        userName: user.profile!.name,
+        avatar: user.profile!.avatar
     }, res);
 
-    res.status(StatusCodes.OK).json({ msg: `Welcome back, ${user.name}` });
+    res.status(StatusCodes.OK).json({ msg: `Welcome back, ${user.profile!.name}` });
 }
+
 
 //@desc Logout the user
 //@route GET /api/v1/auth/logout
@@ -233,8 +235,8 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/current-user
 //@acess Authenticated users
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { userId, userName } = req.user!;
-    res.status(StatusCodes.OK).json({ userId, userName });
+    const { userId, userName, avatar } = req.user!;
+    res.status(StatusCodes.OK).json({ userId, userName, avatar });
 }
 
 

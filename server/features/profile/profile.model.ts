@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface IProfile {
+export interface IProfile {
     user: typeof mongoose.Types.ObjectId;
     name: string;
     avatar: string;
@@ -17,7 +17,7 @@ interface IProfile {
 }
 
 interface IFreelancerRole {
-    ateOfBirth?: Date;
+    dateOfBirth?: Date;
     hourlyRate?: number;
     jobTitle?: string;
     skills?: string[];

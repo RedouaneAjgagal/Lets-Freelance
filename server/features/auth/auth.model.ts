@@ -5,7 +5,6 @@ import { Profile } from "../profile";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;
-    name: string;
     email: string;
     password: string;
     isVerified: boolean;

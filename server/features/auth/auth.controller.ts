@@ -10,7 +10,7 @@ import createHash from "../../utils/createHash";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 
 
-//@desc Register a user
+//@desc register a user
 //@route POST /api/v1/auth/register
 //@access public
 const register: RequestHandler = async (req, res) => {
@@ -49,7 +49,7 @@ const register: RequestHandler = async (req, res) => {
 }
 
 
-//@desc Login a user
+//@desc login a user
 //@route POST /api/v1/auth/login
 //@access public
 const login: RequestHandler = async (req, res) => {
@@ -82,7 +82,7 @@ const login: RequestHandler = async (req, res) => {
 }
 
 
-//@desc Logout the user
+//@desc logout the user
 //@route GET /api/v1/auth/logout
 //@access public
 const logout: RequestHandler = async (req, res) => {
@@ -133,7 +133,7 @@ const verifyEmail: RequestHandler = async (req, res) => {
 }
 
 
-//@desc Request a user's password (send token via enail)
+//@desc request a user's password (send token via enail)
 //@route POST /api/v1/auth/forget-password
 //@access public
 const forgetPassword: RequestHandler = async (req, res) => {
@@ -174,7 +174,7 @@ const forgetPassword: RequestHandler = async (req, res) => {
 }
 
 
-//@desc Change user's password
+//@desc change user's password
 //@route PATCH /api/v1/auth/reset-password
 //@access public
 const resetPassword: RequestHandler = async (req, res) => {
@@ -231,9 +231,9 @@ const resetPassword: RequestHandler = async (req, res) => {
 }
 
 
-//@desc Get current user info
+//@desc get current user info
 //@route GET /api/v1/auth/current-user
-//@acess Authenticated users
+//@acess authenticated users
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { userId, userName, avatar } = req.user!;
     res.status(StatusCodes.OK).json({ userId, userName, avatar });

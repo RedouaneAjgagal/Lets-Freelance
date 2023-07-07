@@ -8,6 +8,7 @@ import { sendRegisterEmail, sendResetPasswordEmail } from "./services";
 import { attachCookieToResponse, destroyCookie } from "../../utils/cookies";
 import createHash from "../../utils/createHash";
 import { CustomAuthRequest } from "../../middlewares/authentication";
+import sendResetEmail from "./services/sendResetEmail";
 
 
 //@desc register a user
@@ -133,7 +134,40 @@ const verifyEmail: RequestHandler = async (req, res) => {
 }
 
 
-//@desc request a user's password (send token via enail)
+//@desc change email request (send verification token to the current email)
+//@route POST /api/v1/auth/change-email
+//@access authentication
+const changeEmail: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const changeEmailToken = crypto.randomBytes(70).toString("hex");
+    const hashedChangeEmailToken = createHash({
+        algorithm: "sha256",
+        value: changeEmailToken
+    });
+
+    const expiresIn = 15 * 60 * 1000; // 15 mins
+    const changeEmailTokenExpirationDate = new Date(Date.now() + expiresIn);
+
+    const user = await User.findById(req.user!.userId);
+
+    if (!user) {
+        throw new UnauthenticatedError("Cannot find any user");
+    }
+
+    await user.updateOne({
+        changeEmailToken: hashedChangeEmailToken,
+        changeEmailTokenExpirationDate
+    });
+
+    sendResetEmail({
+        to: user.email,
+        token: changeEmailToken
+    });
+
+    res.status(StatusCodes.OK).json({ msg: "change email request" });
+}
+
+
+//@desc change password request (send verification token via enail)
 //@route POST /api/v1/auth/forget-password
 //@access public
 const forgetPassword: RequestHandler = async (req, res) => {
@@ -245,6 +279,7 @@ export {
     login,
     logout,
     verifyEmail,
+    changeEmail,
     forgetPassword,
     resetPassword,
     userInfo

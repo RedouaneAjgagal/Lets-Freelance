@@ -10,6 +10,8 @@ interface IUser {
     isVerified: boolean;
     verificationToken: string | null;
     verifiedDate: Date | null;
+    changeEmailToken: string | null;
+    changeEmailTokenExpirationDate: Date | null;
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;
     role: "user" | "admin" | "owner";
@@ -46,6 +48,14 @@ const userSchema = new mongoose.Schema<IUser>({
         type: String
     },
     verifiedDate: {
+        type: Date,
+        default: null
+    },
+    changeEmailToken: {
+        type: String,
+        default: null
+    },
+    changeEmailTokenExpirationDate: {
         type: Date,
         default: null
     },

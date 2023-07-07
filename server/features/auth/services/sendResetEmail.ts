@@ -1,6 +1,6 @@
 import sendEmail from "../../../services/sendEmail";
 
-const sendResetEmail = ({ to, token }: { to: string, token: string }) => {
+const sendResetEmail = ({ email, token }: { email: string, token: string }) => {
     const confirmEmailUrl = `http://localhost:5000/api/v1/reset-email?token=${token}`;
 
     const emailContent = `
@@ -13,7 +13,7 @@ const sendResetEmail = ({ to, token }: { to: string, token: string }) => {
 
     return sendEmail({
         subject: "Reset Email",
-        to,
+        to: email,
         html: emailContent
     })
 }

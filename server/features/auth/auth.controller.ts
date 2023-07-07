@@ -4,11 +4,13 @@ import { BadRequestError, UnauthenticatedError } from "../../errors";
 import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, verifyEmailValidation } from "./validations";
 import User from "./auth.model";
 import crypto from "crypto";
-import { sendRegisterEmail, sendResetPasswordEmail } from "./services";
+import sendResetPasswordEmail from "./services/sendResetPasswordEmail";
 import { attachCookieToResponse, destroyCookie } from "../../utils/cookies";
 import createHash from "../../utils/createHash";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import sendResetEmail from "./services/sendResetEmail";
+import { resetEmailValidation } from "./validations/authValidations";
+import sendVerifyEmail from "./services/sendVerifyEmail";
 
 
 //@desc register a user
@@ -34,10 +36,10 @@ const register: RequestHandler = async (req, res) => {
     });
 
     // send unhashed verification token via email
-    sendRegisterEmail({
-        name,
+    sendVerifyEmail({
         email,
-        verificationToken
+        verificationToken,
+        emailTitle: `Thank you for joining us ${name}`
     });
 
     // create new user
@@ -135,35 +137,111 @@ const verifyEmail: RequestHandler = async (req, res) => {
 
 
 //@desc change email request (send verification token to the current email)
-//@route POST /api/v1/auth/change-email
+//@route GET /api/v1/auth/change-email
 //@access authentication
 const changeEmail: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Cannot find any user");
+    }
+
+    // create change email token
     const changeEmailToken = crypto.randomBytes(70).toString("hex");
     const hashedChangeEmailToken = createHash({
         algorithm: "sha256",
         value: changeEmailToken
     });
 
+    // create change email token expiration date
     const expiresIn = 15 * 60 * 1000; // 15 mins
     const changeEmailTokenExpirationDate = new Date(Date.now() + expiresIn);
 
-    const user = await User.findById(req.user!.userId);
-
-    if (!user) {
-        throw new UnauthenticatedError("Cannot find any user");
-    }
-
+    // insert token/exipration to the user document 
     await user.updateOne({
         changeEmailToken: hashedChangeEmailToken,
         changeEmailTokenExpirationDate
     });
 
+    // send a change email request email
     sendResetEmail({
-        to: user.email,
+        email: user.email,
         token: changeEmailToken
     });
 
-    res.status(StatusCodes.OK).json({ msg: "change email request" });
+    res.status(StatusCodes.OK).json({ msg: `We have sent a reset email to ${user.email}` });
+}
+
+
+//@desc reset email
+//@route POST /api/v1/auth/reset-email
+//@access authentication
+const resetEmail: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { newEmail } = req.body;
+    const { token } = req.query;
+
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Cannot find any user");
+    }
+
+    // check if valid values
+    resetEmailValidation({
+        email: newEmail,
+        token: token?.toString()
+    });
+
+    // if user didnt request changing the email
+    if (user.changeEmailToken === null || user.changeEmailTokenExpirationDate === null) {
+        throw new BadRequestError("Must request a reset email first..");
+    }
+
+    const hashToken = createHash({
+        algorithm: "sha256",
+        value: token!.toString()
+    });
+
+    // check if valid change email token
+    const isValidToken = user.changeEmailToken === hashToken;
+    if (!isValidToken) {
+        throw new UnauthenticatedError("Verification failed");
+    }
+
+    //  check if the token didnt expire yet
+    const isValidExpirationDate = new Date(user.changeEmailTokenExpirationDate!).getTime() > new Date(Date.now()).getTime();
+    if (!isValidExpirationDate) {
+        throw new UnauthenticatedError("Token has expired");
+    }
+
+    // check if the new email is not exist
+    const isEmailExist = await User.findOne({ email: newEmail });
+    if (isEmailExist) {
+        throw new BadRequestError("This email already exist");
+    }
+
+    // create a new verification email token
+    const emailVerificationToken = crypto.randomBytes(60).toString("hex");
+    const hashedToken = createHash({
+        algorithm: "sha256",
+        value: emailVerificationToken
+    });
+
+    // insert new values and set verified email and verified date to null
+    user.email = newEmail;
+    user.isVerified = false;
+    user.verificationToken = hashedToken;
+    user.verifiedDate = null;
+    user.changeEmailToken = null;
+    user.changeEmailTokenExpirationDate = null;
+    await user.save();
+
+    // send a verification email fot this new email
+    sendVerifyEmail({
+        email: newEmail,
+        verificationToken: emailVerificationToken,
+        emailTitle: "Email Verification"
+    });
+
+    res.status(StatusCodes.OK).json({ msg: "You have changed your email successfully" });
 }
 
 
@@ -280,6 +358,7 @@ export {
     logout,
     verifyEmail,
     changeEmail,
+    resetEmail,
     forgetPassword,
     resetPassword,
     userInfo

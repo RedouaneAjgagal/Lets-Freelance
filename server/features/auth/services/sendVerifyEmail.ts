@@ -1,17 +1,17 @@
 import origin from "../../../config/origin";
 import sendEmail from "../../../services/sendEmail";
 
-type RegisterEmail = {
-    name: string;
-    verificationToken: string;
+type VerifyEmail = {
     email: string;
+    verificationToken: string;
+    emailTitle: string;
 }
 
-const sendRegisterEmail = ({ name, verificationToken, email }: RegisterEmail) => {
+const sendVerifyEmail = ({ email, verificationToken, emailTitle }: VerifyEmail) => {
     const confirmEmailUrl = `${origin}/auth/verify-email?token=${verificationToken}&email=${email}`;
     const emailContent = `
     <div>
-        <h1>Thank you for joining us ${name}.</h1>
+        <h1>${emailTitle}</h1>
         <p>To confirm your email click on "Confirm My Email"</p>
         <a rel="noopener" href=${confirmEmailUrl}>Confirm My Email</a>
     </div>
@@ -23,4 +23,4 @@ const sendRegisterEmail = ({ name, verificationToken, email }: RegisterEmail) =>
     });
 }
 
-export default sendRegisterEmail;
+export default sendVerifyEmail;

@@ -26,6 +26,12 @@ const verifyEmailValidation = ({ email, token }: { email: AuthInputs["email"], t
     tokenValidation(token);
 }
 
+// validation for reset email
+const resetEmailValidation = ({ email, token }: { email: AuthInputs["email"], token: AuthInputs["token"] }) => {
+    emailValidation(email);
+    tokenValidation(token);
+}
+
 // validation for reset the password
 const resetPasswordValidation = ({ email, newPassword, repeatNewPassword, token }: {
     email: AuthInputs["email"],
@@ -48,5 +54,6 @@ export {
     loginInputValidations,
     forgetPasswordValidation,
     resetPasswordValidation,
-    verifyEmailValidation
+    verifyEmailValidation,
+    resetEmailValidation
 };

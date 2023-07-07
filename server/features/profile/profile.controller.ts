@@ -1,7 +1,7 @@
 import { RequestHandler } from "express"
 import { StatusCodes } from "http-status-codes"
 import { CustomAuthRequest } from "../../middlewares/authentication";
-import Profile from "./profile.model";
+import Profile, { IProfile } from "./profile.model";
 import { NotFoundError, UnauthenticatedError } from "../../errors";
 import getProfileInfo from "./utils/getProfileInfo";
 import getUpdatedProfileInfo from "./helpers/getUpdatedProfileInfo";
@@ -43,10 +43,19 @@ const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Cannot find any profile");
     }
 
-    const newProfileInfo = req.body;
+
+    // switch roles between freelancer and employer
+    const isSwitichingRole: { userAs: IProfile["userAs"] } | undefined = req.body.switchRole;
+    if (isSwitichingRole && isSwitichingRole.userAs && (isSwitichingRole.userAs === "employer" || isSwitichingRole.userAs === "freelancer")) {
+        await profile.updateOne({ userAs: isSwitichingRole.userAs });
+        return res.status(StatusCodes.OK).json({ msg: `Profile now is ${isSwitichingRole.userAs}` });
+    }
+
+
+    // get the correct updated profile info
     const updatedProfileInfo = getUpdatedProfileInfo({
-        newProfileInfo,
-        role: profile.roles[profile.userAs]!,
+        newProfileInfo: req.body.profileInfo || {},
+        roles: profile.roles,
         userAs: profile.userAs
     });
 

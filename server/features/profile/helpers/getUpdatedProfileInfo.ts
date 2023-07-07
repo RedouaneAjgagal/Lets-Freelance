@@ -6,13 +6,13 @@ import { isValidTypesInput, isValidDateOfBirthInput, isValidEnglishLevelInput, i
 
 type UpdateProfileInfo = {
     newProfileInfo: Partial<IProfile>;
-    role: IFreelancerRole | IEmployerRole;
+    roles: IProfile["roles"];
     userAs: IProfile["userAs"];
 }
 
-const getUpdatedProfileInfo = ({ newProfileInfo, role, userAs }: UpdateProfileInfo) => {
+const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileInfo) => {
     const updatedProfileInfo: Partial<IProfile> = {
-        roles: { [userAs]: role } as IProfile["roles"]
+        roles
     }
 
     const validNameInput = isValidNameInput(updatedProfileInfo.name);

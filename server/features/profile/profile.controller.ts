@@ -4,15 +4,16 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import Profile from "./profile.model";
 import { NotFoundError, UnauthenticatedError } from "../../errors";
 import getProfileInfo from "./utils/getProfileInfo";
+import getUpdatedProfileInfo from "./helpers/getUpdatedProfileInfo";
 
 
 //@desc get current user profile
 //@route GET /api/v1/profile
-//@access authenticated users
+//@access authentication
 const profileInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "email" });
     if (!profile) {
-        throw new UnauthenticatedError("Cannot find any profile with this id");
+        throw new UnauthenticatedError("Cannot find any profile");
     }
     const profileInfo = getProfileInfo(profile.toObject());
     res.status(StatusCodes.OK).json(profileInfo);
@@ -33,7 +34,31 @@ const singleProfile: RequestHandler = async (req, res) => {
 }
 
 
+//@desc update profile
+//@route PATCH /api/v1/profile
+//@access authentication
+const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Cannot find any profile");
+    }
+
+    const newProfileInfo = req.body;
+    const updatedProfileInfo = getUpdatedProfileInfo({
+        newProfileInfo,
+        role: profile.roles[profile.userAs]!,
+        userAs: profile.userAs
+    });
+
+    await profile.updateOne(updatedProfileInfo);
+
+    res.status(StatusCodes.OK).json({ msg: "Profile has been updated" });
+}
+
+
+
 export {
     profileInfo,
-    singleProfile
+    singleProfile,
+    updateProfile
 }

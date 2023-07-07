@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { profileInfo, singleProfile } from "./profile.controller";
+import { profileInfo, singleProfile, updateProfile } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 
 
 const router = Router();
 
-router.get("/", authentication, profileInfo);
+
+router.route("/")
+    .get(authentication, profileInfo)
+    .patch(authentication, updateProfile);
+
+
 router.get("/:profileId", singleProfile);
 
 export default router;

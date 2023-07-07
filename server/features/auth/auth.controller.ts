@@ -233,7 +233,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 
 //@desc get current user info
 //@route GET /api/v1/auth/current-user
-//@acess authenticated users
+//@acess authentication
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { userId, userName, avatar } = req.user!;
     res.status(StatusCodes.OK).json({ userId, userName, avatar });

@@ -6,7 +6,7 @@ export interface IProfile {
     avatar: string;
     showProfile: boolean;
     userAs: "freelancer" | "employer";
-    location?: string;
+    country?: string;
     phoneNumber?: number;
     description?: string;
     category?: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
@@ -16,7 +16,7 @@ export interface IProfile {
     }
 }
 
-interface IFreelancerRole {
+export interface IFreelancerRole {
     dateOfBirth?: Date;
     hourlyRate?: number;
     jobTitle?: string;
@@ -27,7 +27,7 @@ interface IFreelancerRole {
     types: "agency freelancers" | "independent freelancers" | "single freelancer";
 }
 
-interface IEmployerRole {
+export interface IEmployerRole {
     employees: number;
     company?: string;
     website?: string;
@@ -49,10 +49,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
         type: String,
         required: true
     },
-    location: {
-        country: String,
-        city: String,
-    },
+    country: String,
     phoneNumber: Number,
     showProfile: {
         type: Boolean,
@@ -104,6 +101,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
             website: String,
             employees: {
                 type: Number,
+                min: 0,
                 default: 0
             }
         }

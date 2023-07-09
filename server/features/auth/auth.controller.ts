@@ -351,6 +351,11 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@acess authentication
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { userId, userName, avatar } = req.user!;
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
     res.status(StatusCodes.OK).json({ userId, userName, avatar });
 }
 

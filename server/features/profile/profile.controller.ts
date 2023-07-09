@@ -5,6 +5,7 @@ import Profile, { IProfile } from "./profile.model";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import getProfileInfo from "./utils/getProfileInfo";
 import getUpdatedProfileInfo from "./helpers/getUpdatedProfileInfo";
+import { destroyCookie } from "../../utils/cookies";
 
 
 //@desc get current user profile
@@ -65,6 +66,32 @@ const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc delete current user profile
+//@route DELETE /api/v1/profile
+//@access authentication
+const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find profile
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "role" });
+
+    if (!profile) {
+        throw new UnauthenticatedError("Found no profile");
+    }
+
+    // unable to delete owner roles
+    if (profile.user.role === "owner") {
+        throw new BadRequestError("Owner roles cannot be deleted");
+    }
+
+    // delete profile
+    await profile.deleteOne();
+
+    // destroy auth cookie
+    destroyCookie(res);
+
+    res.status(StatusCodes.OK).json({ msg: "Your account has been deleted permanently" });
+}
+
+
 
 //@desc delete single profile
 //@route DELETE /api/v1/profile/:profileId
@@ -108,5 +135,6 @@ export {
     profileInfo,
     singleProfile,
     updateProfile,
+    deleteProfile,
     deleteSingleProfile
 }

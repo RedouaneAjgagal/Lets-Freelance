@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { profileInfo, singleProfile, updateProfile } from "./profile.controller";
+import { profileInfo, singleProfile, updateProfile, deleteSingleProfile } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
+import authorization from "../../middlewares/authorization";
 
 
 const router = Router();
@@ -11,6 +12,8 @@ router.route("/")
     .patch(authentication, updateProfile);
 
 
-router.get("/:profileId", singleProfile);
+router.route("/:profileId")
+    .get(singleProfile)
+    .delete(authentication, authorization("admin"), deleteSingleProfile);
 
 export default router;

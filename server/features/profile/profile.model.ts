@@ -1,7 +1,16 @@
 import mongoose from "mongoose";
+import { User } from "../auth";
+
+
 
 export interface IProfile {
-    user: typeof mongoose.Types.ObjectId;
+    user: {
+        _id: typeof mongoose.Types.ObjectId;
+        email?: string;
+        isVerified?: boolean;
+        verifiedDate?: Date | null;
+        role?: "user" | "admin" | "owner";
+    };
     name: string;
     avatar: string;
     showProfile: boolean;
@@ -13,7 +22,7 @@ export interface IProfile {
     roles: {
         freelancer: IFreelancerRole | undefined;
         employer: IEmployerRole | undefined;
-    }
+    };
 }
 
 export interface IFreelancerRole {
@@ -107,6 +116,13 @@ const profileSchema = new mongoose.Schema<IProfile>({
         }
     }
 }, { timestamps: true });
+
+
+// delete all related document
+profileSchema.pre("deleteOne", { document: true, query: false }, async function () {
+    await User.deleteOne({ _id: this.user._id });
+})
+
 
 const Profile = mongoose.model("Profile", profileSchema);
 

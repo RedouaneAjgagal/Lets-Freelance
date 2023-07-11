@@ -350,13 +350,16 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/current-user
 //@acess authentication
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { userId, userName, avatar } = req.user!;
+    const { userId, userName, avatar, exp } = req.user!;
+
+    const expirationDate = new Date(exp * 1000).getTime();
+
     const user = await User.findById(userId);
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    res.status(StatusCodes.OK).json({ userId, userName, avatar });
+    res.status(StatusCodes.OK).json({ userId, userName, avatar, expirationDate });
 }
 
 

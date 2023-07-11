@@ -6,7 +6,7 @@ const attachCookieToResponse = (payload: {}, res: Response) => {
     // create jwt token
     const token = createJwtToken({
         payload,
-        expiresIn
+        expiresIn: expiresIn / 1000
     });
 
     // attach token to response

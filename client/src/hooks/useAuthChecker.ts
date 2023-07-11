@@ -8,34 +8,28 @@ const useAuthChecker = () => {
     const logoutMutation = useLogoutMutation("Expired Token");
     const { userInfo } = useAppSelector(state => state.authReducer);
 
-    
-    const getExp: number = JSON.parse(localStorage.getItem("exp") || "0");
-    const currentTime = new Date(Date.now()).getTime();
-    const remainingTime = getExp - currentTime
-    const isExpiredToken = remainingTime < 0;
-
     let isChecked = false; // to prevent calling useEffect twice
     useEffect(() => {
         if (isChecked) return;
         isChecked = true;
 
-        if (getExp && isExpiredToken) {
-            logoutMutation.mutate();
-            return;
-        }
         currentUserMutation.mutate();
-    }, [isChecked]);
+    }, []);
 
     useEffect(() => {
+        const currentTime = new Date(Date.now()).getTime();
+        const exp: number = userInfo?.expirationDate || 0;
+
         const checkExpiration = setTimeout(() => {
-            if (!isExpiredToken) {
+            if (userInfo) {
                 logoutMutation.mutate();
             }
-        }, remainingTime)
+        }, exp - currentTime);
 
         return () => clearTimeout(checkExpiration);
+    }, [userInfo]);
 
-    }, [remainingTime, isExpiredToken, userInfo]);
+
 
     return null;
 }

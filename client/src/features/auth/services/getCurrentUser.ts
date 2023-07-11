@@ -4,6 +4,8 @@ import { getRequest } from "../../../services/api";
 export type User = {
     userId: string;
     userName: string;
+    avatar: string;
+    expirationDate: number;
 }
 
 const getCurrentUserRequest = async (): Promise<AxiosResponse<User>> => {

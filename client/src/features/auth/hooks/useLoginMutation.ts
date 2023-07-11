@@ -12,12 +12,6 @@ const useLoginMutation = () => {
         mutationFn: loginRequest,
         onSuccess: ({ data }) => {
             toast.success(data.msg);
-
-            // setup expiration time
-            const exipresIn = 2 * 60 * 60 * 1000 // 2h
-            const setExpDate = new Date(Date.now() + exipresIn).getTime();
-            localStorage.setItem("exp", JSON.stringify(setExpDate));
-
             currentUserMutation.mutate();
             navigate("/");
         },

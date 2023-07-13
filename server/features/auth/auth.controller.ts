@@ -11,6 +11,7 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import sendResetEmail from "./services/sendResetEmail";
 import { resetEmailValidation } from "./validations/authValidations";
 import sendVerifyEmail from "./services/sendVerifyEmail";
+import { Profile } from "../profile";
 
 
 //@desc register a user
@@ -62,7 +63,7 @@ const login: RequestHandler = async (req, res) => {
     loginInputValidations({ email, password });
 
     // check if user email exist
-    const user = await User.findOne({ email }).populate({ path: "profile", select: "avatar name" });
+    const user = await User.findOne({ email });
 
     if (!user) {
         throw new UnauthenticatedError("Invalid credentials");
@@ -76,12 +77,10 @@ const login: RequestHandler = async (req, res) => {
 
     // attach cookies to response
     attachCookieToResponse({
-        userId: user._id.toString(),
-        userName: user.profile!.name,
-        avatar: user.profile!.avatar
+        userId: user._id.toString()
     }, res);
 
-    res.status(StatusCodes.OK).json({ msg: `Welcome back, ${user.profile!.name}` });
+    res.status(StatusCodes.OK).json({ msg: `Welcome back` });
 }
 
 
@@ -350,16 +349,17 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/current-user
 //@acess authentication
 const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { userId, userName, avatar, exp } = req.user!;
+    const { userId, exp } = req.user!;
 
     const expirationDate = new Date(exp * 1000).getTime();
 
-    const user = await User.findById(userId);
-    if (!user) {
+    const profile = await Profile.findOne({ user: userId });
+    
+    if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    res.status(StatusCodes.OK).json({ userId, userName, avatar, expirationDate });
+    res.status(StatusCodes.OK).json({ userId, userName: profile.name, avatar: profile.avatar, expirationDate });
 }
 
 

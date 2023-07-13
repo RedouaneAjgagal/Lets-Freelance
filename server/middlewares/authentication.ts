@@ -4,8 +4,6 @@ import { UnauthenticatedError } from "../errors";
 
 type User = {
     userId: string;
-    userName: string;
-    avatar: string;
     exp: number;
 }
 

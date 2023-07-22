@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 interface Props {
     onClose: () => void;
     onConfirm: () => void;
+    disabled: boolean;
     title: string;
     desc: string;
     cancelBtnContent: string;
@@ -28,8 +29,8 @@ const Model = (props: React.PropsWithoutRef<Props>) => {
                 <h3 className="text-2xl font-medium">{props.title}</h3>
                 <p className=" text-slate-600">{props.desc}</p>
                 <div className="flex items-center gap-4">
-                    <button onClick={props.onConfirm} className={`${colorVariants[props.color]} text-white rounded p-2 font-medium border border-white`}>{props.confirmBtnContent}</button>
-                    <button onClick={props.onClose} className={`bg-transparent rounded p-2 font-medium  border border-slate-500`}>{props.cancelBtnContent}</button>
+                    <button onClick={props.onConfirm} disabled={props.disabled} className={`${colorVariants[props.color]} text-white rounded p-2 font-medium border border-white`}>{props.confirmBtnContent}</button>
+                    <button onClick={props.onClose} disabled={props.disabled} className={`bg-transparent rounded p-2 font-medium  border border-slate-500`}>{props.cancelBtnContent}</button>
                 </div>
             </section>
         </>, document.getElementById("overlay")!)

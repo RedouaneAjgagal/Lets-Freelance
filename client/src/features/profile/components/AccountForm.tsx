@@ -5,10 +5,12 @@ import { useState } from "react";
 import useOverflow from "../../../hooks/useOverflow";
 import Model from "../../../layouts/Model";
 import EditSection from "./EditSection";
+import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
 
 const role: "freelancer" | "employer" = "freelancer";
 
 const AccountForm = () => {
+    const deleteAccountMutation = useDeleteAccountMutation();
     const [isDeleteModel, setIsDeleteModel] = useState(false);
 
 
@@ -26,7 +28,7 @@ const AccountForm = () => {
     }
 
     const deleteAccountHandler = () => {
-        console.log("account deleted!");
+        deleteAccountMutation.mutate();
     }
 
     useOverflow(isDeleteModel);
@@ -46,7 +48,7 @@ const AccountForm = () => {
                 </div>
             </EditSection>
             {isDeleteModel ?
-                <Model onConfirm={deleteAccountHandler} onClose={closeDeleteModel} title="Account deletion" desc="Are you sure you want to delete your account?" confirmBtnContent="Delete Account" cancelBtnContent="Cancel" color="red" />
+                <Model onConfirm={deleteAccountHandler} onClose={closeDeleteModel} disabled={deleteAccountMutation.isLoading} title="Account deletion" desc="Are you sure you want to delete your account?" confirmBtnContent="Delete Account" cancelBtnContent="Cancel" color="red" />
                 :
                 null
             }

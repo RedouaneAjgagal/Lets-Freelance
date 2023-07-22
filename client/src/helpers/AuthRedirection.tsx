@@ -4,7 +4,7 @@ import { useAppSelector } from "../hooks/redux";
 const AuthRedirection = () => {
   const { userInfo } = useAppSelector(state => state.authReducer);
   if (userInfo) {
-    return <Navigate to={"/profile"} replace />
+    return <Navigate to={"/profile/settings"} replace />
   }
 
 }

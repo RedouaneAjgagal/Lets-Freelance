@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "../features/auth";
+import { profileSkillsReducer } from "../features/profile";
 
 const store = configureStore({
     reducer: {
-        authReducer
+        authReducer,
+        profileSkillsReducer
     }
 });
 

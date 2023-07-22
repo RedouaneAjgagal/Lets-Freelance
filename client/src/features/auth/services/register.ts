@@ -5,7 +5,7 @@ type Register = {
     name: string;
     email: string;
     password: string;
-    userAs: "freelancer" | "employee";
+    userAs: "freelancer" | "employer";
 }
 
 const registerRequest = async (payload: Register): Promise<AxiosResponse<{ msg: string }>> => {

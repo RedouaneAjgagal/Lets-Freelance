@@ -35,7 +35,7 @@ const RegisterForm = () => {
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [userAs, setUserAs] = useState<"Freelancer" | "Employee">("Freelancer");
+    const [userAs, setUserAs] = useState<"Freelancer" | "Employer">("Freelancer");
 
 
     const setInput = ({ value, key, validation }: SetInput) => {
@@ -66,7 +66,7 @@ const RegisterForm = () => {
         setInput({ validation, key: "password", value });
     }
 
-    const selectRoleHandler = (role: "Freelancer" | "Employee") => {
+    const selectRoleHandler = (role: "Freelancer" | "Employer") => {
         setUserAs(role);
     }
 
@@ -79,12 +79,12 @@ const RegisterForm = () => {
 
 
         // check if valid values
-        if (registerInfo.name.isError || registerInfo.email.isError || registerInfo.password.isError || (userAs !== "Freelancer" && userAs !== "Employee")) {
+        if (registerInfo.name.isError || registerInfo.email.isError || registerInfo.password.isError || (userAs !== "Freelancer" && userAs !== "Employer")) {
             return;
         }
 
         // call register request
-        const role = userAs.toLowerCase() as "freelancer" | "employee";
+        const role = userAs.toLowerCase() as "freelancer" | "employer";
         const registerValues = {
             name: registerInfo.name.value,
             email: registerInfo.email.value,
@@ -98,7 +98,7 @@ const RegisterForm = () => {
         <form onSubmit={submitRegister} className="flex flex-col gap-9 bg-white py-7 px-3 rounded shadow-sm" noValidate>
             <div className="flex items-center justify-center gap-2">
                 <RoleButton value="Freelancer" role={userAs} onSelectRole={selectRoleHandler} />
-                <RoleButton value="Employee" role={userAs} onSelectRole={selectRoleHandler} />
+                <RoleButton value="Employer" role={userAs} onSelectRole={selectRoleHandler} />
             </div>
             <div className="flex flex-col gap-6">
                 <InputContainer onChange={onChangeName} isError={isSubmitted && registerInfo.name.isError} errorMsg={registerInfo.name.error} value={registerInfo.name.value} name="name" label="Name" placeholder="User name" type="text" requiredSign />

@@ -2,9 +2,9 @@ import { BiBriefcase } from "react-icons/bi";
 import { MdOutlinePerson4 } from "react-icons/md";
 
 interface Props {
-    value: "Freelancer" | "Employee";
-    role: "Freelancer" | "Employee";
-    onSelectRole: (role: "Freelancer" | "Employee") => void;
+    value: "Freelancer" | "Employer";
+    role: "Freelancer" | "Employer";
+    onSelectRole: (role: "Freelancer" | "Employer") => void;
 }
 
 const RoleButton = (props: React.PropsWithoutRef<Props>) => {

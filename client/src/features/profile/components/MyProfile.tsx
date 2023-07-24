@@ -2,15 +2,18 @@ import InputContainer from "./InputContainer";
 import EditSection from "./EditSection";
 import { useAppSelector } from "../../../hooks/redux";
 import SelectInputContainer from "./SelectInputContainer";
+import useChangeEmailRequestMutation from "../hooks/useChangeEmailRequestMutation";
 
 const role: "freelancer" | "employer" = "freelancer";
 
 const MyProfile = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
+
+    const changeEmailRequestMutation = useChangeEmailRequestMutation();
     const changeEmailHandler = () => {
         console.log("Change email");
-
+        changeEmailRequestMutation.mutate();
     }
 
 

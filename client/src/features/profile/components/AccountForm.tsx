@@ -6,17 +6,28 @@ import useOverflow from "../../../hooks/useOverflow";
 import Model from "../../../layouts/Model";
 import EditSection from "./EditSection";
 import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
+import useSwitchProfileMutation from "../hooks/useSwitchProfileMutation";
+
 
 const role: "freelancer" | "employer" = "freelancer";
 
 const AccountForm = () => {
     const deleteAccountMutation = useDeleteAccountMutation();
+    const switchProfileMutation = useSwitchProfileMutation();
     const [isDeleteModel, setIsDeleteModel] = useState(false);
+    const [switchedRole, setSwitchedRole] = useState<"freelancer" | "employer">(role);
 
+    const switchProfileHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedRole = e.currentTarget.value.toLowerCase() as "freelancer" | "employer";
+        setSwitchedRole(selectedRole);
+    }
 
     const updateAccountHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(true);
+        if (!switchedRole || (switchedRole !== "freelancer" && switchedRole !== "employer")) {
+            return;
+        }
+        switchProfileMutation.mutate(switchedRole);
     }
 
     const openDeleteModel = () => {
@@ -37,8 +48,8 @@ const AccountForm = () => {
         <div className="flex flex-col gap-12 mb-4">
             <EditSection title="Account Settings" titleColor="black" bgTransparent withoutPadding>
                 <form onSubmit={updateAccountHandler} className="flex flex-col gap-3">
-                    <SelectInputContainer label="Switch Profile" name="switchProfile" options={["Freelancer", "Employer"]} defaultValue={role === "freelancer" ? "Freelancer" : "Employer"} />
-                    <PrimaryButton disabled={false} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Update Account <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
+                    <SelectInputContainer onChange={switchProfileHandler} label="Switch Profile" name="switchProfile" options={["Freelancer", "Employer"]} value={switchedRole} />
+                    <PrimaryButton disabled={switchProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Update Account <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
                 </form>
             </EditSection>
             <EditSection title="Delete Account" titleColor="red" bgTransparent withoutPadding>

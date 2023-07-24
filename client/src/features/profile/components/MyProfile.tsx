@@ -27,7 +27,7 @@ const MyProfile = () => {
             <InputContainer name="email" label="Email" type="email" isError={false} errorMsg="something went wrong" defaultValue="email@gmail.com" readonly withBtn btnContent="Change" onConfirm={changeEmailHandler} />
             <InputContainer name="phone" label="Phone Number" type="number" isError={false} errorMsg="something went wrong" defaultValue="" />
             <InputContainer name="country" label="Country" type="text" isError={false} errorMsg="something went wrong" defaultValue="" />
-            <SelectInputContainer label="Category" name="category" options={["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"]} defaultValue="" />
+            <SelectInputContainer label="Category" name="category" options={["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"]} defaultValue="digital marketing" />
             {role === "freelancer" ?
                 <>
                     <InputContainer name="dateOfBirth" label="Date of Birth" type="date" isError={false} errorMsg="something went wrong" defaultValue="" />

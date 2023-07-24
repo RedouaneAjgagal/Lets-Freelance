@@ -1,7 +1,8 @@
 import sendEmail from "../../../services/sendEmail";
+import origin from "../../../config/origin";
 
 const sendResetEmail = ({ email, token }: { email: string, token: string }) => {
-    const confirmEmailUrl = `http://localhost:5000/api/v1/reset-email?token=${token}`;
+    const confirmEmailUrl = `${origin}/profile/settings/reset-email?token=${token}`;
 
     const emailContent = `
         <div>

@@ -48,7 +48,7 @@ const AccountForm = () => {
         <div className="flex flex-col gap-12 mb-4">
             <EditSection title="Account Settings" titleColor="black" bgTransparent withoutPadding>
                 <form onSubmit={updateAccountHandler} className="flex flex-col gap-3">
-                    <SelectInputContainer onChange={switchProfileHandler} label="Switch Profile" name="switchProfile" options={["Freelancer", "Employer"]} value={switchedRole} />
+                    <SelectInputContainer onChange={switchProfileHandler} label="Switch Profile" name="switchProfile" options={["Freelancer", "Employer"]} value={switchedRole} isError={false} error="" />
                     <PrimaryButton disabled={switchProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Update Account <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
                 </form>
             </EditSection>

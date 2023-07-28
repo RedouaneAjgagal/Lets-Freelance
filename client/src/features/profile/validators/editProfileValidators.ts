@@ -1,19 +1,19 @@
 type EditProfileInputs = {
     avatar: string;
     name: string;
-    phoneNumber: string;
+    phoneNumber: number;
     country: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     dateOfBirth: string;
-    hourlyRate: string;
+    hourlyRate: number;
     jobTitle: string;
     portfolio: string;
     gander: "male" | "female";
     englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
     types: "agency freelancers" | "independent freelancers" | "single freelancer";
-    showProfile: "show" | "hide";
+    showProfile: boolean;
     description: string;
-    skills: string[];
+    skills: { id: string; value: string }[];
     employees: string;
     company: string;
     website: string;
@@ -54,7 +54,7 @@ export const avatarValidation = (avatar: EditProfileInputs["avatar"]) => {
         return result;
     }
 
-    if (!avatar.startsWith("https://res.cloudinary.com/dqfrgtxde/image/upload")) {
+    if (!avatar.startsWith("https://res.cloudinary.com/dqfrgtxde/image/upload") && !avatar.startsWith("https://ui-avatars.com/api")) {
         result.isError = true;
         result.reason = "Invalid image URL";
         return result;
@@ -75,9 +75,15 @@ export const nameValidation = (name: EditProfileInputs["name"]) => {
         return result;
     }
 
-    if (name.trim().length < 3 || name.trim().length > 20) {
+    if (name.trim().length < 3) {
         result.isError = true;
-        result.reason = "Must be between 3 and 20 characters";
+        result.reason = "Must be more than 3 characters";
+        return result;
+    }
+
+    if (name.trim().length > 20) {
+        result.isError = true;
+        result.reason = "Must be less than 20 characters";
         return result;
     }
 
@@ -90,12 +96,12 @@ export const phoneNumberValidation = (phoneNumber: EditProfileInputs["phoneNumbe
         reason: ""
     }
 
-    const isValidInputNumber = isNumericString(phoneNumber);
+    const isValidInputNumber = isNumericString(phoneNumber.toString());
 
-    if (phoneNumber && phoneNumber.trim() !== "" && !isValidInputNumber) {
+    if (!isValidInputNumber) {
         result.isError = true;
         result.reason = "Invalid number";
-        return result;
+        return result
     }
 
     return result;
@@ -172,20 +178,20 @@ export const hourlyRateValidation = (hourlyRate: EditProfileInputs["hourlyRate"]
         reason: ""
     }
 
-    if (!hourlyRate || hourlyRate.trim() === "") {
+    if (!hourlyRate || hourlyRate.toString().trim() === "") {
         result.isError = true;
         result.reason = "Please provide an hourly rate";
         return result;
     }
 
-    const isValidInputNumber = isNumericString(hourlyRate);
+    const isValidInputNumber = isNumericString(hourlyRate.toString());
     if (!isValidInputNumber) {
         result.isError = true;
         result.reason = "Invalid hourly rate number";
         return result;
     }
 
-    if (Number(hourlyRate) < 1) {
+    if (hourlyRate < 1) {
         result.isError = true;
         result.reason = "Hourly rate cannot be less than $1";
         return result;
@@ -304,14 +310,13 @@ export const showProfileValidation = (profileStatus: EditProfileInputs["showProf
         reason: ""
     }
 
-    if (!profileStatus || profileStatus.trim() === "") {
+    if (!profileStatus) {
         result.isError = true;
         result.reason = "Please provide a status";
         return result;
     }
 
-    const status = ["show", "hide"];
-    if (!status.includes(profileStatus)) {
+    if (typeof profileStatus !== "boolean") {
         result.isError = true;
         result.reason = "Invalid profile status";
         return result;
@@ -342,6 +347,8 @@ export const skillsValidation = (skills: EditProfileInputs["skills"]) => {
     }
 
     if (skills.length > 10) {
+        console.log("more than 10");
+
         result.isError = true;
         result.reason = "Skills cannot be more than 10";
         return result;

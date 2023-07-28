@@ -73,7 +73,8 @@ const profileSchema = new mongoose.Schema<IProfile>({
     },
     category: {
         type: String,
-        enum: ["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"]
+        enum: ["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"],
+        default: "programming & tech"
     },
     description: {
         type: String,

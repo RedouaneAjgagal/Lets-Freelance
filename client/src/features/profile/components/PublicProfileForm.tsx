@@ -5,6 +5,8 @@ import { BiArrowBack } from "react-icons/bi";
 import { nameValidation, phoneNumberValidation, hourlyRateValidation, avatarValidation, categoryValidation, companyNameValidation, countryValidation, dateOfBirthValidation, descriptionValidation, employeesValidation, englishLevelValidation, genderValidation, jobTitleValidation, portfolioValidation, showProfileValidation, skillsValidation, typesValidation, websiteValidation } from "../validators/editProfileValidators";
 import { useState } from "react";
 import { useAppSelector } from "../../../hooks/redux";
+import useUpdateProfileMutation from "../hooks/useUpdateProfileMutation";
+import { UpdatedProfileData } from "../services/updateProfile";
 
 type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description" | "showProfile";
 
@@ -90,6 +92,10 @@ const PublicProfileForm = () => {
         avatarUploader: errorInfo,
         skills: errorInfo
     });
+
+
+    const updateProfileMutation = useUpdateProfileMutation();
+
     const updateProfileHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -131,6 +137,7 @@ const PublicProfileForm = () => {
             const validation = validators[`${getKey}Validation`] as (value: string | number | boolean) => { isError: boolean; reason: string };
             const result = { [getKey]: validation(value) };
             if (result[getKey].isError) {
+                console.log(result[getKey]);
                 isValidForm = false;
             }
             setProfileInputInfo(prev => {
@@ -145,8 +152,9 @@ const PublicProfileForm = () => {
                 ...generalData,
                 roles: roleData
             }
-        }
-        console.log(updatedData);
+        } as UpdatedProfileData
+
+        updateProfileMutation.mutate(updatedData);
     }
 
     return (

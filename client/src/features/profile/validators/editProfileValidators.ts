@@ -310,12 +310,6 @@ export const showProfileValidation = (profileStatus: EditProfileInputs["showProf
         reason: ""
     }
 
-    if (!profileStatus) {
-        result.isError = true;
-        result.reason = "Please provide a status";
-        return result;
-    }
-
     if (typeof profileStatus !== "boolean") {
         result.isError = true;
         result.reason = "Invalid profile status";

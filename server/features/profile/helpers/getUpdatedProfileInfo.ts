@@ -15,7 +15,7 @@ const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileI
         roles
     }
 
-    const validNameInput = isValidNameInput(updatedProfileInfo.name);
+    const validNameInput = isValidNameInput(newProfileInfo.name);
     if (validNameInput) {
         updatedProfileInfo.name = newProfileInfo.name;
     }
@@ -99,9 +99,9 @@ const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileI
             updatedProfileInfo.roles!.employer!.employees = newProfileInfo.roles!.employer!.employees;
         }
 
-        const validCompany = isValidCompanyInput(newProfileInfo.roles?.employer?.company)
+        const validCompany = isValidCompanyInput(newProfileInfo.roles?.employer?.companyName)
         if (validCompany) {
-            updatedProfileInfo.roles!.employer!.company = newProfileInfo!.roles!.employer!.company!.trim();
+            updatedProfileInfo.roles!.employer!.companyName = newProfileInfo!.roles!.employer!.companyName!.trim();
         }
 
         const validWebsite = isValidWebsiteInput(newProfileInfo.roles?.employer?.website);

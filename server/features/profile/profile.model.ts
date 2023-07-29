@@ -38,7 +38,7 @@ export interface IFreelancerRole {
 
 export interface IEmployerRole {
     employees: number;
-    company?: string;
+    companyName?: string;
     website?: string;
 }
 
@@ -107,7 +107,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
             }
         },
         employer: {
-            company: String,
+            companyName: String,
             website: String,
             employees: {
                 type: Number,

@@ -5,7 +5,7 @@ const isValidEmployeesInput = (employees: IEmployerRole["employees"] | undefined
     return isValidEmployees;
 }
 
-const isValidCompanyInput = (company: IEmployerRole["company"] | undefined) => {
+const isValidCompanyInput = (company: IEmployerRole["companyName"] | undefined) => {
     const isValidCompany = company || company === "";
     return isValidCompany;
 }

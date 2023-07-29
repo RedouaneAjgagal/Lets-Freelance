@@ -11,7 +11,7 @@ const isValidAvatarInput = (avatar: IProfile["avatar"] | undefined) => {
 }
 
 const isValidShowProfileInput = (showProfile: IProfile["showProfile"] | undefined) => {
-    const isValidShowProfile = showProfile && typeof showProfile === "boolean";
+    const isValidShowProfile = typeof showProfile === "boolean";
     return isValidShowProfile;
 }
 

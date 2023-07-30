@@ -6,6 +6,8 @@ import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError
 import getProfileInfo from "./utils/getProfileInfo";
 import getUpdatedProfileInfo from "./helpers/getUpdatedProfileInfo";
 import { destroyCookie } from "../../utils/cookies";
+import { UploadedFile } from "express-fileupload";
+import uploadImage from "../../utils/uploadImage";
 
 
 //@desc get current user profile
@@ -32,6 +34,22 @@ const singleProfile: RequestHandler = async (req, res) => {
     }
     const profileInfo = getProfileInfo(profile.toObject());
     res.status(StatusCodes.OK).json(profileInfo);
+}
+
+
+//@desc upload profile avatar
+//@route POST /api/v1/profile
+//@access authentication
+const uploadAvatar: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const imageFile = req.files?.avatar as UploadedFile;
+    const maxSize = 1024 * 1024;
+    const imageResponse = await uploadImage({
+        folderName: "avatars_lets-freelance",
+        imageFile,
+        maxSize
+    });
+
+    res.status(StatusCodes.OK).json({ avatarURL: imageResponse.secure_url });
 }
 
 
@@ -134,6 +152,7 @@ const deleteSingleProfile: RequestHandler = async (req: CustomAuthRequest, res) 
 export {
     profileInfo,
     singleProfile,
+    uploadAvatar,
     updateProfile,
     deleteProfile,
     deleteSingleProfile

@@ -17,6 +17,8 @@ import helmet from "helmet";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
+import { v2 as cloudinary } from "cloudinary";
+import fileUpload from "express-fileupload";
 
 // routes
 import { authRouter } from "./features/auth";
@@ -29,6 +31,14 @@ import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
 
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET,
+    secure: true
+});
+
+
 app.use(express.json());
 app.use(cors({
     origin,
@@ -37,6 +47,7 @@ app.use(cors({
 app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(fileUpload({ useTempFiles: true, safeFileNames: true }));
 
 
 app.use("/api/v1/auth", authRouter);

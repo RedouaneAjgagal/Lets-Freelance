@@ -83,7 +83,11 @@ const profileSchema = new mongoose.Schema<IProfile>({
     roles: {
         freelancer: {
             dateOfBirth: Date,
-            hourlyRate: Number,
+            hourlyRate: {
+                type: Number,
+                default: 10,
+                required: true
+            },
             jobTitle: String,
             skills: Array,
             portfolio: String,

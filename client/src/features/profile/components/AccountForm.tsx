@@ -9,13 +9,15 @@ import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
 import useSwitchProfileMutation from "../hooks/useSwitchProfileMutation";
 
 
-const role: "freelancer" | "employer" = "freelancer";
+interface Props {
+    role: "freelancer" | "employer";
+}
 
-const AccountForm = () => {
+const AccountForm = (props: React.PropsWithoutRef<Props>) => {
     const deleteAccountMutation = useDeleteAccountMutation();
     const switchProfileMutation = useSwitchProfileMutation();
     const [isDeleteModel, setIsDeleteModel] = useState(false);
-    const [switchedRole, setSwitchedRole] = useState<"freelancer" | "employer">(role);
+    const [switchedRole, setSwitchedRole] = useState<"freelancer" | "employer">(props.role);
 
     const switchProfileHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedRole = e.currentTarget.value.toLowerCase() as "freelancer" | "employer";
@@ -29,6 +31,7 @@ const AccountForm = () => {
         }
         switchProfileMutation.mutate(switchedRole);
     }
+
 
     const openDeleteModel = () => {
         setIsDeleteModel(true);

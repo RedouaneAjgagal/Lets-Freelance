@@ -1,17 +1,19 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import updateProfile from "../services/updateProfile";
 import Toaster from "react-hot-toast";
 import { AxiosError } from "axios";
 
 const useUpdateProfileMutation = () => {
+    const queryClient = useQueryClient();
     const updateProfileMutation = useMutation({
         mutationFn: updateProfile,
         onSuccess: (data) => {
-            Toaster.success(data.data.msg);
+            queryClient.invalidateQueries({ queryKey: ["profileInfo"] });
+            Toaster.success(data.data.msg, { id: "updateProfile" });
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";
-            Toaster.error(errorMsg);
+            Toaster.error(errorMsg, { id: "updateProfile" });
         }
     });
     return updateProfileMutation;

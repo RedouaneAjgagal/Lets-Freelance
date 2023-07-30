@@ -17,6 +17,10 @@ const profileSkills = createSlice({
     name: "profileSkills",
     initialState,
     reducers: {
+        initialSkills(state: ProfileSkills, action: { payload: ProfileSkill[], type: string }) {
+            state.skills = action.payload;
+            return state;
+        },
         addSkill(state: ProfileSkills, action: { payload: ProfileSkill, type: string }) {
             state.skills = [...state.skills, action.payload];
             return state;

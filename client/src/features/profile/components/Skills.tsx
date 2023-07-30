@@ -1,14 +1,25 @@
 import EditSection from './EditSection';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputContainer from './InputContainer';
 import SkillsList from './SkillsList';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
 import { profileSkillsAction } from '../redux/profileSkills';
 
-const Skills = () => {
+interface Props {
+    fetchedSkills: string[];
+}
+
+const Skills = (props: React.PropsWithoutRef<Props>) => {
     const dispatch = useAppDispatch();
     const { skills } = useAppSelector(state => state.profileSkillsReducer);
     const [skillValue, setSkillValue] = useState("");
+    const getAllSkills = props.fetchedSkills.map(skill => {
+        return { id: crypto.randomUUID(), value: skill }
+    });
+    useEffect(() => {
+        dispatch(profileSkillsAction.initialSkills(getAllSkills))
+    }, []);
+
 
     const addNewSkill = (skill: string) => {
         const generateId = crypto.randomUUID();

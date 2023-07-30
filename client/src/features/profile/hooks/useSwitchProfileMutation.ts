@@ -1,12 +1,14 @@
 import swtichProfile from "../services/switchProfile";
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios";
 import Toaster from "react-hot-toast";
 
 const useSwitchProfileMutation = () => {
+    const queryClient = useQueryClient();
     const switchProfileMutation = useMutation({
         mutationFn: swtichProfile,
         onSuccess: ({ data }) => {
+            queryClient.invalidateQueries({ queryKey: ["profileInfo"] });
             Toaster.success(data.msg, { id: "switchProfile" });
         },
         onError: (error: AxiosError<{ msg: string }>) => {

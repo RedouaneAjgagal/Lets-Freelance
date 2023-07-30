@@ -20,7 +20,7 @@ export type UpdatedProfileData = {
                 gender: string;
                 englishLevel: string;
                 types: string;
-                skills: string;
+                skills: string[];
             } | undefined,
             employer: {
                 employees: string;

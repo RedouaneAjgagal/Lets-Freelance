@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useAppSelector } from "../../../hooks/redux";
 import useUpdateProfileMutation from "../hooks/useUpdateProfileMutation";
 import { UpdatedProfileData } from "../services/updateProfile";
+import { ProfileInfo } from "../services/getProfileInfo";
 
 type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description" | "showProfile";
 
@@ -66,9 +67,11 @@ const validators = {
     websiteValidation
 }
 
-const role: "freelancer" | "employer" = "freelancer";
+interface Props {
+    profileInfo: ProfileInfo;
+}
 
-const PublicProfileForm = () => {
+const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
     const { skills } = useAppSelector(state => state.profileSkillsReducer);
     const errorInfo = { isError: false, reason: "" }
     const [profileInputInfo, setProfileInputInfo] = useState<ProfileInput>({
@@ -127,7 +130,7 @@ const PublicProfileForm = () => {
             website: formData.get("website")?.toString()
         }
 
-        const roleData = role === "freelancer" ? { freelancer } : { employer };
+        const roleData = props.profileInfo.userAs === "freelancer" ? { freelancer } : { employer };
         const profileData = { ...generalData, ...roleData.employer, ...roleData.freelancer }
 
         let isValidForm = true;
@@ -137,7 +140,6 @@ const PublicProfileForm = () => {
             const validation = validators[`${getKey}Validation`] as (value: string | number | boolean) => { isError: boolean; reason: string };
             const result = { [getKey]: validation(value) };
             if (result[getKey].isError) {
-                console.log(result[getKey]);
                 isValidForm = false;
             }
             setProfileInputInfo(prev => {
@@ -159,9 +161,12 @@ const PublicProfileForm = () => {
 
     return (
         <form onSubmit={updateProfileHandler} className="flex flex-col gap-4 mb-4">
-            <MyProfile profileInputInfo={profileInputInfo} role={role} />
-            <Skills />
-            <PrimaryButton disabled={false} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
+            <MyProfile profileInfo={props.profileInfo} profileInputInfo={profileInputInfo} />
+            {props.profileInfo.userAs === "freelancer" ?
+                <Skills fetchedSkills={props.profileInfo.roles.freelancer!.skills} />
+                :
+                null}
+            <PrimaryButton disabled={updateProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
         </form>
     )
 }

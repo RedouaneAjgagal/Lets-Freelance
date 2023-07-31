@@ -4,8 +4,9 @@ import SelectInputContainer from "./SelectInputContainer";
 import useChangeEmailRequestMutation from "../hooks/useChangeEmailRequestMutation";
 import { ProfileInput } from "./PublicProfileForm";
 import ImageInputContainer from "./ImageInputContainer";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProfileInfo } from "../services/getProfileInfo";
+import useUploadAvatarMutation from "../hooks/useUploadAvatarMutation";
 
 interface Props {
     profileInputInfo: ProfileInput;
@@ -18,8 +19,9 @@ const MyProfile = (props: React.PropsWithoutRef<Props>) => {
         changeEmailRequestMutation.mutate();
     }
 
+    const uploadAvatarMutation = useUploadAvatarMutation();
     const [avatar, setAvatar] = useState(props.profileInfo.avatar);
-    const uploadImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadImageHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const avatar = e.currentTarget.files?.item(0);
         const maxSize = 1024 * 1024;
         if (!avatar) {
@@ -31,16 +33,21 @@ const MyProfile = (props: React.PropsWithoutRef<Props>) => {
         if (avatar?.size > maxSize) {
             return;
         }
-        console.log("upload new avatar");
 
+        uploadAvatarMutation.mutate(avatar);
     }
 
     const dateOfBirth = props.profileInfo.roles.freelancer?.dateOfBirth ? new Date(props.profileInfo.roles.freelancer?.dateOfBirth).toISOString().split("T")[0] : undefined;
 
+    useEffect(() => {
+        if (uploadAvatarMutation.isSuccess) {
+            setAvatar(uploadAvatarMutation.data.data.avatarURL);
+        }
+    }, [uploadAvatarMutation.isSuccess]);
 
     return (
         <EditSection title="Public Profile" titleColor="black">
-            <ImageInputContainer name="avatar" label="Featured Image" onUploadImage={uploadImageHandler} imageURL={props.profileInfo.avatar} isError={props.profileInputInfo.avatar.isError} error={props.profileInputInfo.avatar.reason} isLoading={false} />
+            <ImageInputContainer name="avatar" label="Featured Image" onUploadImage={uploadImageHandler} imageURL={avatar} isError={props.profileInputInfo.avatar.isError} error={props.profileInputInfo.avatar.reason} isLoading={uploadAvatarMutation.isLoading} />
             <InputContainer name="name" label="full name" type="text" isError={props.profileInputInfo.name.isError} errorMsg={props.profileInputInfo.name.reason} defaultValue={props.profileInfo.name} />
             <InputContainer name="email" label="Email" type="email" isError={false} errorMsg="something went wrong" defaultValue={props.profileInfo.user.email} readonly withBtn btnContent="Change" onConfirm={changeEmailHandler} />
             <InputContainer name="phoneNumber" label="Phone Number" type="number" isError={props.profileInputInfo.phoneNumber.isError} errorMsg={props.profileInputInfo.phoneNumber.reason} defaultValue={props.profileInfo.phoneNumber?.toString()} />

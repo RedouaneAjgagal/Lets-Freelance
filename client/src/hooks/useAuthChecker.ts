@@ -1,20 +1,12 @@
-import { useLogoutMutation, useCurrentUserMutation } from "../features/auth";
+import { useLogoutMutation, useCurrentUserQuery } from "../features/auth";
 import { useAppSelector } from "./redux";
 import { useEffect } from "react";
 
 
 const useAuthChecker = () => {
-    const currentUserMutation = useCurrentUserMutation();
+    useCurrentUserQuery();
     const logoutMutation = useLogoutMutation("Expired Token");
     const { userInfo } = useAppSelector(state => state.authReducer);
-
-    let isChecked = false; // to prevent calling useEffect twice
-    useEffect(() => {
-        if (isChecked) return;
-        isChecked = true;
-
-        currentUserMutation.mutate();
-    }, []);
 
     useEffect(() => {
         const currentTime = new Date(Date.now()).getTime();
@@ -28,8 +20,6 @@ const useAuthChecker = () => {
 
         return () => clearTimeout(checkExpiration);
     }, [userInfo]);
-
-
 
     return null;
 }

@@ -12,7 +12,7 @@ const UserNav = () => {
         <>
             <span role="button" onClick={userMenuHandler}>
                 <div className="min-h-full max-w-full">
-                    <img src={userInfo!.avatar} alt={`${userInfo!.userName}'s profile image`} className="rounded-full w-10" />
+                    <img src={userInfo!.avatar} alt={`${userInfo!.userName}'s profile image`} className="rounded-full w-11 h-11 object-cover shadow-md" />
                 </div>
             </span>
             {isMenuOpen ?

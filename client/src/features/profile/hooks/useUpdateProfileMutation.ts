@@ -9,6 +9,7 @@ const useUpdateProfileMutation = () => {
         mutationFn: updateProfile,
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["profileInfo"] });
+            queryClient.invalidateQueries({ queryKey: ["currentUserInfo"] });
             Toaster.success(data.data.msg, { id: "updateProfile" });
         },
         onError: (error: AxiosError<{ msg: string }>) => {

@@ -14,8 +14,12 @@ export const getRequest = async (URL: string) => {
     return await api.get(`/${URL}`);
 }
 
-export const postRequest = async (URL: string, payload: unknown) => {
-    return await api.post(`/${URL}`, payload);
+export const postRequest = async (URL: string, payload: unknown, formData?: boolean) => {
+    return await api.post(`/${URL}`, payload, {
+        headers: {
+            "Content-Type": formData ? "multipart/form-data" : "application/json"
+        }
+    });
 }
 export const patchRequest = async (URL: string, payload: unknown) => {
     return await api.patch(`/${URL}`, payload);

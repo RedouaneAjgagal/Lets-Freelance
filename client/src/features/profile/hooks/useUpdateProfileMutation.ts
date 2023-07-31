@@ -6,6 +6,7 @@ import { AxiosError } from "axios";
 const useUpdateProfileMutation = () => {
     const queryClient = useQueryClient();
     const updateProfileMutation = useMutation({
+        mutationKey: ["updateProfile"],
         mutationFn: updateProfile,
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: ["profileInfo"] });

@@ -7,12 +7,12 @@ import ImageInputContainer from "./ImageInputContainer";
 import { useState, useEffect } from "react";
 import { ProfileInfo } from "../services/getProfileInfo";
 import useUploadAvatarMutation from "../hooks/useUploadAvatarMutation";
+import Toaster from "react-hot-toast";
 
 interface Props {
     profileInputInfo: ProfileInput;
     profileInfo: ProfileInfo
 }
-
 const MyProfile = (props: React.PropsWithoutRef<Props>) => {
     const changeEmailRequestMutation = useChangeEmailRequestMutation();
     const changeEmailHandler = () => {
@@ -27,10 +27,16 @@ const MyProfile = (props: React.PropsWithoutRef<Props>) => {
         if (!avatar) {
             return;
         }
-        if (!avatar.type.startsWith("image") || avatar.type.startsWith("image/svg")) {
+        if (!avatar.type.startsWith("image")) {
+            Toaster.error("Images only", { id: "avatarUploader" });
+            return;
+        }
+        if (avatar.type.startsWith("image/svg")) {
+            Toaster.error("SVGs are not supported", { id: "avatarUploader" });
             return;
         }
         if (avatar?.size > maxSize) {
+            Toaster.error("The image is too large", { id: "avatarUploader" });
             return;
         }
 

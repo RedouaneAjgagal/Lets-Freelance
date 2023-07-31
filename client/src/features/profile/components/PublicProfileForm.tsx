@@ -8,6 +8,7 @@ import { useAppSelector } from "../../../hooks/redux";
 import useUpdateProfileMutation from "../hooks/useUpdateProfileMutation";
 import { UpdatedProfileData } from "../services/updateProfile";
 import { ProfileInfo } from "../services/getProfileInfo";
+import { useIsMutating } from "@tanstack/react-query";
 
 type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description" | "showProfile";
 
@@ -73,6 +74,9 @@ interface Props {
 
 const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
     const { skills } = useAppSelector(state => state.profileSkillsReducer);
+
+    const isUploadingAvatar = useIsMutating(["uploadAvatar"]);
+
     const errorInfo = { isError: false, reason: "" }
     const [profileInputInfo, setProfileInputInfo] = useState<ProfileInput>({
         name: errorInfo,
@@ -166,7 +170,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
                 <Skills fetchedSkills={props.profileInfo.roles.freelancer!.skills} />
                 :
                 null}
-            <PrimaryButton disabled={updateProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
+            <PrimaryButton disabled={updateProfileMutation.isLoading || isUploadingAvatar === 1} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
         </form>
     )
 }

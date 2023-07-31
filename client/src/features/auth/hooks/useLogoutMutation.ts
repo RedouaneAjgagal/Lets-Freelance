@@ -11,7 +11,6 @@ const useLogoutMutation = (successMsg: string) => {
         mutationFn: logoutRequest,
         onSuccess: () => {
             dispatch(authAction.setUser(null));
-            localStorage.removeItem("exp");
             toast.success(successMsg);
         },
         onError: (error: AxiosError<{ msg: string }>) => {

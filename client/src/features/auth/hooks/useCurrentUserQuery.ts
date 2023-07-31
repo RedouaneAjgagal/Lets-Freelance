@@ -8,6 +8,8 @@ const useCurrentUserQuery = () => {
     const currentUserQuery = useQuery({
         queryKey: ["currentUserInfo"],
         queryFn: getCurrentUserRequest,
+        suspense: true,
+        useErrorBoundary: false,
         retry: false,
         refetchOnWindowFocus: false,
         onSuccess: ({ data }) => {

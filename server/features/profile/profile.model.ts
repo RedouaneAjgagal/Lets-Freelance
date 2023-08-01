@@ -29,11 +29,24 @@ export interface IFreelancerRole {
     dateOfBirth?: Date;
     hourlyRate?: number;
     jobTitle?: string;
-    skills?: string[];
     portfolio?: string;
     gender: "male" | "female";
     englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
     types: "agency freelancers" | "independent freelancers" | "single freelancer";
+    skills?: string[];
+    education?: {
+        title: string;
+        academy: string;
+        year: string;
+        description: string
+    }[];
+    experience?: {
+        title: string;
+        company: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    }[];
 }
 
 export interface IEmployerRole {
@@ -60,6 +73,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
     },
     country: String,
     phoneNumber: Number,
+
     showProfile: {
         type: Boolean,
         default: true,
@@ -89,7 +103,6 @@ const profileSchema = new mongoose.Schema<IProfile>({
                 required: true
             },
             jobTitle: String,
-            skills: Array,
             portfolio: String,
             gender: {
                 type: String,
@@ -108,7 +121,10 @@ const profileSchema = new mongoose.Schema<IProfile>({
                 enum: ["agency freelancers", "independent freelancers", "single freelancer"],
                 default: "single freelancer",
                 required: true
-            }
+            },
+            skills: Array,
+            education: Array,
+            experience: Array
         },
         employer: {
             companyName: String,

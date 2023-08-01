@@ -15,15 +15,6 @@ const isValidJobTitleInput = (jobTitle: IFreelancerRole["jobTitle"] | undefined)
     return isValidJobTitle;
 }
 
-const isValidSkillsInput = (skills: IFreelancerRole["skills"] | undefined) => {
-    const isValidSkills = skills && skills.length <= 10;
-    if (isValidSkills) {
-        const getSkills = skills!.filter(skill => typeof skill === "string" && skill.trim() !== "");
-        return getSkills;
-    }
-    return isValidSkills;
-}
-
 const isValidPortfolioInput = (portfolio: IFreelancerRole["portfolio"] | undefined) => {
     const isValidPortfolio = portfolio || portfolio?.trim() === "";
     return isValidPortfolio;
@@ -46,6 +37,35 @@ const isValidTypesInput = (type: IFreelancerRole["types"] | undefined) => {
     return isValidType;
 }
 
+const isValidSkillsInput = (skills: IFreelancerRole["skills"] | undefined) => {
+    const isValidSkills = skills && skills.length <= 10;
+    if (isValidSkills) {
+        const getSkills = skills!.filter(skill => typeof skill === "string" && skill.trim() !== "");
+        return getSkills;
+    }
+    return isValidSkills;
+}
+
+const isValidEducationInput = (educations: IFreelancerRole["education"]) => {
+    if (!educations || educations.length > 10) {
+        return false;
+    }
+    const educationKeys: ["title", "academy", "year", "description"] = ["title", "academy", "year", "description"]
+    const isValidEducations = educations.every(education => {
+        const validValues = educationKeys.every(key => {
+            const validation = education[key] && typeof education[key] === "string" && education[key].trim() !== "";
+
+            if (key === "description" && education.description.trim().length > 300) {
+                return false;
+            }
+
+            return validation;
+        });
+        return validValues;
+    })
+    return isValidEducations;
+}
+
 export {
     isValidDateOfBirthInput,
     isValidEnglishLevelInput,
@@ -53,6 +73,7 @@ export {
     isValidHourlyRateInput,
     isValidJobTitleInput,
     isValidPortfolioInput,
+    isValidTypesInput,
     isValidSkillsInput,
-    isValidTypesInput
+    isValidEducationInput
 }

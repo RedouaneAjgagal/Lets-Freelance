@@ -1,7 +1,7 @@
 import { IProfile, IFreelancerRole, IEmployerRole } from "../profile.model"
 import { isValidNameInput, isValidAvatarInput, isValidCategoryInput, isValidCountryInput, isValidDescriptionInput, isValidPhoneNumberInput, isValidShowProfileInput } from "../validators/generalProfileInputValidators";
 import { isValidCompanyInput, isValidEmployeesInput, isValidWebsiteInput } from "../validators/employerInputValidator";
-import { isValidTypesInput, isValidDateOfBirthInput, isValidEnglishLevelInput, isValidGenderInput, isValidHourlyRateInput, isValidJobTitleInput, isValidPortfolioInput, isValidSkillsInput } from "../validators/freelancerInputValidator";
+import { isValidTypesInput, isValidDateOfBirthInput, isValidEnglishLevelInput, isValidGenderInput, isValidHourlyRateInput, isValidJobTitleInput, isValidPortfolioInput, isValidSkillsInput, isValidEducationInput } from "../validators/freelancerInputValidator";
 
 
 type UpdateProfileInfo = {
@@ -66,11 +66,6 @@ const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileI
             updatedProfileInfo.roles!.freelancer!.jobTitle = newProfileInfo.roles!.freelancer!.jobTitle!.trim();
         }
 
-        const validSkills = isValidSkillsInput(newProfileInfo.roles?.freelancer?.skills);
-        if (validSkills) {
-            updatedProfileInfo.roles!.freelancer!.skills = validSkills;
-        }
-
         const validPortfolio = isValidPortfolioInput(newProfileInfo.roles?.freelancer?.portfolio);
         if (validPortfolio) {
             updatedProfileInfo.roles!.freelancer!.portfolio = newProfileInfo.roles!.freelancer!.portfolio!.trim();
@@ -89,6 +84,16 @@ const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileI
         const validTypes = isValidTypesInput(newProfileInfo.roles?.freelancer?.types);
         if (validTypes) {
             updatedProfileInfo.roles!.freelancer!.types = newProfileInfo.roles!.freelancer!.types;
+        }
+
+        const validSkills = isValidSkillsInput(newProfileInfo.roles?.freelancer?.skills);
+        if (validSkills) {
+            updatedProfileInfo.roles!.freelancer!.skills = validSkills;
+        }
+
+        const validEducation = isValidEducationInput(newProfileInfo.roles?.freelancer?.education);
+        if (validEducation) {
+            updatedProfileInfo.roles!.freelancer!.education = newProfileInfo.roles!.freelancer!.education;
         }
     }
 

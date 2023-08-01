@@ -1,11 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import ForgetPasswordForm from '../features/auth/components/ForgetPasswordForm'
-import AuthRedirection from '../helpers/AuthRedirection'
+import { useAppSelector } from '../hooks/redux';
 
 const ForgetPassword = () => {
+    const { userInfo } = useAppSelector(state => state.authReducer);
     return (
-        <>
-            <AuthRedirection />
+        userInfo ? <Navigate to="/profile/settings" />
+            :
             <main className="flex flex-col gap-8 px-2 pt-8 pb-20 bg-purple-100/50">
                 <article className="text-center flex flex-col gap-2">
                     <h1 className="text-3xl font-semibold">Reset Password</h1>
@@ -16,7 +17,6 @@ const ForgetPassword = () => {
                     <Link to="/auth/login" className="self-center underline text-slate-600 font-medium text-center">Back To Login</Link>
                 </div>
             </main>
-        </>
     )
 }
 

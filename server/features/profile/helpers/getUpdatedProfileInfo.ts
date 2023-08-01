@@ -1,7 +1,7 @@
 import { IProfile, IFreelancerRole, IEmployerRole } from "../profile.model"
 import { isValidNameInput, isValidAvatarInput, isValidCategoryInput, isValidCountryInput, isValidDescriptionInput, isValidPhoneNumberInput, isValidShowProfileInput } from "../validators/generalProfileInputValidators";
 import { isValidCompanyInput, isValidEmployeesInput, isValidWebsiteInput } from "../validators/employerInputValidator";
-import { isValidTypesInput, isValidDateOfBirthInput, isValidEnglishLevelInput, isValidGenderInput, isValidHourlyRateInput, isValidJobTitleInput, isValidPortfolioInput, isValidSkillsInput, isValidEducationInput } from "../validators/freelancerInputValidator";
+import { isValidTypesInput, isValidDateOfBirthInput, isValidEnglishLevelInput, isValidGenderInput, isValidHourlyRateInput, isValidJobTitleInput, isValidPortfolioInput, isValidSkillsInput, isValidEducationInput, isValidExperienceInput } from "../validators/freelancerInputValidator";
 
 
 type UpdateProfileInfo = {
@@ -94,6 +94,11 @@ const getUpdatedProfileInfo = ({ newProfileInfo, roles, userAs }: UpdateProfileI
         const validEducation = isValidEducationInput(newProfileInfo.roles?.freelancer?.education);
         if (validEducation) {
             updatedProfileInfo.roles!.freelancer!.education = newProfileInfo.roles!.freelancer!.education;
+        }
+
+        const validExperience = isValidExperienceInput(newProfileInfo.roles?.freelancer?.experience);
+        if (validExperience) {
+            updatedProfileInfo.roles!.freelancer!.experience = newProfileInfo.roles!.freelancer!.experience;
         }
     }
 

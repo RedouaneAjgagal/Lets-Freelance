@@ -50,7 +50,9 @@ const isValidEducationInput = (educations: IFreelancerRole["education"]) => {
     if (!educations || educations.length > 10) {
         return false;
     }
-    const educationKeys: ["title", "academy", "year", "description"] = ["title", "academy", "year", "description"]
+
+    const educationKeys: ["title", "academy", "year", "description"] = ["title", "academy", "year", "description"];
+
     const isValidEducations = educations.every(education => {
         const validValues = educationKeys.every(key => {
             const validation = education[key] && typeof education[key] === "string" && education[key].trim() !== "";
@@ -62,8 +64,32 @@ const isValidEducationInput = (educations: IFreelancerRole["education"]) => {
             return validation;
         });
         return validValues;
-    })
+    });
+
     return isValidEducations;
+}
+
+const isValidExperienceInput = (experience: IFreelancerRole["experience"]) => {
+    if (!experience || experience.length > 10) {
+        return false;
+    }
+
+    const educationKeys: ["title", "company", "startDate", "endDate", "description"] = ["title", "company", "startDate", "endDate", "description"];
+
+    const isValidExperiences = experience.every(experience => {
+        const validValues = educationKeys.every(key => {
+            const validation = experience[key] && typeof experience[key] === "string" && experience[key].trim() !== "";
+
+            if (key === "description" && experience.description.trim().length > 300) {
+                return false;
+            }
+
+            return validation;
+        });
+        return validValues;
+    });
+
+    return isValidExperiences;
 }
 
 export {
@@ -75,5 +101,6 @@ export {
     isValidPortfolioInput,
     isValidTypesInput,
     isValidSkillsInput,
-    isValidEducationInput
+    isValidEducationInput,
+    isValidExperienceInput
 }

@@ -13,7 +13,7 @@ const useCurrentUserQuery = () => {
         retry: false,
         refetchOnWindowFocus: false,
         onSuccess: ({ data }) => {
-            dispatch(authAction.setUser({ ...data }))
+            dispatch(authAction.setUser(data));
         },
         onError: () => {
             dispatch(authAction.setUser(null));

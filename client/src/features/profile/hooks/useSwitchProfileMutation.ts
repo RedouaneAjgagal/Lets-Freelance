@@ -6,6 +6,7 @@ import Toaster from "react-hot-toast";
 const useSwitchProfileMutation = () => {
     const queryClient = useQueryClient();
     const switchProfileMutation = useMutation({
+        mutationKey: ["switchProfile"],
         mutationFn: swtichProfile,
         onSuccess: ({ data }) => {
             queryClient.invalidateQueries({ queryKey: ["profileInfo"] });

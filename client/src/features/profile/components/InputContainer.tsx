@@ -13,6 +13,7 @@ interface Props {
     btnContent?: string;
     readonly?: boolean;
     disabled?: boolean;
+    placeHolder?: string;
 }
 
 const InputContainer = (props: React.PropsWithoutRef<Props>) => {
@@ -23,7 +24,7 @@ const InputContainer = (props: React.PropsWithoutRef<Props>) => {
                 {props.label}
             </label>
             <div className={`relative ${props.withBtn ? "grid grid-cols-3 gap-1 items-center" : ""}`}>
-                <input onChange={props.onChange} value={props.value} defaultValue={props.defaultValue} readOnly={props.readonly} disabled={props.readonly} type={props.type} id={props.name} name={props.name} className={`${props.isError ? "border-red-600" : "border-slate-300"} ${props.readonly ? "cursor-not-allowed" : ""} ${props.withBtn ? "col-span-2" : ""} border text-slate-600 rounded py-2 px-3 outline-none focus:border-slate-500 w-full`} />
+                <input onChange={props.onChange} value={props.value} defaultValue={props.defaultValue} readOnly={props.readonly} disabled={props.readonly} type={props.type} id={props.name} name={props.name} placeholder={props.placeHolder} className={`${props.isError ? "border-red-600" : "border-slate-300"} ${props.readonly ? "cursor-not-allowed" : ""} ${props.withBtn ? "col-span-2" : ""} border text-slate-600 rounded py-2 px-3 outline-none focus:border-slate-500 w-full`} />
                 {props.withBtn ?
                     <button onClick={props.onConfirm} disabled={props.disabled} type="button" className='col-span-1 bg-slate-500 text-white shadow-sm rounded p-1 h-full'>{props.btnContent}</button>
                     :

@@ -13,10 +13,28 @@ type EditProfileInputs = {
     types: "agency freelancers" | "independent freelancers" | "single freelancer";
     showProfile: boolean;
     description: string;
-    skills: { id: string; value: string }[];
     employees: string;
     company: string;
     website: string;
+    skills: {
+        id: string;
+        value: string
+    }[];
+    education: {
+        id: string;
+        title: string;
+        academy: string;
+        year: string;
+        description: string;
+    }[];
+    experience: {
+        id: string;
+        title: string;
+        company: string;
+        startDate: string;
+        endDate: string;
+        description: string;
+    }[];
 }
 
 
@@ -334,23 +352,6 @@ export const descriptionValidation = (description: EditProfileInputs["descriptio
     return result;
 }
 
-export const skillsValidation = (skills: EditProfileInputs["skills"]) => {
-    const result = {
-        isError: false,
-        reason: ""
-    }
-
-    if (skills.length > 10) {
-        console.log("more than 10");
-
-        result.isError = true;
-        result.reason = "Skills cannot be more than 10";
-        return result;
-    }
-
-    return result;
-}
-
 export const employeesValidation = (employees: EditProfileInputs["employees"]) => {
     const result = {
         isError: false,
@@ -416,4 +417,61 @@ export const websiteValidation = (website: EditProfileInputs["website"]) => {
     }
 
     return result;
+}
+
+export const skillsValidation = (skills: EditProfileInputs["skills"]) => {
+    const result = {
+        isError: false,
+        reason: ""
+    }
+
+    if (skills.length > 10) {
+        console.log("more than 10");
+
+        result.isError = true;
+        result.reason = "Skills cannot be more than 10";
+        return result;
+    }
+
+    return result;
+}
+
+export type EducationError = {
+    id: string;
+    title: string;
+    academy: string;
+    year: string;
+    description: string;
+}
+
+export const educationValidation = (educations: EditProfileInputs["education"]): EducationError[] => {
+    const educationKeys: ["title", "academy", "year", "description"] = ["title", "academy", "year", "description"];
+
+
+    const educationErrorList = educations.map(education => {
+        const isEducationError: EducationError = { id: education.id, title: "", academy: "", year: "", description: "" }
+
+        if (educations.length === 1 && educationKeys.every(key => education[key] === "")) {
+            return isEducationError;
+        }
+
+        educationKeys.forEach((key) => {
+            if (!education[key] || education[key].trim() === "") {
+                isEducationError[key] = `Must provide ${key} value`;
+            }
+
+            if (typeof education[key] !== "string") {
+                isEducationError[key] = `Invalid type`;
+            }
+
+            const maxCharacters = 300;
+            if (key === "description" && education[key].trim().length > maxCharacters) {
+                isEducationError[key] = `${key} must be less than ${maxCharacters} characters`;
+            }
+        });
+
+        return isEducationError;
+    });
+
+    return educationErrorList;
 }

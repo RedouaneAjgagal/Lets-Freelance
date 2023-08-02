@@ -25,6 +25,12 @@ export type ProfileInfo = {
             englishLevel: string;
             types: string;
             skills: string[];
+            education: {
+                title: string;
+                academy: string;
+                year: string;
+                description: string;
+            }[]
         }
         employer?: {
             employees: string;

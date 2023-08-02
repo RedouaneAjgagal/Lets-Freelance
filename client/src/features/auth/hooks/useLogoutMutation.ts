@@ -1,5 +1,5 @@
 import logoutRequest from "../services/logout";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "../../../hooks/redux";
@@ -7,10 +7,12 @@ import { authAction } from "../redux/auth";
 
 const useLogoutMutation = (successMsg: string) => {
     const dispatch = useAppDispatch();
+    const queryClient = useQueryClient();
     const logoutMutation = useMutation({
         mutationFn: logoutRequest,
         onSuccess: () => {
             dispatch(authAction.setUser(null));
+            queryClient.removeQueries(["profileInfo"])
             toast.success(successMsg);
         },
         onError: (error: AxiosError<{ msg: string }>) => {

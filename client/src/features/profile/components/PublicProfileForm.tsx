@@ -75,6 +75,7 @@ interface Props {
 }
 
 const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
+
     const { skills } = useAppSelector(state => state.profileSkillsReducer);
     const [formErrors, setFormErrors] = useState<{
         educationError: EducationError[] | null;
@@ -108,6 +109,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
 
     const updateProfileMutation = useUpdateProfileMutation();
 
+
+
     const updateProfileHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -127,6 +130,10 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             return educationInfo;
         });
 
+        const educationListWithoutId = educationList.map(education => {
+            return { title: education.title, academy: education.academy, year: education.year, description: education.description }
+        })
+
 
         const ExperienceList = formData.getAll("experienceId").map(experienceId => {
             const getTitleId = `experience-title/${experienceId}`;
@@ -134,7 +141,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             const getStartDateId = `experience-startDate/${experienceId}`;
             const getEndDateId = `experience-endDate/${experienceId}`;
             const getDescriptionId = `experience-description/${experienceId}`;
-            const educationInfo = {
+            const experienceInfo = {
                 id: experienceId.toString(),
                 title: formData.get(getTitleId)!.toString(),
                 company: formData.get(getCompanyId)!.toString(),
@@ -142,8 +149,12 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
                 endDate: formData.get(getEndDateId)!.toString(),
                 description: formData.get(getDescriptionId)!.toString()
             }
-            return educationInfo;
+            return experienceInfo;
         });
+
+        const ExperienceListWithoutId = ExperienceList.map(experience => {
+            return { title: experience.title, company: experience.company, startDate: experience.startDate, endDate: experience.endDate, description: experience.description }
+        })
 
         const generalData = {
             avatar: formData.get("avatar")!.toString(),
@@ -164,8 +175,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             englishLevel: formData.get("englishLevel")?.toString(),
             types: formData.get("types")?.toString(),
             skills: skills.map(skill => skill.value),
-            education: educationList,
-            experience: ExperienceList
+            education: educationListWithoutId,
+            experience: ExperienceListWithoutId
         }
 
         const employer = {
@@ -192,8 +203,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             });
         }
 
-        const educationErrors = educationValidation(roleData.freelancer?.education || []);
-        const experienceErrors = experienceValidation(roleData.freelancer?.experience || []);
+        const educationErrors = educationValidation(educationList);
+        const experienceErrors = experienceValidation(ExperienceList);
 
         const isValidEducation = educationErrors.every(errorKey => {
             return Object.entries(errorKey).every(([key, value]) => {
@@ -221,6 +232,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
 
         updateProfileMutation.mutate(updatedData);
     }
+
+
 
     return (
         <form onSubmit={updateProfileHandler} className="flex flex-col gap-4 mb-4">

@@ -2,7 +2,7 @@ import MyProfile from "./MyProfile"
 import Skills from "./Skills";
 import { PrimaryButton } from "../../../layouts/brand";
 import { BiArrowBack } from "react-icons/bi";
-import { nameValidation, phoneNumberValidation, hourlyRateValidation, avatarValidation, categoryValidation, companyNameValidation, countryValidation, dateOfBirthValidation, descriptionValidation, employeesValidation, englishLevelValidation, genderValidation, jobTitleValidation, portfolioValidation, showProfileValidation, skillsValidation, typesValidation, websiteValidation, educationValidation, EducationError } from "../validators/editProfileValidators";
+import { nameValidation, phoneNumberValidation, hourlyRateValidation, avatarValidation, categoryValidation, companyNameValidation, countryValidation, dateOfBirthValidation, descriptionValidation, employeesValidation, englishLevelValidation, genderValidation, jobTitleValidation, portfolioValidation, showProfileValidation, skillsValidation, typesValidation, websiteValidation, educationValidation, EducationError, ExperienceError, experienceValidation } from "../validators/editProfileValidators";
 import { useState } from "react";
 import { useAppSelector } from "../../../hooks/redux";
 import useUpdateProfileMutation from "../hooks/useUpdateProfileMutation";
@@ -76,7 +76,10 @@ interface Props {
 
 const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
     const { skills } = useAppSelector(state => state.profileSkillsReducer);
-    const [educationErrors, setEducationErrors] = useState<EducationError[] | null>(null);
+    const [formErrors, setFormErrors] = useState<{
+        educationError: EducationError[] | null;
+        experienceError: ExperienceError[] | null;
+    }>({ educationError: null, experienceError: null });
     const isUploadingAvatar = useIsMutating(["uploadAvatar"]);
 
     const errorInfo = { isError: false, reason: "" }
@@ -124,6 +127,24 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             return educationInfo;
         });
 
+
+        const ExperienceList = formData.getAll("experienceId").map(experienceId => {
+            const getTitleId = `experience-title/${experienceId}`;
+            const getCompanyId = `experience-company/${experienceId}`;
+            const getStartDateId = `experience-startDate/${experienceId}`;
+            const getEndDateId = `experience-endDate/${experienceId}`;
+            const getDescriptionId = `experience-description/${experienceId}`;
+            const educationInfo = {
+                id: experienceId.toString(),
+                title: formData.get(getTitleId)!.toString(),
+                company: formData.get(getCompanyId)!.toString(),
+                startDate: formData.get(getStartDateId)!.toString(),
+                endDate: formData.get(getEndDateId)!.toString(),
+                description: formData.get(getDescriptionId)!.toString()
+            }
+            return educationInfo;
+        });
+
         const generalData = {
             avatar: formData.get("avatar")!.toString(),
             name: formData.get("name")!.toString(),
@@ -143,7 +164,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             englishLevel: formData.get("englishLevel")?.toString(),
             types: formData.get("types")?.toString(),
             skills: skills.map(skill => skill.value),
-            education: educationList
+            education: educationList,
+            experience: ExperienceList
         }
 
         const employer = {
@@ -157,7 +179,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
 
         let isValidForm = true;
         for (const key in profileData) {
-            if (key === "education") continue;
+            if (key === "education" || key === "experience") continue;
             const getKey = key as GeneralUpdatedKeys;
             const value = profileData[getKey];
             const validation = validators[`${getKey}Validation`] as (value: string | number | boolean) => { isError: boolean; reason: string };
@@ -171,6 +193,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
         }
 
         const educationErrors = educationValidation(roleData.freelancer?.education || []);
+        const experienceErrors = experienceValidation(roleData.freelancer?.experience || []);
 
         const isValidEducation = educationErrors.every(errorKey => {
             return Object.entries(errorKey).every(([key, value]) => {
@@ -178,9 +201,16 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
                 return value === "";
             })
         });
-        setEducationErrors(educationErrors);
 
-        if (!isValidForm || !isValidEducation) return;
+        const isValidExperience = experienceErrors.every(errorKey => {
+            return Object.entries(errorKey).every(([key, value]) => {
+                if (key === "id") return true;
+                return value === "";
+            });
+        })
+        setFormErrors({ educationError: educationErrors, experienceError: experienceErrors });
+
+        if (!isValidForm || !isValidEducation || !isValidExperience) return;
 
         const updatedData = {
             profileInfo: {
@@ -197,8 +227,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             <MyProfile profileInfo={props.profileInfo} profileInputInfo={profileInputInfo} />
             {props.profileInfo.userAs === "freelancer" ?
                 <>
-                    <EducationContainer fetchedEducationList={props.profileInfo.roles.freelancer!.education.map(education => ({ ...education, id: crypto.randomUUID() }))} educationErrors={educationErrors} />
-                    <ExperienceContainer fetchedExperience={props.profileInfo.roles!.freelancer!.experience.map(experience => ({ ...experience, id: crypto.randomUUID() }))} experienceErrors={null} />
+                    <EducationContainer fetchedEducationList={props.profileInfo.roles.freelancer!.education.map(education => ({ ...education, id: crypto.randomUUID() }))} educationErrors={formErrors.educationError} />
+                    <ExperienceContainer fetchedExperience={props.profileInfo.roles!.freelancer!.experience.map(experience => ({ ...experience, id: crypto.randomUUID() }))} experienceErrors={formErrors.experienceError} />
                     <Skills fetchedSkills={props.profileInfo.roles.freelancer!.skills} />
                 </>
                 :

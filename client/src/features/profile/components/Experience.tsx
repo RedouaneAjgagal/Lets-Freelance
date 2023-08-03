@@ -17,13 +17,19 @@ const Experience = (props: React.PropsWithoutRef<Props>) => {
     const removeExperienceHandler = () => {
         props.onRemoveExperience(props.experience.id);
     }
+
+    const hasInvalidValue = Object.entries(props.error || true).some(([key, value]) => {
+        if (key === "id") return false;
+        return value !== "";
+    });
+
     return (
         <li>
-            <button type="button" onClick={() => setIsExperienceOpen(prev => !prev)} className={`flex items-center justify-between px-2 py-3 w-full border rounded font-medium text-slate-700 ${isExperienceOpen && "rounded-b-none"} ${false ? "border-red-600" : "border-slate-300"}`}>
+            <button type="button" onClick={() => setIsExperienceOpen(prev => !prev)} className={`flex items-center justify-between px-2 py-3 w-full border rounded font-medium text-slate-700 ${isExperienceOpen && "rounded-b-none"} ${hasInvalidValue ? "border-red-600" : "border-slate-300"}`}>
                 {`Experience ${props.index + 1}`}
                 <BsFillCaretDownFill className={`text-sm duration-200 ${isExperienceOpen ? "rotate-180" : ""}`} />
             </button>
-            <div className={`bg-white w-full z-20 top-13 flex flex-col gap-5 px-5 pt-4 pb-6 border border-t-0 rounded-b ${!isExperienceOpen && "hidden"} ${false ? "border-red-600" : "border-slate-300"}`}>
+            <div className={`bg-white w-full z-20 top-13 flex flex-col gap-5 px-5 pt-4 pb-6 border border-t-0 rounded-b ${!isExperienceOpen && "hidden"} ${hasInvalidValue ? "border-red-600" : "border-slate-300"}`}>
                 <InputContainer label="Title" name={`experience-title/${props.experience.id}`} type="text" placeHolder="e.g. Frontend Role" defaultValue={props.experience.title} isError={props.error?.title ? true : false} errorMsg={props.error?.title || ""} />
                 <InputContainer label="Company" name={`experience-company/${props.experience.id}`} type="text" placeHolder="e.g. Upwork" defaultValue={props.experience.company} isError={props.error?.company ? true : false} errorMsg={props.error?.company || ""} />
                 <InputContainer label="Start Date" name={`experience-startDate/${props.experience.id}`} type="text" placeHolder="e.g. 2022/08" defaultValue={props.experience.startDate} isError={props.error?.startDate ? true : false} errorMsg={props.error?.startDate || ""} />

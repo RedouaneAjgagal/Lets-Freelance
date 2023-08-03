@@ -484,3 +484,35 @@ export type ExperienceError = {
     endDate: string;
     description: string;
 }
+
+export const experienceValidation = (experiences: EditProfileInputs["experience"]): ExperienceError[] => {
+    const experienceKeys: ["title", "company", "startDate", "endDate", "description"] = ["title", "company", "startDate", "endDate", "description"];
+
+
+    const experienceErrorList = experiences.map(experience => {
+        const isExperienceError: ExperienceError = { id: experience.id, title: "", company: "", endDate: "", startDate: "", description: "" }
+
+        if (experiences.length === 1 && experienceKeys.every(key => experience[key] === "")) {
+            return isExperienceError;
+        }
+
+        experienceKeys.forEach((key) => {
+            if (!experience[key] || experience[key].trim() === "") {
+                isExperienceError[key] = `Must provide ${key} value`;
+            }
+
+            if (typeof experience[key] !== "string") {
+                isExperienceError[key] = `Invalid type`;
+            }
+
+            const maxCharacters = 300;
+            if (key === "description" && experience[key].trim().length > maxCharacters) {
+                isExperienceError[key] = `${key} must be less than ${maxCharacters} characters`;
+            }
+        });
+
+        return isExperienceError;
+    });
+
+    return experienceErrorList;
+}

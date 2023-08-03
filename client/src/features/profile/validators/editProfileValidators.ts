@@ -475,3 +475,12 @@ export const educationValidation = (educations: EditProfileInputs["education"]):
 
     return educationErrorList;
 }
+
+export type ExperienceError = {
+    id: string;
+    title: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+}

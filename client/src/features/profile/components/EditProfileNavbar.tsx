@@ -15,9 +15,12 @@ const EditProfileNavbar = (props: React.PropsWithoutRef<Props>) => {
     const disableHandler = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         isDisabled ? e.preventDefault() : null;
     }
+
+    const disabledLikeColor = isDisabled ? "text-slate-300 cursor-default" : "text-slate-500";
+
     return (
         <nav className="flex items-center gap-5 border border-slate-300 rounded p-2">
-            <Link onClick={disableHandler} to={"/profile/settings"} className={`text-slate-500 ${isDisabled ? "text-slate-300 cursor-default" : ""} ${props.isAccountSettings ? "" : "underline text-slate-800"}`}>Public profile</Link>
+            <Link onClick={disableHandler} to={"/profile/settings"} className={`${disabledLikeColor} ${props.isAccountSettings ? "" : "underline text-slate-800"}`}>Public profile</Link>
             <Link to={"/profile/settings?account-settings=true"} className={`text-slate-500 ${props.isAccountSettings ? "underline text-slate-800" : ""}`}>Account</Link>
         </nav>
     )

@@ -1,6 +1,34 @@
 import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api";
 
+export type FreelancerExperience = {
+    title: string;
+    company: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+}
+
+export type FreelancerEducation = {
+    title: string;
+    academy: string;
+    year: string;
+    description: string;
+}
+
+export type FreelancerInfo = {
+    dateOfBirth?: string;
+    hourlyRate: string;
+    jobTitle?: string;
+    portfolio?: string;
+    gender: string;
+    englishLevel: string;
+    types: string;
+    skills: string[];
+    education: FreelancerEducation[];
+    experience: FreelancerExperience[];
+}
+
 export type ProfileInfo = {
     _id: string;
     user: {
@@ -16,22 +44,7 @@ export type ProfileInfo = {
     description?: string;
     category: string;
     roles: {
-        freelancer?: {
-            dateOfBirth?: string;
-            hourlyRate: string;
-            jobTitle?: string;
-            portfolio?: string;
-            gender: string;
-            englishLevel: string;
-            types: string;
-            skills: string[];
-            education: {
-                title: string;
-                academy: string;
-                year: string;
-                description: string;
-            }[]
-        }
+        freelancer?: FreelancerInfo
         employer?: {
             employees: string;
             companyName?: string;

@@ -9,7 +9,8 @@ import useUpdateProfileMutation from "../hooks/useUpdateProfileMutation";
 import { UpdatedProfileData } from "../services/updateProfile";
 import { ProfileInfo } from "../services/getProfileInfo";
 import { useIsMutating } from "@tanstack/react-query";
-import EditSectionContainer from "./EducationContainer";
+import EducationContainer from "./EducationContainer";
+import ExperienceContainer from "./ExperienceContainer";
 
 type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description" | "showProfile";
 
@@ -196,7 +197,8 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             <MyProfile profileInfo={props.profileInfo} profileInputInfo={profileInputInfo} />
             {props.profileInfo.userAs === "freelancer" ?
                 <>
-                    <EditSectionContainer fetchedEducationList={props.profileInfo.roles.freelancer!.education.map(education => ({ ...education, id: crypto.randomUUID() }))} educationErrors={educationErrors} />
+                    <EducationContainer fetchedEducationList={props.profileInfo.roles.freelancer!.education.map(education => ({ ...education, id: crypto.randomUUID() }))} educationErrors={educationErrors} />
+                    <ExperienceContainer fetchedExperience={props.profileInfo.roles!.freelancer!.experience.map(experience => ({ ...experience, id: crypto.randomUUID() }))} experienceErrors={null} />
                     <Skills fetchedSkills={props.profileInfo.roles.freelancer!.skills} />
                 </>
                 :

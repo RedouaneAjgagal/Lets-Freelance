@@ -3,9 +3,8 @@ import LoginForm from "./components/LoginForm";
 import useVerifyEmailQuery from "./hooks/useVerifyEmailQuery";
 import authReducer from "./redux/auth";
 import useLogoutMutation from "./hooks/useLogoutMutation";
-// import useCurrentUserMutation from "./hooks/useCurrentUserMutation";
+import { User } from "./services/getCurrentUser";
 import useCurrentUserQuery from "./hooks/useCurrentUserQuery";
-
 
 export {
     RegisterForm,
@@ -14,4 +13,6 @@ export {
     authReducer,
     useLogoutMutation,
     useCurrentUserQuery
-}
+};
+
+export type { User };

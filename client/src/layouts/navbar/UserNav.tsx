@@ -1,13 +1,20 @@
 import { useAppSelector } from "../../hooks/redux";
 import { useState } from "react";
 import UserMenu from "./UserMenu";
+import useOverflow from "../../hooks/useOverflow";
 
 const UserNav = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const { userInfo } = useAppSelector(state => state.authReducer);
     const userMenuHandler = () => {
-        setIsMenuOpen(isOpen => !isOpen);
+        setIsUserMenuOpen(isOpen => !isOpen);
     }
+
+    const closeMenuHandler = () => {
+        setIsUserMenuOpen(false);
+    }
+
+    useOverflow(isUserMenuOpen);
     return (
         <>
             <span role="button" onClick={userMenuHandler}>
@@ -15,11 +22,7 @@ const UserNav = () => {
                     <img src={userInfo!.avatar} alt={`${userInfo!.userName}'s profile image`} className="rounded-full w-11 h-11 object-cover" />
                 </div>
             </span>
-            {isMenuOpen ?
-                <UserMenu />
-                :
-                null
-            }
+            <UserMenu userInfo={userInfo!} isMenuOpen={isUserMenuOpen} onCloseMenu={closeMenuHandler} />
         </>
     )
 }

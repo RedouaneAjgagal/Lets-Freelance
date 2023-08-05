@@ -3,6 +3,7 @@ import { getRequest } from "../../../services/api";
 
 export type User = {
     userId: string;
+    profileId: string;
     userName: string;
     avatar: string;
     expirationDate: number;

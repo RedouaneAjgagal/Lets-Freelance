@@ -39,7 +39,7 @@ const EducationContainer = (props: React.PropsWithoutRef<Props>) => {
         <EditSection title="Education" titleColor="black">
             <EducationList educationList={educationList} educationErrors={props.educationErrors} onRemoveEducation={removeEducationHandler} />
             <div>
-                <PrimaryButton onClick={addEducationHandler} type="button" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Add Education</PrimaryButton>
+                <PrimaryButton style="outline" onClick={addEducationHandler} type="button" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Add Education</PrimaryButton>
             </div>
         </EditSection>
     )

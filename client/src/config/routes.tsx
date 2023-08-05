@@ -6,7 +6,7 @@ import Login from "../pages/Login";
 import ForgetPassword from "../pages/ForgetPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
-import { Settings, ResetEmail } from "../pages/profile";
+import { Settings, ResetEmail, SingleProfile } from "../pages/profile";
 
 const router = createBrowserRouter([
     {
@@ -44,6 +44,10 @@ const router = createBrowserRouter([
             {
                 path: "profile/settings/reset-email",
                 element: <ResetEmail />
+            },
+            {
+                path: "profiles/:profileId",
+                element: <SingleProfile />
             }
         ]
     }

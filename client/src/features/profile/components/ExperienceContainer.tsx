@@ -34,7 +34,7 @@ const ExperienceContainer = (props: React.PropsWithoutRef<Props>) => {
         <EditSection title='Experience' titleColor='black'>
             <ExperienceList experienceList={experienceList} onRemoveExperience={removeExperienceHandler} experienceErrors={props.experienceErrors} />
             <div>
-                <PrimaryButton onClick={addExperienceHandler} type="button" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Add Experience</PrimaryButton>
+                <PrimaryButton style='outline' onClick={addExperienceHandler} type="button" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Add Experience</PrimaryButton>
             </div>
         </EditSection>
     )

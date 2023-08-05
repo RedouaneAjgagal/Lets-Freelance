@@ -105,7 +105,7 @@ const RegisterForm = () => {
                 <InputContainer onChange={onChangeEmail} isError={isSubmitted && registerInfo.email.isError} errorMsg={registerInfo.email.error} value={registerInfo.email.value} name="email" label="Email" placeholder="Email address" type="email" requiredSign />
                 <InputContainer onChange={onChangePassword} isError={isSubmitted && registerInfo.password.isError} errorMsg={registerInfo.password.error} value={registerInfo.password.value} name="password" label="Password" placeholder="Password" type="password" requiredSign />
             </div>
-            <PrimaryButton disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+            <PrimaryButton style="solid" disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Register Now
                 <BiArrowBack className="rotate-[135deg]" />
             </PrimaryButton>

@@ -81,7 +81,7 @@ const ResetEmailForm = () => {
             <form onSubmit={resetEmailhandler} noValidate className="flex flex-col gap-6">
                 <InputContainer onChange={newEmailOnChange} value={resetEmailInfo.newEmail.value} label="New email" name="newEmail" type="email" isError={isSubmitted && resetEmailInfo.newEmail.isError} errorMsg={resetEmailInfo.newEmail.error} />
                 <InputContainer onChange={repeatNewEmailOnChange} value={resetEmailInfo.repeatNewEmail.value} label="Repeat new email" name="repeatNewEmail" type="email" isError={isSubmitted && resetEmailInfo.repeatNewEmail.isError} errorMsg={resetEmailInfo.repeatNewEmail.error} />
-                <PrimaryButton type="submit" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Update Email</PrimaryButton>
+                <PrimaryButton style='solid' type="submit" x="md" y="md" fullWith={false} justifyConent="start" disabled={false}>Update Email</PrimaryButton>
             </form>
         </EditSection>
     )

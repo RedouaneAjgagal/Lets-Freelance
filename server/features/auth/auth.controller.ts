@@ -354,12 +354,12 @@ const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const expirationDate = new Date(exp * 1000).getTime();
 
     const profile = await Profile.findOne({ user: userId });
-    
+
     if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    res.status(StatusCodes.OK).json({ userId, userName: profile.name, avatar: profile.avatar, expirationDate });
+    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate });
 }
 
 

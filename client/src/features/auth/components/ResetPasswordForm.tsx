@@ -89,7 +89,7 @@ const ResetPasswordForm = () => {
         <form onSubmit={resetPasswordSubmitHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
             <InputContainer onChange={onChangeNewPassword} isError={isSubmitted && resetPasswordInfo.newPassword.isError} errorMsg={resetPasswordInfo.newPassword.error} value={resetPasswordInfo.newPassword.value} name="password" label="New Password" placeholder="Password" type="password" requiredSign={false} />
             <InputContainer onChange={onChangeRepeatNewPassword} isError={isSubmitted && resetPasswordInfo.repeatNewPassword.isError} errorMsg={resetPasswordInfo.repeatNewPassword.error} value={resetPasswordInfo.repeatNewPassword.value} name="repeatedPassword" label="Repeat New Password" placeholder="Password" type="password" requiredSign={false} />
-            <PrimaryButton disabled={resetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+            <PrimaryButton style='solid' disabled={resetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Reset Password
                 <BiArrowBack className="rotate-[135deg]" />
             </PrimaryButton>

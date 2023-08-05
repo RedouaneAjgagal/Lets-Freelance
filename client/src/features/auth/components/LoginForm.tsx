@@ -86,7 +86,7 @@ const LoginForm = () => {
             <InputContainer onChange={onChangePassword} value={loginInfo.password.value} isError={isSubmitted && loginInfo.password.isError} errorMsg={loginInfo.password.error} name="password" label="Password" placeholder="Password" type="password" requiredSign={false} />
             <div className='flex flex-col gap-2'>
                 <Link to={"/auth/forget-password"} className='self-start text-sm font-medium text-purple-600'>Forgotten Password?</Link>
-                <PrimaryButton disabled={loginMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+                <PrimaryButton style='solid' disabled={loginMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                     Login
                     <BiArrowBack className="rotate-[135deg]" />
                 </PrimaryButton>

@@ -246,7 +246,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
                 </>
                 :
                 null}
-            <PrimaryButton disabled={updateProfileMutation.isLoading || isUploadingAvatar === 1} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
+            <PrimaryButton style="solid" disabled={updateProfileMutation.isLoading || isUploadingAvatar === 1} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
         </form>
     )
 }

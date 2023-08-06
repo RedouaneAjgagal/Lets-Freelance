@@ -3,7 +3,11 @@ import SocialShare from "./SocialShare";
 import SaveProfile from "./SaveProfile";
 import ReportProfile from "./ReportProfile";
 
-const SingleProfileNav = () => {
+interface Props {
+    isCurrentUser: boolean;
+}
+
+const SingleProfileNav = (props: React.PropsWithoutRef<Props>) => {
 
     const socialPlatforms = [
         { icon: FaTwitter, href: "https://twitter.com" },
@@ -12,13 +16,13 @@ const SingleProfileNav = () => {
     ];
 
     return (
-        <div className="p-4 inline-flex items-center justify-between">
+        <nav className="p-4 inline-flex items-center justify-between w-full">
             <div className="flex items-center  gap-6">
                 <SocialShare socialPlatforms={socialPlatforms} />
-                <SaveProfile />
+                {!props.isCurrentUser ? <SaveProfile /> : null}
             </div>
-            <ReportProfile />
-        </div>
+            {!props.isCurrentUser ? <ReportProfile /> : null}
+        </nav>
     )
 }
 

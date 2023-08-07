@@ -1,5 +1,4 @@
 import CustomIcon from "../../../components/CustomIcon";
-import { BiX } from "react-icons/bi";
 
 interface Props {
     freelancerServiceDetail: {

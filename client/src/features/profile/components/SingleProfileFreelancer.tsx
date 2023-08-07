@@ -1,6 +1,7 @@
 import SingleProfileNav from './SingleProfileNav'
 import ProfileHeader from './ProfileHeader'
 import ServiceDetail from './ServiceDetail'
+import AboutFreelancer from './AboutFreelancer'
 
 const freelancerInfo = {
     name: "user demo",
@@ -19,6 +20,8 @@ const freelancerServiceDetail = {
     inQueueService: 11
 }
 
+const aboutFreelancerContent = "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Repellat officia in libero, praesentium dolor et dolores voluptatibus ipsam quam temporibus molestiae vero aperiam placeat exercitationem tempora, iusto id maiores corporis!";
+
 const SingleProfileFreelancer = () => {
     return (
         <>
@@ -27,6 +30,7 @@ const SingleProfileFreelancer = () => {
                 <ProfileHeader userInfo={freelancerInfo} />
             </header>
             <ServiceDetail freelancerServiceDetail={freelancerServiceDetail} />
+            <AboutFreelancer content={aboutFreelancerContent} />
         </>
     )
 }

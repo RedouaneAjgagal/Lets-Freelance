@@ -3,6 +3,7 @@ import ProfileHeader from './ProfileHeader'
 import ServiceDetail from './ServiceDetail'
 import AboutFreelancer from './AboutFreelancer'
 import ProfileEducation from './ProfileEducation'
+import ProfileExperience from './ProfileExperience'
 
 const freelancerInfo = {
     name: "user demo",
@@ -37,6 +38,23 @@ const educations = [
         year: "2021-2022",
         description: "adipisicing elit. Cupiditate, illo inventore mollitia tempore, pariatur vel doloribus maiores, accusamus commodi magnam dolore consequuntur aut? Sed commodi hic, laudantium distinctio debitis in."
     }
+];
+
+const experiences = [
+    {
+        title: "Frontend Role",
+        company: "Pinterest",
+        startDate: "2022/08",
+        endDate: "2023/03",
+        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolores, nemo possimus rem saepe sapiente illo dolor libero distinctio aut necessitatibus? Atque impedit corrupti ab, quod soluta consectetur placeat omnis."
+    },
+    {
+        title: "Backend Role",
+        company: "X (Twitter)",
+        startDate: "2023/01",
+        endDate: "2023/08",
+        description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolores, nemo possimus rem saepe sapiente illo dolor libero distinctio aut necessitatibus? Atque impedit corrupti ab, quod soluta consectetur placeat omnis."
+    }
 ]
 
 const SingleProfileFreelancer = () => {
@@ -49,6 +67,7 @@ const SingleProfileFreelancer = () => {
             <ServiceDetail freelancerServiceDetail={freelancerServiceDetail} />
             <AboutFreelancer content={aboutFreelancerContent} />
             <ProfileEducation educations={educations} />
+            <ProfileExperience experiences={experiences} />
         </>
     )
 }

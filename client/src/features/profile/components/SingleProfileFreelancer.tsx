@@ -5,6 +5,7 @@ import AboutFreelancer from './AboutFreelancer'
 import ProfileEducation from './ProfileEducation'
 import ProfileExperience from './ProfileExperience'
 import ProfileServices from './ProfileServices'
+import ContactFreelancerSection from './ContactFreelancerSection'
 
 const freelancerInfo = {
     name: "user demo",
@@ -87,7 +88,19 @@ const services = [
     }
 ]
 
+const freelancerDetails = {
+    hourlyRate: 25,
+    location: "Log Angeles",
+    type: "Single freelancer",
+    englishLevel: "Conversational",
+    gender: "Male",
+    portfolio: "https://github.com/RedouaneAjgagal"
+}
+
 const SingleProfileFreelancer = () => {
+
+
+
     return (
         <>
             <header>
@@ -99,6 +112,9 @@ const SingleProfileFreelancer = () => {
             <ProfileEducation educations={educations} />
             <ProfileExperience experiences={experiences} />
             <ProfileServices services={services} />
+            <aside className='-mt-10'>
+                <ContactFreelancerSection freelancerDetails={freelancerDetails} />
+            </aside>
         </>
     )
 }

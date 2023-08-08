@@ -24,7 +24,7 @@ interface Props {
 const ProfileServices = (props: React.PropsWithoutRef<Props>) => {
     return (
         <div className="px-4 overflow-hidden">
-            <section className="border-t py-7 flex flex-col gap-1">
+            <section className="border-t pt-7 flex flex-col gap-1">
                 <h2 className="font-medium text-2xl ">Services</h2>
                 <Link to="/" className='text-purple-500 underline text-sm flex items-center gap-1 self-start mb-6'>
                     Browse Full List

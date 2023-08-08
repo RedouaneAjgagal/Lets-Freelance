@@ -1,6 +1,6 @@
 import HighestRatedFreelancer from "./HighestRatedFreelancer"
-import { Swiper } from "../../layouts/swiper";
 import { SwiperSlide } from "swiper/react";
+import Slider from "../Slider";
 
 const highestRatedFreelancerData = [
     {
@@ -50,13 +50,13 @@ const highestRatedFreelancerData = [
 const HighestRatedFreelancersList = () => {
     return (
         <div className="mt-4">
-            <Swiper pagination navigation={false} slidesPerView={1} spaceBetween={10} autoPlay={false}>
+            <Slider isPagination slidesPerView={1} isAutoPlay={false}>
                 {highestRatedFreelancerData.map((freelancer) =>
                     <SwiperSlide key={freelancer._id}>
                         <HighestRatedFreelancer freelancerInfo={freelancer} />
                     </SwiperSlide>
                 )}
-            </Swiper>
+            </Slider>
         </div>
     )
 }

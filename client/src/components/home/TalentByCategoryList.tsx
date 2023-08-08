@@ -1,6 +1,6 @@
 import TalentByCategory from "./TalentByCategory";
-import { Swiper } from "../../layouts/swiper";
 import { SwiperSlide } from "swiper/react";
+import Slider from "../Slider";
 
 const telentCategory = [
     {
@@ -44,11 +44,13 @@ const telentCategory = [
 const TalentByCategoryList = () => {
     return (
         <div className="mt-4">
-            <Swiper slidesPerView={2} spaceBetween={10} pagination navigation={false} autoPlay>
-                {telentCategory.map((category) => <SwiperSlide key={category._id} tag="li">
-                    <TalentByCategory categoryInfo={category} />
-                </SwiperSlide>)}
-            </Swiper>
+            <Slider slidesPerView={2} isPagination isAutoPlay>
+                {telentCategory.map((category) =>
+                    <SwiperSlide key={category._id} tag="li">
+                        <TalentByCategory categoryInfo={category} />
+                    </SwiperSlide>
+                )}
+            </Slider>
         </div>
     )
 }

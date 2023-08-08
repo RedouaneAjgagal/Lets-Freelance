@@ -1,7 +1,6 @@
 import TrendingService from "./TrendingService"
 import { SwiperSlide } from "swiper/react";
-import { Swiper } from "../../layouts/swiper";
-import { BiArrowBack } from "react-icons/bi";
+import Slider from "../Slider";
 
 const dummyData = [
     {
@@ -73,19 +72,13 @@ const dummyData = [
 
 const TrendingServicesList = () => {
     return (
-        <div className="mt-4 relative">
-            <button className="prevTrendingService absolute -left-3 top-[47%] -translate-y-1/2 z-20 w-9 h-9 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg">
-                <BiArrowBack />
-            </button>
-            <Swiper spaceBetween={10} slidesPerView={1} navigation pagination nextEl="nextTrendingService" prevEl="prevTrendingService" autoPlay>
-                {dummyData.map(service => <SwiperSlide tag="li" key={service._id}>
+        <Slider isAutoPlay navigationClassName="services" isPagination slidesPerView={1}>
+            {dummyData.map(service =>
+                <SwiperSlide tag="li" key={service._id}>
                     <TrendingService serviceInfo={service} />
-                </SwiperSlide>)}
-            </Swiper>
-            <button className="nextTrendingService absolute -right-3 top-[47%] -translate-y-1/2 z-20 w-9 h-9 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg">
-                <BiArrowBack className="rotate-180" />
-            </button>
-        </div>
+                </SwiperSlide>
+            )}
+        </Slider>
     )
 }
 

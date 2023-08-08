@@ -6,6 +6,7 @@ import ProfileEducation from './ProfileEducation'
 import ProfileExperience from './ProfileExperience'
 import ProfileServices from './ProfileServices'
 import ContactFreelancerSection from './ContactFreelancerSection'
+import ProfileSkills from './ProfileSkills'
 
 const freelancerInfo = {
     name: "user demo",
@@ -97,6 +98,8 @@ const freelancerDetails = {
     portfolio: "https://github.com/RedouaneAjgagal"
 }
 
+const skills = ["React", "TailwindCSS", "Node & Express", "Mongodb"];
+
 const SingleProfileFreelancer = () => {
 
 
@@ -114,6 +117,7 @@ const SingleProfileFreelancer = () => {
             <ProfileServices services={services} />
             <aside className='-mt-10'>
                 <ContactFreelancerSection freelancerDetails={freelancerDetails} />
+                <ProfileSkills skills={skills} />
             </aside>
         </>
     )

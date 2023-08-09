@@ -7,6 +7,7 @@ import ProfileExperience from './ProfileExperience'
 import ProfileServices from './ProfileServices'
 import ContactFreelancerSection from './ContactFreelancerSection'
 import ProfileSkills from './ProfileSkills'
+import ProfileWorkHistory from './ProfileWorkHistory'
 
 const freelancerInfo = {
     name: "user demo",
@@ -100,10 +101,42 @@ const freelancerDetails = {
 
 const skills = ["React", "TailwindCSS", "Node & Express", "Mongodb"];
 
+const completedJobs = [
+    {
+        title: "Fix bugs in my website",
+        rating: 5,
+        startDate: "2023-08-01T00:00:00.000Z",
+        endDate: "2023-08-08T00:00:00.000Z",
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi tempora voluptatem sunt dolorum vel voluptates harum excepturi unde atque a? Consectetur aperiam accusantium obcaecati praesentium quo! Necessitatibus accusantium nihil dolor."
+    },
+    {
+        title: "Create an admin dashboard",
+        rating: 4.4,
+        startDate: "2023-02-03T00:00:00.000Z",
+        endDate: "2023-05-16T00:00:00.000Z",
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi tempora voluptatem sunt dolorum vel voluptates harum excepturi unde atque a?"
+    },
+    {
+        title: "Improve my website's user interface",
+        rating: 4.7,
+        startDate: "2022-11-09T00:00:00.000Z",
+        endDate: "2023-01-23T00:00:00.000Z",
+        content: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi tempora voluptatem sunt dolorum vel voluptates harum excepturi unde atque a? Consectetur aperiam accusantium obcaecati praesentium quo! Necessitatibus accusantium nihil dolor. Lorem ipsum dolor sit amet, consectetur adipisicing elit."
+    }
+];
+
+const inProgressJobs = [
+    {
+        title: "React developer for medical startup",
+        startDate: "2023-08-09T00:00:00.000Z"
+    },
+    {
+        title: "Build discord chat bot",
+        startDate: "2023-06-23T00:00:00.000Z"
+    }
+]
+
 const SingleProfileFreelancer = () => {
-
-
-
     return (
         <>
             <header>
@@ -119,6 +152,7 @@ const SingleProfileFreelancer = () => {
                 <ContactFreelancerSection freelancerDetails={freelancerDetails} />
                 <ProfileSkills skills={skills} />
             </aside>
+            <ProfileWorkHistory completedJobs={completedJobs} inProgressJobs={inProgressJobs} />
         </>
     )
 }

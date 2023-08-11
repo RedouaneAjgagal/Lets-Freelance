@@ -5,11 +5,12 @@ interface Props {
     workHistoryTab: "completedJobs" | "inProgress";
     onSwitchToCompletedJobs: () => void;
     onSwitchToInProgressJobs: () => void;
+    historyType: "work" | "contract";
 }
 
-const WorkHistoryTabList = (props: React.PropsWithoutRef<Props>) => {
+const HistoryTabList = (props: React.PropsWithoutRef<Props>) => {
 
-    const completedJobs = `Completed jobs (${props.completedJobs})`;
+    const completedJobs = `Completed ${props.historyType === "work" ? "Jobs" : "Contracts"} (${props.completedJobs})`;
     const inProgressJobs = `In progress (${props.inProgressJobs})`;
 
     return (
@@ -28,4 +29,4 @@ const WorkHistoryTabList = (props: React.PropsWithoutRef<Props>) => {
     )
 }
 
-export default WorkHistoryTabList
+export default HistoryTabList

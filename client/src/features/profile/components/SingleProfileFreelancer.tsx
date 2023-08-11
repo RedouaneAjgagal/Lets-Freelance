@@ -1,13 +1,13 @@
 import SingleProfileNav from './SingleProfileNav'
 import ProfileHeader from './ProfileHeader'
 import ServiceDetail from './ServiceDetail'
-import AboutFreelancer from './AboutFreelancer'
+import AboutProfile from './AboutProfile'
 import ProfileEducation from './ProfileEducation'
 import ProfileExperience from './ProfileExperience'
 import ProfileServices from './ProfileServices'
-import ContactFreelancerSection from './ContactFreelancerSection'
+import ContactSection from './ContactSection'
 import ProfileSkills from './ProfileSkills'
-import ProfileWorkHistory from './ProfileWorkHistory'
+import ProfileHistory from './ProfileHistory'
 
 const freelancerInfo = {
     name: "user demo",
@@ -141,18 +141,18 @@ const SingleProfileFreelancer = () => {
         <>
             <header>
                 <SingleProfileNav isCurrentUser={false} />
-                <ProfileHeader userInfo={freelancerInfo} />
+                <ProfileHeader profile='freelancer' userInfo={freelancerInfo} />
             </header>
             <ServiceDetail freelancerServiceDetail={freelancerServiceDetail} />
-            <AboutFreelancer content={aboutFreelancerContent} />
+            <AboutProfile profile='freelancer' content={aboutFreelancerContent} />
             <ProfileEducation educations={educations} />
             <ProfileExperience experiences={experiences} />
             <ProfileServices services={services} />
             <aside className='-mt-10'>
-                <ContactFreelancerSection freelancerDetails={freelancerDetails} />
+                <ContactSection contactType="freelancer" details={freelancerDetails} />
                 <ProfileSkills skills={skills} />
             </aside>
-            <ProfileWorkHistory completedJobs={completedJobs} inProgressJobs={inProgressJobs} />
+            <ProfileHistory historyType='work' completedJobs={completedJobs} inProgressJobs={inProgressJobs} />
         </>
     )
 }

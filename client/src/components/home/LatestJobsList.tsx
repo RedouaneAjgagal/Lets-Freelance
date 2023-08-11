@@ -1,8 +1,8 @@
-import LatestJob from "./LatestJob"
+import JobItem from "./JobItem"
 
 const latestJobsData = [
     {
-        id: "1",
+        _id: "1",
         title: "Food delivery mobile app on IOS and Android",
         location: "New York",
         postedAt: "2 weeks",
@@ -13,7 +13,7 @@ const latestJobsData = [
         }
     },
     {
-        id: "2",
+        _id: "2",
         title: "English content writer for college",
         location: "Los Angeles",
         postedAt: "1 month",
@@ -24,7 +24,7 @@ const latestJobsData = [
         }
     },
     {
-        id: "3",
+        _id: "3",
         title: "Developer to framework for web agency",
         location: "New York",
         postedAt: "1 month",
@@ -35,7 +35,7 @@ const latestJobsData = [
         }
     },
     {
-        id: "4",
+        _id: "4",
         title: "Video animator to bring some illustrations to life",
         location: "Los Angeles",
         postedAt: "3 months",
@@ -50,7 +50,19 @@ const latestJobsData = [
 const LatestJobsList = () => {
     return (
         <ul className="mt-4 grid gap-5">
-            {latestJobsData.map((latestJob) => <LatestJob key={latestJob.id} latestJobInfo={latestJob} />)}
+            {latestJobsData.map((latestJob) => {
+                const tags = [
+                    latestJob.location,
+                    `Posted ${latestJob.postedAt} ago`,
+                    `${latestJob.porposals.length} Porposals`
+                ];
+                const jobInfo = {
+                    _id: latestJob._id,
+                    employer: latestJob.employer,
+                    title: latestJob.title
+                };
+                return <JobItem key={latestJob._id} jobInfo={jobInfo} tags={tags} />
+            })}
         </ul>
     )
 }

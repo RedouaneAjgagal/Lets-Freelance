@@ -1,4 +1,4 @@
-import WorkHistoryTabList from "./WorkHistoryTabList";
+import HistoryTabList from "./HistoryTabList";
 import CompletedJob from "./CompletedJob";
 import InProgressJob from "./InProgressJob";
 import { useState } from "react";
@@ -15,10 +15,12 @@ interface Props {
     inProgressJobs: {
         title: string;
         startDate: string;
-    }[]
+    }[];
+    historyType: "work" | "contract";
 }
 
-const ProfileWorkHistory = (props: React.PropsWithoutRef<Props>) => {
+const ProfileHistory = (props: React.PropsWithoutRef<Props>) => {
+    const title = props.historyType === "work" ? "Work History" : "Contract History";
 
     const [workHistoryTab, setWorkHistoryTab] = useState<"completedJobs" | "inProgress">("completedJobs");
 
@@ -32,9 +34,9 @@ const ProfileWorkHistory = (props: React.PropsWithoutRef<Props>) => {
 
     return (
         <section className="py-4 flex flex-col gap-3">
-            <h2 className="font-medium text-2xl px-4">Work History</h2>
+            <h2 className="font-medium text-2xl px-4">{title}</h2>
             <div>
-                <WorkHistoryTabList completedJobs={props.completedJobs.length} inProgressJobs={props.inProgressJobs.length} onSwitchToCompletedJobs={displayCompletedJobsHandler} onSwitchToInProgressJobs={displayInProgessJobsHandler} workHistoryTab={workHistoryTab} />
+                <HistoryTabList historyType={props.historyType} completedJobs={props.completedJobs.length} inProgressJobs={props.inProgressJobs.length} onSwitchToCompletedJobs={displayCompletedJobsHandler} onSwitchToInProgressJobs={displayInProgessJobsHandler} workHistoryTab={workHistoryTab} />
                 <ul className="p-4 flex flex-col gap-5">
                     {workHistoryTab === "completedJobs" ?
                         props.completedJobs.map((job, index) => <CompletedJob key={index} jobDetail={job} />)
@@ -47,4 +49,4 @@ const ProfileWorkHistory = (props: React.PropsWithoutRef<Props>) => {
     )
 }
 
-export default ProfileWorkHistory
+export default ProfileHistory

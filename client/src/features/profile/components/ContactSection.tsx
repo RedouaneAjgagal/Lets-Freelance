@@ -10,11 +10,12 @@ type FreelancerDetails = {
     contactType: "freelancer";
     details: {
         hourlyRate: number;
-        location: string;
-        type: string;
-        englishLevel: string;
-        gender: string;
-        portfolio: string;
+        location: string | undefined;
+        category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+        type: "agency freelancers" | "independent freelancers" | "single freelancer";
+        englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
+        gender: "male" | "female";
+        portfolio: string | undefined;
     };
 }
 
@@ -33,10 +34,11 @@ type Content = { icon: IconType; value: string; isLink: boolean }
 
 type Freelancer = {
     "Location": Content;
+    "Category": Content;
     "Type": Content;
     "English Level": Content;
     "Gender": Content;
-    "Portfolio": Content;
+    "Portfolio"?: Content;
 }
 
 type Employer = {
@@ -56,10 +58,16 @@ const ContactSection = (props: React.PropsWithoutRef<FreelancerDetails | Employe
     let details = {} as Freelancer | Employer;
 
     if (props.contactType === "freelancer") {
+
         details = {
             "Location": {
                 icon: TbLocation,
-                value: props.details.location,
+                value: props.details.location || "Unknown",
+                isLink: false
+            },
+            "Category": {
+                icon: TbCategory,
+                value: props.details.category,
                 isLink: false
             },
             "Type": {
@@ -76,13 +84,16 @@ const ContactSection = (props: React.PropsWithoutRef<FreelancerDetails | Employe
                 icon: BsGenderMale,
                 value: props.details.gender,
                 isLink: false
-            },
-            "Portfolio": {
+            }
+        };
+        if (props.details.portfolio) {
+            details["Portfolio"] = {
                 icon: TbWorldWww,
                 value: props.details.portfolio,
                 isLink: true
-            },
-        }
+            }
+        };
+
     } else {
         const employees = props.details.employees === 0 ? "Self-employed" : props.details.employees.toString();
         details = {

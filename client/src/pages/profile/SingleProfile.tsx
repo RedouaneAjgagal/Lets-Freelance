@@ -1,12 +1,13 @@
 import SingleProfileEmployer from "../../features/profile/components/SingleProfileEmployer";
 import SingleProfileFreelancer from "../../features/profile/components/SingleProfileFreelancer"
-
-const targetAs: "freelancer" | "employer" = "freelancer";
+import useSingleProfileQuery from "../../features/profile/hooks/useSingleProfileQuery";
 
 const SingleProfile = () => {
+    const singleProfileQuery = useSingleProfileQuery();
+
     return (
         <main className="grid gap-4">
-            {targetAs === "freelancer" ?
+            {singleProfileQuery.data?.userAs === "freelancer" ?
                 <SingleProfileFreelancer />
                 :
                 <SingleProfileEmployer />

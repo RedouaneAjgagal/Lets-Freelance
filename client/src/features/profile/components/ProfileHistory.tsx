@@ -7,7 +7,7 @@ import { useState } from "react";
 interface Props {
     completedJobs: {
         title: string;
-        rating: number;
+        rate: number;
         startDate: string;
         endDate: string;
         content: string;

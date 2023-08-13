@@ -19,9 +19,9 @@ const SingleProfileNav = (props: React.PropsWithoutRef<Props>) => {
         <nav className="p-4 inline-flex items-center justify-between w-full">
             <div className="flex items-center  gap-6">
                 <SocialShare socialPlatforms={socialPlatforms} />
-                {!props.isCurrentUser ? <SaveProfile /> : null}
+                {props.isCurrentUser ? null : <SaveProfile />}
             </div>
-            {!props.isCurrentUser ? <ReportProfile /> : null}
+            {props.isCurrentUser ? null : <ReportProfile />}
         </nav>
     )
 }

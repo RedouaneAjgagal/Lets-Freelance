@@ -13,6 +13,7 @@ interface Props {
         location: string;
         dateOfBirth?: string;
     };
+    isCurrentUser: boolean;
 }
 
 const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
@@ -42,7 +43,7 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                             <div className="flex items-center flex-wrap gap-2">
                                 <TbStar className="text-lg text-slate-700" />
                                 <span>{props.userInfo.rating.toFixed(1)}</span>
-                                <span>{`(${props.userInfo.rating} Reviews)`}</span>
+                                <span>{`(${props.userInfo.reviews} Reviews)`}</span>
                             </div>
                             <div className="flex items-center flex-wrap gap-2">
                                 <TbLocation className="text-lg text-slate-700" />
@@ -59,14 +60,17 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                         </div>
                     </div>
                 </article>
-                <div className="flex gap-3">
-                    {props.profile === "freelancer" ?
-                        <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Invite" onClick={inviteHandler} disabled={false} />
-                        :
-                        null
-                    }
-                    <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Message" onClick={messageHandler} disabled={false} />
-                </div>
+                {props.isCurrentUser ?
+                    null :
+                    <div className="flex gap-3">
+                        {props.profile === "freelancer" ?
+                            <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Invite" onClick={inviteHandler} disabled={false} />
+                            :
+                            null
+                        }
+                        <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Message" onClick={messageHandler} disabled={false} />
+                    </div>
+                }
             </div>
         </section>
     )

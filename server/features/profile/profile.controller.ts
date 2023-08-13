@@ -26,14 +26,166 @@ const profileInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc get signle profile info 
 //@route GET /api/v1/profile/:profileId
 //@access public
+
+type GeneralDummyDetails = {
+    rating: number;
+    completedJobs: { title: string; content: string; rate: number; startDate: string; endDate: string }[];
+}
+
+type Freelancer = {
+    serviceDetail: {
+        projectSuccess: number;
+        totalService: number;
+        completedService: number;
+        inQueueService: number;
+    };
+    services: {
+        _id: string;
+        img: string;
+        category: string;
+        title: string;
+        rate: number;
+        reviews: number;
+        user: {
+            img: string;
+            name: string;
+        };
+        price: number;
+    }[];
+    inProgressJobs: {
+        title: string,
+        startDate: string
+    }[];
+}
+
+type Employer = {
+    openJobs: {
+        _id: string;
+        title: string;
+        location: string;
+        category: string;
+        price: { start: number; end: number } | number;
+        jobType: string;
+        employer: {
+            name: string;
+        }
+    }[]
+}
+
 const singleProfile: RequestHandler = async (req, res) => {
     const { profileId } = req.params;
-    const profile = await Profile.findById(profileId).populate({ path: "user", select: "email role" });
+    const profile = await Profile.findById(profileId).populate({ path: "user", select: "role" });
     if (!profile) {
         throw new NotFoundError("Found no profile");
     }
+
+
+    let additionalDummyData: GeneralDummyDetails & Partial<Freelancer | Employer> = {
+        rating: 5,
+        completedJobs: [
+            {
+                title: "Fix bugs in my website",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi tempora voluptatem sunt dolorum vel voluptates harum excepturi unde atque a? Consectetur aperiam accusantium obcaecati praesentium quo! Necessitatibus accusantium nihil dolor.",
+                rate: 5,
+                startDate: "2023-08-01T00:00:00.000Z",
+                endDate: "2023-08-08T00:00:00.000Z"
+            },
+            {
+                title: "Create an admin dashboard",
+                content:
+                    "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi tempora voluptatem sunt dolorum vel voluptates harum excepturi unde atque a?",
+                rate: 4.4,
+                startDate: "2023-02-03T00:00:00.000Z",
+                endDate: "2023-05-16T00:00:00.000Z"
+            }
+        ],
+    }
+
+    if (profile.userAs === "freelancer") {
+        additionalDummyData = {
+            ...additionalDummyData,
+            serviceDetail: {
+                projectSuccess: 2,
+                totalService: 5,
+                completedService: 1,
+                inQueueService: 11,
+            },
+            services: [
+                {
+                    _id: "1",
+                    img: "https://demoapus1.com/freeio/wp-content/uploads/2022/11/service13-495x370.jpg",
+                    category: "programming & tech",
+                    title: "Management software to help you manage your mobile",
+                    rate: 4.5,
+                    reviews: 1,
+                    user: {
+                        img: "https://res.cloudinary.com/dqfrgtxde/image/upload/v1691242924/avatars_lets-freelance/avyqe1mnd4lzpjmbjlf7.webp",
+                        name: "user demo"
+                    },
+                    price: 89
+                },
+                {
+                    _id: "2",
+                    img: "https://demoapus1.com/freeio/wp-content/uploads/2022/11/service12-495x370.jpg",
+                    category: "design & creative",
+                    title: "Developers dron the framework folder into a new parent",
+                    rate: 4.8,
+                    reviews: 3,
+                    user: {
+                        img: "https://res.cloudinary.com/dqfrgtxde/image/upload/v1691242924/avatars_lets-freelance/avyqe1mnd4lzpjmbjlf7.webp",
+                        name: "user demo"
+                    },
+                    price: 128
+                }
+            ],
+            inProgressJobs: [
+                {
+                    title: "React developer for medical startup",
+                    startDate: "2023-08-09T00:00:00.000Z"
+                },
+                {
+                    title: "Build discord chat bot",
+                    startDate: "2023-06-23T00:00:00.000Z"
+                }
+            ]
+        }
+    }
+
+    if (profile.userAs === "employer") {
+        additionalDummyData = {
+            ...additionalDummyData,
+            openJobs: [
+                {
+                    _id: "1",
+                    title: "English content writer for college",
+                    location: "Los Angeles",
+                    category: "writing & translation",
+                    price: 125,
+                    jobType: "part time",
+                    employer: {
+                        name: "employer demo"
+                    }
+                },
+                {
+                    _id: "2",
+                    title: "Food delivery mobile app on IOS and Android",
+                    location: "New York",
+                    category: "programming & tech",
+                    price: { start: 15, end: 25 },
+                    jobType: "full time",
+                    employer: {
+                        name: "employer demo"
+                    }
+                }
+            ],
+
+        }
+    }
+
     const profileInfo = getProfileInfo(profile.toObject());
-    res.status(StatusCodes.OK).json(profileInfo);
+
+    res.status(StatusCodes.OK).json({ ...profileInfo, ...additionalDummyData });
 }
 
 

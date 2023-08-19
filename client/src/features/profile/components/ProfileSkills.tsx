@@ -15,7 +15,11 @@ const ProfileSkills = (props: React.PropsWithoutRef<Props>) => {
             <div className='flex flex-col gap-4 border px-4 py-6 rounded'>
                 <h3 className='font-medium text-2xl'>My Skills</h3>
                 <div className='flex items-center flex-wrap gap-x-2 gap-y-3'>
-                    {props.skills.map((skill, index) => <button key={index} onClick={searchSkill.bind(null, skill)} className="bg-purple-100/60 py-1 px-3 rounded-full border">{skill}</button>)}
+                    {props.skills.length ?
+                        props.skills.map((skill, index) => <button key={index} onClick={searchSkill.bind(null, skill)} className="bg-purple-100/60 py-1 px-3 rounded-full border">{skill}</button>)
+                        :
+                        <p className='text-slate-500'>Empty..</p>
+                    }
                 </div>
             </div>
         </section>

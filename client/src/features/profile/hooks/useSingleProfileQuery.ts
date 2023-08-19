@@ -6,8 +6,7 @@ const useSingleProfileQuery = () => {
     const { profileId } = useParams();
     const singleProfileQuery = useQuery({
         queryKey: ["singleProfile", profileId],
-        queryFn: getSingleProfileInfo.bind(null, profileId!),
-        suspense: true
+        queryFn: getSingleProfileInfo.bind(null, profileId!)
     });
     return singleProfileQuery;
 }

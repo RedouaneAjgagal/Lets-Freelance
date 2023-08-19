@@ -30,11 +30,15 @@ const ProfileServices = (props: React.PropsWithoutRef<Props>) => {
                     Browse Full List
                     <BiArrowBack className="text-xl rotate-[135deg]" />
                 </Link>
-                <Slider navigationClassName="services" slidesPerView={1} isPagination={false} isAutoPlay={false} >
-                    {props.services.map(service => <SwiperSlide tag='li' key={service._id}>
-                        <TrendingService serviceInfo={service} />
-                    </SwiperSlide>)}
-                </Slider>
+                {props.services.length ?
+                    <Slider navigationClassName="services" slidesPerView={1} isPagination={false} isAutoPlay={false} >
+                        {props.services.map(service => <SwiperSlide tag='li' key={service._id}>
+                            <TrendingService serviceInfo={service} />
+                        </SwiperSlide>)}
+                    </Slider>
+                    :
+                    <p className='text-slate-500 mb-12'>Empty..</p>
+                }
             </section>
         </div >
     )

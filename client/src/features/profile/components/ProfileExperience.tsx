@@ -17,7 +17,11 @@ const ProfileExperience = (props: React.PropsWithoutRef<Props>) => {
             <section className="border-t py-4">
                 <h2 className="font-medium text-2xl pt-3 pb-4">Work & Experience</h2>
                 <ul className="flex flex-col gap-2">
-                    {props.experiences.map((experience, index) => <SingleProfileExperience key={index} experience={experience} isLastExperience={props.experiences.length === index + 1} />)}
+                    {props.experiences.length ?
+                        props.experiences.map((experience, index) => <SingleProfileExperience key={index} experience={experience} isLastExperience={props.experiences.length === index + 1} />)
+                        :
+                        <p className="text-slate-500">Empty..</p>
+                    }
                 </ul>
             </section>
         </div>

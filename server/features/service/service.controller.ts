@@ -2,6 +2,9 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
+import { User } from "../auth";
+import { UnauthenticatedError } from "../../errors";
+import Service, { ServiceWithoutUser } from "./service.model";
 
 
 
@@ -28,10 +31,28 @@ const singleService: RequestHandler = async (req, res) => {
 const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const inputs = req.body;
 
+    // check if valid inputs
     createServiceValidator(inputs);
 
+    const user = await User.findById(req.user!.userId);
 
-    res.status(StatusCodes.CREATED).json({ msg: "Create service" });
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const serviceInfo: ServiceWithoutUser = {
+        title: inputs.title,
+        description: inputs.description,
+        category: inputs.category,
+        featuredImage: inputs.featuredImage,
+        gallery: inputs.gallery,
+        tier: inputs.tier
+    }
+
+    // create service
+    await Service.create({ ...serviceInfo, user: user._id });
+
+    res.status(StatusCodes.CREATED).json({ msg: "You have created a service successfully" });
 }
 
 

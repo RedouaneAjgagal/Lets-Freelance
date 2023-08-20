@@ -23,7 +23,7 @@ import fileUpload from "express-fileupload";
 // routes
 import { authRouter } from "./features/auth";
 import { profileRouter } from "./features/profile";
-
+import { serviceRouter } from "./features/service";
 
 
 // middlewares
@@ -52,6 +52,7 @@ app.use(fileUpload({ useTempFiles: true, safeFileNames: true }));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/profile", profileRouter);
+app.use("/api/v1/service", serviceRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

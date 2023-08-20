@@ -1,18 +1,29 @@
 import mongoose from "mongoose";
 
-type ServicePlan = {
-    deliveryTime: number;
-    price: number;
-    includedInPackage: {
-        description: string;
-        result: string | number | boolean;
-    }[];
+export type IncludedIn = {
+    description: string;
+    result: string | number | boolean;
 }
 
-type ServiceTier = {
+export type ServicePlan = {
+    deliveryTime: number;
+    price: number;
+    includedIn: IncludedIn[];
+}
+
+export type ServiceTier = {
     starter: ServicePlan;
     standard: ServicePlan;
     advanced: ServicePlan;
+}
+
+export type ServiceWithoutUser = {
+    title: string;
+    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    tier: ServiceTier;
+    description: string;
+    featuredImage: string;
+    gallery: string[];
 }
 
 export interface IService {
@@ -38,11 +49,27 @@ const serviceSchema = new mongoose.Schema<IService>({
         maxLength: [50, "Title cannot be more than 50 characters"],
         required: [true, "Service title is required"]
     },
+    description: {
+        tyep: String,
+        maxlength: [1000, "Title cannot be more than 1000 characters"],
+        required: [true, "Service description is required"]
+    },
+    category: {
+        type: String,
+        enum: ["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"],
+        default: "programming & tech",
+        required: [true, "Service category is required"]
+    },
+    featuredImage: {
+        type: String,
+        required: [true, "Featured image is required"]
+    },
+    gallery: Array,
     tier: {
         starter: {
             deliveryTime: Number,
             price: Number,
-            includedInPackage: [{
+            includedIn: [{
                 description: {
                     type: String,
                     required: true
@@ -56,7 +83,7 @@ const serviceSchema = new mongoose.Schema<IService>({
         standard: {
             deliveryTime: Number,
             price: Number,
-            includedInPackage: [{
+            includedIn: [{
                 description: {
                     type: String,
                     required: true
@@ -70,7 +97,7 @@ const serviceSchema = new mongoose.Schema<IService>({
         advanced: {
             deliveryTime: Number,
             price: Number,
-            includedInPackage: [{
+            includedIn: [{
                 description: {
                     type: String,
                     required: true
@@ -81,23 +108,7 @@ const serviceSchema = new mongoose.Schema<IService>({
                 }
             }]
         }
-    },
-    category: {
-        type: String,
-        enum: ["digital marketing", "design & creative", "programming & tech", "writing & translation", "video & animation", "finance & accounting", "music & audio"],
-        default: "programming & tech",
-        required: [true, "Service category is required"]
-    },
-    description: {
-        tyep: String,
-        maxlength: [1000, "Title cannot be more than 1000 characters"],
-        required: [true, "Service description is required"]
-    },
-    featuredImage: {
-        type: String,
-        required: [true, "Featured image is required"]
-    },
-    gallery: Array
+    }
 });
 
 const Service = mongoose.model("Service", serviceSchema);

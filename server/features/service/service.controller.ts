@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CustomAuthRequest } from "../../middlewares/authentication";
+import createServiceValidator from "./validators/createServiceValidator";
 
 
 
@@ -25,6 +26,11 @@ const singleService: RequestHandler = async (req, res) => {
 //@route POST /api/v1/service
 //@access authentication
 const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const inputs = req.body;
+
+    createServiceValidator(inputs);
+
+
     res.status(StatusCodes.CREATED).json({ msg: "Create service" });
 }
 

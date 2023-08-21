@@ -1,6 +1,6 @@
-import { ServiceWithoutUser } from "../service.model"
+import { ServiceWithoutRefs } from "../service.model"
 
-const isInvalidTitle = (title: ServiceWithoutUser["title"] | undefined) => {
+const isInvalidTitle = (title: ServiceWithoutRefs["title"] | undefined) => {
     let error = "";
 
     if (!title || title.toString().trim() === "") {
@@ -18,7 +18,7 @@ const isInvalidTitle = (title: ServiceWithoutUser["title"] | undefined) => {
     return error;
 }
 
-const isInvalidDescription = (description: ServiceWithoutUser["description"] | undefined) => {
+const isInvalidDescription = (description: ServiceWithoutRefs["description"] | undefined) => {
     let error = "";
 
     if (!description || description.toString().trim() === "") {
@@ -36,7 +36,7 @@ const isInvalidDescription = (description: ServiceWithoutUser["description"] | u
     return error;
 }
 
-const isInvalidCategory = (category: ServiceWithoutUser["category"] | undefined) => {
+const isInvalidCategory = (category: ServiceWithoutRefs["category"] | undefined) => {
     let error = "";
 
     if (!category || category.toString().trim() === "") {
@@ -56,7 +56,7 @@ const isInvalidCategory = (category: ServiceWithoutUser["category"] | undefined)
 }
 
 
-const isInvalidFeaturedImage = (featuredImg: ServiceWithoutUser["featuredImage"] | undefined) => {
+const isInvalidFeaturedImage = (featuredImg: ServiceWithoutRefs["featuredImage"] | undefined) => {
     let error = "";
 
     if (!featuredImg || featuredImg.toString().trim() === "") {
@@ -75,7 +75,7 @@ const isInvalidFeaturedImage = (featuredImg: ServiceWithoutUser["featuredImage"]
 }
 
 
-const isInvalidGallery = (gallery: ServiceWithoutUser["gallery"] | undefined) => {
+const isInvalidGallery = (gallery: ServiceWithoutRefs["gallery"] | undefined) => {
     let error = "";
 
     if (!gallery) {
@@ -96,7 +96,7 @@ const isInvalidGallery = (gallery: ServiceWithoutUser["gallery"] | undefined) =>
 }
 
 
-const isInvalidTier = (tier: ServiceWithoutUser["tier"] | undefined) => {
+const isInvalidTier = (tier: ServiceWithoutRefs["tier"] | undefined) => {
     let error = "";
 
     if (!tier || typeof tier !== "object") {

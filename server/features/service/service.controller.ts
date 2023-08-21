@@ -3,8 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
-import { UnauthenticatedError } from "../../errors";
-import Service, { ServiceWithoutUser } from "./service.model";
+import { BadRequestError, NotFoundError, UnauthenticatedError } from "../../errors";
+import Service, { ServiceWithoutRefs } from "./service.model";
+import { Profile } from "../profile";
 
 
 
@@ -21,7 +22,20 @@ const getAllservices: RequestHandler = async (req, res) => {
 //@route GET /api/v1/service/:serviceId
 //@access public
 const singleService: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Single service" });
+    const { serviceId } = req.params;
+    if (!serviceId || serviceId.trim() === "") {
+        throw new BadRequestError("Service id is messing");
+    }
+
+    // find the service
+    const service = await Service.findById(serviceId).populate("profile", "name avatar");
+
+    // check if service exist
+    if (!service) {
+        throw new NotFoundError(`Found no service with id ${serviceId}`);
+    }
+
+    res.status(StatusCodes.OK).json(service);
 }
 
 
@@ -34,13 +48,13 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
     // check if valid inputs
     createServiceValidator(inputs);
 
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate("profile", "_id -user");
 
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    const serviceInfo: ServiceWithoutUser = {
+    const serviceInfo: ServiceWithoutRefs = {
         title: inputs.title,
         description: inputs.description,
         category: inputs.category,
@@ -50,7 +64,7 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // create service
-    await Service.create({ ...serviceInfo, user: user._id });
+    await Service.create({ ...serviceInfo, user: user._id, profile: user.profile!._id });
 
     res.status(StatusCodes.CREATED).json({ msg: "You have created a service successfully" });
 }

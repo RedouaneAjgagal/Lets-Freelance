@@ -17,7 +17,7 @@ export type ServiceTier = {
     advanced: ServicePlan;
 }
 
-export type ServiceWithoutUser = {
+export type ServiceWithoutRefs = {
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     tier: ServiceTier;
@@ -28,6 +28,9 @@ export type ServiceWithoutUser = {
 
 export interface IService {
     user: {
+        _id: string
+    };
+    profile: {
         _id: string
     };
     title: string;
@@ -42,6 +45,11 @@ const serviceSchema = new mongoose.Schema<IService>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
+        required: true
+    },
+    profile: {
+        type: mongoose.Types.ObjectId,
+        ref: "Profile",
         required: true
     },
     title: {
@@ -109,7 +117,10 @@ const serviceSchema = new mongoose.Schema<IService>({
             }]
         }
     }
-});
+}, {
+    timestamps: true
+}
+);
 
 const Service = mongoose.model("Service", serviceSchema);
 

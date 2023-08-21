@@ -17,7 +17,11 @@ interface IUser {
     role: "user" | "admin" | "owner";
     createdAt: Date;
     updatedAt: Date;
-    profile?: { avatar: string, name: string };
+    profile?: {
+        _id: mongoose.Types.ObjectId;
+        avatar: string | undefined;
+        name: string | undefined;
+    };
     comparePassword: (unhashedPassword: string) => Promise<boolean>;
     createProfile: ({ userAs, name }: { userAs: "freelancer" | "employer", name: string }) => Promise<void>
 }

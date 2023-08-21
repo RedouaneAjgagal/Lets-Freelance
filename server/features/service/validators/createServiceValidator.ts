@@ -1,8 +1,8 @@
 import { BadRequestError } from "../../../errors";
-import { ServiceWithoutUser, IService, IncludedIn, ServicePlan, ServiceTier } from "../service.model";
+import { ServiceWithoutRefs } from "../service.model";
 import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier, isInvalidTitle } from "./ServiceInputValidators";
 
-type ExpectedInputs = Partial<ServiceWithoutUser>
+type ExpectedInputs = Partial<ServiceWithoutRefs>
 
 const createServiceValidator = (inputs: ExpectedInputs) => {
     const { title, description, category, featuredImage, gallery, tier } = inputs;

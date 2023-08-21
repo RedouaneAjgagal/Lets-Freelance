@@ -8,6 +8,7 @@ import Service, { ServiceWithoutRefs } from "./service.model";
 import rolePermissionChecker from "../../utils/permissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
+import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 
 
 
@@ -76,7 +77,30 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route PATCH /api/v1/service/:serviceId
 //@access authentication
 const updateService: RequestHandler = async (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Update service" });
+    const { serviceId } = req.params;
+    if (!serviceId || serviceId.trim() === "") {
+        throw new BadRequestError("Service id is messing");
+    }
+
+    // find service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+        throw new NotFoundError(`Found no service with id ${serviceId}`);
+    }
+
+    // check permission
+    if (service.user._id.toString() !== req.user!.userId) {
+        throw new UnauthorizedError("You dont have access to edit this recipe");
+    }
+
+    // get updated info
+    const inputs = req.body;
+    const updatedServiceInfo = getUpdatedServiceInfo(inputs);
+
+    // update service
+    await service.updateOne(updatedServiceInfo);
+
+    res.status(StatusCodes.OK).json({ msg: "You have updated the service successfully" });
 }
 
 

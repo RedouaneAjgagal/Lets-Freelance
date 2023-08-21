@@ -6,6 +6,8 @@ import { User } from "../auth";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import Service, { ServiceWithoutRefs } from "./service.model";
 import rolePermissionChecker from "../../utils/permissionChecker";
+import uploadImage from "../../utils/uploadImage";
+import { UploadedFile } from "express-fileupload";
 
 
 
@@ -132,7 +134,19 @@ const deleteService: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route POST /api/v1/service/upload-featured
 //@access authentication
 const uploadFeaturedImg: RequestHandler = async (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Upload service's featured image" });
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const imageFile = req.files?.featuredServiceImg as UploadedFile;
+
+    const imageResponse = await uploadImage({
+        folderName: "services_lets-freelance",
+        imageFile: imageFile,
+        maxSize: 1024 * 1024
+    })
+    res.status(StatusCodes.OK).json({ featuredImgURL: imageResponse.secure_url });
 }
 
 
@@ -140,7 +154,19 @@ const uploadFeaturedImg: RequestHandler = async (req: CustomAuthRequest, res) =>
 //@route POST /api/v1/service/upload-gallery
 //@access authentication
 const uploadGallery: RequestHandler = async (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Upload service's gallery" });
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const imageFile = req.files?.gallery as UploadedFile;
+
+    const imageResponse = await uploadImage({
+        folderName: "services_lets-freelance",
+        imageFile: imageFile,
+        maxSize: 1024 * 1024
+    })
+    res.status(StatusCodes.OK).json({ galleryImgURL: imageResponse.secure_url });
 }
 
 

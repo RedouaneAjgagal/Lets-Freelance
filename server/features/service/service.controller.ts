@@ -3,9 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
-import { BadRequestError, NotFoundError, UnauthenticatedError } from "../../errors";
+import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import Service, { ServiceWithoutRefs } from "./service.model";
-import { Profile } from "../profile";
+import rolePermissionChecker from "../../utils/permissionChecker";
 
 
 
@@ -82,7 +82,49 @@ const updateService: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route DELETE /api/v1/service/:serviceId
 //@access authentication or authorized roles [admin, owner]
 const deleteService: RequestHandler = async (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Delete service" });
+    const { serviceId } = req.params;
+    if (!serviceId || serviceId.trim() === "") {
+        throw new BadRequestError("Service id is messing");
+    }
+
+    // find the service
+    const service = await Service.findById(serviceId);
+
+    // check if service exist
+    if (!service) {
+        throw new NotFoundError(`Found no service with id ${serviceId}`);
+    }
+
+    // find the current user
+    const currentUser = await User.findById(req.user!.userId);
+    if (!currentUser) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the current user is an admin or owner
+    const hasValidRole = rolePermissionChecker({
+        allowedRoles: ["admin", "owner"],
+        currentRole: currentUser.role
+    });
+
+    if (hasValidRole) {
+        if (currentUser.role !== "owner") {
+            // create data analytics later for the owner dashboard
+        }
+
+        await service.deleteOne();
+        return res.status(StatusCodes.OK).json({ msg: `You have deleted service with id ${service._id}` });
+    }
+
+    // check if service belong to the current user
+    if (currentUser._id.toString() !== service.user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to delete this service");
+    }
+
+    // delete the service
+    await service.deleteOne();
+
+    res.status(StatusCodes.OK).json({ msg: "Your service has been deleted" });
 }
 
 

@@ -28,10 +28,10 @@ export type ServiceWithoutRefs = {
 
 export interface IService {
     user: {
-        _id: string
+        _id: mongoose.Types.ObjectId
     };
     profile: {
-        _id: string
+        _id: mongoose.Types.ObjectId
     };
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";

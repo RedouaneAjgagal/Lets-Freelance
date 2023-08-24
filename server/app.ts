@@ -51,8 +51,8 @@ app.use(fileUpload({ useTempFiles: true, safeFileNames: true }));
 
 
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/profile", profileRouter);
-app.use("/api/v1/service", serviceRouter);
+app.use("/api/v1/profiles", profileRouter);
+app.use("/api/v1/services", serviceRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

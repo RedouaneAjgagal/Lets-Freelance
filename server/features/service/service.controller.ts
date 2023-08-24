@@ -17,7 +17,79 @@ import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 //@route GET /api/v1/service
 //@access public
 const getAllservices: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "All services" });
+    const { category, delivery_time, english_level, search, country, price_range } = req.query;
+    let searchQuery: Partial<{
+        title: { $regex: string; $options: string; };
+        category: string;
+        $or: {}[];
+        $and: {}[];
+    }> = {};
+
+
+    // search by title
+    if (search && search.toString().trim() !== "") {
+        searchQuery.title = { $regex: search.toString(), $options: "i" }
+    }
+
+
+    // seach by category
+    const categories = ["digital-marketing", "design-creative", "programming-tech", "writing-translation", "video-animation", "finance-accounting", "music-audio"];
+    if (category && categories.includes(category.toString())) {
+        const formatCategory = category === "digital-marketing" ? category.toString().split("-").join(" ") : category.toString().split("-").join(" & ");
+        searchQuery.category = formatCategory;
+    }
+
+
+    // search by delivery time
+    const isDeliveryTimeOnlyNumbers = delivery_time && /^\d+$/.test(delivery_time.toString());
+    if (isDeliveryTimeOnlyNumbers) {
+
+        if (!searchQuery.$or) searchQuery.$or = [];
+
+        const seachByDeliveryTime = [{ "tier.starter.deliveryTime": +delivery_time }, { "tier.standard.deliveryTime": +delivery_time }, { "tier.advanced.deliveryTime": +delivery_time }];
+        searchQuery.$or.push(...seachByDeliveryTime);
+    }
+
+
+    // search by price
+    const isValidPriceRange = price_range && price_range.toString().trim() !== "" && /^\d+,\d+$/.test(price_range.toString());
+    if (isValidPriceRange) {
+
+        if (!searchQuery.$and) searchQuery.$and = [];
+
+        const [fromPrice, toPrice] = price_range.toString().split(",");
+
+        const searchByPriceRange = [{ "tier.starter.price": { $gte: fromPrice } }, { "tier.starter.price": { $lte: toPrice } }]
+        searchQuery.$and.push(...searchByPriceRange);
+    }
+
+
+    // search by keywords..
+
+
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate("profile", "roles.freelancer.englishLevel country avatar name").lean();
+
+
+    // search by english level
+    const englishLevelList = ["basic", "conversational", "fluent", "native", "professional"];
+    if (english_level && englishLevelList.includes(english_level.toString())) {
+        services = services.filter(service => service.profile!.roles!.freelancer!.englishLevel === english_level.toString());
+    }
+
+
+    // search by location
+    if (country && country.toString().trim() !== "") {
+        services = services.filter(service => service.profile!.country!.toLowerCase() === country.toString().toLowerCase());
+    }
+
+
+    // search by rating..
+
+
+    const totalServices = await Service.countDocuments();
+
+    res.status(StatusCodes.OK).json({ totalSearchedServices: services.length, services, totalServices });
+    // res.status(StatusCodes.OK).json({});
 }
 
 

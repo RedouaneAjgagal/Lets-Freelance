@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import hashData from "../../utils/hashData";
 import compareData from "../../utils/compareData";
 import { Profile } from "../profile";
+import { IProfile } from "../profile/profile.model";
 
 interface IUser {
     _id: typeof mongoose.Types.ObjectId;
@@ -19,9 +20,7 @@ interface IUser {
     updatedAt: Date;
     profile?: {
         _id: mongoose.Types.ObjectId;
-        avatar: string | undefined;
-        name: string | undefined;
-    };
+    } & Partial<IProfile>;
     comparePassword: (unhashedPassword: string) => Promise<boolean>;
     createProfile: ({ userAs, name }: { userAs: "freelancer" | "employer", name: string }) => Promise<void>
 }

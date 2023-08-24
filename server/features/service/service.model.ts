@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { IProfile } from "../profile/profile.model";
 
 export type IncludedIn = {
     description: string;
@@ -32,7 +33,7 @@ export interface IService {
     };
     profile: {
         _id: mongoose.Types.ObjectId
-    };
+    } & Partial<IProfile>;
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     tier: ServiceTier;

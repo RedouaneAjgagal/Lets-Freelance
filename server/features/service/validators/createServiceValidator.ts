@@ -1,11 +1,11 @@
 import { BadRequestError } from "../../../errors";
 import { ServiceWithoutRefs } from "../service.model";
-import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier, isInvalidTitle } from "./ServiceInputValidators";
+import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier, isInvalidTitle, isInvalidKeywords } from "./ServiceInputValidators";
 
 type ExpectedInputs = Partial<ServiceWithoutRefs>
 
 const createServiceValidator = (inputs: ExpectedInputs) => {
-    const { title, description, category, featuredImage, gallery, tier } = inputs;
+    const { title, description, category, featuredImage, gallery, tier, serviceKeywords } = inputs;
 
     const invalidTitle = isInvalidTitle(title);
     if (invalidTitle) {
@@ -35,6 +35,11 @@ const createServiceValidator = (inputs: ExpectedInputs) => {
     const invalidTier = isInvalidTier(tier);
     if (invalidTier) {
         throw new BadRequestError(invalidTier);
+    }
+
+    const invalidKeywords = isInvalidKeywords(serviceKeywords);
+    if (invalidKeywords) {
+        throw new BadRequestError(invalidKeywords);
     }
 }
 

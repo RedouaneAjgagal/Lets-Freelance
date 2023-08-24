@@ -152,6 +152,36 @@ const isInvalidTier = (tier: ServiceWithoutRefs["tier"] | undefined) => {
     return error;
 }
 
+const isInvalidKeywords = (serviceKeywords: ServiceWithoutRefs["serviceKeywords"] | undefined) => {
+    let error = "";
+    if (!serviceKeywords) {
+        return error = "Must provide service keywords";
+    }
+
+    if (!Array.isArray(serviceKeywords)) {
+        return error = "Unsupported keywords format";
+    }
+
+    if (!serviceKeywords.length) {
+        return error = "Service keywords cannot be empty";
+    }
+
+    if (serviceKeywords.length < 3) {
+        return error = "Service keywords cannot be less than 3";
+    }
+
+    if (serviceKeywords.length > 5) {
+        return error = "Service keywords cannot be more than 5";
+    }
+
+    const isValidKeywords = serviceKeywords.every(keyword => typeof keyword === "string" && keyword.trim() !== "");
+    if (!isValidKeywords) {
+        return error = "Unsupported keyword format";
+    }
+
+    return error;
+}
+
 export {
     isInvalidTitle,
     isInvalidCategory,
@@ -159,4 +189,5 @@ export {
     isInvalidFeaturedImage,
     isInvalidGallery,
     isInvalidTier,
+    isInvalidKeywords
 }

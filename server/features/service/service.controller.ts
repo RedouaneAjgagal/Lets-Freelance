@@ -19,16 +19,21 @@ import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 const getAllservices: RequestHandler = async (req, res) => {
     const { category, delivery_time, english_level, search, country, price_range } = req.query;
     let searchQuery: Partial<{
-        title: { $regex: string; $options: string; };
         category: string;
         $or: {}[];
         $and: {}[];
     }> = {};
 
 
-    // search by title
+    // search by keywords & title
     if (search && search.toString().trim() !== "") {
-        searchQuery.title = { $regex: search.toString(), $options: "i" }
+        searchQuery.$or = [];
+
+        // search by keyword first 
+        searchQuery.$or.push({ keywords: { $in: [search.toString()] } });
+
+        // if no keyword exist then search by title
+        searchQuery.$or.push({ title: { $regex: search!.toString(), $options: "i" } });
     }
 
 
@@ -59,15 +64,12 @@ const getAllservices: RequestHandler = async (req, res) => {
 
         const [fromPrice, toPrice] = price_range.toString().split(",");
 
-        const searchByPriceRange = [{ "tier.starter.price": { $gte: fromPrice } }, { "tier.starter.price": { $lte: toPrice } }]
+        const searchByPriceRange = [{ "tier.starter.price": { $gte: fromPrice } }, { "tier.starter.price": { $lte: toPrice } }];
         searchQuery.$and.push(...searchByPriceRange);
     }
 
 
-    // search by keywords..
-
-
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate("profile", "roles.freelancer.englishLevel country avatar name").lean();
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country roles.freelancer.englishLevel" }).lean();
 
 
     // search by english level
@@ -136,7 +138,7 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
         featuredImage: inputs.featuredImage,
         gallery: inputs.gallery,
         tier: inputs.tier,
-        serviceKeywords: inputs.serviceKeywords
+        keywords: inputs.keywords
     }
 
     // create service

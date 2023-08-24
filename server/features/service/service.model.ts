@@ -25,7 +25,7 @@ export type ServiceWithoutRefs = {
     description: string;
     featuredImage: string;
     gallery: string[];
-    serviceKeywords: string[];
+    keywords: string[];
 }
 
 export interface IService {
@@ -41,7 +41,7 @@ export interface IService {
     description: string;
     featuredImage: string;
     gallery: string[];
-    serviceKeywords: string[];
+    keywords: string[];
 }
 
 const serviceSchema = new mongoose.Schema<IService>({
@@ -76,7 +76,7 @@ const serviceSchema = new mongoose.Schema<IService>({
         required: [true, "Featured image is required"]
     },
     gallery: Array,
-    serviceKeywords: [
+    keywords: [
         {
             type: String,
             required: true,

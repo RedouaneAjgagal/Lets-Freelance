@@ -5,7 +5,7 @@ import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInva
 type ExpectedInputs = Partial<ServiceWithoutRefs>
 
 const createServiceValidator = (inputs: ExpectedInputs) => {
-    const { title, description, category, featuredImage, gallery, tier, serviceKeywords } = inputs;
+    const { title, description, category, featuredImage, gallery, tier, keywords } = inputs;
 
     const invalidTitle = isInvalidTitle(title);
     if (invalidTitle) {
@@ -37,7 +37,7 @@ const createServiceValidator = (inputs: ExpectedInputs) => {
         throw new BadRequestError(invalidTier);
     }
 
-    const invalidKeywords = isInvalidKeywords(serviceKeywords);
+    const invalidKeywords = isInvalidKeywords(keywords);
     if (invalidKeywords) {
         throw new BadRequestError(invalidKeywords);
     }

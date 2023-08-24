@@ -152,7 +152,7 @@ const isInvalidTier = (tier: ServiceWithoutRefs["tier"] | undefined) => {
     return error;
 }
 
-const isInvalidKeywords = (serviceKeywords: ServiceWithoutRefs["serviceKeywords"] | undefined) => {
+const isInvalidKeywords = (serviceKeywords: ServiceWithoutRefs["keywords"] | undefined) => {
     let error = "";
     if (!serviceKeywords) {
         return error = "Must provide service keywords";

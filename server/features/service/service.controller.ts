@@ -17,7 +17,7 @@ import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 //@route GET /api/v1/service
 //@access public
 const getAllservices: RequestHandler = async (req, res) => {
-    const { category, delivery_time, english_level, search, country, price_range } = req.query;
+    const { category, delivery_time, english_level, search, country, price_range, page } = req.query;
     let searchQuery: Partial<{
         category: string;
         $or: {}[];
@@ -69,7 +69,15 @@ const getAllservices: RequestHandler = async (req, res) => {
     }
 
 
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country roles.freelancer.englishLevel" }).lean();
+    // search by page
+    const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
+    const limit = 12;
+    const skip = (Number(currentPage) - 1) * limit;
+
+
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel" }).limit(limit).skip(skip).lean();
+
+    services = services.filter(service => service.profile.userAs === "freelancer");
 
 
     // search by english level
@@ -85,13 +93,14 @@ const getAllservices: RequestHandler = async (req, res) => {
     }
 
 
-    // search by rating..
+    // search by rating (later..)
 
 
-    const totalServices = await Service.countDocuments();
+    // get number of pages for pagination
+    const totalServices = await Service.countDocuments(searchQuery);
+    const numOfPages = Math.ceil(totalServices / limit);
 
-    res.status(StatusCodes.OK).json({ totalSearchedServices: services.length, services, totalServices });
-    // res.status(StatusCodes.OK).json({});
+    res.status(StatusCodes.OK).json({ numOfPages, services });
 }
 
 

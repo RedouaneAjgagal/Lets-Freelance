@@ -9,6 +9,7 @@ import rolePermissionChecker from "../../utils/permissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
 import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
+import userAsPermission from "../../helpers/userAsOnly";
 
 
 
@@ -114,11 +115,16 @@ const singleService: RequestHandler = async (req, res) => {
     }
 
     // find the service
-    const service = await Service.findById(serviceId).populate("profile", "name avatar");
+    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs");
 
     // check if service exist
     if (!service) {
         throw new NotFoundError(`Found no service with id ${serviceId}`);
+    }
+
+    // check if role is not freelancer (changed role)
+    if (service.profile.userAs !== "freelancer") {
+        throw new UnauthorizedError(`${service.profile.name} is no longer a freelancer`);
     }
 
     res.status(StatusCodes.OK).json(service);
@@ -131,14 +137,23 @@ const singleService: RequestHandler = async (req, res) => {
 const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const inputs = req.body;
 
-    // check if valid inputs
-    createServiceValidator(inputs);
-
-    const user = await User.findById(req.user!.userId).populate("profile", "_id -user");
+    // find user
+    const user = await User.findById(req.user!.userId).populate("profile", "_id userAs -user");
 
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
+
+    // check if user is a freelancer
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
+
+
+    // check if valid inputs
+    createServiceValidator(inputs);
+
 
     const serviceInfo: ServiceWithoutRefs = {
         title: inputs.title,

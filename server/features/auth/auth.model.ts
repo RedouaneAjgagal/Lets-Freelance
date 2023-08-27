@@ -4,8 +4,7 @@ import compareData from "../../utils/compareData";
 import { Profile } from "../profile";
 import { IProfile } from "../profile/profile.model";
 
-interface IUser {
-    _id: typeof mongoose.Types.ObjectId;
+export interface IUser {
     email: string;
     password: string;
     isVerified: boolean;

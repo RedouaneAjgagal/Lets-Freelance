@@ -15,7 +15,7 @@ import userAsPermission from "../../helpers/userAsOnly";
 
 
 //@desc get all services info
-//@route GET /api/v1/service
+//@route GET /api/v1/services
 //@access public
 const getAllservices: RequestHandler = async (req, res) => {
     const { category, delivery_time, english_level, search, country, price_range, page } = req.query;
@@ -106,7 +106,7 @@ const getAllservices: RequestHandler = async (req, res) => {
 
 
 //@desc get single service info
-//@route GET /api/v1/service/:serviceId
+//@route GET /api/v1/services/:serviceId
 //@access public
 const singleService: RequestHandler = async (req, res) => {
     const { serviceId } = req.params;
@@ -132,8 +132,8 @@ const singleService: RequestHandler = async (req, res) => {
 
 
 //@desc create a new service
-//@route POST /api/v1/service
-//@access authentication
+//@route POST /api/v1/services
+//@access authentication (freelancers only)
 const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const inputs = req.body;
 
@@ -173,7 +173,7 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc update service
-//@route PATCH /api/v1/service/:serviceId
+//@route PATCH /api/v1/services/:serviceId
 //@access authentication
 const updateService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { serviceId } = req.params;
@@ -204,7 +204,7 @@ const updateService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc delete service
-//@route DELETE /api/v1/service/:serviceId
+//@route DELETE /api/v1/services/:serviceId
 //@access authentication or authorized roles [admin, owner]
 const deleteService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { serviceId } = req.params;
@@ -254,7 +254,7 @@ const deleteService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc upload service featured image 
-//@route POST /api/v1/service/upload-featured
+//@route POST /api/v1/services/upload-featured
 //@access authentication
 const uploadFeaturedImg: RequestHandler = async (req: CustomAuthRequest, res) => {
     const user = await User.findById(req.user!.userId);
@@ -274,7 +274,7 @@ const uploadFeaturedImg: RequestHandler = async (req: CustomAuthRequest, res) =>
 
 
 //@desc upload service gallery
-//@route POST /api/v1/service/upload-gallery
+//@route POST /api/v1/services/upload-gallery
 //@access authentication
 const uploadGallery: RequestHandler = async (req: CustomAuthRequest, res) => {
     const user = await User.findById(req.user!.userId);

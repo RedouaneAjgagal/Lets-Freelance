@@ -72,7 +72,7 @@ const jobSchema = new mongoose.Schema<IJob>({
             type: Number,
             required: [true, "Maximum price is required"]
         },
-        required: true
+        // required: true
     },
     locationType: {
         type: String,
@@ -95,7 +95,7 @@ const jobSchema = new mongoose.Schema<IJob>({
             type: Number,
             required: [true, "Duration date is required"]
         },
-        required: false
+        // required: false
     },
     weeklyHours: {
         min: {
@@ -106,7 +106,7 @@ const jobSchema = new mongoose.Schema<IJob>({
             type: Number,
             required: [true, "Maximum weekly houres is required"]
         },
-        required: true
+        // required: true
     },
     experienceLevel: {
         type: String,

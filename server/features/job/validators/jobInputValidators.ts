@@ -78,7 +78,7 @@ const isInvalidPriceType = (priceType: JobTypeWithoutRefs["priceType"] | undefin
 }
 
 
-const isInvalidPrice = (price: JobTypeWithoutRefs["price"] | undefined) => {
+const isInvalidPrice = (price: JobTypeWithoutRefs["price"] | undefined, priceType: JobTypeWithoutRefs["priceType"]) => {
     let error = "";
 
     if (!price) {
@@ -107,6 +107,14 @@ const isInvalidPrice = (price: JobTypeWithoutRefs["price"] | undefined) => {
 
     if (!isValidPrice) {
         return error = "Invalid price format";
+    }
+
+    if (price.min > price.max) {
+        return error = "The minimum price cannot be greater than the maximum";
+    }
+
+    if (priceType === "fixed" && price.max !== price.min) {
+        return error = "For fixed price, must be the same min/max price";
     }
 
     return error;
@@ -138,24 +146,35 @@ const isInvalidDuration = (duration: JobTypeWithoutRefs["duration"] | undefined)
 
     // job duration is not required
     if (!duration) {
-        return error = "";
+        return error = "Job duration is required";
     }
 
     if (typeof duration !== "object") {
         return error = "Invalid duration format";
     }
 
-    if (!duration.dateType || duration.dateType.toString().trim() === "") {
-        return error = "Duration type is required";
+    if (!Object.entries(duration).length) {
+        return error = ""
+    }
+
+    const isValidDuration = Object.entries(duration).length === 2 && Object.entries(duration).every(([key, value]) => {
+        if (key !== "dateType" && key !== "dateValue") {
+            return false;
+        }
+
+        if (!value || value.toString().trim() === "") {
+            return false;
+        }
+        return true;
+    });
+
+    if (!isValidDuration) {
+        return error = "Invalid duration format";
     }
 
     const dateTypeList = ["hours", "days", "months"];
-    if (!dateTypeList.includes(duration.dateType)) {
+    if (!dateTypeList.includes(duration.dateType!)) {
         return error = "Unsupported duration type";
-    }
-
-    if (!duration.dateValue || duration.dateValue.toString().trim() === "") {
-        return error = "Duration value is required";
     }
 
     if (typeof duration.dateValue !== "number") {
@@ -172,9 +191,8 @@ const isInvalidDuration = (duration: JobTypeWithoutRefs["duration"] | undefined)
 const isInvalidWeeklyHours = (weeklyHours: JobTypeWithoutRefs["weeklyHours"] | undefined) => {
     let error = "";
 
-    // weekly hours job is not required
     if (!weeklyHours) {
-        return error = "";
+        return error = "Weekly hours is required";
     }
 
     if (typeof weeklyHours !== "object") {
@@ -231,11 +249,16 @@ const isInvalidTags = (tags: JobTypeWithoutRefs["tags"] | undefined) => {
     let error = "";
 
     if (!tags) {
-        error = "Job tags is required";
+        return error = "Job tags is required";
     }
 
     if (!Array.isArray(tags)) {
-        error = "Invalid job's tags format";
+        return error = "Invalid job's tags format";
+    }
+
+    const isValidTags = tags.every(tag => tag && typeof tag === "string" && tag.trim() !== "");
+    if (!isValidTags) {
+        return error = "Invalid job tags";
     }
 
     return error;

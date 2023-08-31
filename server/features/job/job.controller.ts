@@ -3,6 +3,9 @@ import { BadRequestError, NotFoundError, TooManyRequestsError, UnauthenticatedEr
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { User } from "../auth";
+import createJobValidator from "./validators/createJobValidator";
+import userAsPermission from "../../helpers/userAsOnly";
+import Job, { JobType } from "./job.model";
 
 
 //@desc get all jobs info
@@ -25,13 +28,44 @@ const singleJob: RequestHandler = (req, res) => {
 //@route POST /api/v1/jobs
 //@access authentication (employers only)
 const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const user = await User.findById(req.user!.userId);
+    const inputs = req.body;
+
+    // check if valid inputs
+    createJobValidator(inputs);
+
+    // find user
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    
-    res.status(StatusCodes.CREATED).json({ msg: "Create a job" });
+    // check if the user is a employer
+    userAsPermission({
+        permissionedRole: "employer",
+        currentUserRole: user.profile!.userAs!
+    });
+
+
+    // get all job info
+    const jobInfo: JobType = {
+        user: user._id,
+        profile: user.profile!._id,
+        title: inputs.title,
+        description: inputs.description,
+        category: inputs.category,
+        priceType: inputs.priceType,
+        price: inputs.price,
+        locationType: inputs.locationType,
+        duration: inputs.duration,
+        weeklyHours: inputs.weeklyHours,
+        experienceLevel: inputs.experienceLevel,
+        tags: inputs.tags
+    }
+
+    // create job
+    await Job.create(jobInfo);
+
+    res.status(StatusCodes.CREATED).json({ msg: "You have created a job successfully" });
 }
 
 

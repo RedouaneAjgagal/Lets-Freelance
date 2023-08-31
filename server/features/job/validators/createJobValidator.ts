@@ -29,7 +29,7 @@ const createJobValidator = (inputs: ExpectedInputs) => {
         throw new BadRequestError(invalidPriceType);
     }
 
-    const invalidPrice = isInvalidPrice(price);
+    const invalidPrice = isInvalidPrice(price, priceType!);
     if (invalidPrice) {
         throw new BadRequestError(invalidPrice);
     }

@@ -15,7 +15,7 @@ export type JobTypeWithoutRefs = {
     duration: {
         dateType: "hours" | "days" | "months";
         dateValue: number;
-    } | undefined;
+    } | null;
     weeklyHours: {
         min: number;
         max: number;
@@ -80,7 +80,6 @@ const jobSchema = new mongoose.Schema<JobType>({
             min: 1,
             required: [true, "Maximum price is required"]
         },
-        // required: true
     },
     locationType: {
         type: String,
@@ -97,29 +96,27 @@ const jobSchema = new mongoose.Schema<JobType>({
                 values: ["hours", "days", "months"],
                 message: "`{VALUE}` is not supported"
             },
-            required: [true, "Duration job's type is required"]
+            default: undefined
         },
         dateValue: {
             type: Number,
             min: 1,
-            required: [true, "Duration date is required"]
+            default: undefined
         },
-        // required: false
     },
     weeklyHours: {
         min: {
             type: Number,
             min: 1,
             max: 168,
-            required: [true, "Minimum weekly houres is required"]
+            required: [true, "Minimum weekly hours is required"]
         },
         max: {
             type: Number,
             min: 1,
             max: 168,
-            required: [true, "Maximum weekly houres is required"]
+            required: [true, "Maximum weekly hours is required"]
         },
-        // required: true
     },
     experienceLevel: {
         type: String,

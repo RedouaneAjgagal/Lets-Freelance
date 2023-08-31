@@ -6,6 +6,7 @@ import { User } from "../auth";
 import createJobValidator from "./validators/createJobValidator";
 import userAsPermission from "../../helpers/userAsOnly";
 import Job, { JobType } from "./job.model";
+import getUpdatedJobInfo from "./helpers/getUpdatedJobInfo";
 
 
 //@desc get all jobs info
@@ -72,8 +73,35 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc update job
 //@route GET /api/v1/jobs/:jobId
 //@access authentication
-const updateJob: RequestHandler = (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "update a job" });
+const updateJob: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { jobId } = req.params;
+    if (!jobId || jobId.trim() === "") {
+        throw new BadRequestError("Must provide job id");
+    }
+
+    // find job
+    const job = await Job.findById(jobId);
+    if (!job) {
+        throw new NotFoundError(`Found no job with id ${jobId}`);
+    }
+
+    // check if belongs to the current user
+    if (job.user._id.toString() !== req.user!.userId) {
+        throw new UnauthorizedError("You dont have access to update this job");
+    }
+
+
+    const inputs = req.body;
+    // get the updated valid job info
+    const updatedJobInfo = getUpdatedJobInfo({
+        inputs,
+        jobPriceType: job.priceType
+    });
+
+    // update the job
+    await job.updateOne(updatedJobInfo);
+
+    res.status(StatusCodes.OK).json({ msg: "You have updated the job successfully" });
 }
 
 

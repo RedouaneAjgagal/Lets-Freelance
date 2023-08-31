@@ -261,6 +261,10 @@ const isInvalidTags = (tags: JobTypeWithoutRefs["tags"] | undefined) => {
         return error = "Invalid job tags";
     }
 
+    if (tags.length > 10) {
+        return error = "Tags cannot be more than 10";
+    }
+
     return error;
 }
 

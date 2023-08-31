@@ -130,6 +130,8 @@ const jobSchema = new mongoose.Schema<JobType>({
         type: [],
         require: true
     }
+}, {
+    timestamps: true
 });
 
 const Job = mongoose.model("job", jobSchema);

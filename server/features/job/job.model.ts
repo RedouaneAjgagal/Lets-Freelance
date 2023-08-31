@@ -2,11 +2,9 @@ import mongoose from "mongoose";
 import { IUser } from "../auth/auth.model";
 import { IProfile } from "../profile/profile.model";
 
-interface IJob {
-    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
-    profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
+export type JobTypeWithoutRefs = {
     title: string;
-    details: string;
+    description: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     priceType: "hourly" | "fixed";
     price: {
@@ -16,17 +14,24 @@ interface IJob {
     locationType: "remote" | "onsite";
     duration: {
         dateType: "hours" | "days" | "months";
-        date: number;
+        dateValue: number;
     } | undefined;
     weeklyHours: {
         min: number;
         max: number;
     };
     experienceLevel: "expert" | "intermediate" | "entryLevel";
-    skills: string[];
+    tags: string[];
 }
 
-const jobSchema = new mongoose.Schema<IJob>({
+
+export type JobType = {
+    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
+    profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
+} & JobTypeWithoutRefs
+
+
+const jobSchema = new mongoose.Schema<JobType>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -42,9 +47,10 @@ const jobSchema = new mongoose.Schema<IJob>({
         maxlength: [50, "Title cannot be more than 50 characters"],
         required: [true, "Job title is required"]
     },
-    details: {
+
+    description: {
         type: String,
-        maxlength: [50, "Details cannot be more than 6000 characters"],
+        maxlength: [6000, "Description cannot be more than 6000 characters"],
         required: [true, "Job title is required"]
     },
     category: {
@@ -66,10 +72,12 @@ const jobSchema = new mongoose.Schema<IJob>({
     price: {
         min: {
             type: Number,
+            min: 1,
             required: [true, "Minimum price is required"]
         },
         max: {
             type: Number,
+            min: 1,
             required: [true, "Maximum price is required"]
         },
         // required: true
@@ -91,8 +99,9 @@ const jobSchema = new mongoose.Schema<IJob>({
             },
             required: [true, "Duration job's type is required"]
         },
-        date: {
+        dateValue: {
             type: Number,
+            min: 1,
             required: [true, "Duration date is required"]
         },
         // required: false
@@ -100,10 +109,14 @@ const jobSchema = new mongoose.Schema<IJob>({
     weeklyHours: {
         min: {
             type: Number,
+            min: 1,
+            max: 168,
             required: [true, "Minimum weekly houres is required"]
         },
         max: {
             type: Number,
+            min: 1,
+            max: 168,
             required: [true, "Maximum weekly houres is required"]
         },
         // required: true
@@ -111,13 +124,14 @@ const jobSchema = new mongoose.Schema<IJob>({
     experienceLevel: {
         type: String,
         enum: {
-            values: ["expert", "intermediate", "entryLevel"],
+            values: ["entryLevel", "intermediate", "expert"],
             message: "`{VALUE}` is not supported"
         },
         required: [true, "Experience level is required"]
     },
-    skills: {
-        type: []
+    tags: {
+        type: [],
+        require: true
     }
 });
 

@@ -1,6 +1,6 @@
 import { BadRequestError } from "../../../errors";
 import { ServiceWithoutRefs } from "../service.model";
-import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier, isInvalidTitle, isInvalidKeywords } from "./ServiceInputValidators";
+import { isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier, isInvalidTitle, isInvalidKeywords } from "./serviceInputValidators";
 
 type ExpectedInputs = Partial<ServiceWithoutRefs>
 

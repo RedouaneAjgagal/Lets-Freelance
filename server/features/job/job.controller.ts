@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
+import { User } from "../auth";
 
 
 //@desc get all jobs info
@@ -23,7 +24,13 @@ const singleJob: RequestHandler = (req, res) => {
 //@desc create a new job
 //@route POST /api/v1/jobs
 //@access authentication (employers only)
-const createJob: RequestHandler = (req: CustomAuthRequest, res) => {
+const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    
     res.status(StatusCodes.CREATED).json({ msg: "Create a job" });
 }
 

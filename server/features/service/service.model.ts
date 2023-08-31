@@ -62,7 +62,7 @@ const serviceSchema = new mongoose.Schema<IService>({
     },
     description: {
         type: String,
-        maxlength: [1000, "Description cannot be more than 1000 characters"],
+        maxlength: [6000, "Description cannot be more than 6000 characters"],
         required: [true, "Service description is required"]
     },
     category: {

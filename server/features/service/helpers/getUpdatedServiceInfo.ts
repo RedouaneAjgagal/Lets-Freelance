@@ -1,5 +1,5 @@
 import { ServiceWithoutRefs } from "../service.model";
-import { isInvalidTitle, isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier } from "../validators/ServiceInputValidators";
+import { isInvalidTitle, isInvalidCategory, isInvalidDescription, isInvalidFeaturedImage, isInvalidGallery, isInvalidTier } from "../validators/serviceInputValidators";
 
 type ExpectedInputs = Partial<ServiceWithoutRefs>
 

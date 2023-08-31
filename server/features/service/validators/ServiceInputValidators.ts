@@ -29,8 +29,8 @@ const isInvalidDescription = (description: ServiceWithoutRefs["description"] | u
         return error = "Unsupported description format"
     }
 
-    if (description.length > 1000) {
-        return error = "Service description cannot be more than 1000 characters"
+    if (description.length > 6000) {
+        return error = "Service description cannot be more than 6000 characters"
     }
 
     return error;

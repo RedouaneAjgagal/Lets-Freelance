@@ -21,8 +21,41 @@ const getAllJobs: RequestHandler = (req, res) => {
 //@desc get single job info
 //@route GET /api/v1/jobs/:jobId
 //@access public
-const singleJob: RequestHandler = (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "Single job" });
+const singleJob: RequestHandler = async (req, res) => {
+    const { jobId } = req.params;
+    if (!jobId || jobId.trim() === "") {
+        throw new BadRequestError("Must provide the job id");
+    }
+
+    // find the job
+    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees" }).lean();
+    if (!job) {
+        throw new NotFoundError(`Found no job with id ${jobId}`);
+    }
+
+    // check if the uesr an employer
+    if (job.profile.userAs !== "employer") {
+        throw new UnauthorizedError(`${job.profile.name} is no longer an employer`);
+    }
+
+    const totalJobPosted = await Job.countDocuments({ _id: jobId });
+
+    // dummy data for now
+    const totalSpent = 505;
+    const avgHourlyRatePaid = 23;
+
+    // get all job details
+    const jobDetails = {
+        ...job,
+        profile: {
+            ...job.profile,
+            totalJobPosted,
+            totalSpent,
+            avgHourlyRatePaid
+        }
+    }
+
+    res.status(StatusCodes.OK).json(jobDetails);
 }
 
 

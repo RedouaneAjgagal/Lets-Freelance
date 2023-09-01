@@ -7,6 +7,7 @@ import createJobValidator from "./validators/createJobValidator";
 import userAsPermission from "../../helpers/userAsOnly";
 import Job, { JobType } from "./job.model";
 import getUpdatedJobInfo from "./helpers/getUpdatedJobInfo";
+import rolePermissionChecker from "../../utils/permissionChecker";
 
 
 //@desc get all jobs info
@@ -108,8 +109,49 @@ const updateJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc delete job
 //@route GET /api/v1/jobs/:jobId
 //@access authentication
-const deleteJob: RequestHandler = (req: CustomAuthRequest, res) => {
-    res.status(StatusCodes.OK).json({ msg: "delete a job" });
+const deleteJob: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { jobId } = req.params;
+    if (!jobId || jobId.trim() === "") {
+        throw new BadRequestError("Must provide job id");
+    }
+
+    // find the job
+    const job = await Job.findById(jobId);
+    if (!job) {
+        throw new NotFoundError(`Found no job with id ${jobId}`);
+    }
+
+    // find the current user
+    const currentUser = await User.findById(req.user!.userId);
+    if (!currentUser) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+
+    const hasValidRole = rolePermissionChecker({
+        allowedRoles: ["admin", "owner"],
+        currentRole: currentUser.role
+    });
+
+    // check if the current user is an admin or owner
+    if (hasValidRole) {
+        if (currentUser.role !== "owner") {
+            // create data analytics later for the owner dashboard
+        }
+        await job.deleteOne();
+        return res.status(StatusCodes.OK).json({ msg: `You have deleted job with id ${jobId}` });
+    }
+
+
+    // check if the job belong to the current user
+    if (currentUser._id.toString() !== job.user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to delete this job");
+    }
+
+    // delete the job
+    await job.deleteOne();
+
+    res.status(StatusCodes.OK).json({ msg: "Your job has been deleted" });
 }
 
 

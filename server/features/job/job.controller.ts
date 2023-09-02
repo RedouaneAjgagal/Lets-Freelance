@@ -13,8 +13,117 @@ import rolePermissionChecker from "../../utils/permissionChecker";
 //@desc get all jobs info
 //@route GET /api/v1/jobs
 //@access public
-const getAllJobs: RequestHandler = (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "All jobs" });
+const getAllJobs: RequestHandler = async (req, res) => {
+    const {
+        project_type: priceType,
+        project_price: price,
+        project_length: duration,
+        hours_per_week: weeklyHours,
+        location_type: locationType,
+        experience_level: experienceLevel,
+        category,
+        search,
+        page
+    } = req.query;
+
+    const searchQuery: Partial<{ $and: {}[], $or: {}[] }> = {};
+
+    // search by tags & title
+    const isValidSearch = search && search.toString().trim() !== "";
+    if (isValidSearch) {
+        if (!searchQuery.$or) searchQuery.$or = [];
+        const regex = new RegExp(`^${search.toString()}`);
+
+        // search by tags
+        searchQuery.$or.push({ tags: { $in: [regex] } });
+
+        // search by title
+        searchQuery.$or.push({ title: { $regex: search.toString(), $options: "i" } });
+    }
+
+    // search by project type (hourly or fixed)
+    const priceTypeList = ["hourly", "fixed"];
+    const isValidPriceType = priceType && priceType.toString().trim() !== "" && priceTypeList.includes(priceType.toString());
+    if (isValidPriceType) {
+        if (!searchQuery.$and) searchQuery.$and = [];
+        searchQuery.$and.push({ priceType: priceType.toString() });
+    }
+
+    // search by prokect price
+    const isValidPrice = price && price.toString().trim() !== "" && /^\d+-\d+$/.test(price.toString());
+    if (isValidPrice) {
+        const [minPrice, maxPrice] = price.toString().split("-");
+        if (Number(minPrice) <= Number(maxPrice)) {
+            if (!searchQuery.$and) searchQuery.$and = [];
+            searchQuery.$and.push({ "price.min": { $gte: minPrice }, "price.max": { $lte: maxPrice } });
+        }
+
+    }
+
+    // search by project length (duration)
+    const isValidDuration = duration && duration.toString().trim() !== "" && /^[a-zA-Z]+\s*(<|>)\s*\d+$/.test(duration.toString());
+    if (isValidDuration) {
+        const dateTypeList = ["hours", "days", "months"];
+
+        const getComparisonOperator = duration.toString().includes("<") ? "<" : ">";
+        const [dateType, value] = duration.toString().split(getComparisonOperator);
+
+        if (dateTypeList.includes(dateType)) {
+            const operator = getComparisonOperator === "<" ? "$lte" : "$gte";
+            if (!searchQuery.$and) searchQuery.$and = [];
+            searchQuery.$and.push({ "duration.dateType": dateType }, { "duration.dateValue": { [operator]: Number(value) } });
+        }
+    }
+
+    // search by hours per week (weekly hours)
+    const isValidWeeklyHours = weeklyHours && weeklyHours.toString().trim() !== "" && /^\d+-\d+$/.test(weeklyHours.toString());
+    if (isValidWeeklyHours) {
+        const [min, max] = weeklyHours.toString().split("-");
+        if (Number(min) <= Number(max)) {
+            if (!searchQuery.$and) searchQuery.$and = [];
+            searchQuery.$and.push({ "weeklyHours.min": { $gte: min }, "weeklyHours.max": { $lte: max } });
+        }
+    }
+
+    // search by location type
+    const locationTypeList = ["remote", "onsite"];
+    const isValidLocationType = locationType && locationType.toString().trim() !== "" && locationTypeList.includes(locationType.toString());
+    if (isValidLocationType) {
+        if (!searchQuery.$and) searchQuery.$and = [];
+        searchQuery.$and.push({ locationType: locationType.toString() });
+    }
+
+    // search by experience level
+    const experienceLevelList = ["entry-level", "intermediate", "expert"];
+    const isValidExperienceLevel = experienceLevel && experienceLevel.toString().trim() !== "" && experienceLevelList.includes(experienceLevel.toString());
+    if (isValidExperienceLevel) {
+        const formatedExperienceLevel = experienceLevel.toString() === "entry-level" ? "entryLevel" : experienceLevel.toString();
+        if (!searchQuery.$and) searchQuery.$and = [];
+        searchQuery.$and.push({ experienceLevel: formatedExperienceLevel });
+    }
+
+    // search by category
+    const categoryList = ["digital-marketing", "design-creative", "programming-tech", "writing-translation", "video-animation", "finance-accounting", "music-audio"];
+    const isValidCategory = category && category.toString().trim() !== "" && categoryList.includes(category.toString());
+    if (isValidCategory) {
+        const formatedCategory = category === "digital-marketing" ? category.toString().split("-").join(" ") : category.toString().split("-").join(" & ");
+        if (!searchQuery.$and) searchQuery.$and = [];
+        searchQuery.$and.push({ category: formatedCategory });
+    }
+
+    // add skip and limit
+    const currentPage = page && page.toString() !== "" && /^\d+$/.test(page.toString()) && Number(page.toString()) > 0 ? Number(page.toString()) : 1;
+    const limit = 12;
+    const end = currentPage * limit;
+    const start = (currentPage - 1) * limit;
+
+    // find jobs
+    const jobs = await Job.find(searchQuery).populate({ path: "profile", select: "userAs" }).select("title description priceType price experienceLevel createdAt tags duration").sort("-createdAt");
+
+    // filter for only employers
+    const allJobs = jobs.filter(job => job.profile.userAs === "employer");
+
+    res.status(StatusCodes.OK).json({ totalJobs: allJobs.length, jobs: allJobs.slice(start, end) });
 }
 
 

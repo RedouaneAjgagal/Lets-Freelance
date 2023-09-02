@@ -73,10 +73,11 @@ const getAllservices: RequestHandler = async (req, res) => {
     // search by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
     const limit = 12;
-    const skip = (Number(currentPage) - 1) * limit;
+    const start = (currentPage - 1) * limit;
+    const end = currentPage * 12;
 
 
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel" }).limit(limit).skip(skip).lean();
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel" }).lean();
 
     services = services.filter(service => service.profile.userAs === "freelancer");
 
@@ -98,10 +99,9 @@ const getAllservices: RequestHandler = async (req, res) => {
 
 
     // get number of pages for pagination
-    const totalServices = await Service.countDocuments(searchQuery);
-    const numOfPages = Math.ceil(totalServices / limit);
+    const numOfPages = Math.ceil(services.length / limit);
 
-    res.status(StatusCodes.OK).json({ numOfPages, services });
+    res.status(StatusCodes.OK).json({ numOfPages, services: services.slice(start, end) });
 }
 
 

@@ -122,8 +122,9 @@ const getAllJobs: RequestHandler = async (req, res) => {
 
     // filter for only employers
     const allJobs = jobs.filter(job => job.profile.userAs === "employer");
+    const numOfPages = Math.ceil(allJobs.length / limit);
 
-    res.status(StatusCodes.OK).json({ totalJobs: allJobs.length, jobs: allJobs.slice(start, end) });
+    res.status(StatusCodes.OK).json({ numOfPages, jobs: allJobs.slice(start, end) });
 }
 
 

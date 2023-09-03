@@ -8,6 +8,7 @@ import createReviewValidator from "./validators/createReviewValidator";
 import { jobModel as Job } from "../job";
 import { serviceModel as Service } from "../service";
 import { isValidObjectId } from "mongoose";
+import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
 
 
 //@desc get all reviews related to the activity
@@ -84,10 +85,38 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc update a review
-//@route PATCH /api/v1/reviews/:reviewId
+//@route PATCH /api/v1/reviews
 //@access authentication
-const updateReview: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "update a review" });
+const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const inputs = req.body;
+
+    // get the valid updated values
+    const updatedReviewInfo = getUpdatedReviewInfo(inputs);
+
+    // check if valid mongoose id
+    const activityId = inputs.activityId;
+    const isValidMongooseId = isValidObjectId(activityId);
+    if (!isValidMongooseId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find current user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // find the review and update it
+    const review = await Review.findOneAndUpdate({ profile: profile._id, user: profile.user, [inputs.activityType]: activityId },
+        updatedReviewInfo,
+        { runValidators: true, sanitizeFilter: true, new: true });
+
+
+    if (!review) {
+        throw new BadRequestError("Found no review to update");
+    }
+
+    res.status(StatusCodes.OK).json({ rating: review.rating, description: review.description });
 }
 
 //@desc delete a review

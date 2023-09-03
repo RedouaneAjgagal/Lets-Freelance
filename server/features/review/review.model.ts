@@ -67,7 +67,7 @@ const reviewSchema = new mongoose.Schema<Review>({
     timestamps: true
 });
 
-reviewSchema.index({ user: 1, service: 1, job: 1 }, { unique: true });
+reviewSchema.index({ user: 1, profile: 1, service: 1, job: 1 }, { unique: true });
 
 const Review = mongoose.model("Review", reviewSchema);
 

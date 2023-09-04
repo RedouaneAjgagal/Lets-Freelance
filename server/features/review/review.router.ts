@@ -7,7 +7,9 @@ const router = Router();
 router.route("/")
     .get(getActivityReviews)
     .post(authentication, createReview)
-    .patch(authentication, updateReview)
+    .patch(authentication, updateReview);
+
+router.route("/:reviewId")
     .delete(authentication, deleteReview);
 
 

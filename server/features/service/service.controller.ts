@@ -5,7 +5,7 @@ import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import Service, { ServiceWithoutRefs } from "./service.model";
-import rolePermissionChecker from "../../utils/permissionChecker";
+import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
 import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";

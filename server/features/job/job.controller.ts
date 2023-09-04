@@ -7,7 +7,7 @@ import createJobValidator from "./validators/createJobValidator";
 import userAsPermission from "../../helpers/userAsOnly";
 import Job, { JobType } from "./job.model";
 import getUpdatedJobInfo from "./helpers/getUpdatedJobInfo";
-import rolePermissionChecker from "../../utils/permissionChecker";
+import rolePermissionChecker from "../../utils/rolePermissionChecker";
 
 
 //@desc get all jobs info

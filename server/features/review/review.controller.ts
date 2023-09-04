@@ -9,6 +9,9 @@ import { jobModel as Job } from "../job";
 import { serviceModel as Service } from "../service";
 import { isValidObjectId } from "mongoose";
 import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
+import { isInvalidActivityType } from "./validators/reviewInputValidator";
+import rolePermissionChecker from "../../utils/rolePermissionChecker";
+import { User } from "../auth";
 
 
 //@desc get all reviews related to the activity
@@ -122,8 +125,53 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc delete a review
 //@route DELETE /api/v1/reviews/:reviewId
 //@access authentication
-const deleteReview: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "delete a review" });
+const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { reviewId } = req.params;
+
+    // check if valid mongodb id
+    const isValidMongooseId = isValidObjectId(reviewId);
+    if (!isValidMongooseId) {
+        throw new BadRequestError("Invalid review id");
+    }
+
+    // find review
+    const review = await Review.findById(reviewId);
+    if (!review) {
+        throw new NotFoundError(`Found no review with id ${reviewId}`);
+    }
+
+    // find user
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if powerful role
+    const isValidRole = rolePermissionChecker({
+        allowedRoles: ["admin", "owner"],
+        currentRole: user.role
+    });
+
+    // delete review for powerful roles
+    if (isValidRole) {
+        if (user.role !== "owner") {
+            // create data analytics later for the owner dashboard
+        }
+
+        review.deleteOne();
+        return res.status(StatusCodes.OK).json({ msg: `Review ID ${review._id} has been deleted by an ${user.role}` });
+    }
+
+    // check if the review belongs to current user
+    if (review.user._id.toString() !== user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to delete this review");
+    }
+
+    // delete review
+    review.deleteOne();
+
+    res.status(StatusCodes.OK).json({ msg: `Your review has been deleted` });
+
 }
 
 

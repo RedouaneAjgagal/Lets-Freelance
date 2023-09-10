@@ -26,6 +26,7 @@ import { profileRouter } from "./features/profile";
 import { serviceRouter } from "./features/service";
 import { jobRouter } from "./features/job";
 import { reviewRouter } from "./features/review";
+import { proposalRouter } from "./features/proposal";
 
 
 // middlewares
@@ -57,6 +58,7 @@ app.use("/api/v1/profiles", profileRouter);
 app.use("/api/v1/services", serviceRouter);
 app.use("/api/v1/jobs", jobRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/proposals", proposalRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

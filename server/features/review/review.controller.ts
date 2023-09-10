@@ -18,7 +18,24 @@ import { User } from "../auth";
 //@route GET /api/v1/reviews
 //@access public
 const getActivityReviews: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "all reviews related to this activity" });
+    const { activityId, activityType } = req.body;
+
+    // check if valid mongodb id
+    const isValidMongooseId = isValidObjectId(activityId);
+    if (!isValidMongooseId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // check if valid activity type (service or job)
+    const invalidActivityType = isInvalidActivityType(activityType);
+    if (invalidActivityType) {
+        throw new BadRequestError("Invalid activity");
+    }
+
+    // find the activity
+    const activity = await Review.find({ [activityType]: activityId }).select("_id description rating createdAt updatedAt");
+
+    res.status(StatusCodes.OK).json(activity);
 }
 
 
@@ -37,7 +54,7 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     // check if valid inputs
     const reviewInfo = createReviewValidator(inputs);
 
-    // check if valid mongoose id
+    // check if valid mongodb id
     const activityId = inputs.activityId;
     const isValidMongooseId = isValidObjectId(activityId);
     if (!isValidMongooseId) {
@@ -96,7 +113,7 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     // get the valid updated values
     const updatedReviewInfo = getUpdatedReviewInfo(inputs);
 
-    // check if valid mongoose id
+    // check if valid mongodb id
     const activityId = inputs.activityId;
     const isValidMongooseId = isValidObjectId(activityId);
     if (!isValidMongooseId) {

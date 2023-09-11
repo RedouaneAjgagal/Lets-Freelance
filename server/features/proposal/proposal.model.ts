@@ -3,7 +3,7 @@ import { JobType } from "../job/job.model";
 import { IUser } from "../auth/auth.model";
 import { IProfile } from "../profile/profile.model";
 
-type ProposalWithoutRef = {
+export type ProposalWithoutRef = {
     coverLetter: string;
     priceType: "hourly" | "fixed";
     price: number;
@@ -14,13 +14,13 @@ type ProposalWithoutRef = {
     status: "pending" | "interviewing" | "rejected" | "approved";
 };
 
-type Proposal = {
+export type IProposal = {
     job: { _id: mongoose.Types.ObjectId } & Partial<JobType>;
     user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
     profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
 } & ProposalWithoutRef;
 
-const proposalSchema = new mongoose.Schema<Proposal>({
+const proposalSchema = new mongoose.Schema<IProposal>({
     job: {
         type: mongoose.Types.ObjectId,
         ref: "Job",
@@ -78,6 +78,7 @@ const proposalSchema = new mongoose.Schema<Proposal>({
     }
 });
 
+proposalSchema.index({ user: 1, profile: 1, job: 1 }, { unique: true });
 
 const Proposal = mongoose.model("Proposal", proposalSchema);
 

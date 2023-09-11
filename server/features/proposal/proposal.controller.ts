@@ -13,8 +13,36 @@ import { isInvalidStatus } from "./validators/proposalInputValidator";
 //@desc get all proposals related to job
 //@route get /api/v1/proposals
 //@access authentication (job creator only)
-const getProposals: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "All proposals" });
+const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { jobId } = req.body;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(jobId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find ptofile
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the user an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("Must be an employer");
+    }
+
+    // find proposals
+    const proposals = await Proposal.find({ job: jobId }).populate({ path: "job", select: "_id user" });
+
+    // check if belong to the current employer
+    const isCurrentEmployerJob = proposals.every(proposal => proposal.job.user!.toString() === profile.user._id.toString());
+    if (!isCurrentEmployerJob) {
+        throw new UnauthorizedError("You dont have access to these ressources");
+    }
+
+    res.status(StatusCodes.OK).json(proposals);
 }
 
 
@@ -132,7 +160,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // create a contract (add later)
     if (status === "approved") {
-        
+
     }
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;

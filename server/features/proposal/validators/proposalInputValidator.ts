@@ -101,9 +101,29 @@ const isInvalidEstimatedTime = (estimatedTime: IProposal["estimatedTime"] | unde
     return error;
 }
 
+const isInvalidStatus = (status: IProposal["status"] | undefined) => {
+    let error = "";
+
+    if (!status || status.toString().trim() === "") {
+        return error = "Proposal status is required";
+    }
+
+    if (typeof status !== "string") {
+        return error = "Invalid proposal status format";
+    }
+
+    const statusList = ["pending", "interviewing", "rejected", "approved"];
+    if (!statusList.includes(status)) {
+        return error = "Unsupported proposal status";
+    }
+
+    return error;
+}
+
 export {
     isInvalidCoverLetter,
     isInvalidEstimatedTime,
     isInvalidPrice,
-    isInvalidPriceType
+    isInvalidPriceType,
+    isInvalidStatus
 }

@@ -76,6 +76,8 @@ const proposalSchema = new mongoose.Schema<IProposal>({
         default: "pending",
         required: true
     }
+}, {
+    timestamps: true
 });
 
 proposalSchema.index({ user: 1, profile: 1, job: 1 }, { unique: true });

@@ -346,15 +346,12 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     const selectedTier: "starter" | "standard" | "advanced" = tier;
 
-    // get order info
-    const orderInfo = {
-        serviceInfo: service._id,
-        title: service.title,
-        description: service.description,
-        tierName: selectedTier,
-        tier: service.tier[selectedTier]
-    }
+    // add stripe payment (add later)
+    const price = service.tier[selectedTier].price.toFixed(2);
+    console.log(price);
 
+
+    // create a contract
     const refs = {
         freelancer: {
             user: service.user._id,
@@ -366,15 +363,25 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     }
 
-    // add stripe payment (add later)
-    const price = service.tier[selectedTier].price.toFixed(2);
-    console.log(price);
+    const contractInfo = {
+        ...refs,
+        activityType: "service",
+        service: {
+            serviceInfo: service._id,
+            title: service.title,
+            description: service.description,
+            tierName: selectedTier,
+            tier: service.tier[selectedTier]
+        }
+    }
 
+    await Contract.create(contractInfo);
 
-    // create a contract
-    await Contract.create({ activityType: "service", service: orderInfo, ...refs });
-
-    res.status(StatusCodes.OK).json(orderInfo);
+    res.status(StatusCodes.OK).json({
+        title: contractInfo.service.title,
+        description: contractInfo.service.description,
+        tier: contractInfo.service.tier
+    });
 }
 
 

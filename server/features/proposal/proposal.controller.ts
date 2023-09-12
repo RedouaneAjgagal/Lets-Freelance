@@ -8,6 +8,7 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
 import { jobModel as Job } from "../job";
 import { isInvalidStatus } from "./validators/proposalInputValidator";
+import { contractModel as Contract } from "../contract";
 
 
 //@desc get all proposals related to job
@@ -140,7 +141,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find proposal
-    const proposal = await Proposal.findById(proposalId).populate({ path: "job", select: "user" });
+    const proposal = await Proposal.findById(proposalId).populate({ path: "job", select: "_id user" });
     if (!proposal) {
         throw new BadRequestError(`Found no proposal with id ${proposalId}`);
     }
@@ -160,7 +161,31 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // create a contract (add later)
     if (status === "approved") {
+        const refs = {
+            freelancer: {
+                user: proposal.user,
+                profile: proposal.profile
+            },
+            employer: {
+                user: profile.user._id,
+                profile: profile._id
+            }
+        }
 
+        const contractInfo = {
+            ...refs,
+            activityType: "job",
+            job: {
+                jobInfo: proposal.job._id,
+                proposal: proposal._id,
+                coverLetter: proposal.coverLetter,
+                priceType: proposal.priceType,
+                price: proposal.price,
+                estimatedTime: proposal.estimatedTime
+            }
+        }
+
+        await Contract.create(contractInfo);
     }
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;

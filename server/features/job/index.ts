@@ -1,7 +1,8 @@
-import jobModel from "./job.model";
 import jobRouter from "./job.router";
+import jobModel, { JobType } from "./job.model";
 
 export {
+    jobRouter,
     jobModel,
-    jobRouter
+    JobType
 }

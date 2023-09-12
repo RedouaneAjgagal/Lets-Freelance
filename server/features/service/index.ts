@@ -1,7 +1,10 @@
 import serviceRouter from "./service.router";
-import serviceModel from "./service.model";
+import serviceModel, { ServicePlan, ServiceWithoutRefs,IService } from "./service.model";
 
 export {
     serviceRouter,
-    serviceModel
+    serviceModel,
+    ServicePlan,
+    ServiceWithoutRefs,
+    IService
 }

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { JobType } from "../job/job.model";
-import { IUser } from "../auth/auth.model";
 import { IProfile } from "../profile/profile.model";
 
 export type ProposalWithoutRef = {
@@ -14,13 +13,13 @@ export type ProposalWithoutRef = {
     status: "pending" | "interviewing" | "rejected" | "approved";
 };
 
-export type IProposal = {
+export type ProposalType = {
     job: { _id: mongoose.Types.ObjectId } & Partial<JobType>;
-    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
+    user: { _id: mongoose.Types.ObjectId };
     profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
 } & ProposalWithoutRef;
 
-const proposalSchema = new mongoose.Schema<IProposal>({
+const proposalSchema = new mongoose.Schema<ProposalType>({
     job: {
         type: mongoose.Types.ObjectId,
         ref: "Job",

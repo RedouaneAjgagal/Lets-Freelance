@@ -1,8 +1,9 @@
-import proposalModel from "./proposal.model";
 import proposalRouter from "./proposal.router";
+import proposalModel, { ProposalType } from "./proposal.model";
 
 
 export {
+    proposalRouter,
     proposalModel,
-    proposalRouter
+    ProposalType
 }

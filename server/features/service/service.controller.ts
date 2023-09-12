@@ -342,7 +342,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // get order info
     const orderInfo = {
-        serviceBelongTo: {
+        belongTo: {
             user: service.user._id,
             profile: service.profile._id
         },
@@ -350,7 +350,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         description: service.description,
         tierName: tier,
         tier: service.tier[selectedTier],
-        orderedBy: {
+        employer: {
             user: profile.user._id,
             profile: profile._id
         }

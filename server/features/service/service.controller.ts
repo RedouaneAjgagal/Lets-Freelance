@@ -12,6 +12,7 @@ import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 import userAsPermission from "../../helpers/userAsOnly";
 import { isValidObjectId } from "mongoose";
 import { Profile } from "../profile";
+import { contractModel as Contract } from "../contract";
 
 
 
@@ -308,7 +309,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find service
-    const service = await Service.findById(serviceId);
+    const service = await Service.findById(serviceId).populate({ path: "profile", select: "_id userAs" });
     if (!service) {
         throw new NotFoundError(`Found no service with id ${serviceId}`);
     }
@@ -322,6 +323,11 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     // check if the profile is an employer
     if (profile.userAs !== "employer") {
         throw new UnauthorizedError("Must be an employer to order services");
+    }
+
+    // check if the service creator is still a freelancer
+    if (service.profile!.userAs !== "freelancer") {
+        throw new UnauthorizedError("This user is no longer a freelancer");
     }
 
     // check if the service doesnt belong to the current employer
@@ -342,14 +348,18 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // get order info
     const orderInfo = {
-        belongTo: {
+        serviceInfo: service._id,
+        title: service.title,
+        description: service.description,
+        tierName: selectedTier,
+        tier: service.tier[selectedTier]
+    }
+
+    const refs = {
+        freelancer: {
             user: service.user._id,
             profile: service.profile._id
         },
-        title: service.title,
-        description: service.description,
-        tierName: tier,
-        tier: service.tier[selectedTier],
         employer: {
             user: profile.user._id,
             profile: profile._id
@@ -359,9 +369,10 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     // add stripe payment (add later)
     const price = service.tier[selectedTier].price.toFixed(2);
     console.log(price);
-    
 
-    // create a contract (add later)
+
+    // create a contract
+    await Contract.create({ activityType: "service", service: orderInfo, ...refs });
 
     res.status(StatusCodes.OK).json(orderInfo);
 }

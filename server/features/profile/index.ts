@@ -1,7 +1,8 @@
 import profileRouter from "./profile.router";
-import Profile from "./profile.model";
+import Profile, { IProfile } from "./profile.model";
 
 export {
     profileRouter,
-    Profile
+    Profile,
+    IProfile
 }

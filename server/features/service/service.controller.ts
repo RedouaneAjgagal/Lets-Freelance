@@ -10,6 +10,8 @@ import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
 import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 import userAsPermission from "../../helpers/userAsOnly";
+import { isValidObjectId } from "mongoose";
+import { Profile } from "../profile";
 
 
 
@@ -292,6 +294,78 @@ const uploadGallery: RequestHandler = async (req: CustomAuthRequest, res) => {
     res.status(StatusCodes.OK).json({ galleryImgURL: imageResponse.secure_url });
 }
 
+//@desc an employer can order the service
+//@route POST /api/v1/services/:serviceId/order
+//@access authentication
+const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { serviceId } = req.params;
+    const { tier } = req.body;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(serviceId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find service
+    const service = await Service.findById(serviceId);
+    if (!service) {
+        throw new NotFoundError(`Found no service with id ${serviceId}`);
+    }
+
+    // find profile
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the profile is an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("Must be an employer to order services");
+    }
+
+    // check if the service doesnt belong to the current employer
+    if (service.profile._id.toString() === profile._id.toString()) {
+        throw new BadRequestError("You can't order your own service");
+    }
+
+    // check if valid tier
+    const tiers = ["starter", "standard", "advanced"];
+    if (!tier || tier.toString().trim() === "") {
+        throw new BadRequestError("Service tier is required");
+    }
+    if (!tiers.includes(tier)) {
+        throw new BadRequestError("Invalid tier");
+    }
+
+    const selectedTier: "starter" | "standard" | "advanced" = tier;
+
+    // get order info
+    const orderInfo = {
+        serviceBelongTo: {
+            user: service.user._id,
+            profile: service.profile._id
+        },
+        title: service.title,
+        description: service.description,
+        tierName: tier,
+        tier: service.tier[selectedTier],
+        orderedBy: {
+            user: profile.user._id,
+            profile: profile._id
+        }
+    }
+
+    // add stripe payment (add later)
+    const price = service.tier[selectedTier].price.toFixed(2);
+    console.log(price);
+    
+
+    // create a contract (add later)
+
+    res.status(StatusCodes.OK).json(orderInfo);
+}
+
 
 
 export {
@@ -301,5 +375,6 @@ export {
     updateService,
     deleteService,
     uploadFeaturedImg,
-    uploadGallery
+    uploadGallery,
+    orderService
 }

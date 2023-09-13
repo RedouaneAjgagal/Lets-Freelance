@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
-import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
+import { BadRequestError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import Contract from "./contract.model";
 import { isValidObjectId } from "mongoose";
 import cancelContractValidator from "./validators/cancelContractValidator";
@@ -26,7 +26,7 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find contracts
-    const contracts = await Contract.find(filterQuery);
+    const contracts = await Contract.find(filterQuery).select("-cancelRequest -employer -freelancer");
 
     res.status(StatusCodes.OK).json(contracts);
 }
@@ -35,8 +35,9 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc get contract cancelation requests
 //@route GET /api/v1/contracts/cancel-requests
 //@access authorization (admin - owner)
-const cancelationRequests: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "all cancelation request" });
+const cancelationRequests: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const contracts = await Contract.find({ $and: [{ "cancelRequest.status": "pending" }, { status: "inProgress" }] });
+    res.status(StatusCodes.OK).json(contracts);
 }
 
 
@@ -96,6 +97,7 @@ const cancelContract: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // update contract to cancelation
+    contract.cancelRequest.status = "pending";
     contract.cancelRequest[profile.userAs] = contractCancelationInfo;
     await contract.save();
 

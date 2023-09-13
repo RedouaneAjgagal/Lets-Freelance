@@ -33,7 +33,7 @@ export type ContractType = {
     activityType: "service" | "job";
     service: ContractService | undefined;
     job: ContractJob | undefined;
-    status: "inProgress" | "completed" | "canceled";
+    status: "inProgress" | "completed" | "canceled" | undefined;
     cancelRequest: {
         freelancer: {
             isCancelRequest: boolean;
@@ -44,7 +44,8 @@ export type ContractType = {
             isCancelRequest: boolean;
             subject: string;
             reason: string;
-        }
+        },
+        status: "pending" | "rejected" | "approved"
     };
 }
 
@@ -171,6 +172,13 @@ const contractSchema = new mongoose.Schema<ContractType>({
             },
             subject: String,
             reason: String
+        },
+        status: {
+            type: String,
+            enum: {
+                values: ["pending", "rejected", "approved"],
+                message: "{VALUE} is not supported"
+            }
         }
     }
 }, {

@@ -34,6 +34,18 @@ export type ContractType = {
     service: ContractService | undefined;
     job: ContractJob | undefined;
     status: "inProgress" | "completed" | "canceled";
+    cancelRequest: {
+        freelancer: {
+            isCancelRequest: boolean;
+            subject: string;
+            reason: string;
+        };
+        employer: {
+            isCancelRequest: boolean;
+            subject: string;
+            reason: string;
+        }
+    };
 }
 
 const contractSchema = new mongoose.Schema<ContractType>({
@@ -140,6 +152,26 @@ const contractSchema = new mongoose.Schema<ContractType>({
         },
         default: "inProgress",
         required: true
+    },
+    cancelRequest: {
+        freelancer: {
+            isCancelRequest: {
+                type: Boolean,
+                default: false,
+                required: true
+            },
+            subject: String,
+            reason: String
+        },
+        employer: {
+            isCancelRequest: {
+                type: Boolean,
+                default: false,
+                required: true
+            },
+            subject: String,
+            reason: String
+        }
     }
 }, {
     timestamps: true

@@ -9,7 +9,7 @@ router.route("/")
     .get(authentication, getContracts);
 
 router.route("/cancel-requests")
-    .get(authorization("admin"), cancelationRequests);
+    .get(authentication, authorization("admin"), cancelationRequests);
 
 router.route("/:contractId")
     .post(authentication, cancelContract)

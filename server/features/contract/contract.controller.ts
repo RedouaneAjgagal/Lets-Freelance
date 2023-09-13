@@ -1,12 +1,32 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
+import { CustomAuthRequest } from "../../middlewares/authentication";
+import { Profile } from "../profile";
+import { UnauthenticatedError } from "../../errors";
+import Contract from "./contract.model";
 
 
 //@desc get all contracts related to the current user
 //@route GET /api/v1/contracts
 //@access authentication
-const getContracts: RequestHandler = async (req, res) => {
-    res.status(StatusCodes.OK).json({ msg: "all contracts" });
+const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find profile
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const filterQuery = {
+        [profile.userAs]: {
+            user: profile.user._id,
+            profile: profile._id
+        }
+    }
+
+    // find contracts
+    const contracts = await Contract.find(filterQuery);
+    
+    res.status(StatusCodes.OK).json(contracts);
 }
 
 

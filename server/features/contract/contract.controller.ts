@@ -48,12 +48,8 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
             },
             {
                 [`${profile.userAs}.user`]: profile.user._id,
-<<<<<<< HEAD
                 [`${profile.userAs}.profile`]: profile._id,
                 [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: getStatus || "inProgress"
-=======
-                [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: "inProgress"
->>>>>>> refs/remotes/origin/main
             }
         ]
     }, { cancelRequest: false });

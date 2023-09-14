@@ -1,4 +1,6 @@
-const isInvalidSubject = (subject: string | undefined) => {
+import { CancelRequestType, ContractType, ContractRoleType } from "../contract.model";
+
+const isInvalidSubject = (subject: CancelRequestType["subject"] | undefined) => {
     let error = "";
 
     if (!subject || subject.toString().trim() === "") {
@@ -12,7 +14,7 @@ const isInvalidSubject = (subject: string | undefined) => {
     return error;
 }
 
-const isInvalidReason = (reason: string | undefined) => {
+const isInvalidReason = (reason: CancelRequestType["reason"] | undefined) => {
     let error = "";
 
     if (!reason || reason.toString().trim() === "") {
@@ -30,7 +32,27 @@ const isInvalidReason = (reason: string | undefined) => {
     return error;
 }
 
+const isInvalidStatus = (status: ContractRoleType["status"] | undefined) => {
+    let error = "";
+
+    if (!status || status.toString().trim() === "") {
+        return error = "Status is required";
+    }
+
+    if (typeof status !== "string") {
+        return error = "Invalid status format";
+    }
+
+    const statusList = ["inProgress", "completed", "canceled"];
+    if (!statusList.includes(status)) {
+        return error = "Unsupported status";
+    }
+
+    return error;
+}
+
 export {
     isInvalidSubject,
-    isInvalidReason
+    isInvalidReason,
+    isInvalidStatus
 }

@@ -4,6 +4,18 @@ import { ProposalType } from "../proposal";
 import { JobType } from "../job";
 import { IProfile } from "../profile";
 
+export type ContractRoleType = {
+    user: { _id: mongoose.Types.ObjectId };
+    profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
+    status: "inProgress" | "completed" | "canceled";
+}
+
+export type CancelRequestType = {
+    isCancelRequest: boolean;
+    subject: string;
+    reason: string;
+}
+
 export type ContractService = {
     serviceInfo: { _id: mongoose.Types.ObjectId } & IService
     title: IService["title"];
@@ -22,30 +34,15 @@ export type ContractJob = {
 };
 
 export type ContractType = {
-    freelancer: {
-        user: { _id: mongoose.Types.ObjectId };
-        profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
-    };
-    employer: {
-        user: { _id: mongoose.Types.ObjectId };
-        profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
-    };
+    freelancer: ContractRoleType;
+    employer: ContractRoleType;
     activityType: "service" | "job";
     service: ContractService | undefined;
     job: ContractJob | undefined;
-    status: "inProgress" | "completed" | "canceled" | undefined;
     cancelRequest: {
-        freelancer: {
-            isCancelRequest: boolean;
-            subject: string;
-            reason: string;
-        };
-        employer: {
-            isCancelRequest: boolean;
-            subject: string;
-            reason: string;
-        },
-        status: "pending" | "rejected" | "approved"
+        freelancer: CancelRequestType;
+        employer: CancelRequestType;
+        status: "pending" | "rejected" | "approved" | undefined;
     };
 }
 
@@ -58,6 +55,14 @@ const contractSchema = new mongoose.Schema<ContractType>({
         profile: {
             type: mongoose.Types.ObjectId,
             ref: "Profile"
+        },
+        status: {
+            type: String,
+            enum: {
+                values: ["inProgress", "completed", "canceled"],
+                message: "{VALUE} is not supported"
+            },
+            default: "inProgress"
         }
     },
     employer: {
@@ -68,6 +73,14 @@ const contractSchema = new mongoose.Schema<ContractType>({
         profile: {
             type: mongoose.Types.ObjectId,
             ref: "Profile"
+        },
+        status: {
+            type: String,
+            enum: {
+                values: ["inProgress", "completed", "canceled"],
+                message: "{VALUE} is not supported"
+            },
+            default: "inProgress"
         }
     },
     activityType: {
@@ -144,15 +157,6 @@ const contractSchema = new mongoose.Schema<ContractType>({
             type: mongoose.Types.ObjectId,
             ref: "Proposal"
         }
-    },
-    status: {
-        type: String,
-        enum: {
-            values: ["inProgress", "completed", "canceled"],
-            message: "{VALUE} is not supported"
-        },
-        default: "inProgress",
-        required: true
     },
     cancelRequest: {
         freelancer: {

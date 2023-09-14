@@ -13,6 +13,7 @@ import userAsPermission from "../../helpers/userAsOnly";
 import { isValidObjectId } from "mongoose";
 import { Profile } from "../profile";
 import { contractModel as Contract } from "../contract";
+import sendOrderServiceEmail from "./services/sendOrderServiceEmail";
 
 
 
@@ -309,13 +310,13 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find service
-    const service = await Service.findById(serviceId).populate({ path: "profile", select: "_id userAs" });
+    const service = await Service.findById(serviceId).populate([{ path: "profile", select: "_id userAs" }, { path: "user", select: "_id email" }]);
     if (!service) {
         throw new NotFoundError(`Found no service with id ${serviceId}`);
     }
 
     // find profile
-    const profile = await Profile.findOne({ user: req.user!.userId });
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "_id email" });
     if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
@@ -376,6 +377,26 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     await Contract.create(contractInfo);
+
+    // send order service email to the freelancer
+    sendOrderServiceEmail({
+        email: service.user.email!,
+        serviceId: service._id.toString(),
+        servicePrice: service.tier[selectedTier].price,
+        serviceTitle: service.title,
+        tierName: selectedTier,
+        userAs: "freelancer"
+    });
+
+    // send order service email to the employer
+    sendOrderServiceEmail({
+        email: profile.user.email!,
+        serviceId: service._id.toString(),
+        servicePrice: service.tier[selectedTier].price,
+        serviceTitle: service.title,
+        tierName: selectedTier,
+        userAs: "employer"
+    });
 
     res.status(StatusCodes.OK).json({
         title: contractInfo.service.title,

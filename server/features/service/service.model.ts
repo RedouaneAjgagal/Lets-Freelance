@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IProfile } from "../profile/profile.model";
+import { IUser } from "../auth";
 
 export type IncludedIn = {
     description: string;
@@ -31,7 +32,7 @@ export type ServiceWithoutRefs = {
 export interface IService {
     user: {
         _id: mongoose.Types.ObjectId
-    };
+    } & Partial<IUser>;
     profile: {
         _id: mongoose.Types.ObjectId
     } & Partial<IProfile>;

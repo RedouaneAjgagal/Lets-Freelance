@@ -36,6 +36,7 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find contracts & filter if either freelancer or employer have inProgress status
+
     const contracts = await Contract.find({
         $or: [
             {
@@ -47,8 +48,12 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
             },
             {
                 [`${profile.userAs}.user`]: profile.user._id,
+<<<<<<< HEAD
                 [`${profile.userAs}.profile`]: profile._id,
                 [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: getStatus || "inProgress"
+=======
+                [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: "inProgress"
+>>>>>>> refs/remotes/origin/main
             }
         ]
     }, { cancelRequest: false });

@@ -17,6 +17,18 @@ import sendContractCompletedEmail from "./services/sendContractCompletedEmail";
 //@route GET /api/v1/contracts
 //@access authentication
 const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { status } = req.query;
+
+    const getStatus = status?.toString() as "inProgress" | "completed" | "canceled" | undefined;
+
+    // if status exist check if its valid
+    if (getStatus) {
+        const invalidStatus = isInvalidStatus(getStatus);
+        if (invalidStatus) {
+            throw new BadRequestError(invalidStatus);
+        }
+    }
+
     // find profile
     const profile = await Profile.findOne({ user: req.user!.userId });
     if (!profile) {
@@ -24,20 +36,19 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find contracts & filter if either freelancer or employer have inProgress status
-
     const contracts = await Contract.find({
         $or: [
             {
                 [profile.userAs]: {
                     user: profile.user._id,
                     profile: profile._id,
-                    status: "inProgress"
+                    status: getStatus || "inProgress"
                 }
             },
             {
                 [`${profile.userAs}.user`]: profile.user._id,
                 [`${profile.userAs}.profile`]: profile._id,
-                [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: "inProgress"
+                [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: getStatus || "inProgress"
             }
         ]
     }, { cancelRequest: false });

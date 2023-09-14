@@ -3,9 +3,10 @@ import { ServicePlan, IService } from "../service";
 import { ProposalType } from "../proposal";
 import { JobType } from "../job";
 import { IProfile } from "../profile";
+import { IUser } from "../auth";
 
 export type ContractRoleType = {
-    user: { _id: mongoose.Types.ObjectId };
+    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
     profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
     status: "inProgress" | "completed" | "canceled";
 }
@@ -26,6 +27,8 @@ export type ContractService = {
 
 export type ContractJob = {
     jobInfo: { _id: mongoose.Types.ObjectId } & JobType;
+    title: JobType["title"];
+    description: JobType["description"];
     coverLetter: ProposalType["coverLetter"];
     priceType: ProposalType["priceType"];
     price: ProposalType["price"];
@@ -127,6 +130,12 @@ const contractSchema = new mongoose.Schema<ContractType>({
         jobInfo: {
             type: mongoose.Types.ObjectId,
             ref: "Job"
+        },
+        title: {
+            type: String,
+        },
+        description: {
+            type: String,
         },
         coverLetter: {
             type: String

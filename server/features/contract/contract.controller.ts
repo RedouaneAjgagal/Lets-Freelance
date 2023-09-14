@@ -9,6 +9,7 @@ import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { isInvalidStatus } from "./validators/contractInputValidator";
+import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
 
 
 //@desc get all contracts related to the current user
@@ -70,7 +71,7 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find contract
-    const contract = await Contract.findById(contractId);
+    const contract = await Contract.findById(contractId).populate({ path: "freelancer.user employer.user", select: "email" });
     if (!contract) {
         throw new NotFoundError(`Found no contract with id ${contractId}`);
     }
@@ -95,13 +96,45 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
             contract.employer.status = "canceled";
             contract.cancelRequest.status = "approved";
             await contract.save();
+
+            // send email cancelation to the freelancer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.freelancer.user.email!,
+                value: "canceled"
+            });
+
+            // send email cancelation to the employer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.employer.user.email!,
+                value: "canceled"
+            });
         }
 
         // reject contract cancelation request
         if (status === "inProgress") {
-            requestResult = "rejected"
+            requestResult = "rejected";
             contract.cancelRequest.status = "rejected";
             await contract.save();
+
+            // send email cancelation to the freelancer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.freelancer.user.email!,
+                value: "rejected"
+            });
+
+            // send email cancelation to the employer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.employer.user.email!,
+                value: "rejected"
+            });
         }
 
         return res.status(StatusCodes.OK).json({ msg: `Contract cancelation request has been ${requestResult}` });

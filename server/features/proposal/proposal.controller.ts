@@ -141,7 +141,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find proposal
-    const proposal = await Proposal.findById(proposalId).populate({ path: "job", select: "_id user" });
+    const proposal = await Proposal.findById(proposalId).populate({ path: "job", select: "_id user title description" });
     if (!proposal) {
         throw new BadRequestError(`Found no proposal with id ${proposalId}`);
     }
@@ -177,6 +177,8 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
             activityType: "job",
             job: {
                 jobInfo: proposal.job._id,
+                title: proposal.job.title!,
+                description: proposal.job.description!,
                 proposal: proposal._id,
                 coverLetter: proposal.coverLetter,
                 priceType: proposal.priceType,

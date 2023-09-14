@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { JobType } from "../job/job.model";
 import { IProfile } from "../profile/profile.model";
+import { IUser } from "../auth";
 
 export type ProposalWithoutRef = {
     coverLetter: string;
@@ -15,7 +16,7 @@ export type ProposalWithoutRef = {
 
 export type ProposalType = {
     job: { _id: mongoose.Types.ObjectId } & Partial<JobType>;
-    user: { _id: mongoose.Types.ObjectId };
+    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
     profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
 } & ProposalWithoutRef;
 

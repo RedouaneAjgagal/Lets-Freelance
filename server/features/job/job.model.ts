@@ -26,7 +26,7 @@ export type JobTypeWithoutRefs = {
 
 
 export type JobType = {
-    user: { _id: mongoose.Types.ObjectId };
+    user: { _id: mongoose.Types.ObjectId } & Partial<IUser>;
     profile: { _id: mongoose.Types.ObjectId } & Partial<IProfile>;
 } & JobTypeWithoutRefs
 

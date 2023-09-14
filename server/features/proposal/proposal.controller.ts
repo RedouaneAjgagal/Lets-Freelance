@@ -9,6 +9,7 @@ import { Profile } from "../profile";
 import { jobModel as Job } from "../job";
 import { isInvalidStatus } from "./validators/proposalInputValidator";
 import { contractModel as Contract } from "../contract";
+import sendProposalApprovedEmail from "./services/sendProposalApprovedEmail";
 
 
 //@desc get all proposals related to job
@@ -130,7 +131,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find profile
-    const profile = await Profile.findOne({ user: req.user!.userId });
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "_id email" });
     if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
@@ -141,7 +142,12 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find proposal
-    const proposal = await Proposal.findById(proposalId).populate({ path: "job", select: "_id user title description" });
+    const proposal = await Proposal.findById(proposalId).populate([
+        { path: "job", select: "_id user title description email", populate: { path: "user", select: "email" } },
+        { path: "user", select: "email" }
+    ]);
+
+    // find proposal
     if (!proposal) {
         throw new BadRequestError(`Found no proposal with id ${proposalId}`);
     }
@@ -153,7 +159,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // check if proposal already has been approved
     if (proposal.status === "approved") {
-        throw new BadRequestError("Cannot change the proposal status after approving")
+        throw new BadRequestError("Cannot change. Proposal has already been approved");
     }
 
     // take proposal action
@@ -188,6 +194,23 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
 
         await Contract.create(contractInfo);
+
+
+        // send proposal approved email to the employer
+        sendProposalApprovedEmail({
+            email: proposal.job.user!.email!,
+            jobTitle: proposal.job.title!,
+            proposalId: proposal._id.toString(),
+            userAs: "employer"
+        });
+
+        // send proposal approved email to the freelancer
+        sendProposalApprovedEmail({
+            email: proposal.user.email!,
+            jobTitle: proposal.job.title!,
+            proposalId: proposal._id.toString(),
+            userAs: "freelancer"
+        });
     }
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;

@@ -10,6 +10,7 @@ import { User } from "../auth";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { isInvalidStatus } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
+import sendContractCompletedEmail from "./services/sendContractCompletedEmail";
 
 
 //@desc get all contracts related to the current user
@@ -155,7 +156,33 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
     contract[user.profile!.userAs!].status = status;
     await contract.save();
 
-    res.status(StatusCodes.OK).json({ msg: "contract completed or canceled" });
+    if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
+
+        const price = contract.activityType === "job" && contract.job?.priceType === "fixed" ? contract.job.price : contract.activityType === "service" ? contract.service!.tier.price : undefined;
+
+        // send contract completed email to the employer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            paymentType: contract.activityType === "job" ? contract.job!.priceType : "fixed",
+            price: price,
+            userAs: "employer"
+        });
+
+
+        // send contract completed email to the freelancer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.freelancer.user.email!,
+            paymentType: contract.activityType === "job" ? contract.job!.priceType : "fixed",
+            price: price,
+            userAs: "freelancer"
+        });
+    }
+
+    res.status(StatusCodes.OK).json({ msg: "You have set contract to completed" });
 }
 
 

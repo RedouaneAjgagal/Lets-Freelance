@@ -11,6 +11,7 @@ import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { isInvalidStatus } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
 import sendContractCompletedEmail from "./services/sendContractCompletedEmail";
+import { serviceFees } from "../../fees/freelancerFees";
 
 
 //@desc get all contracts related to the current user
@@ -64,85 +65,6 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
 const cancelationRequests: RequestHandler = async (req: CustomAuthRequest, res) => {
     const contracts = await Contract.find({ "cancelRequest.status": "pending", $or: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }] });
     res.status(StatusCodes.OK).json(contracts);
-}
-
-
-//@desc update contract (completed or canceled)
-//@route PATCH /api/v1/contracts/:contractId
-//@access authentication or authorization to cancel
-const completeContract: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { contractId } = req.params;
-    const { isCompleted }: { isCompleted: boolean } = req.body;
-
-    // check if valid mongodb id
-    const isValidMongodbId = isValidObjectId(contractId);
-    if (!isValidMongodbId) {
-        throw new BadRequestError("Invalid id");
-    }
-
-    // check if isCompleted exist
-    if (isCompleted === undefined) {
-        throw new BadRequestError("is completed contract is required");
-    }
-
-    // check if valid format
-    if (typeof isCompleted !== "boolean") {
-        throw new BadRequestError("Invalid value");
-    }
-
-    // find contract
-    const contract = await Contract.findById(contractId).populate({ path: "freelancer.user employer.user", select: "email" });
-    if (!contract) {
-        throw new NotFoundError(`Found no contract with id ${contractId}`);
-    }
-
-    // find user
-    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
-    if (!user) {
-        throw new UnauthenticatedError("Found no user");
-    }
-
-    // check if the current user have access to this contract
-    if (contract[user.profile!.userAs!].user._id.toString() !== user._id.toString()) {
-        throw new UnauthorizedError("You dont have access to these ressources");
-    }
-
-    // check if status is completed
-    if (!isCompleted) {
-        throw new BadRequestError("You cant set contract to completed when its not");
-    }
-
-    // update contract status
-    contract[user.profile!.userAs!].status = "completed";
-    await contract.save();
-
-    if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
-
-        const price = contract.activityType === "job" && contract.job?.priceType === "fixed" ? contract.job.price : contract.activityType === "service" ? contract.service!.tier.price : undefined;
-
-        // send contract completed email to the employer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
-            contractId: contract._id.toString(),
-            email: contract.employer.user.email!,
-            paymentType: contract.activityType === "job" ? contract.job!.priceType : "fixed",
-            price: price,
-            userAs: "employer"
-        });
-
-
-        // send contract completed email to the freelancer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
-            contractId: contract._id.toString(),
-            email: contract.freelancer.user.email!,
-            paymentType: contract.activityType === "job" ? contract.job!.priceType : "fixed",
-            price: price,
-            userAs: "freelancer"
-        });
-    }
-
-    res.status(StatusCodes.OK).json({ msg: "You have set contract to completed" });
 }
 
 
@@ -290,10 +212,179 @@ const cancelContract: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc complete service contract for freelancer and employer
+//@route PATCH /api/v1/contracts/:contractId/service
+//@access authentication
+const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { isCompleted }: { isCompleted: boolean } = req.body;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // check if isCompleted exist
+    if (isCompleted === undefined) {
+        throw new BadRequestError("is completed contract is required");
+    }
+
+    // check if valid format
+    if (typeof isCompleted !== "boolean") {
+        throw new BadRequestError("Invalid value");
+    }
+
+    // find contract
+    const contract = await Contract.findOne({ _id: contractId, activityType: "service" }).populate({ path: "freelancer.user employer.user", select: "email" });
+    if (!contract) {
+        throw new NotFoundError(`Found no contract with id ${contractId}`);
+    }
+
+    // find user
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the current user have access to this contract
+    if (contract[user.profile!.userAs!].user._id.toString() !== user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to these ressources");
+    }
+
+    // check if status is completed
+    if (!isCompleted) {
+        throw new BadRequestError("You cant set contract to completed when its not");
+    }
+
+    // check if the user already completed the contract
+    if (contract[user.profile!.userAs!].status === "completed") {
+        throw new BadRequestError("You have already completed this service");
+    }
+
+    // update contract status
+    contract[user.profile!.userAs!].status = "completed";
+    await contract.save();
+
+    if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
+
+        const servicePrice = contract.service!.tier.price;
+
+        // send contract completed email to the employer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            paymentType: "fixed",
+            price: servicePrice,
+            userAs: "employer"
+        });
+
+
+        // send contract completed email to the freelancer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.freelancer.user.email!,
+            paymentType: "fixed",
+            price: servicePrice,
+            userAs: "freelancer"
+        });
+    }
+
+    res.status(StatusCodes.OK).json({ msg: "You have completed this service" });
+}
+
+
+//@desc complete job contract for freelancer and employer
+//@route PATCH /api/v1/contracts/:contractId/job
+//@access authentication
+const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { isCompleted }: { isCompleted: boolean } = req.body;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // check if isCompleted exist
+    if (isCompleted === undefined) {
+        throw new BadRequestError("is completed contract is required");
+    }
+
+    // check if valid format
+    if (typeof isCompleted !== "boolean") {
+        throw new BadRequestError("Invalid value");
+    }
+
+    // find contract
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email" });
+    if (!contract) {
+        throw new NotFoundError(`Found no contract with id ${contractId}`);
+    }
+
+    // find user
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the current user have access to this contract
+    if (contract[user.profile!.userAs!].user._id.toString() !== user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to these ressources");
+    }
+
+    // check if status is completed
+    if (!isCompleted) {
+        throw new BadRequestError("You cant set contract to completed when its not");
+    }
+
+    // check if the user already completed the contract
+    if (contract[user.profile!.userAs!].status === "completed") {
+        throw new BadRequestError("You have already completed this job");
+    }
+
+    // update contract status
+    contract[user.profile!.userAs!].status = "completed";
+    await contract.save();
+
+    if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
+
+        const jobPrice = contract.job!.priceType === "fixed" ? contract.job!.price : undefined;
+
+        // send contract completed email to the employer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            paymentType: contract.job!.priceType,
+            price: jobPrice,
+            userAs: "employer"
+        });
+
+
+        // send contract completed email to the freelancer
+        sendContractCompletedEmail({
+            activityType: contract.activityType,
+            contractId: contract._id.toString(),
+            email: contract.freelancer.user.email!,
+            paymentType: contract.job!.priceType,
+            price: jobPrice,
+            userAs: "freelancer"
+        });
+    }
+
+    res.status(StatusCodes.OK).json({ msg: "You have completed this job" });
+}
+
+
 export {
     getContracts,
     cancelationRequests,
-    completeContract,
+    completeServiceContract,
+    completeJobContract,
     cancelContractRequest,
     cancelContract
 }

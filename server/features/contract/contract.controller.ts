@@ -70,9 +70,9 @@ const cancelationRequests: RequestHandler = async (req: CustomAuthRequest, res) 
 //@desc update contract (completed or canceled)
 //@route PATCH /api/v1/contracts/:contractId
 //@access authentication or authorization to cancel
-const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+const completeContract: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
-    const { status }: { status: "inProgress" | "completed" | "canceled" } = req.body;
+    const { isCompleted }: { isCompleted: boolean } = req.body;
 
     // check if valid mongodb id
     const isValidMongodbId = isValidObjectId(contractId);
@@ -80,10 +80,14 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("Invalid id");
     }
 
-    // check if valid status
-    const invalidStatus = isInvalidStatus(status);
-    if (invalidStatus) {
-        throw new BadRequestError(invalidStatus);
+    // check if isCompleted exist
+    if (isCompleted === undefined) {
+        throw new BadRequestError("is completed contract is required");
+    }
+
+    // check if valid format
+    if (typeof isCompleted !== "boolean") {
+        throw new BadRequestError("Invalid value");
     }
 
     // find contract
@@ -98,77 +102,18 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Found no user");
     }
 
-    const isAlloweddRole = rolePermissionChecker({
-        allowedRoles: ["admin", "owner"],
-        currentRole: user.role
-    });
-
-    // check if powerful role (admin or owner) and cancel request is made
-    if (isAlloweddRole && contract.cancelRequest.status === "pending") {
-        let requestResult = "approved";
-        // cancel contract
-        if (status === "canceled") {
-            contract.freelancer.status = "canceled";
-            contract.employer.status = "canceled";
-            contract.cancelRequest.status = "approved";
-            await contract.save();
-
-            // send email cancelation to the freelancer
-            sendContractCancelationEmail({
-                activityTitle: contract[contract.activityType]!.title,
-                contractId: contract._id.toString(),
-                email: contract.freelancer.user.email!,
-                value: "canceled"
-            });
-
-            // send email cancelation to the employer
-            sendContractCancelationEmail({
-                activityTitle: contract[contract.activityType]!.title,
-                contractId: contract._id.toString(),
-                email: contract.employer.user.email!,
-                value: "canceled"
-            });
-        }
-
-        // reject contract cancelation request
-        if (status === "inProgress") {
-            requestResult = "rejected";
-            contract.cancelRequest.status = "rejected";
-            await contract.save();
-
-            // send email cancelation to the freelancer
-            sendContractCancelationEmail({
-                activityTitle: contract[contract.activityType]!.title,
-                contractId: contract._id.toString(),
-                email: contract.freelancer.user.email!,
-                value: "rejected"
-            });
-
-            // send email cancelation to the employer
-            sendContractCancelationEmail({
-                activityTitle: contract[contract.activityType]!.title,
-                contractId: contract._id.toString(),
-                email: contract.employer.user.email!,
-                value: "rejected"
-            });
-        }
-
-        return res.status(StatusCodes.OK).json({ msg: `Contract cancelation request has been ${requestResult}` });
-    }
-
-
     // check if the current user have access to this contract
     if (contract[user.profile!.userAs!].user._id.toString() !== user._id.toString()) {
         throw new UnauthorizedError("You dont have access to these ressources");
     }
 
     // check if status is completed
-    if (status !== "completed") {
-        throw new BadRequestError("You dont have access to set status to this value");
+    if (!isCompleted) {
+        throw new BadRequestError("You cant set contract to completed when its not");
     }
 
     // update contract status
-    contract[user.profile!.userAs!].status = status;
+    contract[user.profile!.userAs!].status = "completed";
     await contract.save();
 
     if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
@@ -204,7 +149,7 @@ const updateContract: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@desc request a contract cancelation
 //@route POST /api/v1/contracts/:contractId
 //@access authentication
-const cancelContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+const cancelContractRequest: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
     const { subject, reason } = req.body;
 
@@ -262,9 +207,93 @@ const cancelContract: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc approve or reject contract cancelaton request
+//@route PATCH /api/v1/contracts/cancel-requests
+//@access authorization
+const cancelContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId, status }: { contractId: string; status: "inProgress" | "completed" | "canceled" } = req.body;
+
+    // check if valid status
+    const invalidStatus = isInvalidStatus(status);
+    if (invalidStatus) {
+        throw new BadRequestError(invalidStatus);
+    }
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    }
+
+    // find contract
+    const contract = await Contract.findById(contractId).populate({ path: "freelancer.user employer.user", select: "email" });
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
+    }
+
+    // check if status is pending
+    if (contract.cancelRequest.status !== "pending") {
+        throw new BadRequestError("This contract is not in pending status for cancelation");
+    }
+
+
+    let requestResult = "approved";
+
+    // cancel contract
+    if (status === "canceled") {
+        contract.freelancer.status = "canceled";
+        contract.employer.status = "canceled";
+        contract.cancelRequest.status = "approved";
+        await contract.save();
+
+        // send email cancelation to the freelancer
+        sendContractCancelationEmail({
+            activityTitle: contract[contract.activityType]!.title,
+            contractId: contract._id.toString(),
+            email: contract.freelancer.user.email!,
+            value: "canceled"
+        });
+
+        // send email cancelation to the employer
+        sendContractCancelationEmail({
+            activityTitle: contract[contract.activityType]!.title,
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            value: "canceled"
+        });
+    }
+
+    // reject contract cancelation request
+    if (status === "inProgress") {
+        requestResult = "rejected";
+        contract.cancelRequest.status = "rejected";
+        await contract.save();
+
+        // send email cancelation to the freelancer
+        sendContractCancelationEmail({
+            activityTitle: contract[contract.activityType]!.title,
+            contractId: contract._id.toString(),
+            email: contract.freelancer.user.email!,
+            value: "rejected"
+        });
+
+        // send email cancelation to the employer
+        sendContractCancelationEmail({
+            activityTitle: contract[contract.activityType]!.title,
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            value: "rejected"
+        });
+    }
+
+    res.status(StatusCodes.OK).json({ msg: `Contract cancelation request has been ${requestResult}` });
+}
+
+
 export {
     getContracts,
-    cancelContract,
     cancelationRequests,
-    updateContract
+    completeContract,
+    cancelContractRequest,
+    cancelContract
 }

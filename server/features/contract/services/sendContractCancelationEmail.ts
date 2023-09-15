@@ -11,7 +11,7 @@ const sendContractCancelationEmail = ({ email, contractId, activityTitle, value 
 
     const approvedCancelationContent = `
         <h1>Contract ID ${contractId} has been canceled.</h1>
-        <p>Due to the cancelation request we have verified and checked the contract process and come out with a decision, this contract is has been canceled.</p>
+        <p>Due to the cancelation request we have verified and checked the contract process and come out with a decision, this contract has been canceled.</p>
         <p>Contract title: <strong>${activityTitle}</strong></p>
     `;
 

@@ -6,6 +6,7 @@ type ContractCompletedEmail = {
     userAs: "freelancer" | "employer";
     paymentType: "hourly" | "fixed";
     price: number | undefined;
+    priceAfterFees: number | undefined;
     activityType: "job" | "service";
 }
 
@@ -16,6 +17,10 @@ const sendContractCompletedEmail = ({ email, contractId, userAs, paymentType, pr
     const employerContent = `<p>${paymentType === "fixed" ? `The freelancer going to recieve <strong>$${price}</strong> for completing the ${activityType}</p>` : ""}`;
 
     const content = userAs === "freelancer" ? freelancerContent : employerContent;
+
+    // <p>Order amount: <strong>$${servicePrice}</strong></p>
+    //     <p>Service fee: <strong>${serviceFees.type === "percent" ? `${serviceFees.amount}%` : `$${serviceFees.amount}`}</strong></p>
+    //     <p>Receive amount: <strong>$${freelancerReceiveAmount}</strong></p>
 
     const contractCompletedContent = `
         <h1>Contract ID ${contractId} has been completed</h1>

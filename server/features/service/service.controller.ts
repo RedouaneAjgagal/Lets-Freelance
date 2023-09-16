@@ -347,10 +347,6 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     const selectedTier: "starter" | "standard" | "advanced" = tier;
 
-    // add stripe payment (add later)
-    const price = service.tier[selectedTier].price.toFixed(2);
-    console.log(price);
-
 
     // create a contract
     const refs = {
@@ -372,8 +368,18 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
             title: service.title,
             description: service.description,
             tierName: selectedTier,
-            tier: service.tier[selectedTier]
+            tier: service.tier[selectedTier],
+            employerPaid: true
         }
+    }
+
+    // add stripe payment (add later)
+    const employerCutAmount = service.tier[selectedTier].price.toFixed(2);
+    console.log({ employerCutAmount });
+
+    const stripeValidation = true;
+    if (!stripeValidation) {
+        throw new BadRequestError("Invalid payment");
     }
 
     await Contract.create(contractInfo);

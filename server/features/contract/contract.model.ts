@@ -23,6 +23,8 @@ export type ContractService = {
     description: IService["description"];
     tierName: "starter" | "standard" | "advanced";
     tier: ServicePlan;
+    employerPaid: boolean;
+    freelancerGotPaid: boolean;
 };
 
 export type ContractJob = {
@@ -124,6 +126,14 @@ const contractSchema = new mongoose.Schema<ContractType>({
                     type: mongoose.Schema.Types.Mixed
                 }
             }]
+        },
+        employerPaid: {
+            type: Boolean,
+            default: false
+        },
+        freelancerGotPaid: {
+            type: Boolean,
+            default: false
         }
     },
     job: {

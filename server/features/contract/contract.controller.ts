@@ -7,11 +7,11 @@ import Contract from "./contract.model";
 import { isValidObjectId } from "mongoose";
 import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
-import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { isInvalidStatus } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
 import sendContractCompletedEmail from "./services/sendContractCompletedEmail";
-import { serviceFees } from "../../fees/freelancerFees";
+import { getServicePriceAfterFees } from "../service";
+import sendServiceContractCompletedEmail from "./services/sendServiceContractCompletedEmail";
 
 
 //@desc get all contracts related to the current user
@@ -264,35 +264,49 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
 
     // update contract status
     contract[user.profile!.userAs!].status = "completed";
-    await contract.save();
+
 
     if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
 
         const servicePrice = contract.service!.tier.price;
 
-        // send contract completed email to the employer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
-            contractId: contract._id.toString(),
-            email: contract.employer.user.email!,
-            paymentType: "fixed",
-            price: servicePrice,
-            userAs: "employer"
+        // get calculated prices after fees
+        const { freelancerReceiveAmount, feeAmount, feeType } = getServicePriceAfterFees({
+            servicePrice
         });
 
+        // the amount freelancer gonna get
+        if (contract.service!.employerPaid && !contract.service!.freelancerGotPaid) {
+            contract.service!.freelancerGotPaid = true;
+            console.log({ freelancerReceiveAmount });
+        }
 
-        // send contract completed email to the freelancer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
+        // send service contract completed email to the employer
+        sendServiceContractCompletedEmail({
+            contractId: contract._id.toString(),
+            email: contract.employer.user.email!,
+            price: servicePrice,
+            priceAfterFees: freelancerReceiveAmount,
+            userAs: "employer",
+            feeAmount,
+            feeType,
+        });
+
+        // send service contract completed email to the freelancer
+        sendServiceContractCompletedEmail({
             contractId: contract._id.toString(),
             email: contract.freelancer.user.email!,
-            paymentType: "fixed",
             price: servicePrice,
-            userAs: "freelancer"
+            priceAfterFees: freelancerReceiveAmount,
+            userAs: "freelancer",
+            feeAmount,
+            feeType,
         });
     }
 
-    res.status(StatusCodes.OK).json({ msg: "You have completed this service" });
+    await contract.save();
+
+    res.status(StatusCodes.OK).json({ msg: `You have marked service contract ID ${contract._id} as completed` });
 }
 
 

@@ -1,4 +1,6 @@
 import sendEmail from "../../../services/sendEmail";
+import serviceFees from "../service.fees";
+import getServicePriceAfterFees from "../utils/getServicePriceAfterFees";
 
 type OrderServiceEmail = {
     email: string;
@@ -11,12 +13,18 @@ type OrderServiceEmail = {
 
 const sendOrderServiceEmail = ({ email, userAs, serviceId, serviceTitle, tierName, servicePrice }: OrderServiceEmail) => {
 
+    const { freelancerReceiveAmount } = getServicePriceAfterFees({
+        servicePrice
+    });
+
     const freelancerContent = `
         <h1>You have got a new service order</h1>
         <p>You can now start working on the service</p>
         <p>Service ID ${serviceId}, tier <strong>${tierName}</strong></p>
         <p>Service title: <strong>${serviceTitle}</strong></p>
-        <p>You going to receive <strong>$${servicePrice}</strong> by completing the service</p>
+        <p>Order amount: <strong>$${servicePrice}</strong></p>
+        <p>Service fee: <strong>${serviceFees.type === "percent" ? `${serviceFees.amount}%` : `$${serviceFees.amount}`}</strong></p>
+        <p>Receive amount: <strong>$${freelancerReceiveAmount}</strong></p>
     `
 
     const employerContent = `

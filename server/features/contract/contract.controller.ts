@@ -9,9 +9,11 @@ import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
 import { isInvalidStatus } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
-import sendContractCompletedEmail from "./services/sendContractCompletedEmail";
 import { getServicePriceAfterFees } from "../service";
 import sendServiceContractCompletedEmail from "./services/sendServiceContractCompletedEmail";
+import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEmail";
+import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
+import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
 
 
 //@desc get all contracts related to the current user
@@ -362,35 +364,81 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
 
     // update contract status
     contract[user.profile!.userAs!].status = "completed";
-    await contract.save();
 
     if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
+        if (contract.job!.priceType === "fixed") {
+            const { feeAmount, feeType, calculatedUserAmount } = getFixedPriceJobAfterFees({
+                contractPrice: contract.job!.price,
+                userAs: "freelancer"
+            });
 
-        const jobPrice = contract.job!.priceType === "fixed" ? contract.job!.price : undefined;
+            // send fixed price contract completed email to the employer
+            sendCompletedJobContractEmail.fixedPrice({
+                contractId: contract._id.toString(),
+                userAs: "employer",
+                email: contract.employer.user.email!,
+                price: contract.job!.price,
+                priceAfterFees: calculatedUserAmount,
+                feeAmount,
+                feeType
+            });
 
-        // send contract completed email to the employer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
-            contractId: contract._id.toString(),
-            email: contract.employer.user.email!,
-            paymentType: contract.job!.priceType,
-            price: jobPrice,
-            userAs: "employer"
-        });
+            // send fixed price contract completed email to the freelancer
+            sendCompletedJobContractEmail.fixedPrice({
+                contractId: contract._id.toString(),
+                userAs: "freelancer",
+                email: contract.freelancer.user.email!,
+                price: contract.job!.price,
+                priceAfterFees: calculatedUserAmount,
+                feeAmount,
+                feeType,
+            });
 
+            console.log({ freelancerReceivedAmount: calculatedUserAmount });
+            contract.job!.freelancerGotPaid = true;
+        } else {
+            const initialFreelancerWorkedHours = 12;
 
-        // send contract completed email to the freelancer
-        sendContractCompletedEmail({
-            activityType: contract.activityType,
-            contractId: contract._id.toString(),
-            email: contract.freelancer.user.email!,
-            paymentType: contract.job!.priceType,
-            price: jobPrice,
-            userAs: "freelancer"
-        });
+            const { feeAmount, feeType, freelancerReceiveAmount } = getHourlyPriceJobAfterFees({
+                contractHourlyPrice: contract.job!.price,
+                workedHours: initialFreelancerWorkedHours
+            });
+
+            // send hourly price contract completed email to the employer
+            sendCompletedJobContractEmail.hourlyPrice({
+                contractId: contract._id.toString(),
+                userAs: "employer",
+                email: contract.employer.user.email!,
+                price: contract.job!.price * initialFreelancerWorkedHours,
+                priceAfterFees: freelancerReceiveAmount,
+                workedHours: initialFreelancerWorkedHours,
+                hourlyPrice: contract.job!.price,
+                feeAmount,
+                feeType,
+            });
+
+            // send hourly price contract completed email to the freelancer
+            sendCompletedJobContractEmail.hourlyPrice({
+                contractId: contract._id.toString(),
+                userAs: "freelancer",
+                email: contract.freelancer.user.email!,
+                price: contract.job!.price * initialFreelancerWorkedHours,
+                priceAfterFees: freelancerReceiveAmount,
+                workedHours: initialFreelancerWorkedHours,
+                hourlyPrice: contract.job!.price,
+                feeAmount,
+                feeType,
+            });
+
+            console.log({ freelancerReceiveAmount });
+            contract.job!.freelancerGotPaid = true;
+        }
     }
 
-    res.status(StatusCodes.OK).json({ msg: "You have completed this job" });
+    // update the contract
+    await contract.save();
+
+    res.status(StatusCodes.OK).json({ msg: `You have marked job contract ID ${contract._id} as completed` });
 }
 
 

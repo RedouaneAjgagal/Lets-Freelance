@@ -29,7 +29,7 @@ const sendServiceContractCompletedEmail = ({ email, contractId, userAs, price, p
         <h1>Service Contract ID ${contractId} has been completed</h1>
         <p>Congratulations, the contract has been completed successfully</p>
         ${content}
-    `
+    `;
 
     return sendEmail({
         subject: "Service Contract Completed - Lets Freelance",

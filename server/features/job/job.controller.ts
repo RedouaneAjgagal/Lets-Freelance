@@ -8,6 +8,9 @@ import userAsPermission from "../../helpers/userAsOnly";
 import Job, { JobType } from "./job.model";
 import getUpdatedJobInfo from "./helpers/getUpdatedJobInfo";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
+import getFixedPriceJobAfterFees from "./utils/getFixedPriceJobAfterFees";
+import sendCreatedJobEmail from "./services/sendCreatedJobEmail";
+import { creatingJobFees } from "./job.fees";
 
 
 //@desc get all jobs info
@@ -205,6 +208,37 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         weeklyHours: inputs.weeklyHours,
         experienceLevel: inputs.experienceLevel,
         tags: inputs.tags
+    }
+
+    if (jobInfo.priceType === "fixed") {
+        const { calculatedUserAmount, feeAmount, feeType } = getFixedPriceJobAfterFees({
+            contractPrice: jobInfo.price.min, // min and max are the same values for fixed price
+            userAs: "employer"
+        })
+        console.log({ employerPaymentAmount: calculatedUserAmount });
+
+        // initial strip validation
+        const stripeValidation = true;
+        if (!stripeValidation) {
+            throw new BadRequestError("Invalid payment");
+        }
+
+        // send created fixed price job email
+        sendCreatedJobEmail.fixedPrice({
+            email: user.email.toString(),
+            jobTitle: jobInfo.title,
+            calculatedPaidAmount: calculatedUserAmount,
+            feeAmount,
+            feeType
+        });
+    } else {
+        // send created hourly price job email
+        sendCreatedJobEmail.hourlyPrice({
+            email: user.email.toString(),
+            jobTitle: jobInfo.title,
+            feeAmount: creatingJobFees.amount,
+            feeType: creatingJobFees.type
+        });
     }
 
     // create job

@@ -1,25 +1,20 @@
 import { BadRequestError } from "../../../errors";
-import { IProposal } from "../proposal.model";
+import { ProposalType } from "../proposal.model";
 import { isInvalidCoverLetter, isInvalidEstimatedTime, isInvalidPrice, isInvalidPriceType } from "./proposalInputValidator";
 
 type ExpectedInputs = {
-    coverLetter: IProposal["coverLetter"];
-    priceType: IProposal["priceType"];
-    price: IProposal["price"];
-    estimatedTime: IProposal["estimatedTime"];
+    coverLetter: ProposalType["coverLetter"];
+    priceType: ProposalType["priceType"];
+    price: ProposalType["price"];
+    estimatedTime: ProposalType["estimatedTime"];
 }
 
 const createProposalValidator = (inputs: Partial<ExpectedInputs>) => {
-    const { coverLetter, estimatedTime, price, priceType } = inputs;
+    const { coverLetter, estimatedTime, price } = inputs;
 
     const invalidCoverLetter = isInvalidCoverLetter(coverLetter);
     if (invalidCoverLetter) {
         throw new BadRequestError(invalidCoverLetter);
-    }
-
-    const invalidPriceType = isInvalidPriceType(priceType);
-    if (invalidPriceType) {
-        throw new BadRequestError(invalidPriceType);
     }
 
     const invalidPrice = isInvalidPrice(price);

@@ -36,6 +36,8 @@ export type ContractJob = {
     price: ProposalType["price"];
     estimatedTime: ProposalType["estimatedTime"];
     proposal: { _id: mongoose.Types.ObjectId } & Partial<ProposalType>;
+    employerPaid: boolean;
+    freelancerGotPaid: boolean;
 };
 
 export type ContractType = {
@@ -175,6 +177,14 @@ const contractSchema = new mongoose.Schema<ContractType>({
         proposal: {
             type: mongoose.Types.ObjectId,
             ref: "Proposal"
+        },
+        employerPaid: {
+            type: Boolean,
+            default: false
+        },
+        freelancerGotPaid: {
+            type: Boolean,
+            default: false
         }
     },
     cancelRequest: {

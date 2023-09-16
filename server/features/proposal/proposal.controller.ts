@@ -52,10 +52,10 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route POST /api/v1/proposals
 //@access authentication (freelancers only)
 const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { jobId, coverLetter, estimatedTime, price, priceType } = req.body;
+    const { jobId, coverLetter, estimatedTime, price } = req.body;
 
     // check if valid inputs
-    createProposalValidator({ coverLetter, estimatedTime, price, priceType });
+    createProposalValidator({ coverLetter, estimatedTime, price });
 
     // check if valid mongodb id
     const isValidMongodbId = isValidObjectId(jobId);
@@ -98,7 +98,7 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         coverLetter,
         estimatedTime,
         price,
-        priceType,
+        priceType: job.priceType,
         status: "pending"
     });
 

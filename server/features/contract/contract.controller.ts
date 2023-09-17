@@ -7,7 +7,7 @@ import Contract from "./contract.model";
 import { isValidObjectId } from "mongoose";
 import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
-import { isInvalidStatus } from "./validators/contractInputValidator";
+import { isInvalidStatus, isInvalidSumbitedWokedHours } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
 import { getServicePriceAfterFees } from "../service";
 import sendServiceContractCompletedEmail from "./services/sendServiceContractCompletedEmail";
@@ -397,6 +397,7 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             console.log({ freelancerReceivedAmount: calculatedUserAmount });
             contract.job!.freelancerGotPaid = true;
         } else {
+            // hourly contract job
             const initialFreelancerWorkedHours = 12;
 
             const { feeAmount, feeType, freelancerReceiveAmount } = getHourlyPriceJobAfterFees({
@@ -442,11 +443,22 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 
+//@desc freelancer can submit worked hours
+//@route POST /api/v1/:contractId/submit-hours
+//@access authenticaiton
+const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+
+
+    res.status(StatusCodes.OK).json({ msg: "You have submitted your worked hours" })
+}
+
+
 export {
     getContracts,
     cancelationRequests,
     completeServiceContract,
     completeJobContract,
     cancelContractRequest,
-    cancelContract
+    cancelContract,
+    submitWorkedHours
 }

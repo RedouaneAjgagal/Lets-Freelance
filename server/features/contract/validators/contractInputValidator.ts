@@ -51,8 +51,31 @@ const isInvalidStatus = (status: ContractRoleType["status"] | undefined) => {
     return error;
 }
 
+const isInvalidSumbitedWokedHours = (workedHours: number) => {
+    let error = "";
+
+    if (!workedHours || workedHours.toString().trim() === "") {
+        return error = "Must provide worked hours";
+    }
+
+    if (typeof workedHours !== "number") {
+        return error = "Invalid worked hours format";
+    }
+
+    if (workedHours < 1) {
+        return error = "Cannot submit less than one hour";
+    }
+
+    if (Math.floor(workedHours) !== workedHours) {
+        return error = "Cant set decimal number";
+    }
+
+    return error;
+}
+
 export {
     isInvalidSubject,
     isInvalidReason,
-    isInvalidStatus
+    isInvalidStatus,
+    isInvalidSumbitedWokedHours
 }

@@ -447,9 +447,64 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
 //@route POST /api/v1/:contractId/submit-hours
 //@access authenticaiton
 const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { workedHours } = req.body;
+    const { contractId } = req.params;
 
+    // check if valid worked hours value
+    const invalidSubmitedWorkedHours = isInvalidSumbitedWokedHours(workedHours);
+    if (invalidSubmitedWorkedHours) {
+        throw new BadRequestError(invalidSubmitedWorkedHours);
+    }
 
-    res.status(StatusCodes.OK).json({ msg: "You have submitted your worked hours" })
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find contract (hourly contracts are only for jobs so search for job contract)
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" });
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
+    }
+
+    // find current user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if user is a freelancer
+    if (profile.userAs !== "freelancer") {
+        throw new UnauthorizedError("Only freelancers can submit worked hours");
+    }
+
+    // check if freelancer belong to the current contract
+    if (contract.freelancer.user._id.toString() !== profile.user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this contract");
+    }
+
+    // check if the job contract is an hourly contract
+    if (contract.job!.priceType !== "hourly") {
+        throw new BadRequestError("Must be an hourly job");
+    }
+
+    // check if there is already a payment that is not paid yet
+    const isAllPaymentsPaid = contract.payments.every(({ employer }) => employer?.status === "paid");
+    if (!isAllPaymentsPaid) {
+        throw new BadRequestError("You cant submit a new payment until all payments are paid");
+    }
+
+    // set worked hours for a new pending payment
+    const amount = workedHours * contract.job!.price;
+    contract.payments.push({
+        workedHours,
+        amount
+    });
+
+    await contract.save();
+
+    res.status(StatusCodes.OK).json({ msg: "You have submitted your worked hours", workedHours });
 }
 
 

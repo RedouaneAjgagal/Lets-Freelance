@@ -40,12 +40,25 @@ export type ContractJob = {
     freelancerGotPaid: boolean;
 };
 
+export type UserPayment = {
+    status: "pending" | "paid";
+    paidAt: string;
+}
+
+export type ContractPayments = {
+    workedHours?: number;
+    amount?: number;
+    employer?: UserPayment;
+    freelancer?: UserPayment;
+}
+
 export type ContractType = {
     freelancer: ContractRoleType;
     employer: ContractRoleType;
     activityType: "service" | "job";
     service: ContractService | undefined;
     job: ContractJob | undefined;
+    payments: ContractPayments[];
     cancelRequest: {
         freelancer: CancelRequestType;
         employer: CancelRequestType;
@@ -187,6 +200,32 @@ const contractSchema = new mongoose.Schema<ContractType>({
             default: false
         }
     },
+    payments: [
+        {
+            workedHours: Number,
+            amount: Number,
+            employer: {
+                status: {
+                    type: String,
+                    enum: {
+                        values: ["pending", "paid"],
+                        message: "{VALUE} is not supported"
+                    }
+                },
+                paidAt: String
+            },
+            freelancer: {
+                status: {
+                    type: String,
+                    enum: {
+                        values: ["pending", "paid"],
+                        message: "{VALUE} is not supported"
+                    }
+                },
+                paidAt: String
+            }
+        }
+    ],
     cancelRequest: {
         freelancer: {
             isCancelRequest: {

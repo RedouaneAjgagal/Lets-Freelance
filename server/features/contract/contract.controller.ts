@@ -14,6 +14,7 @@ import sendServiceContractCompletedEmail from "./services/sendServiceContractCom
 import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEmail";
 import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
 import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
+import { hourlyJobFees } from "../job";
 
 
 //@desc get all contracts related to the current user
@@ -508,6 +509,82 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
 }
 
 
+const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { paymentId } = req.body;
+
+    // check if valid mongodb id
+    const isValidContractMongodbId = isValidObjectId(contractId);
+    const isValidPaymentMongodbId = typeof paymentId === "string" && isValidObjectId(paymentId);
+    if (!isValidContractMongodbId || !isValidPaymentMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the user is an employer
+    if (profile.userAs !== "employer") {
+        throw new BadRequestError("Only employers can pay worked hours");
+    }
+
+    // find job contract because its the only contract that pays by hours
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" });
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
+    }
+
+    // check if the current employer have access to this contract
+    if (contract.employer.profile._id.toJSON() !== profile._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this contract");
+    }
+
+    // find the payment index
+    const paymentIndex = contract.payments.findIndex(({ _id }) => _id?.toString() === paymentId);
+    if (paymentIndex === -1) {
+        throw new BadRequestError(`Found no payment with ID ${paymentId}`);
+    }
+
+    // find the payment
+    const payment = contract.payments[paymentIndex];
+
+    // check if the payment is not paid yet
+    if (payment.employer?.status === "paid") {
+        throw new BadRequestError("This payment has already been paid");
+    }
+
+    // amount to be paid
+    const feesAmount = hourlyJobFees.type === "percent" ? (payment.amount! / 100) * hourlyJobFees.amount : hourlyJobFees.amount;
+    const paymentAmountWithFees = payment.amount! + feesAmount;
+    console.log(paymentAmountWithFees);
+
+
+    // strip validation (fake for now)
+    const stipeValidation = true;
+    if (!stipeValidation) {
+        throw new BadRequestError("Invalid payment");
+    }
+
+    // set new values to the payment
+    payment.employer = {
+        status: "paid",
+        paidAt: new Date(Date.now()).toString()
+    }
+    payment.freelancer = {
+        status: "pending",
+        paidAt: ""
+    }
+
+    // update the contract
+    await contract.save();
+
+    res.status(StatusCodes.OK).json({ msg: "worked hours is paid" });
+}
+
+
 export {
     getContracts,
     cancelationRequests,
@@ -515,5 +592,6 @@ export {
     completeJobContract,
     cancelContractRequest,
     cancelContract,
-    submitWorkedHours
+    submitWorkedHours,
+    payWorkedHours
 }

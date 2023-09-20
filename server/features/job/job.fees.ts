@@ -10,6 +10,12 @@ const creatingJobFees: JobFees = {
     whoPay: "employer"
 }
 
+const hourlyJobFees: JobFees = {
+    amount: 3,
+    type: "percent",
+    whoPay: "employer"
+}
+
 const completingJobTierOneFees: JobFees = {
     amount: 20,
     type: "percent",
@@ -30,6 +36,7 @@ const completingJobTierThreeFees: JobFees = {
 
 export {
     creatingJobFees,
+    hourlyJobFees,
     completingJobTierOneFees,
     completingJobTierTwoFees,
     completingJobTierThreeFees

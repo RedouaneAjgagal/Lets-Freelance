@@ -46,6 +46,7 @@ export type UserPayment = {
 }
 
 export type ContractPayments = {
+    _id?: typeof mongoose.Types.ObjectId;
     workedHours?: number;
     amount?: number;
     employer?: UserPayment;

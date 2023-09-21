@@ -368,13 +368,12 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
             title: service.title,
             description: service.description,
             tierName: selectedTier,
-            tier: service.tier[selectedTier],
-            employerPaid: true
+            tier: service.tier[selectedTier]
         }
     }
 
     // add stripe payment (add later)
-    const employerCutAmount = service.tier[selectedTier].price.toFixed(2);
+    const employerCutAmount = service.tier[selectedTier].price;
     console.log({ employerCutAmount });
 
     const stripeValidation = true;
@@ -382,7 +381,14 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("Invalid payment");
     }
 
-    await Contract.create(contractInfo);
+    const payment = {
+        amount: employerCutAmount,
+        employer: {
+            status: "paid",
+            paidAt: new Date(Date.now()).toString()
+        }
+    }
+    await Contract.create({ ...contractInfo, payments: [payment] });
 
     // send order service email to the freelancer
     sendOrderServiceEmail({

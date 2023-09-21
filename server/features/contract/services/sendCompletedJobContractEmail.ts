@@ -13,13 +13,9 @@ type CompletedJobContractEmailFixedPrice = {
 type CompletedJobContractEmailHourlyPrice = {
     contractId: string;
     email: string;
-    userAs: "freelancer" | "employer";
-    price: number;
-    feeType: "percent" | "fixed";
-    feeAmount: number;
-    priceAfterFees: number;
-    workedHours: number;
-    hourlyPrice: number
+    hourlyPrice: number;
+    totalWorkedHours: number;
+    totalAmount: number
 }
 
 const fixedPrice = ({ email, userAs, feeAmount, feeType, price, priceAfterFees, contractId }: CompletedJobContractEmailFixedPrice) => {
@@ -49,24 +45,12 @@ const fixedPrice = ({ email, userAs, feeAmount, feeType, price, priceAfterFees, 
     });
 }
 
-const hourlyPrice = ({ contractId, email, feeAmount, feeType, price, priceAfterFees, userAs, workedHours, hourlyPrice }: CompletedJobContractEmailHourlyPrice) => {
-    const freelancerContent = `
-        <p>You will recieve the rest of your payment within 3 days</p>
-        <p>Worked hours: <strong>$${workedHours}</strong></p>
+const hourlyPrice = ({ contractId, email, hourlyPrice, totalAmount, totalWorkedHours }: CompletedJobContractEmailHourlyPrice) => {
+    const content = `
         <p>Hourly price: <strong>$${hourlyPrice}</strong></p>
-        <p>Amount: <strong>$${price}</strong></p>
-        <p>Fees: <strong>${feeType === "percent" ? `${feeAmount}%` : `$${feeAmount}`}</strong></p>
-        <p>Receive amount: <strong>$${priceAfterFees}</strong></p>
+        <p>Total worked hours: <strong>${totalWorkedHours} hours</strong></p>
+        <p>Total amount: <strong>$${totalAmount}</strong></p>
     `
-
-    const employerContent = `
-        <p>The freelancer is going to receive the rest of the payment for completing the job</p>
-        <p>Worked hours: <strong>$${workedHours}</strong></p>
-        <p>Hourly price: <strong>$${hourlyPrice}</strong></p>
-        <p>Amount: <strong>$${price}</strong></p>
-    `;
-
-    const content = userAs === "employer" ? employerContent : freelancerContent;
 
     const contractCompletedContent = `
         <h1>Job Contract ID ${contractId} has been completed</h1>

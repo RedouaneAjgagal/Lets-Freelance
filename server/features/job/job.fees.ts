@@ -34,10 +34,12 @@ const completingJobTierThreeFees: JobFees = {
     whoPay: "freelancer"
 }
 
-export {
+const jobFees = {
     creatingJobFees,
     hourlyJobFees,
     completingJobTierOneFees,
     completingJobTierTwoFees,
     completingJobTierThreeFees
-};
+}
+
+export default jobFees;

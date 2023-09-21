@@ -23,8 +23,6 @@ export type ContractService = {
     description: IService["description"];
     tierName: "starter" | "standard" | "advanced";
     tier: ServicePlan;
-    employerPaid: boolean;
-    freelancerGotPaid: boolean;
 };
 
 export type ContractJob = {
@@ -36,8 +34,6 @@ export type ContractJob = {
     price: ProposalType["price"];
     estimatedTime: ProposalType["estimatedTime"];
     proposal: { _id: mongoose.Types.ObjectId } & Partial<ProposalType>;
-    employerPaid: boolean;
-    freelancerGotPaid: boolean;
 };
 
 export type UserPayment = {
@@ -142,14 +138,6 @@ const contractSchema = new mongoose.Schema<ContractType>({
                     type: mongoose.Schema.Types.Mixed
                 }
             }]
-        },
-        employerPaid: {
-            type: Boolean,
-            default: false
-        },
-        freelancerGotPaid: {
-            type: Boolean,
-            default: false
         }
     },
     job: {
@@ -191,14 +179,6 @@ const contractSchema = new mongoose.Schema<ContractType>({
         proposal: {
             type: mongoose.Types.ObjectId,
             ref: "Proposal"
-        },
-        employerPaid: {
-            type: Boolean,
-            default: false
-        },
-        freelancerGotPaid: {
-            type: Boolean,
-            default: false
         }
     },
     payments: [

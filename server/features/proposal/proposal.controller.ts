@@ -6,7 +6,7 @@ import createProposalValidator from "./validators/createProposalValidator";
 import Proposal from "./proposal.model";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
-import { jobModel as Job } from "../job";
+import { jobModel as Job, jobFees } from "../job";
 import { isInvalidStatus } from "./validators/proposalInputValidator";
 import { contractModel as Contract } from "../contract";
 import sendProposalApprovedEmail from "./services/sendProposalApprovedEmail";
@@ -162,9 +162,6 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("Cannot change. Proposal has already been approved");
     }
 
-    // take proposal action
-    await proposal.updateOne({ status });
-
     // create a contract (add later)
     if (status === "approved") {
         const refs = {
@@ -190,7 +187,31 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 priceType: proposal.priceType,
                 price: proposal.price,
                 estimatedTime: proposal.estimatedTime
+            },
+            payments: [] as {}[]
+        }
+
+        // make employer pay the fixed price
+        if (proposal.priceType === "fixed") {
+            const feesAmount = jobFees.creatingJobFees.type === "percent" ? (contractInfo.job.price / 100) * jobFees.creatingJobFees.amount : jobFees.creatingJobFees.amount;
+            const paymentAmountWithFees = contractInfo.job.price + feesAmount;
+            console.log({ paymentAmountWithFees });
+
+            // stipe validation (add later)
+            const stipeValidation = true;
+            if (!stipeValidation) {
+                throw new BadRequestError("Invalid payment");
             }
+
+            // set employer payment as paid
+            const payment = {
+                amount: contractInfo.job.price,
+                employer: {
+                    status: "paid",
+                    paidAt: new Date(Date.now()).toString()
+                }
+            }
+            contractInfo.payments.push(payment);
         }
 
         await Contract.create(contractInfo);
@@ -212,6 +233,9 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
             userAs: "freelancer"
         });
     }
+
+    // take proposal action
+    await proposal.updateOne({ status });
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;
 

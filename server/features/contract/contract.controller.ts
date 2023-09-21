@@ -14,7 +14,7 @@ import sendServiceContractCompletedEmail from "./services/sendServiceContractCom
 import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEmail";
 import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
 import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
-import { hourlyJobFees } from "../job";
+import { jobFees } from "../job";
 
 
 //@desc get all contracts related to the current user
@@ -278,10 +278,14 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
             servicePrice
         });
 
-        // the amount freelancer gonna get
-        if (contract.service!.employerPaid && !contract.service!.freelancerGotPaid) {
-            contract.service!.freelancerGotPaid = true;
+        // the amount freelancer going to receive
+        const payment = contract.payments[0];
+        if (payment.employer?.status === "paid") {
             console.log({ freelancerReceiveAmount });
+            payment.freelancer = {
+                status: "pending",
+                paidAt: ""
+            }
         }
 
         // send service contract completed email to the employer
@@ -395,45 +399,41 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 feeType,
             });
 
+            // the amount freelancer going to receive
             console.log({ freelancerReceivedAmount: calculatedUserAmount });
-            contract.job!.freelancerGotPaid = true;
-        } else {
-            // hourly contract job
-            const initialFreelancerWorkedHours = 12;
+            const payment = contract.payments[0];
+            payment.freelancer = {
+                status: "pending",
+                paidAt: ""
+            }
 
-            const { feeAmount, feeType, freelancerReceiveAmount } = getHourlyPriceJobAfterFees({
-                contractHourlyPrice: contract.job!.price,
-                workedHours: initialFreelancerWorkedHours
+        } else {
+            const totalWorkedHours = contract.payments.reduce((accumulator, { workedHours }) => {
+                return accumulator + (workedHours || 0);
+            }, 0);
+
+
+            const totalAmount = contract.payments.reduce((accumulator, { amount }) => {
+                return accumulator + (amount || 0);
+            }, 0);
+
+            // send hourly price contract completed email to the freelancer
+            sendCompletedJobContractEmail.hourlyPrice({
+                contractId: contract._id.toString(),
+                email: contract.freelancer.user.email!,
+                hourlyPrice: contract.job!.price,
+                totalWorkedHours,
+                totalAmount
             });
 
             // send hourly price contract completed email to the employer
             sendCompletedJobContractEmail.hourlyPrice({
                 contractId: contract._id.toString(),
-                userAs: "employer",
                 email: contract.employer.user.email!,
-                price: contract.job!.price * initialFreelancerWorkedHours,
-                priceAfterFees: freelancerReceiveAmount,
-                workedHours: initialFreelancerWorkedHours,
                 hourlyPrice: contract.job!.price,
-                feeAmount,
-                feeType,
+                totalWorkedHours,
+                totalAmount
             });
-
-            // send hourly price contract completed email to the freelancer
-            sendCompletedJobContractEmail.hourlyPrice({
-                contractId: contract._id.toString(),
-                userAs: "freelancer",
-                email: contract.freelancer.user.email!,
-                price: contract.job!.price * initialFreelancerWorkedHours,
-                priceAfterFees: freelancerReceiveAmount,
-                workedHours: initialFreelancerWorkedHours,
-                hourlyPrice: contract.job!.price,
-                feeAmount,
-                feeType,
-            });
-
-            console.log({ freelancerReceiveAmount });
-            contract.job!.freelancerGotPaid = true;
         }
     }
 
@@ -488,6 +488,11 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
     // check if the job contract is an hourly contract
     if (contract.job!.priceType !== "hourly") {
         throw new BadRequestError("Must be an hourly job");
+    }
+
+    // check if the contract is still in progress
+    if (contract.freelancer.status !== "inProgress" || contract.employer.status !== "inProgress") {
+        throw new BadRequestError("You can only submit worked hours to contracts that are still in progress");
     }
 
     // check if there is already a payment that is not paid yet
@@ -556,10 +561,15 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("This payment has already been paid");
     }
 
-    // amount to be paid
-    const feesAmount = hourlyJobFees.type === "percent" ? (payment.amount! / 100) * hourlyJobFees.amount : hourlyJobFees.amount;
-    const paymentAmountWithFees = payment.amount! + feesAmount;
-    console.log(paymentAmountWithFees);
+    // employer amount to be paid
+    const employerfeesAmount = jobFees.hourlyJobFees.type === "percent" ? (payment.amount! / 100) * jobFees.hourlyJobFees.amount : jobFees.hourlyJobFees.amount;
+    const employerPaymentWithFees = payment.amount! + employerfeesAmount;
+
+    // freelancer amount to be received
+    const freelancerFeesAmount = jobFees.completingJobTierOneFees.type === "percent" ? (payment.amount! / 100) * jobFees.completingJobTierOneFees.amount : jobFees.completingJobTierOneFees.amount;
+    const freelancerReveiveAmountWithFees = payment.amount! - freelancerFeesAmount;
+
+    console.log({ employerPaymentWithFees, freelancerReveiveAmountWithFees });
 
 
     // strip validation (fake for now)

@@ -37,14 +37,14 @@ const sendCreatedHourlyPriceEmail = ({ email, jobTitle, feeAmount, feeType }: Cr
         <p>Congratulations, you have just created a new hourly price job, you are going to receive proposals from freelancers soon</p>
         <p>Job title: <strong>${jobTitle}</strong></p>
         <p>Fees: <strong>${feeType === "percent" ? `${feeAmount}%` : `$${feeAmount}`}</strong></p>
-        <p>Fees are going to be included for each payment</p>
+        <p>Fees are going to be included for each payment after approving proposals</p>
     `;
 
     return sendEmail({
         subject: "Create A New Job - Lets Freelance",
         to: email,
         html: createJobContent
-    })
+    });
 }
 
 const sendCreatedJobEmail = {

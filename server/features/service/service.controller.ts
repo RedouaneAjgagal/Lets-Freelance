@@ -373,8 +373,8 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // add stripe payment (add later)
-    const employerCutAmount = service.tier[selectedTier].price;
-    console.log({ employerCutAmount });
+    const employerPaidAmount = service.tier[selectedTier].price;
+    console.log({ employerPaidAmount });
 
     const stripeValidation = true;
     if (!stripeValidation) {
@@ -382,7 +382,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     const payment = {
-        amount: employerCutAmount,
+        amount: employerPaidAmount,
         employer: {
             status: "paid",
             paidAt: new Date(Date.now()).toString()

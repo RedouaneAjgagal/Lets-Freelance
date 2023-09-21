@@ -10,7 +10,7 @@ import getUpdatedJobInfo from "./helpers/getUpdatedJobInfo";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import getFixedPriceJobAfterFees from "./utils/getFixedPriceJobAfterFees";
 import sendCreatedJobEmail from "./services/sendCreatedJobEmail";
-import { creatingJobFees } from "./job.fees";
+import jobFees from "./job.fees";
 
 
 //@desc get all jobs info
@@ -214,8 +214,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         const { calculatedUserAmount, feeAmount, feeType } = getFixedPriceJobAfterFees({
             contractPrice: jobInfo.price.min, // min and max are the same values for fixed price
             userAs: "employer"
-        })
-        console.log({ employerPaymentAmount: calculatedUserAmount });
+        });
 
         // initial strip validation
         const stripeValidation = true;
@@ -227,7 +226,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         sendCreatedJobEmail.fixedPrice({
             email: user.email.toString(),
             jobTitle: jobInfo.title,
-            calculatedPaidAmount: calculatedUserAmount,
+            amount: calculatedUserAmount,
             feeAmount,
             feeType
         });
@@ -236,8 +235,8 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         sendCreatedJobEmail.hourlyPrice({
             email: user.email.toString(),
             jobTitle: jobInfo.title,
-            feeAmount: creatingJobFees.amount,
-            feeType: creatingJobFees.type
+            feeAmount: jobFees.creatingJobFees.amount,
+            feeType: jobFees.creatingJobFees.type
         });
     }
 

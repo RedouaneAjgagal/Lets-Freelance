@@ -15,6 +15,7 @@ import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEm
 import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
 import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
 import { jobFees } from "../job";
+import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
 
 
 //@desc get all contracts related to the current user
@@ -537,7 +538,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find job contract because its the only contract that pays by hours
-    const contract = await Contract.findOne({ _id: contractId, activityType: "job" });
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email" });
     if (!contract) {
         throw new BadRequestError(`Found no contract with ID ${contractId}`);
     }
@@ -587,6 +588,30 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         status: "pending",
         paidAt: ""
     }
+
+    // send paid hours email to the freelancer
+    sendPaidHoursEmail({
+        userAs: "freelancer",
+        email: contract.freelancer.user.email!,
+        amount: payment.amount!,
+        amountIncludingFees: freelancerReveiveAmountWithFees,
+        feesAmount: jobFees.completingJobTierOneFees.amount,
+        feesType: jobFees.completingJobTierOneFees.type,
+        workedHours: payment.workedHours!,
+        paymentId,
+    });
+
+    // send paid hours email to the freelancer
+    sendPaidHoursEmail({
+        userAs: "employer",
+        email: contract.employer.user.email!,
+        amount: payment.amount!,
+        amountIncludingFees: employerPaymentWithFees,
+        feesAmount: jobFees.hourlyJobFees.amount,
+        feesType: jobFees.hourlyJobFees.type,
+        workedHours: payment.workedHours!,
+        paymentId,
+    });
 
     // update the contract
     await contract.save();

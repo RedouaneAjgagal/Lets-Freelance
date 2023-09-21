@@ -24,7 +24,7 @@ const sendContractCancelationEmail = ({ email, contractId, activityTitle, value 
     const content = value === "canceled" ? approvedCancelationContent : rejectedCancelationContent;
 
     return sendEmail({
-        subject: "Contract Cancellation Request - letsfreelance.io",
+        subject: "Contract Cancellation Request - Lets Freelance",
         to: email,
         html: content
     });

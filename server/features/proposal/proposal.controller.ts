@@ -212,26 +212,47 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 }
             }
             contractInfo.payments.push(payment);
+
+            // send fixed price proposal approved email to the employer
+            sendProposalApprovedEmail.fixedPriceProposal({
+                userAs: "employer",
+                email: proposal.job.user!.email!,
+                proposalId: proposal._id.toString(),
+                jobTitle: proposal.job.title!,
+                price: contractInfo.job.price,
+                totalAmoutWithFees: paymentAmountWithFees
+            });
+
+            // send fixed price proposal approved email to the freelancer
+            sendProposalApprovedEmail.fixedPriceProposal({
+                userAs: "freelancer",
+                email: proposal.user.email!,
+                proposalId: proposal._id.toString(),
+                jobTitle: proposal.job.title!,
+                price: contractInfo.job.price
+            });
+        } else {
+
+            // send hourly price proposal approved email to the employer
+            sendProposalApprovedEmail.hourlyPriceProposal({
+                userAs: "employer",
+                email: proposal.job.user!.email!,
+                proposalId: proposal._id.toString(),
+                jobTitle: proposal.job.title!,
+                price: contractInfo.job.price
+            });
+
+            // send hourly price proposal approved email to the freelancer
+            sendProposalApprovedEmail.hourlyPriceProposal({
+                userAs: "freelancer",
+                email: proposal.user.email!,
+                proposalId: proposal._id.toString(),
+                jobTitle: proposal.job.title!,
+                price: contractInfo.job.price
+            });
         }
 
         await Contract.create(contractInfo);
-
-
-        // send proposal approved email to the employer
-        sendProposalApprovedEmail({
-            email: proposal.job.user!.email!,
-            jobTitle: proposal.job.title!,
-            proposalId: proposal._id.toString(),
-            userAs: "employer"
-        });
-
-        // send proposal approved email to the freelancer
-        sendProposalApprovedEmail({
-            email: proposal.user.email!,
-            jobTitle: proposal.job.title!,
-            proposalId: proposal._id.toString(),
-            userAs: "freelancer"
-        });
     }
 
     // take proposal action

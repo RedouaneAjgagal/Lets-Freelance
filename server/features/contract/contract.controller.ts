@@ -16,7 +16,7 @@ import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
 import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
 import { jobFees } from "../job";
 import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
-import getPaymentFeeTier from "../job/utils/getPaymentFeeTier";
+import jobFeeTiers from "../job/utils/jobFeeTiers";
 
 
 //@desc get all contracts related to the current user
@@ -374,9 +374,9 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
 
     if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
         if (contract.job!.priceType === "fixed") {
-            const { feeAmount, feeType, calculatedUserAmount } = getFixedPriceJobAfterFees({
-                contractPrice: contract.job!.price,
-                userAs: "freelancer"
+
+            const freelancerNetAmount = jobFeeTiers.getFixedJobFeeTier({
+                amount: contract.job!.price
             });
 
             // send fixed price contract completed email to the employer
@@ -385,9 +385,7 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 userAs: "employer",
                 email: contract.employer.user.email!,
                 price: contract.job!.price,
-                priceAfterFees: calculatedUserAmount,
-                feeAmount,
-                feeType
+                priceAfterFees: freelancerNetAmount
             });
 
             // send fixed price contract completed email to the freelancer
@@ -396,13 +394,11 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 userAs: "freelancer",
                 email: contract.freelancer.user.email!,
                 price: contract.job!.price,
-                priceAfterFees: calculatedUserAmount,
-                feeAmount,
-                feeType,
+                priceAfterFees: freelancerNetAmount
             });
 
             // the amount freelancer going to receive
-            console.log({ freelancerReceivedAmount: calculatedUserAmount });
+            console.log({ freelancerReceivedAmount: freelancerNetAmount });
             const payment = contract.payments[0];
             payment.freelancer = {
                 status: "pending",
@@ -575,7 +571,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         return accumulator;
     }, 0);
 
-    const netAmount = getPaymentFeeTier({
+    const netAmount = jobFeeTiers.getHourlyJobFeeTier({
         paymentAmount: payment.amount!,
         totalPaidAmount: totalPayment
     });

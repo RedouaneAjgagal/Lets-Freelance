@@ -5,8 +5,6 @@ type CompletedJobContractEmailFixedPrice = {
     email: string;
     userAs: "freelancer" | "employer";
     price: number;
-    feeType: "percent" | "fixed";
-    feeAmount: number;
     priceAfterFees: number;
 }
 
@@ -18,12 +16,11 @@ type CompletedJobContractEmailHourlyPrice = {
     totalAmount: number
 }
 
-const fixedPrice = ({ email, userAs, feeAmount, feeType, price, priceAfterFees, contractId }: CompletedJobContractEmailFixedPrice) => {
+const fixedPrice = ({ email, userAs, price, priceAfterFees, contractId }: CompletedJobContractEmailFixedPrice) => {
     const freelancerContent = `
         <p>You will recieve your payment within 10 days</p>
         <p>Amount: <strong>$${price}</strong></p>
-        <p>Fees: <strong>${feeType === "percent" ? `${feeAmount}%` : `$${feeAmount}`}</strong></p>
-        <p>Receive amount: <strong>$${priceAfterFees}</strong></p>
+        <p>Receive amount after fees: <strong>$${priceAfterFees}</strong></p>
     `;
 
     const employerContent = `

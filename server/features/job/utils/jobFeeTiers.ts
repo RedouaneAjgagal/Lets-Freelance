@@ -1,14 +1,12 @@
 import jobFees from "../job.fees"
 import getNetAmountAfterFees from "./getNetAmountAfterFees";
 
-const getPaymentFeeTier = ({ paymentAmount, totalPaidAmount }: { paymentAmount: number; totalPaidAmount: number }) => {
+const getHourlyJobFeeTier = ({ paymentAmount, totalPaidAmount }: { paymentAmount: number; totalPaidAmount: number }) => {
     const fees = jobFees.operatorTiers;
     const getCurrentTotalAmount = paymentAmount + totalPaidAmount;
 
     // tier three fee
     if (totalPaidAmount >= fees.tierThree.amount) {
-
-
         const netAmount = getNetAmountAfterFees({
             feeAction: "subtract",
             feeTier: "tierThreeFees",
@@ -82,4 +80,69 @@ const getPaymentFeeTier = ({ paymentAmount, totalPaidAmount }: { paymentAmount: 
     }
 }
 
-export default getPaymentFeeTier;
+
+
+const getFixedJobFeeTier = ({ amount }: { amount: number }) => {
+    const feeTier = jobFees.operatorTiers;
+
+    let tierOneAmount = amount - feeTier.tierOne.amount;
+    let tierTwoAmount = amount - feeTier.tierTwo.amount;
+
+    // when the amount is up to tier three fee
+    if (tierOneAmount > 0 && tierTwoAmount > 0) {
+        const netAmountTierOne = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierOneFees",
+            paymentAmount: feeTier.tierOne.amount
+        });
+
+        const netAmountTierTwo = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierTwoFees",
+            paymentAmount: feeTier.tierTwo.amount
+        });
+
+        const netAmountTierThree = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierThreeFees",
+            paymentAmount: amount - feeTier.tierTwo.amount - feeTier.tierOne.amount
+        });
+
+        return netAmountTierOne + netAmountTierTwo + netAmountTierThree;
+
+    }
+    // when the amount is up to tier two fee
+    else if (tierOneAmount > 0 && tierTwoAmount <= 0) {
+        const netAmountTierOne = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierOneFees",
+            paymentAmount: feeTier.tierOne.amount
+        });
+
+        const netAmountTierTwo = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierTwoFees",
+            paymentAmount: amount - feeTier.tierOne.amount
+        });
+
+        return netAmountTierOne + netAmountTierTwo;
+
+    }
+    // when the amount is only tier one fee
+    else {
+        const netAmountTierOne = getNetAmountAfterFees({
+            feeAction: "subtract",
+            feeTier: "tierOneFees",
+            paymentAmount: amount
+        });
+
+        return netAmountTierOne;
+    }
+}
+
+const jobFeeTiers = {
+    getHourlyJobFeeTier,
+    getFixedJobFeeTier
+}
+
+export default jobFeeTiers;

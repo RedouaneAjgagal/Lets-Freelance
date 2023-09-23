@@ -9,20 +9,14 @@ type CreateJob = {
 
 type CreateHourlyPriceJob = CreateJob;
 
-type CreateFixedPriceJobEmail = {
-    amount: number;
-} & CreateJob
+const sendCreatedFixedPriceJobEmail = ({ email, jobTitle, feeAmount, feeType }: CreateJob) => {
 
-const sendCreatedFixedPriceJobEmail = ({ email, jobTitle, amount, feeAmount, feeType }: CreateFixedPriceJobEmail) => {
-    console.log(amount);
-    
     const createJobContent = `
         <h1>Your new Job has been created</h1>
         <p>Congratulations, you have just created a new fixed price job, you are going to receive proposals from freelancers soon</p>
         <p>Job title: <strong>${jobTitle}</strong></p>
         <p>Fees: <strong>${feeType === "percent" ? `${feeAmount}%` : `$${feeAmount}`}</strong></p>
-        <p>Amount: <strong>$${amount}</strong></p>
-        <p>Amount is going to be paid when accepting proposals</p>
+        <p>Fees are going to be included when you start accepting proposals</p>
     `;
 
     return sendEmail({

@@ -1,6 +1,6 @@
-import { IProposal } from "../proposal.model"
+import { ProposalType } from "../proposal.model"
 
-const isInvalidCoverLetter = (coverLetter: IProposal["coverLetter"] | undefined) => {
+const isInvalidCoverLetter = (coverLetter: ProposalType["coverLetter"] | undefined) => {
     let error = "";
 
     if (!coverLetter || coverLetter.toString().trim() === "") {
@@ -18,7 +18,7 @@ const isInvalidCoverLetter = (coverLetter: IProposal["coverLetter"] | undefined)
     return error;
 }
 
-const isInvalidPriceType = (priceType: IProposal["priceType"] | undefined) => {
+const isInvalidPriceType = (priceType: ProposalType["priceType"] | undefined) => {
     let error = "";
 
     if (!priceType || priceType.toString().trim() === "") {
@@ -37,7 +37,7 @@ const isInvalidPriceType = (priceType: IProposal["priceType"] | undefined) => {
     return error;
 }
 
-const isInvalidPrice = (price: IProposal["price"] | undefined) => {
+const isInvalidPrice = (price: ProposalType["price"] | undefined) => {
     let error = "";
 
     if (!price || price.toString().trim() === "") {
@@ -55,7 +55,7 @@ const isInvalidPrice = (price: IProposal["price"] | undefined) => {
     return error;
 }
 
-const isInvalidEstimatedTime = (estimatedTime: IProposal["estimatedTime"] | undefined) => {
+const isInvalidEstimatedTime = (estimatedTime: ProposalType["estimatedTime"] | undefined) => {
     let error = "";
 
     if (!estimatedTime) {
@@ -101,7 +101,7 @@ const isInvalidEstimatedTime = (estimatedTime: IProposal["estimatedTime"] | unde
     return error;
 }
 
-const isInvalidStatus = (status: IProposal["status"] | undefined) => {
+const isInvalidStatus = (status: ProposalType["status"] | undefined) => {
     let error = "";
 
     if (!status || status.toString().trim() === "") {

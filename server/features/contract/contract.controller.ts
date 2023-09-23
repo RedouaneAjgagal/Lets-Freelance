@@ -16,6 +16,7 @@ import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
 import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
 import { jobFees } from "../job";
 import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
+import getPaymentFeeTier from "../job/utils/getPaymentFeeTier";
 
 
 //@desc get all contracts related to the current user
@@ -566,12 +567,20 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const employerfeesAmount = jobFees.hourlyJobFees.type === "percent" ? (payment.amount! / 100) * jobFees.hourlyJobFees.amount : jobFees.hourlyJobFees.amount;
     const employerPaymentWithFees = payment.amount! + employerfeesAmount;
 
-    // freelancer amount to be received
-    const freelancerFeesAmount = jobFees.completingJobTierOneFees.type === "percent" ? (payment.amount! / 100) * jobFees.completingJobTierOneFees.amount : jobFees.completingJobTierOneFees.amount;
-    const freelancerReveiveAmountWithFees = payment.amount! - freelancerFeesAmount;
+    // find payments total
+    const totalPayment = contract.payments.reduce((accumulator, { amount, employer }) => {
+        if (employer?.status === "paid") {
+            return accumulator + (amount || 0);
+        }
+        return accumulator;
+    }, 0);
 
-    console.log({ employerPaymentWithFees, freelancerReveiveAmountWithFees });
+    const netAmount = getPaymentFeeTier({
+        paymentAmount: payment.amount!,
+        totalPaidAmount: totalPayment
+    });
 
+    console.log({ freelancerReveiceAmount: netAmount, employerPaymentWithFees });
 
     // strip validation (fake for now)
     const stipeValidation = true;
@@ -595,8 +604,8 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         email: contract.freelancer.user.email!,
         amount: payment.amount!,
         amountIncludingFees: freelancerReveiveAmountWithFees,
-        feesAmount: jobFees.completingJobTierOneFees.amount,
-        feesType: jobFees.completingJobTierOneFees.type,
+        feesAmount: jobFees[feeTier].amount,
+        feesType: jobFees[feeTier].type,
         workedHours: payment.workedHours!,
         paymentId,
     });

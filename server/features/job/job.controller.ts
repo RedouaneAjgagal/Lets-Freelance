@@ -211,7 +211,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     if (jobInfo.priceType === "fixed") {
-        const { calculatedUserAmount, feeAmount, feeType } = getFixedPriceJobAfterFees({
+        const { feeAmount, feeType } = getFixedPriceJobAfterFees({
             contractPrice: jobInfo.price.min, // min and max are the same values for fixed price
             userAs: "employer"
         });
@@ -226,7 +226,6 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         sendCreatedJobEmail.fixedPrice({
             email: user.email.toString(),
             jobTitle: jobInfo.title,
-            amount: calculatedUserAmount,
             feeAmount,
             feeType
         });

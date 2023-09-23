@@ -8,7 +8,7 @@ type GetNetAmountAfterFees = {
 
 const getNetAmountAfterFees = ({ feeTier, feeAction, paymentAmount }: GetNetAmountAfterFees) => {
     const feeAmount = jobFees[feeTier].type === "percent" ? (paymentAmount / 100) * jobFees[feeTier].amount : jobFees[feeTier].amount;
-    const netAmountAfterFees = feeAction === "add" ? paymentAmount + feeAmount : paymentAmount - feeAmount;
+    const netAmountAfterFees = feeAction === "add" ? (paymentAmount + feeAmount) : (paymentAmount - feeAmount);
     return netAmountAfterFees;
 }
 

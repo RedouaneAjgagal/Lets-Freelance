@@ -603,9 +603,9 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         userAs: "freelancer",
         email: contract.freelancer.user.email!,
         amount: payment.amount!,
-        amountIncludingFees: freelancerReveiveAmountWithFees,
-        feesAmount: jobFees[feeTier].amount,
-        feesType: jobFees[feeTier].type,
+        amountIncludingFees: netAmount,
+        feesAmount: undefined,
+        feesType: undefined,
         workedHours: payment.workedHours!,
         paymentId,
     });

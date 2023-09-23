@@ -6,8 +6,8 @@ type SendPaidHoursEmail = {
     paymentId: string;
     workedHours: number;
     amount: number;
-    feesType: "percent" | "fixed";
-    feesAmount: number;
+    feesType: "percent" | "fixed" | undefined;
+    feesAmount: number | undefined;
     amountIncludingFees: number;
 }
 
@@ -18,8 +18,7 @@ const sendPaidHoursEmail = ({ email, userAs, paymentId, amountIncludingFees, fee
     const freelancerContent = `
         <h1>Payment ID ${paymentId} has been paid</h1>
         <p>Worked hours: <strong>${workedHours}</strong></p>
-        <p>Amount: <strong>$${amount}</strong></p>
-        <p>Fees: <strong>${fees}</strong></p>
+        <p>Amount with no fees: <strong>$${amount}</strong></p>
         <p>Receive: <strong>$${amountIncludingFees}</strong></p>
         <p>You will receive your payment within 10 days</p>
     `;

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { StatusCodes } from "http-status-codes";
+import { BAD_GATEWAY, StatusCodes } from "http-status-codes";
 import { BadRequestError, UnauthenticatedError } from "../../errors";
 import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, verifyEmailValidation } from "./validations";
 import User from "./auth.model";
@@ -12,7 +12,9 @@ import sendResetEmail from "./services/sendResetEmail";
 import { resetEmailValidation } from "./validations/authValidations";
 import sendVerifyEmail from "./services/sendVerifyEmail";
 import { Profile } from "../profile";
-
+import createConnectedAccount from "../../stripe/createConnectedAccount";
+import userAsPermission from "../../helpers/userAsOnly";
+import stripe from "../../stripe/stripeConntect";
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -79,6 +81,15 @@ const login: RequestHandler = async (req, res) => {
     attachCookieToResponse({
         userId: user._id.toString()
     }, res);
+
+
+
+    // const link = await stripe.accountLinks.create({
+    //     account: conntectedAccount.id,
+    //     type: "account_onboarding",
+    //     refresh_url: "http://localhost:5173",
+    //     return_url: "http://localhost:5173"
+    // });
 
     res.status(StatusCodes.OK).json({ msg: `Welcome back` });
 }
@@ -344,6 +355,72 @@ const resetPassword: RequestHandler = async (req, res) => {
 
 
 
+//@desc create stipe conntect to pay freelancers after completing jobs
+//@route GET /api/v1/auth/set-payment-method
+//@acess authentication (only freelancers)
+const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { accountNumber, routingNumber, country, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber } = req.body;
+
+    // find the current user
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the current user is a freelancer
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
+
+    // check if the freelancer already set bank info
+    if (user.stripe.id) {
+        throw new BadRequestError("You have already set bank information");
+    }
+
+    // create conntect stipe account
+    const conntectedAccount = await createConnectedAccount({
+        userId: user._id.toString(),
+        profileId: user.profile!._id.toString(),
+        email: user.email,
+        country,
+        externalAccount: {
+            object: "bank_account",
+            account_number: accountNumber,
+            routing_number: routingNumber,
+            account_holder_name: accountHolderName,
+            account_holder_type: accountHolderType,
+            country,
+            currency
+        },
+        individual: {
+            email: user.email,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phoneNumber,
+            address,
+            dob,
+        },
+        tosAcceptance: {
+            date: Math.floor(Date.now() / 1000),
+            ip: req.ip,
+            user_agent: req.headers["user-agent"]
+        }
+    });
+
+    // set connected stipe id to the user info
+    user.stripe = {
+        id: conntectedAccount.id,
+        accountLastFour: accountNumber.slice(-4)
+    }
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ msg: "You have set your bank info successfully" });
+}
+
+
+
+
 
 //@desc get current user info
 //@route GET /api/v1/auth/current-user
@@ -372,5 +449,6 @@ export {
     resetEmail,
     forgetPassword,
     resetPassword,
+    createStripeConnect,
     userInfo
 }

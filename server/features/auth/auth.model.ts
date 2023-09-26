@@ -4,6 +4,11 @@ import compareData from "../../utils/compareData";
 import { Profile } from "../profile";
 import { IProfile } from "../profile/profile.model";
 
+type Stripe = {
+    id: string;
+    accountLastFour: string;
+}
+
 export interface IUser {
     email: string;
     password: string;
@@ -15,6 +20,7 @@ export interface IUser {
     resetPasswordToken: string | null;
     passwordTokenExpirationDate: Date | null;
     role: "user" | "admin" | "owner";
+    stripe: Stripe;
     createdAt: Date;
     updatedAt: Date;
     profile?: {
@@ -76,6 +82,16 @@ const userSchema = new mongoose.Schema<IUser>({
         },
         default: "user",
         required: true
+    },
+    stripe: {
+        id: {
+            type: String
+        },
+        accountLastFour: {
+            type: String,
+            minlength: 4,
+            maxlength: 4
+        }
     }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

@@ -15,6 +15,7 @@ import { Profile } from "../profile";
 import createConnectedAccount from "../../stripe/createConnectedAccount";
 import userAsPermission from "../../helpers/userAsOnly";
 import stripe from "../../stripe/stripeConntect";
+import createConnectedAccountValidator from "../../stripe/validators/createConnectedAccountValidator";
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -359,7 +360,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/set-payment-method
 //@acess authentication (only freelancers)
 const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { accountNumber, routingNumber, country, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber } = req.body;
+    const { accountNumber, routingNumber, accountCountry, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber, email } = req.body;
 
     // find the current user
     const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
@@ -378,28 +379,54 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         throw new BadRequestError("You have already set bank information");
     }
 
+    // external account info
+    const externalAccount = {
+        object: "bank_account",
+        account_number: accountNumber,
+        routing_number: routingNumber,
+        account_holder_name: accountHolderName,
+        account_holder_type: accountHolderType,
+        country: accountCountry,
+        currency,
+    }
+
+    const individual = {
+        email,
+        address,
+        dob,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phoneNumber
+    }
+
+    // check if valid values
+    createConnectedAccountValidator({
+        externalAccount,
+        individual
+    });
+
     // create conntect stipe account
     const conntectedAccount = await createConnectedAccount({
         userId: user._id.toString(),
         profileId: user.profile!._id.toString(),
         email: user.email,
-        country,
+        country: address.country,
         externalAccount: {
             object: "bank_account",
             account_number: accountNumber,
             routing_number: routingNumber,
             account_holder_name: accountHolderName,
             account_holder_type: accountHolderType,
-            country,
+            country: accountCountry,
             currency
         },
         individual: {
-            email: user.email,
+            email,
             first_name: firstName,
             last_name: lastName,
             phone: phoneNumber,
             address,
-            dob,
+            dob
         },
         tosAcceptance: {
             date: Math.floor(Date.now() / 1000),

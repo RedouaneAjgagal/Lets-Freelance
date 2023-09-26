@@ -25,16 +25,20 @@ const createConnectedAccount = async ({ email, userId, profileId, country, exter
         country,
         individual,
         default_currency: "usd",
-        business_type: "individual",
+        business_type: "individual", // initial individual for now 
         external_account: externalAccount,
         tos_acceptance: tosAcceptance,
         capabilities: {
             transfers: {
-                requested: true // freelancers are only going to receive payments so no need for card_payments
+                requested: true
             },
+            card_payments: {
+                requested: true
+            }
         },
         business_profile: {
-            url: `https://github.com/profiles/${profileId}` // set github.com to the production url once its live
+            url: `https://github.com/profiles/${profileId}`, // set github.com to the production url once its live
+            mcc: "7379" // initial mcc for now
         },
         metadata: {
             "platform_user_id": userId,

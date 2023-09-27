@@ -107,19 +107,19 @@ const isInvalidDateOfBirth = (dateOfBirth: Stripe.AccountCreateParams.Individual
     return errors;
 }
 
-const isInvalidLastFourSsn = ({ ssn, isRequired }: { ssn: Stripe.AccountCreateParams.Individual["ssn_last_4"] | undefined, isRequired: boolean }) => {
+const isInvalidSsn = ({ ssn, isRequired }: { ssn: Stripe.AccountCreateParams.Individual["id_number"] | undefined, isRequired: boolean }) => {
     if (!isRequired) return "";
 
     const error = emptyValuesChecker({
         allowedType: "string",
-        errorValue: "Last four SSN",
+        errorValue: "Social security number",
         value: ssn
     });
 
     if (error) return error;
 
-    if (ssn!.trim().length !== 4) {
-        return "Must be four numbers";
+    if (ssn!.trim().length !== 9) {
+        return "Must be nine digits";
     }
 
     return error;
@@ -132,5 +132,5 @@ export {
     isInvalidFirstName,
     isInvalidLastName,
     isInvalidPhoneNumber,
-    isInvalidLastFourSsn
+    isInvalidSsn
 }

@@ -1,14 +1,15 @@
 import Stripe from "stripe"
 import { isInvalidAccountHolderName, isInvalidAccountHolderType, isInvalidAccountNumber, isInvalidCurrency, isInvalidRoutingNumber, isInvalidTwoLetterCountry } from "./externalAccountValidators"
-import { isInvalidAddress, isInvalidDateOfBirth, isInvalidEmail, isInvalidFirstName, isInvalidLastFourSsn, isInvalidLastName, isInvalidPhoneNumber } from "./individualValidators"
+import { isInvalidAddress, isInvalidDateOfBirth, isInvalidEmail, isInvalidFirstName, isInvalidLastName, isInvalidPhoneNumber, isInvalidSsn } from "./individualValidators"
 import { BadRequestError } from "../../errors";
 
 type CreateConnectedAccountValidator = {
     externalAccount: Stripe.AccountCreateParams.ExternalAccount;
     individual: Stripe.AccountCreateParams.Individual;
+    isSsnRequired: boolean;
 }
 
-const createConnectedAccountValidator = ({ externalAccount, individual }: CreateConnectedAccountValidator) => {
+const createConnectedAccountValidator = ({ externalAccount, individual, isSsnRequired }: CreateConnectedAccountValidator) => {
 
     // --- external account validation --- //
 
@@ -75,10 +76,10 @@ const createConnectedAccountValidator = ({ externalAccount, individual }: Create
         throw new BadRequestError(invalidPhoneNumber);
     }
 
-    // const invalidSsn = isInvalidLastFourSsn({ ssn: individual.ssn_last_4, isRequired: false });
-    // if (invalidSsn) {
-    //     throw new BadRequestError(invalidSsn);
-    // }
+    const invalidSsn = isInvalidSsn({ ssn: individual.id_number, isRequired: isSsnRequired });
+    if (invalidSsn) {
+        throw new BadRequestError(invalidSsn);
+    }
 }
 
 export default createConnectedAccountValidator;

@@ -16,6 +16,7 @@ import createConnectedAccount from "../../stripe/createConnectedAccount";
 import userAsPermission from "../../helpers/userAsOnly";
 import stripe from "../../stripe/stripeConntect";
 import createConnectedAccountValidator from "../../stripe/validators/createConnectedAccountValidator";
+import Stripe from "stripe";
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -360,7 +361,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/set-payment-method
 //@acess authentication (only freelancers)
 const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { accountNumber, routingNumber, accountCountry, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber, email } = req.body;
+    const { accountNumber, routingNumber, accountCountry, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber, email, ssn } = req.body;
 
     // find the current user
     const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
@@ -375,9 +376,9 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
     });
 
     // check if the freelancer already set bank info
-    if (user.stripe.id) {
-        throw new BadRequestError("You have already set bank information");
-    }
+    // if (user.stripe.id) {
+    //     throw new BadRequestError("You have already set bank information");
+    // }
 
     // external account info
     const externalAccount = {
@@ -390,7 +391,7 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         currency,
     }
 
-    const individual = {
+    const individual: { email: any; address: any; dob: any; first_name: any; last_name: any; phone: any; id_number?: string; ssn_last_4?: string } = {
         email,
         address,
         dob,
@@ -399,35 +400,31 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         phone: phoneNumber
     }
 
+    if (individual.address?.country === "US") {
+        individual.id_number = ssn;
+        individual.ssn_last_4 = ssn?.toString().slice(-4);
+    }
+
+    if (individual.address?.country === "CA") {
+        individual.id_number = ssn;
+    }
+
     // check if valid values
     createConnectedAccountValidator({
         externalAccount,
-        individual
+        individual,
+        isSsnRequired: individual.address?.country === "US" || individual.address?.country === "CA"
     });
+
 
     // create conntect stipe account
     const conntectedAccount = await createConnectedAccount({
+        externalAccount,
+        individual,
         userId: user._id.toString(),
         profileId: user.profile!._id.toString(),
         email: user.email,
         country: address.country,
-        externalAccount: {
-            object: "bank_account",
-            account_number: accountNumber,
-            routing_number: routingNumber,
-            account_holder_name: accountHolderName,
-            account_holder_type: accountHolderType,
-            country: accountCountry,
-            currency
-        },
-        individual: {
-            email,
-            first_name: firstName,
-            last_name: lastName,
-            phone: phoneNumber,
-            address,
-            dob
-        },
         tosAcceptance: {
             date: Math.floor(Date.now() / 1000),
             ip: req.ip,
@@ -442,7 +439,30 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
     }
     await user.save();
 
-    res.status(StatusCodes.OK).json({ msg: "You have set your bank info successfully" });
+
+    // check if extra info is needed especially for US users needs more info like (ssn_last_4, id_number and identity document)
+    let addExtraInfoUrl = "";
+    if (!conntectedAccount.payouts_enabled) {
+        const { url } = await stripe.accountLinks.create({
+            account: user.stripe.id,
+            type: "account_onboarding",
+            refresh_url: "http://localhost:5173",
+            return_url: "http://localhost:5173"
+        });
+        addExtraInfoUrl = url;
+    }
+
+
+    const response: { msg: string; addExtraInfoUrl?: string } = {
+        msg: "You have set your bank info successfully"
+    }
+
+    // redirect to the url when its exist
+    if (addExtraInfoUrl) {
+        response.addExtraInfoUrl = addExtraInfoUrl
+    }
+
+    res.status(StatusCodes.OK).json(response);
 }
 
 

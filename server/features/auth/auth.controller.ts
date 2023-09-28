@@ -439,10 +439,11 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         currency: currency.toLowerCase(),
         bankAccountId: conntectedAccount.external_accounts?.data[0].id || "",
         accountLastFour: accountNumber.slice(-4),
-        country: externalAccount.country
+        country: externalAccount.country.toUpperCase()
     });
 
     user.stripe.id = conntectedAccount.id;
+    user.stripe.defaultCurrency = currency.toLowerCase()
     await user.save();
 
 
@@ -469,6 +470,25 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
     }
 
     res.status(StatusCodes.CREATED).json(response);
+}
+
+
+
+//@desc get all bank accounts
+//@route GET /api/v1/auth/set-payment-method
+//@acess authentication (only freelancers)
+const getBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find user
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const bankAccounts = user.stripe.banksInfo.map(({ _id, accountLastFour, country, currency, isDefault }) => {
+        return { _id, accountLastFour, country, currency, isDefault }
+    })
+
+    res.status(StatusCodes.OK).json(bankAccounts);
 }
 
 
@@ -505,11 +525,11 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
 
     const externalAccount = await stripe.accounts.createExternalAccount(user.stripe.id, externalAccountParams as any); // bypass by any since ts stripe doesnt support external_account as an object even if its valid
 
-    const isDefault = user.stripe.banksInfo.filter((bankInfo) => bankInfo.currency.toLowerCase() === currency.toLowerCase()).length > 0;
+    const isDefault = user.stripe.banksInfo.filter((bankInfo) => bankInfo.currency === currency).length > 0;
 
     if (isDefault) {
         user.stripe.banksInfo = user.stripe.banksInfo.map((bankInfo) => {
-            if (bankInfo.currency.toLowerCase() === currency.toLowerCase()) {
+            if (bankInfo.currency === currency) {
                 return { ...bankInfo, isDefault: false }
             }
             return bankInfo;
@@ -570,7 +590,20 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     await stripe.accounts.deleteExternalAccount(user.stripe.id, isBankInfoExist.bankAccountId);
 
     // remove the bank info on the database
-    const updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankInfoId);
+    let updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankInfoId);
+
+    const sameDeletedCurrencyBankAccoount = updatedBankInfo.filter(bankInfo => bankInfo.currency === isBankInfoExist.currency && user.stripe.defaultCurrency !== isBankInfoExist.currency);
+
+
+    // set the last bank account to undefault if its not the default currency
+    if (sameDeletedCurrencyBankAccoount.length === 1) {
+        updatedBankInfo = updatedBankInfo.map(bankAccount => {
+            if (bankAccount.currency === isBankInfoExist.currency) {
+                return { ...bankAccount, isDefault: false }
+            }
+            return bankAccount;
+        });
+    }
 
     // update bank info
     user.stripe.banksInfo = updatedBankInfo;
@@ -578,10 +611,6 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     res.status(StatusCodes.OK).json({ msg: `Your ${isBankInfoExist.country} bank has been removed` });
 }
-
-
-
-
 
 
 //@desc get current user info
@@ -612,6 +641,7 @@ export {
     forgetPassword,
     resetPassword,
     createStripeConnect,
+    getBankAccounts,
     addExternalBankAccounts,
     removeBankInfo,
     userInfo

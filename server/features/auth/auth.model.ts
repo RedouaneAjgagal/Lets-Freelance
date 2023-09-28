@@ -6,6 +6,7 @@ import { IProfile } from "../profile/profile.model";
 
 type Stripe = {
     id: string;
+    defaultCurrency: string;
     banksInfo: BankInfo[]
 }
 export type BankInfoWithoutId = {
@@ -15,7 +16,7 @@ export type BankInfoWithoutId = {
     country: string;
     currency: string;
 }
-type BankInfo = BankInfoWithoutId & { _id: typeof mongoose.Types.ObjectId }
+export type BankInfo = BankInfoWithoutId & { _id: typeof mongoose.Types.ObjectId }
 
 export interface IUser {
     email: string;
@@ -93,6 +94,9 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     stripe: {
         id: {
+            type: String
+        },
+        defaultCurrency: {
             type: String
         },
         banksInfo: [

@@ -6,8 +6,14 @@ import { IProfile } from "../profile/profile.model";
 
 type Stripe = {
     id: string;
-    accountLastFour: string;
+    banksInfo: BankInfo[]
 }
+export type BankInfoWithoutId = {
+    bankAccountId: string;
+    accountLastFour: string;
+    country: string;
+}
+type BankInfo = BankInfoWithoutId & { _id: typeof mongoose.Types.ObjectId }
 
 export interface IUser {
     email: string;
@@ -87,11 +93,21 @@ const userSchema = new mongoose.Schema<IUser>({
         id: {
             type: String
         },
-        accountLastFour: {
-            type: String,
-            minlength: 4,
-            maxlength: 4
-        }
+        banksInfo: [
+            {
+                bankAccountId: {
+                    type: String
+                },
+                accountLastFour: {
+                    type: String,
+                    minlength: 4,
+                    maxlength: 4
+                },
+                country: {
+                    type: String
+                }
+            }
+        ]
     }
 }, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 

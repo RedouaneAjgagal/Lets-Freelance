@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { BAD_GATEWAY, StatusCodes } from "http-status-codes";
 import { BadRequestError, UnauthenticatedError } from "../../errors";
 import { registerInputValidations, loginInputValidations, forgetPasswordValidation, resetPasswordValidation, verifyEmailValidation } from "./validations";
-import User from "./auth.model";
+import User, { BankInfoWithoutId } from "./auth.model";
 import crypto from "crypto";
 import sendResetPasswordEmail from "./services/sendResetPasswordEmail";
 import { attachCookieToResponse, destroyCookie } from "../../utils/cookies";
@@ -17,6 +17,7 @@ import userAsPermission from "../../helpers/userAsOnly";
 import stripe from "../../stripe/stripeConntect";
 import createConnectedAccountValidator from "../../stripe/validators/createConnectedAccountValidator";
 import Stripe from "stripe";
+import { isValidObjectId } from "mongoose";
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -357,7 +358,7 @@ const resetPassword: RequestHandler = async (req, res) => {
 
 
 
-//@desc create stipe conntect to pay freelancers after completing jobs
+//@desc create stipe conntect for freelancers to be paid
 //@route GET /api/v1/auth/set-payment-method
 //@acess authentication (only freelancers)
 const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) => {
@@ -375,10 +376,10 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         permissionedRole: "freelancer"
     });
 
-    // check if the freelancer already set bank info
-    // if (user.stripe.id) {
-    //     throw new BadRequestError("You have already set bank information");
-    // }
+    // check if already set bank account
+    if (user.stripe.id || user.stripe.banksInfo.length) {
+        throw new BadRequestError("You have already set your bank infomation")
+    }
 
     // external account info
     const externalAccount = {
@@ -432,11 +433,14 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         }
     });
 
-    // set connected stipe id to the user info
-    user.stripe = {
-        id: conntectedAccount.id,
-        accountLastFour: accountNumber.slice(-4)
-    }
+    // set stipe and bank info
+    (user.stripe.banksInfo as BankInfoWithoutId[]).push({
+        bankAccountId: conntectedAccount.external_accounts?.data[0].id || "",
+        accountLastFour: accountNumber.slice(-4),
+        country: externalAccount.country
+    });
+
+    user.stripe.id = conntectedAccount.id;
     await user.save();
 
 
@@ -444,7 +448,7 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
     let addExtraInfoUrl = "";
     if (!conntectedAccount.payouts_enabled) {
         const { url } = await stripe.accountLinks.create({
-            account: user.stripe.id,
+            account: conntectedAccount.id,
             type: "account_onboarding",
             refresh_url: "http://localhost:5173",
             return_url: "http://localhost:5173"
@@ -462,8 +466,52 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
         response.addExtraInfoUrl = addExtraInfoUrl
     }
 
-    res.status(StatusCodes.OK).json(response);
+    res.status(StatusCodes.CREATED).json(response);
 }
+
+
+//@desc remove bank info
+//@route DELETE /api/v1/auth/set-payment-method
+//@acess authentication (only freelancers)
+const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { bankInfoId } = req.params;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(bankInfoId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find user
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the freelancer already set a bank info
+    if (user.stripe.banksInfo.length < 1) {
+        throw new BadRequestError("You must have more than 1 bank account to be able to delete");
+    }
+
+    // find the bank info
+    const isBankInfoExist = user.stripe.banksInfo.find(({ _id }) => _id.toString() === bankInfoId);
+    if (!isBankInfoExist) {
+        throw new BadRequestError(`Found no bank info with ID ${bankInfoId}`);
+    }
+
+    // remove the bank info on strip
+    await stripe.accounts.deleteExternalAccount(user.stripe.id, isBankInfoExist.bankAccountId);
+
+    // remove the bank info on the database
+    const updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankInfoId);
+
+    // update bank info
+    user.stripe.banksInfo = updatedBankInfo;
+    await user.save();
+
+    res.status(StatusCodes.OK).json({ msg: `Your ${isBankInfoExist.country} bank has been removed` });
+}
+
 
 
 
@@ -497,5 +545,6 @@ export {
     forgetPassword,
     resetPassword,
     createStripeConnect,
+    removeBankInfo,
     userInfo
 }

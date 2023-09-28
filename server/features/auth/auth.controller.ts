@@ -435,6 +435,8 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
 
     // set stipe and bank info
     (user.stripe.banksInfo as BankInfoWithoutId[]).push({
+        isDefault: true,
+        currency: currency.toLowerCase(),
         bankAccountId: conntectedAccount.external_accounts?.data[0].id || "",
         accountLastFour: accountNumber.slice(-4),
         country: externalAccount.country
@@ -470,6 +472,66 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 
+
+//@desc Add external bank accounts
+//@route PATCH /api/v1/auth/set-payment-method
+//@acess authentication (only freelancers)
+const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { accountNumber, routingNumber, accountHolderName, accountHolderType, accountCountry, currency } = req.body;
+
+    // find user
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if already a stripe connector
+    if (!user.stripe.id) {
+        throw new BadRequestError("You have not set a bank account yet");
+    }
+
+    const externalAccountParams: Stripe.ExternalAccountCreateParamsV2 = {
+        external_account: {
+            object: "bank_account",
+            account_number: accountNumber,
+            routing_number: routingNumber,
+            account_holder_name: accountHolderName,
+            account_holder_type: accountHolderType,
+            country: accountCountry,
+            currency
+        },
+        default_for_currency: true
+    }
+
+    const externalAccount = await stripe.accounts.createExternalAccount(user.stripe.id, externalAccountParams as any); // bypass by any since ts stripe doesnt support external_account as an object even if its valid
+
+    const isDefault = user.stripe.banksInfo.filter((bankInfo) => bankInfo.currency.toLowerCase() === currency.toLowerCase()).length > 0;
+
+    if (isDefault) {
+        user.stripe.banksInfo = user.stripe.banksInfo.map((bankInfo) => {
+            if (bankInfo.currency.toLowerCase() === currency.toLowerCase()) {
+                return { ...bankInfo, isDefault: false }
+            }
+            return bankInfo;
+        });
+    }
+
+
+    // add external account to the database
+    (user.stripe.banksInfo as BankInfoWithoutId[]).push({
+        isDefault,
+        currency,
+        accountLastFour: accountNumber.slice(-4),
+        country: accountCountry,
+        bankAccountId: externalAccount.id
+    });
+
+    user.save();
+
+    res.status(StatusCodes.OK).json({ msg: "You have added a new bank account" });
+}
+
+
 //@desc remove bank info
 //@route DELETE /api/v1/auth/set-payment-method
 //@acess authentication (only freelancers)
@@ -490,13 +552,18 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // check if the freelancer already set a bank info
     if (user.stripe.banksInfo.length < 1) {
-        throw new BadRequestError("You must have more than 1 bank account to be able to delete");
+        throw new BadRequestError("You must have more than 1 bank account with the same currency to be able to delete");
     }
 
     // find the bank info
     const isBankInfoExist = user.stripe.banksInfo.find(({ _id }) => _id.toString() === bankInfoId);
     if (!isBankInfoExist) {
         throw new BadRequestError(`Found no bank info with ID ${bankInfoId}`);
+    }
+
+    // check if default bank account
+    if (isBankInfoExist.isDefault) {
+        throw new BadRequestError(`You cant delete the default bank account, add new one with the same currency to delete this one`)
     }
 
     // remove the bank info on strip
@@ -545,6 +612,7 @@ export {
     forgetPassword,
     resetPassword,
     createStripeConnect,
+    addExternalBankAccounts,
     removeBankInfo,
     userInfo
 }

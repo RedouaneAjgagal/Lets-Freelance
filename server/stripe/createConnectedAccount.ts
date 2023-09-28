@@ -24,7 +24,6 @@ const createConnectedAccount = async ({ email, userId, profileId, country, exter
         email,
         country,
         individual,
-        default_currency: "usd",
         business_type: "individual", // initial individual for now 
         external_account: externalAccount,
         tos_acceptance: tosAcceptance,
@@ -43,7 +42,8 @@ const createConnectedAccount = async ({ email, userId, profileId, country, exter
         metadata: {
             "platform_user_id": userId,
             "platform_profile_id": profileId
-        }
+        },
+
     });
     return account;
 }

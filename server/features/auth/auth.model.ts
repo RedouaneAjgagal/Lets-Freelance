@@ -9,9 +9,11 @@ type Stripe = {
     banksInfo: BankInfo[]
 }
 export type BankInfoWithoutId = {
+    isDefault: boolean;
     bankAccountId: string;
     accountLastFour: string;
     country: string;
+    currency: string;
 }
 type BankInfo = BankInfoWithoutId & { _id: typeof mongoose.Types.ObjectId }
 
@@ -95,6 +97,10 @@ const userSchema = new mongoose.Schema<IUser>({
         },
         banksInfo: [
             {
+                isDefault: {
+                    type: Boolean,
+                    default: false
+                },
                 bankAccountId: {
                     type: String
                 },
@@ -104,6 +110,9 @@ const userSchema = new mongoose.Schema<IUser>({
                     maxlength: 4
                 },
                 country: {
+                    type: String
+                },
+                currency: {
                     type: String
                 }
             }

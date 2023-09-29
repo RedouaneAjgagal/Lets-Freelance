@@ -357,12 +357,46 @@ const resetPassword: RequestHandler = async (req, res) => {
 }
 
 
+//@desc get current user info
+//@route GET /api/v1/auth/current-user
+//@acess authentication
+const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { userId, exp } = req.user!;
+
+    const expirationDate = new Date(exp * 1000).getTime();
+
+    const profile = await Profile.findOne({ user: userId });
+
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate });
+}
 
 
-//@desc create stipe conntect for freelancers to be paid
-//@route GET /api/v1/auth/set-payment-method
+//@desc get bank accounts
+//@route GET /api/v1/auth/bank-account
 //@acess authentication (only freelancers)
-const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) => {
+const getBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find user
+    const user = await User.findById(req.user!.userId);
+    if (!user) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const bankAccounts = user.stripe.banksInfo.map(({ _id, accountLastFour, country, currency, isDefault }) => {
+        return { _id, accountLastFour, country, currency, isDefault }
+    })
+
+    res.status(StatusCodes.OK).json(bankAccounts);
+}
+
+
+//@desc create stipe connected bank account for freelancers to be paid
+//@route GET /api/v1/auth/bank-account
+//@acess authentication (only freelancers)
+const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { accountNumber, routingNumber, accountCountry, currency, address, accountHolderName, accountHolderType, firstName, lastName, dob, phoneNumber, email, ssn } = req.body;
 
     // find the current user
@@ -474,28 +508,37 @@ const createStripeConnect: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 
-
-//@desc get all bank accounts
-//@route GET /api/v1/auth/set-payment-method
+//@desc delete stripe connected bank account
+//@route DELETE /api/v1/auth/bank-account/:bankAccountId
 //@acess authentication (only freelancers)
-const getBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
+const deleteStripeConnectedBankAccount: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find user
     const user = await User.findById(req.user!.userId);
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    const bankAccounts = user.stripe.banksInfo.map(({ _id, accountLastFour, country, currency, isDefault }) => {
-        return { _id, accountLastFour, country, currency, isDefault }
-    })
+    // check if the user already created stripe bank account
+    if (!user.stripe.id) {
+        throw new BadRequestError("You haven't create any bank account to delete");
+    }
 
-    res.status(StatusCodes.OK).json(bankAccounts);
+    const deletedAccount = await stripe.accounts.del(user.stripe.id);
+
+    let msg = "Unable to delete this bank account";
+
+    if (deletedAccount.lastResponse.statusCode === 200) {
+        user.stripe = { banksInfo: [] };
+        user.save();
+        msg = "Your bank account has been deleted successfully";
+    }
+
+    res.status(StatusCodes.OK).json({ msg });
 }
 
 
-
-//@desc Add external bank accounts
-//@route PATCH /api/v1/auth/set-payment-method
+//@desc Add external bank account
+//@route PATCH /api/v1/auth/bank-account
 //@acess authentication (only freelancers)
 const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { accountNumber, routingNumber, accountHolderName, accountHolderType, accountCountry, currency } = req.body;
@@ -564,14 +607,14 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
 }
 
 
-//@desc remove bank info
-//@route DELETE /api/v1/auth/set-payment-method
+//@desc remove external bank account
+//@route DELETE /api/v1/auth/bank-account/:bankAccountId
 //@acess authentication (only freelancers)
-const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { bankInfoId } = req.params;
+const removeExternalBankAccount: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { bankAccountId } = req.params;
 
     // check if valid mongodb id
-    const isValidMongodbId = isValidObjectId(bankInfoId);
+    const isValidMongodbId = isValidObjectId(bankAccountId);
     if (!isValidMongodbId) {
         throw new BadRequestError("Invalid id");
     }
@@ -588,9 +631,9 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find the bank info
-    const isBankInfoExist = user.stripe.banksInfo.find(({ _id }) => _id.toString() === bankInfoId);
+    const isBankInfoExist = user.stripe.banksInfo.find(({ _id }) => _id.toString() === bankAccountId);
     if (!isBankInfoExist) {
-        throw new BadRequestError(`Found no bank info with ID ${bankInfoId}`);
+        throw new BadRequestError(`Found no bank info with ID ${bankAccountId}`);
     }
 
     // check if default bank account
@@ -599,10 +642,10 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // remove the bank info on strip
-    await stripe.accounts.deleteExternalAccount(user.stripe.id, isBankInfoExist.bankAccountId);
+    await stripe.accounts.deleteExternalAccount(user.stripe.id!, isBankInfoExist.bankAccountId);
 
     // remove the bank info on the database
-    let updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankInfoId);
+    let updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankAccountId);
 
     const sameDeletedCurrencyBankAccoount = updatedBankInfo.filter(bankInfo => bankInfo.currency === isBankInfoExist.currency && user.stripe.defaultCurrency !== isBankInfoExist.currency);
 
@@ -625,24 +668,6 @@ const removeBankInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-//@desc get current user info
-//@route GET /api/v1/auth/current-user
-//@acess authentication
-const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { userId, exp } = req.user!;
-
-    const expirationDate = new Date(exp * 1000).getTime();
-
-    const profile = await Profile.findOne({ user: userId });
-
-    if (!profile) {
-        throw new UnauthenticatedError("Found no user");
-    }
-
-    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate });
-}
-
-
 export {
     register,
     login,
@@ -652,9 +677,10 @@ export {
     resetEmail,
     forgetPassword,
     resetPassword,
-    createStripeConnect,
     getBankAccounts,
+    createBankAccount,
+    deleteStripeConnectedBankAccount,
     addExternalBankAccounts,
-    removeBankInfo,
+    removeExternalBankAccount,
     userInfo
 }

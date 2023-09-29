@@ -5,8 +5,8 @@ import { Profile } from "../profile";
 import { IProfile } from "../profile/profile.model";
 
 type Stripe = {
-    id: string;
-    defaultCurrency: string;
+    id?: string;
+    defaultCurrency?: string;
     banksInfo: BankInfo[]
 }
 export type BankInfoWithoutId = {

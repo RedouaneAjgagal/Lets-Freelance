@@ -18,6 +18,7 @@ import stripe from "../../stripe/stripeConntect";
 import createConnectedAccountValidator from "../../stripe/validators/createConnectedAccountValidator";
 import Stripe from "stripe";
 import { isValidObjectId } from "mongoose";
+import isValidExternalAccountValues from "../../stripe/helpers/isValidExternalAccountValues";
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -509,6 +510,17 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
     if (!user.stripe.id) {
         throw new BadRequestError("You have not set a bank account yet");
     }
+
+    // check if valid external account values
+    isValidExternalAccountValues({
+        object: "bank_account",
+        account_number: accountNumber,
+        routing_number: routingNumber,
+        account_holder_name: accountHolderName,
+        account_holder_type: accountHolderType,
+        country: accountCountry,
+        currency
+    });
 
     const externalAccountParams: Stripe.ExternalAccountCreateParamsV2 = {
         external_account: {

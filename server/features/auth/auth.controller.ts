@@ -380,12 +380,19 @@ const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@acess authentication (only freelancers)
 const getBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find user
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    const bankAccounts = user.stripe.banksInfo.map(({ _id, accountLastFour, country, currency, isDefault }) => {
+    // check if the user is a freelancer
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
+
+
+    const bankAccounts = user.stripe.bankAccounts.map(({ _id, accountLastFour, country, currency, isDefault }) => {
         return { _id, accountLastFour, country, currency, isDefault }
     })
 
@@ -412,7 +419,7 @@ const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) =>
     });
 
     // check if already set bank account
-    if (user.stripe.id || user.stripe.banksInfo.length) {
+    if (user.stripe.id || user.stripe.bankAccounts.length) {
         throw new BadRequestError("You have already set your bank infomation")
     }
 
@@ -469,7 +476,7 @@ const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) =>
     });
 
     // set stipe and bank info
-    (user.stripe.banksInfo as BankInfoWithoutId[]).push({
+    (user.stripe.bankAccounts as BankInfoWithoutId[]).push({
         isDefault: true,
         currency: currency.toLowerCase(),
         bankAccountId: conntectedAccount.external_accounts?.data[0].id || "",
@@ -513,13 +520,19 @@ const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) =>
 //@acess authentication (only freelancers)
 const deleteStripeConnectedBankAccount: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find user
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
+    // check if user is a freelancer
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
+
     // check if the user already created stripe bank account
-    if (!user.stripe.id) {
+    if (!user.stripe.id || user.stripe.bankAccounts.length) {
         throw new BadRequestError("You haven't create any bank account to delete");
     }
 
@@ -528,7 +541,7 @@ const deleteStripeConnectedBankAccount: RequestHandler = async (req: CustomAuthR
     let msg = "Unable to delete this bank account";
 
     if (deletedAccount.lastResponse.statusCode === 200) {
-        user.stripe = { banksInfo: [] };
+        user.stripe = { bankAccounts: [] };
         user.save();
         msg = "Your bank account has been deleted successfully";
     }
@@ -544,10 +557,16 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
     const { accountNumber, routingNumber, accountHolderName, accountHolderType, accountCountry, currency } = req.body;
 
     // find user
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
+
+    // check if the user is a freelancer
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
 
     // check if already a stripe connector
     if (!user.stripe.id) {
@@ -580,10 +599,10 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
 
     const externalAccount = await stripe.accounts.createExternalAccount(user.stripe.id, externalAccountParams as any); // bypass by any since ts stripe doesnt support external_account as an object even if its valid
 
-    const isDefault = user.stripe.banksInfo.filter((bankInfo) => bankInfo.currency === currency).length > 0;
+    const isDefault = user.stripe.bankAccounts.filter((bankInfo) => bankInfo.currency === currency).length > 0;
 
     if (isDefault) {
-        user.stripe.banksInfo = user.stripe.banksInfo.map((bankInfo) => {
+        user.stripe.bankAccounts = user.stripe.bankAccounts.map((bankInfo) => {
             if (bankInfo.currency === currency) {
                 return { ...bankInfo, isDefault: false }
             }
@@ -593,7 +612,7 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
 
 
     // add external account to the database
-    (user.stripe.banksInfo as BankInfoWithoutId[]).push({
+    (user.stripe.bankAccounts as BankInfoWithoutId[]).push({
         isDefault,
         currency,
         accountLastFour: accountNumber.slice(-4),
@@ -620,18 +639,23 @@ const removeExternalBankAccount: RequestHandler = async (req: CustomAuthRequest,
     }
 
     // find user
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
+    userAsPermission({
+        currentUserRole: user.profile!.userAs!,
+        permissionedRole: "freelancer"
+    });
+
     // check if the freelancer already set a bank info
-    if (user.stripe.banksInfo.length < 1) {
+    if (user.stripe.bankAccounts.length < 1) {
         throw new BadRequestError("You must have more than 1 bank account with the same currency to be able to delete");
     }
 
     // find the bank info
-    const isBankInfoExist = user.stripe.banksInfo.find(({ _id }) => _id.toString() === bankAccountId);
+    const isBankInfoExist = user.stripe.bankAccounts.find(({ _id }) => _id.toString() === bankAccountId);
     if (!isBankInfoExist) {
         throw new BadRequestError(`Found no bank info with ID ${bankAccountId}`);
     }
@@ -645,14 +669,14 @@ const removeExternalBankAccount: RequestHandler = async (req: CustomAuthRequest,
     await stripe.accounts.deleteExternalAccount(user.stripe.id!, isBankInfoExist.bankAccountId);
 
     // remove the bank info on the database
-    let updatedBankInfo = user.stripe.banksInfo.filter(({ _id }) => _id.toString() !== bankAccountId);
+    let updatedBankAccounts = user.stripe.bankAccounts.filter(({ _id }) => _id.toString() !== bankAccountId);
 
-    const sameDeletedCurrencyBankAccoount = updatedBankInfo.filter(bankInfo => bankInfo.currency === isBankInfoExist.currency && user.stripe.defaultCurrency !== isBankInfoExist.currency);
+    const sameDeletedCurrencyBankAccoount = updatedBankAccounts.filter(bankInfo => bankInfo.currency === isBankInfoExist.currency && user.stripe.defaultCurrency !== isBankInfoExist.currency);
 
 
     // set the last bank account to undefault if its not the default currency
     if (sameDeletedCurrencyBankAccoount.length === 1) {
-        updatedBankInfo = updatedBankInfo.map(bankAccount => {
+        updatedBankAccounts = updatedBankAccounts.map(bankAccount => {
             if (bankAccount.currency === isBankInfoExist.currency) {
                 return { ...bankAccount, isDefault: false }
             }
@@ -661,7 +685,7 @@ const removeExternalBankAccount: RequestHandler = async (req: CustomAuthRequest,
     }
 
     // update bank info
-    user.stripe.banksInfo = updatedBankInfo;
+    user.stripe.bankAccounts = updatedBankAccounts;
     await user.save();
 
     res.status(StatusCodes.OK).json({ msg: `Your ${isBankInfoExist.country} bank has been removed` });

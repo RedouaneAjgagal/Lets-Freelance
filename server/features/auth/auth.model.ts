@@ -7,7 +7,7 @@ import { IProfile } from "../profile/profile.model";
 type Stripe = {
     id?: string;
     defaultCurrency?: string;
-    banksInfo: BankInfo[]
+    bankAccounts: BankInfo[]
 }
 export type BankInfoWithoutId = {
     isDefault: boolean;
@@ -99,7 +99,7 @@ const userSchema = new mongoose.Schema<IUser>({
         defaultCurrency: {
             type: String
         },
-        banksInfo: [
+        bankAccounts: [
             {
                 isDefault: {
                     type: Boolean,

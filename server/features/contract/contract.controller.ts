@@ -17,6 +17,8 @@ import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees"
 import { jobFees } from "../job";
 import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
+import stripe from "../../stripe/stripeConntect";
+import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 
 
 //@desc get all contracts related to the current user
@@ -535,7 +537,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find job contract because its the only contract that pays by hours
-    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email" });
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email stripe" });
     if (!contract) {
         throw new BadRequestError(`Found no contract with ID ${contractId}`);
     }
@@ -578,7 +580,53 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     console.log({ freelancerReveiceAmount: netAmount, employerPaymentWithFees });
 
+    const employerAmount = transferToStripeAmount(employerPaymentWithFees);
+    const freelancerReceiveAmount = transferToStripeAmount(netAmount);
+
+    // create new product on stripe
+    const product = await stripe.products.create({
+        name: `Hourly Job, worked hours: ${payment.workedHours}`,
+        default_price_data: {
+            currency: "usd",
+            unit_amount: employerAmount,
+        },
+        metadata: {
+            contractId,
+            paymentId
+        }
+    });
+
     // strip validation (fake for now)
+    const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: [
+            {
+                price: product.default_price!.toString(),
+                quantity: 1
+            }
+        ],
+        payment_intent_data: {
+            application_fee_amount: employerAmount - freelancerReceiveAmount,
+            transfer_data: {
+                destination: contract.freelancer.user.stripe!.id!,
+                // amount: freelancerReceiveAmount
+            },
+            on_behalf_of: contract.freelancer.user.stripe!.id!,
+            metadata: {
+                contractId,
+                paymentId
+            }
+        },
+        customer_email: contract.employer.user.email,
+        client_reference_id: contract.employer.user._id.toString(),
+        success_url: "http://localhost:5173",
+        cancel_url: "http://localhost:5173",
+        metadata: {
+            contractId,
+            paymentId
+        }
+    });
+
     const stipeValidation = true;
     if (!stipeValidation) {
         throw new BadRequestError("Invalid payment");
@@ -619,9 +667,9 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     });
 
     // update the contract
-    await contract.save();
+    // await contract.save();
 
-    res.status(StatusCodes.OK).json({ msg: "worked hours is paid" });
+    res.status(StatusCodes.OK).json({ msg: "worked hours is paid", url: session.url });
 }
 
 

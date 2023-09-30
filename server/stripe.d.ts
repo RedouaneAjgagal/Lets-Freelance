@@ -17,7 +17,6 @@ declare module 'stripe' {
             default_for_currency?: boolean;
             expand?: string[];
             metadata?: Stripe.MetadataParam;
-            // include other fields...
         }
     }
 }

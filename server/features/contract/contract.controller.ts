@@ -60,7 +60,7 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
                 [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: getStatus || "inProgress"
             }
         ]
-    }, { cancelRequest: false });
+    }, { cancelRequest: false }).sort({ createdAt: -1 });
 
     res.status(StatusCodes.OK).json(contracts);
 }
@@ -514,6 +514,9 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
 }
 
 
+//@desc employer can pay worked hours using stripe
+//@route PATCH /api/v1/:contractId/worked-hours
+//@access authenticaiton (employers only)
 const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
     const { paymentId } = req.body;
@@ -609,7 +612,6 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
             application_fee_amount: employerAmount - freelancerReceiveAmount,
             transfer_data: {
                 destination: contract.freelancer.user.stripe!.id!,
-                // amount: freelancerReceiveAmount
             },
             on_behalf_of: contract.freelancer.user.stripe!.id!,
             metadata: {
@@ -619,24 +621,80 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         customer_email: contract.employer.user.email,
         client_reference_id: contract.employer.user._id.toString(),
-        success_url: "http://localhost:5173",
+        success_url: `http://localhost:5000/api/v1/contracts/${contract._id.toString()}/worked-hours?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: "http://localhost:5173",
         metadata: {
             contractId,
-            paymentId
+            paymentId,
+            freelancerReceiveAmount,
+            employerAmount,
+            employerEmail: contract.employer.user.email!,
+            freelancerEmail: contract.freelancer.user.email!
         }
     });
 
-    const stipeValidation = true;
-    if (!stipeValidation) {
-        throw new BadRequestError("Invalid payment");
+    // set session ID so after payment we check if successed to set as paid
+    payment.sessionId = session.id;
+    await contract.save();
+
+    console.log({ url: session.url });
+    res.redirect(session.url!);
+}
+
+
+//@desc after payment is successed set payment status to paid
+//@route GET /api/v1/:contractId/worked-hours
+//@access authenticaiton (employers only)
+const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { session_id } = req.query;
+
+    // find user (employer)
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
     }
 
-    // set new values to the payment
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid id");
+    }
+
+    // find contract
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
+    }
+
+    // check if have access to this contract
+    if (contract.employer.profile._id.toString() !== profile._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this contract");
+    }
+
+    // find the payment
+    const payment = contract.payments.find(payment => payment.sessionId === session_id?.toString());
+    if (!payment) {
+        throw new BadRequestError(`Found no payment with session ID ${session_id?.toString()}`);
+    }
+
+    // check if already been paid
+    if (payment.employer?.status === "paid") {
+        throw new BadRequestError("This payment has already been paid");
+    }
+
+    // check if the payment was successful
+    const session = await stripe.checkout.sessions.retrieve(payment.sessionId!);
+    if (session.payment_status !== "paid") {
+        throw new BadRequestError("You must pay the worked hours first");
+    }
+
+    // set payments to paid
     payment.employer = {
         status: "paid",
         paidAt: new Date(Date.now()).toString()
     }
+
     payment.freelancer = {
         status: "pending",
         paidAt: ""
@@ -645,31 +703,31 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     // send paid hours email to the freelancer
     sendPaidHoursEmail({
         userAs: "freelancer",
-        email: contract.freelancer.user.email!,
+        email: session.metadata!.freelancerEmail,
         amount: payment.amount!,
-        amountIncludingFees: netAmount,
+        amountIncludingFees: Number(session.metadata!.freelancerReceiveAmount) / 100,
         feesAmount: undefined,
         feesType: undefined,
         workedHours: payment.workedHours!,
-        paymentId,
+        paymentId: payment._id!.toString()
     });
 
     // send paid hours email to the freelancer
     sendPaidHoursEmail({
         userAs: "employer",
-        email: contract.employer.user.email!,
+        email: session.metadata!.employerEmail,
         amount: payment.amount!,
-        amountIncludingFees: employerPaymentWithFees,
+        amountIncludingFees: Number(session.metadata!.employerAmount) / 100,
         feesAmount: jobFees.hourlyJobFees.amount,
         feesType: jobFees.hourlyJobFees.type,
         workedHours: payment.workedHours!,
-        paymentId,
+        paymentId: payment._id!.toString()
     });
 
     // update the contract
-    // await contract.save();
+    await contract.save();
 
-    res.status(StatusCodes.OK).json({ msg: "worked hours is paid", url: session.url });
+    res.status(StatusCodes.OK).json({ msg: `${payment.workedHours} worked hours has been paid successfully` });
 }
 
 
@@ -681,5 +739,6 @@ export {
     cancelContractRequest,
     cancelContract,
     submitWorkedHours,
-    payWorkedHours
+    payWorkedHours,
+    setAsPaidHours
 }

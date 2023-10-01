@@ -611,7 +611,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         payment_intent_data: {
             application_fee_amount: employerAmount - freelancerReceiveAmount,
             transfer_data: {
-                destination: contract.freelancer.user.stripe!.id!,
+                destination: contract.freelancer.user.stripe!.id!
             },
             on_behalf_of: contract.freelancer.user.stripe!.id!,
             metadata: {

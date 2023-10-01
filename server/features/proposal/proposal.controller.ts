@@ -10,6 +10,8 @@ import { jobModel as Job, jobFees } from "../job";
 import { isInvalidStatus } from "./validators/proposalInputValidator";
 import { contractModel as Contract } from "../contract";
 import sendProposalApprovedEmail from "./services/sendProposalApprovedEmail";
+import stripe from "../../stripe/stripeConntect";
+import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 
 
 //@desc get all proposals related to job
@@ -157,9 +159,9 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthorizedError("You dont have access to these ressources");
     }
 
-    // check if proposal already has been approved
-    if (proposal.status === "approved") {
-        throw new BadRequestError("Cannot change. Proposal has already been approved");
+    // check if already took an action
+    if (proposal.status !== "interviewing" && proposal.status !== "pending") {
+        throw new BadRequestError("You have already took an action with this proposal");
     }
 
     // create a contract (add later)
@@ -194,78 +196,259 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         // make employer pay the fixed price
         if (proposal.priceType === "fixed") {
             const feesAmount = jobFees.creatingJobFees.type === "percent" ? (contractInfo.job.price / 100) * jobFees.creatingJobFees.amount : jobFees.creatingJobFees.amount;
+            const employerFeesAmount = transferToStripeAmount(feesAmount);
             const paymentAmountWithFees = contractInfo.job.price + feesAmount;
+            const employerPaymentAmount = transferToStripeAmount(paymentAmountWithFees);
             console.log({ paymentAmountWithFees });
 
-            // stipe validation (add later)
-            const stipeValidation = true;
-            if (!stipeValidation) {
-                throw new BadRequestError("Invalid payment");
-            }
-
-            // set employer payment as paid
-            const payment = {
-                amount: contractInfo.job.price,
-                employer: {
-                    status: "paid",
-                    paidAt: new Date(Date.now()).toString()
+            const jobProduct = await stripe.products.create({
+                name: `Fixed price job`,
+                default_price_data: {
+                    currency: "usd",
+                    unit_amount: employerPaymentAmount
+                },
+                metadata: {
+                    proposalId: proposal._id.toString(),
+                    employerId: proposal.job.user!._id.toString()
                 }
-            }
-            contractInfo.payments.push(payment);
-
-            // send fixed price proposal approved email to the employer
-            sendProposalApprovedEmail.fixedPriceProposal({
-                userAs: "employer",
-                email: proposal.job.user!.email!,
-                proposalId: proposal._id.toString(),
-                jobTitle: proposal.job.title!,
-                price: contractInfo.job.price,
-                totalAmoutWithFees: paymentAmountWithFees
             });
 
-            // send fixed price proposal approved email to the freelancer
-            sendProposalApprovedEmail.fixedPriceProposal({
-                userAs: "freelancer",
-                email: proposal.user.email!,
-                proposalId: proposal._id.toString(),
-                jobTitle: proposal.job.title!,
-                price: contractInfo.job.price
+            const session = await stripe.checkout.sessions.create({
+                mode: "payment",
+                line_items: [
+                    {
+                        price: jobProduct.default_price?.toString(),
+                        quantity: 1
+                    }
+                ],
+                customer_email: proposal.job.user!.email,
+                client_reference_id: profile.user._id.toString(),
+                currency: "usd",
+                success_url: `http://localhost:5000/api/v1/proposals/${proposal._id.toString()}/fixed-job?session_id={CHECKOUT_SESSION_ID}`,
+                cancel_url: "http://localhost:5173",
+                metadata: {
+                    productId: jobProduct.id,
+                    proposalId: proposal._id.toString(),
+                    employerFeesAmount,
+                    employerEmail: proposal.job.user!.email!,
+                    freelancerEmail: proposal.user.email!
+                }
             });
-        } else {
 
-            // send hourly price proposal approved email to the employer
-            sendProposalApprovedEmail.hourlyPriceProposal({
-                userAs: "employer",
-                email: proposal.job.user!.email!,
-                proposalId: proposal._id.toString(),
-                jobTitle: proposal.job.title!,
-                price: contractInfo.job.price
-            });
+            proposal.sessionId = session.id;
+            await proposal.save();
 
-            // send hourly price proposal approved email to the freelancer
-            sendProposalApprovedEmail.hourlyPriceProposal({
-                userAs: "freelancer",
-                email: proposal.user.email!,
-                proposalId: proposal._id.toString(),
-                jobTitle: proposal.job.title!,
-                price: contractInfo.job.price
-            });
+            console.log(session.url);
+
+            return res.redirect(session.url!);
+
+
+            //     // stipe validation (add later)
+            //     const stipeValidation = true;
+            //     if (!stipeValidation) {
+            //         throw new BadRequestError("Invalid payment");
+            //     }
+
+            //     // set employer payment as paid
+            //     const payment = {
+            //         amount: contractInfo.job.price,
+            //         employer: {
+            //             status: "paid",
+            //             paidAt: new Date(Date.now()).toString()
+            //         }
+            //     }
+            //     contractInfo.payments.push(payment);
+
+            //     // send fixed price proposal approved email to the employer
+            //     sendProposalApprovedEmail.fixedPriceProposal({
+            //         userAs: "employer",
+            //         email: proposal.job.user!.email!,
+            //         proposalId: proposal._id.toString(),
+            //         jobTitle: proposal.job.title!,
+            //         price: contractInfo.job.price,
+            //         totalAmoutWithFees: paymentAmountWithFees
+            //     });
+
+            //     // send fixed price proposal approved email to the freelancer
+            //     sendProposalApprovedEmail.fixedPriceProposal({
+            //         userAs: "freelancer",
+            //         email: proposal.user.email!,
+            //         proposalId: proposal._id.toString(),
+            //         jobTitle: proposal.job.title!,
+            //         price: contractInfo.job.price
+            //     });
+            // } else {
+
+            //     // send hourly price proposal approved email to the employer
+            //     sendProposalApprovedEmail.hourlyPriceProposal({
+            //         userAs: "employer",
+            //         email: proposal.job.user!.email!,
+            //         proposalId: proposal._id.toString(),
+            //         jobTitle: proposal.job.title!,
+            //         price: contractInfo.job.price
+            //     });
+
+            //     // send hourly price proposal approved email to the freelancer
+            //     sendProposalApprovedEmail.hourlyPriceProposal({
+            //         userAs: "freelancer",
+            //         email: proposal.user.email!,
+            //         proposalId: proposal._id.toString(),
+            //         jobTitle: proposal.job.title!,
+            //         price: contractInfo.job.price
+            //     });
         }
 
-        await Contract.create(contractInfo);
+        // await Contract.create(contractInfo);
     }
 
-    // take proposal action
+
     await proposal.updateOne({ status });
+
+
+    // take proposal action
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;
 
     res.status(StatusCodes.OK).json({ msg, status });
 }
 
+
+
+const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { proposalId } = req.params;
+    const { session_id } = req.query;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(proposalId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    }
+
+    // find the proposal
+    const proposal = await Proposal.findById(proposalId).populate([
+        { path: "job", select: "_id user title description email", populate: { path: "user", select: "email" } },
+        { path: "user", select: "email" }
+    ]);
+
+    if (!proposal) {
+        throw new NotFoundError(`Found no proposal with ID ${proposalId}`);
+    }
+
+    // check if proposal is a fixed price job
+    if (proposal.priceType !== "fixed") {
+        throw new BadRequestError("Must be a fixed price job");
+    }
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the user have access to this proposal 
+    if (proposal.job.user!._id.toString() !== profile.user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this proposal");
+    }
+
+    // check if session_id is provided
+    if (!session_id) {
+        throw new BadRequestError("Session ID is required");
+    }
+
+    // check if session id exist
+    if (!proposal.sessionId) {
+        throw new BadRequestError("You must make the payment process first");
+    }
+
+    // check if valid session id
+    if (proposal.sessionId !== session_id?.toString()) {
+        throw new BadRequestError("Invalid session ID");
+    }
+
+    // check if the contract has already been created
+    const contract = await Contract.findOne({ "job.proposal": proposal._id.toString() });
+    if (contract) {
+        throw new BadRequestError("This proposal has already been paid");
+    }
+
+    // find the stripe sesssion
+    const session = await stripe.checkout.sessions.retrieve(proposal.sessionId);
+    if (!session) {
+        throw new BadRequestError(`Found no session with ID ${session_id.toString()}`);
+    }
+
+    // check if employer already paid
+    if (session.payment_status !== "paid") {
+        throw new BadRequestError("You must pay first to accept the proposal");
+    }
+
+    const refs = {
+        freelancer: {
+            user: proposal.user,
+            profile: proposal.profile
+        },
+        employer: {
+            user: profile.user._id,
+            profile: profile._id
+        }
+    }
+
+    const contractInfo = {
+        ...refs,
+        activityType: "job",
+        job: {
+            jobInfo: proposal.job._id,
+            title: proposal.job.title!,
+            description: proposal.job.description!,
+            proposal: proposal._id,
+            coverLetter: proposal.coverLetter,
+            priceType: proposal.priceType,
+            price: proposal.price,
+            estimatedTime: proposal.estimatedTime
+        },
+        payments: [
+            {
+                amount: proposal.price,
+                employer: {
+                    status: "paid",
+                    paidAt: new Date(Date.now()).toString()
+                }
+            }
+        ]
+    }
+
+    await Contract.create(contractInfo);
+
+    sendProposalApprovedEmail.fixedPriceProposal({
+        userAs: "employer",
+        email: proposal.job.user!.email!,
+        proposalId: proposal._id.toString(),
+        jobTitle: proposal.job.title!,
+        price: contractInfo.job.price,
+        totalAmoutWithFees: session.amount_total! / 100
+    });
+
+    // send fixed price proposal approved email to the freelancer
+    sendProposalApprovedEmail.fixedPriceProposal({
+        userAs: "freelancer",
+        email: proposal.user.email!,
+        proposalId: proposal._id.toString(),
+        jobTitle: proposal.job.title!,
+        price: contractInfo.job.price
+    });
+
+    // set proposal to approved
+    proposal.status = "approved";
+    await proposal.save();
+
+    res.status(StatusCodes.OK).json({ msg: `$${contractInfo.job.price} fixed price job has been paid successfully` });
+}
+
+
 export {
     getProposals,
     createProposal,
-    actionProposal
+    actionProposal,
+    setAsPaidFixedPriceJob
 }
 

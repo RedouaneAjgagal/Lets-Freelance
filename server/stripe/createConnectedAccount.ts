@@ -43,7 +43,14 @@ const createConnectedAccount = async ({ email, userId, profileId, country, exter
             "platform_user_id": userId,
             "platform_profile_id": profileId
         },
-
+        settings: {
+            payouts: {
+                schedule: {
+                    delay_days: 10,
+                    interval: "daily"
+                }
+            }
+        }
     });
     return account;
 }

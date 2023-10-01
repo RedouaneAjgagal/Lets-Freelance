@@ -532,7 +532,7 @@ const deleteStripeConnectedBankAccount: RequestHandler = async (req: CustomAuthR
     });
 
     // check if the user already created stripe bank account
-    if (!user.stripe.id || user.stripe.bankAccounts.length) {
+    if (!user.stripe.id || !user.stripe.bankAccounts.length) {
         throw new BadRequestError("You haven't create any bank account to delete");
     }
 

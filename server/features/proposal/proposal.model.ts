@@ -12,6 +12,7 @@ export type ProposalWithoutRef = {
         timeValue: number;
     };
     status: "pending" | "interviewing" | "rejected" | "approved";
+    sessionId?: string;
 };
 
 export type ProposalType = {
@@ -75,6 +76,9 @@ const proposalSchema = new mongoose.Schema<ProposalType>({
         },
         default: "pending",
         required: true
+    },
+    sessionId: {
+        type: String
     }
 }, {
     timestamps: true

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getProposals, createProposal, actionProposal } from "./proposal.controller";
+import { getProposals, createProposal, actionProposal, setAsPaidFixedPriceJob } from "./proposal.controller";
 import authentication from "../../middlewares/authentication";
 
 
@@ -11,5 +11,8 @@ router.route("/")
 
 router.route("/:proposalId")
     .patch(authentication, actionProposal);
+
+router.route("/:proposalId/fixed-job")
+    .get(authentication, setAsPaidFixedPriceJob);
 
 export default router;

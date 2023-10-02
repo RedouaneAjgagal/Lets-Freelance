@@ -345,7 +345,7 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
     }
 
     // find contract
-    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email" });
+    const contract = await Contract.findOne({ _id: contractId, activityType: "job" }).populate({ path: "freelancer.user employer.user", select: "email stripe" });
     if (!contract) {
         throw new NotFoundError(`Found no contract with id ${contractId}`);
     }
@@ -381,6 +381,45 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 amount: contract.job!.price
             });
 
+            // the amount freelancer going to receive
+            console.log({ freelancerReceivedAmount: freelancerNetAmount });
+
+            const freelancerStripeAmount = transferToStripeAmount(freelancerNetAmount);
+
+            const session = await stripe.checkout.sessions.retrieve(contract.payments[0].sessionId!);
+
+            const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+
+            // transfer the amount to the freelancer after completing the job
+            await stripe.transfers.create({
+                currency: "usd",
+                amount: freelancerStripeAmount,
+                destination: contract.freelancer.user.stripe!.id!,
+                description: "Completed fixed price job",
+                source_transaction: paymentIntent.latest_charge?.toString(),
+                metadata: {
+                    contractId: contract._id.toString()
+                }
+            });
+
+            // ------------ try this out later when payout arrive because transfer method doesnt work for US/CA bank accounts because of the platform region is not locatated in the US/CA and must contact stripe support for this ------------ //
+            // const externalAccounts = await stripe.accounts.listExternalAccounts(contract.freelancer.user.stripe!.id!, {
+            //     object: "bank_account",
+            //     limit: 1
+            // });
+            // const payout = await stripe.payouts.create({
+            //     currency: "usd",
+            //     amount: freelancerStripeAmount,
+            //     destination: externalAccounts.data[0].id,
+            //     description: "Completed fixed price job",
+            //     source_type: "bank_account",
+            //     metadata: {
+            //         contractId: contract._id.toString()
+            //     }
+            // }, {
+            //     stripeAccount: contract.freelancer.user.stripe!.id!
+            // });
+
             // send fixed price contract completed email to the employer
             sendCompletedJobContractEmail.fixedPrice({
                 contractId: contract._id.toString(),
@@ -399,12 +438,10 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 priceAfterFees: freelancerNetAmount
             });
 
-            // the amount freelancer going to receive
-            console.log({ freelancerReceivedAmount: freelancerNetAmount });
             const payment = contract.payments[0];
             payment.freelancer = {
-                status: "pending",
-                paidAt: ""
+                status: "paid",
+                paidAt: new Date(Date.now()).toString()
             }
 
         } else {

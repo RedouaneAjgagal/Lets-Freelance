@@ -146,7 +146,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find proposal
     const proposal = await Proposal.findById(proposalId).populate([
         { path: "job", select: "_id user title description email", populate: { path: "user", select: "email" } },
-        { path: "user", select: "email" }
+        { path: "user", select: "email stripe" }
     ]);
 
     // find proposal
@@ -201,6 +201,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
             const employerPaymentAmount = transferToStripeAmount(paymentAmountWithFees);
             console.log({ paymentAmountWithFees });
 
+            // create stripe product
             const jobProduct = await stripe.products.create({
                 name: `Fixed price job`,
                 default_price_data: {
@@ -213,8 +214,10 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 }
             });
 
+            // create a new checkout stripe session
             const session = await stripe.checkout.sessions.create({
                 mode: "payment",
+                currency: "usd",
                 line_items: [
                     {
                         price: jobProduct.default_price?.toString(),
@@ -222,8 +225,11 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                     }
                 ],
                 customer_email: proposal.job.user!.email,
+                payment_intent_data: {
+                    on_behalf_of: proposal.user.stripe?.id
+                },
+
                 client_reference_id: profile.user._id.toString(),
-                currency: "usd",
                 success_url: `http://localhost:5000/api/v1/proposals/${proposal._id.toString()}/fixed-job?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: "http://localhost:5173",
                 metadata: {
@@ -235,77 +241,43 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 }
             });
 
-            proposal.sessionId = session.id;
-            await proposal.save();
 
             console.log(session.url);
 
+
+            // set the stripe session id to check it later if it has been paid or not
+            proposal.sessionId = session.id;
+            await proposal.save();
+
+
+
+            // redirect to the session url for employer to make the payment
             return res.redirect(session.url!);
-
-
-            //     // stipe validation (add later)
-            //     const stipeValidation = true;
-            //     if (!stipeValidation) {
-            //         throw new BadRequestError("Invalid payment");
-            //     }
-
-            //     // set employer payment as paid
-            //     const payment = {
-            //         amount: contractInfo.job.price,
-            //         employer: {
-            //             status: "paid",
-            //             paidAt: new Date(Date.now()).toString()
-            //         }
-            //     }
-            //     contractInfo.payments.push(payment);
-
-            //     // send fixed price proposal approved email to the employer
-            //     sendProposalApprovedEmail.fixedPriceProposal({
-            //         userAs: "employer",
-            //         email: proposal.job.user!.email!,
-            //         proposalId: proposal._id.toString(),
-            //         jobTitle: proposal.job.title!,
-            //         price: contractInfo.job.price,
-            //         totalAmoutWithFees: paymentAmountWithFees
-            //     });
-
-            //     // send fixed price proposal approved email to the freelancer
-            //     sendProposalApprovedEmail.fixedPriceProposal({
-            //         userAs: "freelancer",
-            //         email: proposal.user.email!,
-            //         proposalId: proposal._id.toString(),
-            //         jobTitle: proposal.job.title!,
-            //         price: contractInfo.job.price
-            //     });
-            // } else {
-
-            //     // send hourly price proposal approved email to the employer
-            //     sendProposalApprovedEmail.hourlyPriceProposal({
-            //         userAs: "employer",
-            //         email: proposal.job.user!.email!,
-            //         proposalId: proposal._id.toString(),
-            //         jobTitle: proposal.job.title!,
-            //         price: contractInfo.job.price
-            //     });
-
-            //     // send hourly price proposal approved email to the freelancer
-            //     sendProposalApprovedEmail.hourlyPriceProposal({
-            //         userAs: "freelancer",
-            //         email: proposal.user.email!,
-            //         proposalId: proposal._id.toString(),
-            //         jobTitle: proposal.job.title!,
-            //         price: contractInfo.job.price
-            //     });
         }
 
-        // await Contract.create(contractInfo);
+        // send hourly price proposal approved email to the employer
+        sendProposalApprovedEmail.hourlyPriceProposal({
+            userAs: "employer",
+            email: proposal.job.user!.email!,
+            proposalId: proposal._id.toString(),
+            jobTitle: proposal.job.title!,
+            price: contractInfo.job.price
+        });
+
+        // send hourly price proposal approved email to the freelancer
+        sendProposalApprovedEmail.hourlyPriceProposal({
+            userAs: "freelancer",
+            email: proposal.user.email!,
+            proposalId: proposal._id.toString(),
+            jobTitle: proposal.job.title!,
+            price: contractInfo.job.price
+        });
+
+        await Contract.create(contractInfo);
     }
 
-
+    // update the proposal status if its not approved
     await proposal.updateOne({ status });
-
-
-    // take proposal action
 
     const msg = status === "interviewing" ? `Proposal id ${proposalId} is now in interview mode` : `Proposal id ${proposalId} has been ${status}`;
 
@@ -412,7 +384,8 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                 employer: {
                     status: "paid",
                     paidAt: new Date(Date.now()).toString()
-                }
+                },
+                sessionId: session.id
             }
         ]
     }

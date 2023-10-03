@@ -228,7 +228,6 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 payment_intent_data: {
                     on_behalf_of: proposal.user.stripe?.id
                 },
-
                 client_reference_id: profile.user._id.toString(),
                 success_url: `http://localhost:5000/api/v1/proposals/${proposal._id.toString()}/fixed-job?session_id={CHECKOUT_SESSION_ID}`,
                 cancel_url: "http://localhost:5173",

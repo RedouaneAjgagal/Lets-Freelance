@@ -384,19 +384,14 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             // the amount freelancer going to receive
             console.log({ freelancerReceivedAmount: freelancerNetAmount });
 
-            const freelancerStripeAmount = transferToStripeAmount(freelancerNetAmount);
-
-            const session = await stripe.checkout.sessions.retrieve(contract.payments[0].sessionId!);
-
-            const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
 
             // transfer the amount to the freelancer after completing the job
+            const freelancerStripeAmount = transferToStripeAmount(freelancerNetAmount);
             await stripe.transfers.create({
                 currency: "usd",
                 amount: freelancerStripeAmount,
                 destination: contract.freelancer.user.stripe!.id!,
                 description: "Completed fixed price job",
-                source_transaction: paymentIntent.latest_charge?.toString(),
                 metadata: {
                     contractId: contract._id.toString()
                 }

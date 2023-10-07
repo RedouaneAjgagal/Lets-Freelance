@@ -353,6 +353,10 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
         throw new BadRequestError("You must pay first to accept the proposal");
     }
 
+    // get charge id
+    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+    const chargeId = paymentIntent.latest_charge?.toString();
+
     const refs = {
         freelancer: {
             user: proposal.user,
@@ -384,7 +388,8 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                     status: "paid",
                     paidAt: new Date(Date.now()).toString()
                 },
-                sessionId: session.id
+                sessionId: session.id,
+                chargeId
             }
         ]
     }

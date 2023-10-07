@@ -384,18 +384,15 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             // the amount freelancer going to receive
             console.log({ freelancerReceivedAmount: freelancerNetAmount });
 
-
             // transfer the amount to the freelancer after completing the job
-            const sessionId = contract.payments[0].sessionId;
-            const session = await stripe.checkout.sessions.retrieve(sessionId!);
-            const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+            const chargeId = contract.payments[0].chargeId;
             const freelancerStripeAmount = transferToStripeAmount(freelancerNetAmount);
             await stripe.transfers.create({
                 currency: "usd",
                 amount: freelancerStripeAmount,
                 destination: contract.freelancer.user.stripe!.id!,
                 description: "Completed fixed price job",
-                source_transaction: paymentIntent.latest_charge?.toString(), // transfer the amount from the last charge even if the balance not available yet
+                source_transaction: chargeId, // transfer the amount from the last charge even if the balance not available yet
                 metadata: {
                     contractId: contract._id.toString()
                 }
@@ -635,7 +632,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     });
 
-    // strip validation (fake for now)
+    // use pay, collect and transfer method with one function
     const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [
@@ -735,6 +732,11 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         status: "pending",
         paidAt: ""
     }
+
+    // set payment charge id
+    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+    const chargeId = paymentIntent.latest_charge?.toString();
+    payment.chargeId = chargeId;
 
     // send paid hours email to the freelancer
     sendPaidHoursEmail({

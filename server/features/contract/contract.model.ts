@@ -48,6 +48,7 @@ export type ContractPayments = {
     employer?: UserPayment;
     freelancer?: UserPayment;
     sessionId?: string;
+    chargeId?: string;
 }
 
 export type ContractType = {
@@ -207,6 +208,9 @@ const contractSchema = new mongoose.Schema<ContractType>({
                 paidAt: String
             },
             sessionId: {
+                type: String
+            },
+            chargeId: {
                 type: String
             }
         }

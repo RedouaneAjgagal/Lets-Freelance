@@ -37,7 +37,7 @@ export type ContractJob = {
 };
 
 export type UserPayment = {
-    status: "pending" | "paid";
+    status: "pending" | "paid" | "refunded";
     paidAt: string;
 }
 
@@ -191,7 +191,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                 status: {
                     type: String,
                     enum: {
-                        values: ["pending", "paid"],
+                        values: ["pending", "paid", "refunded"],
                         message: "{VALUE} is not supported"
                     }
                 },
@@ -201,7 +201,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                 status: {
                     type: String,
                     enum: {
-                        values: ["pending", "paid"],
+                        values: ["pending", "paid", "refunded"],
                         message: "{VALUE} is not supported"
                     }
                 },

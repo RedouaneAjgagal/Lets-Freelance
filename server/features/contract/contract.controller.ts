@@ -529,7 +529,7 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
     }
 
     // check if there is already a payment that is not paid yet
-    const isAllPaymentsPaid = contract.payments.every(({ employer }) => employer?.status === "paid");
+    const isAllPaymentsPaid = contract.payments.every(({ employer }) => employer?.status === "paid" || employer?.status === "refunded");
     if (!isAllPaymentsPaid) {
         throw new BadRequestError("You cant submit a new payment until all payments are paid");
     }
@@ -593,7 +593,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const payment = contract.payments[paymentIndex];
 
     // check if the payment is not paid yet
-    if (payment.employer?.status === "paid") {
+    if (payment.employer?.status === "paid" || payment.employer?.status === "refunded") {
         throw new BadRequestError("This payment has already been paid");
     }
 
@@ -642,8 +642,9 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         ],
         payment_intent_data: {
-            application_fee_amount: employerAmount - freelancerReceiveAmount,
+            // application_fee_amount: transferToStripeAmount(employerfeesAmount),
             transfer_data: {
+                amount: freelancerReceiveAmount,
                 destination: contract.freelancer.user.stripe!.id!
             },
             on_behalf_of: contract.freelancer.user.stripe!.id!,
@@ -769,6 +770,82 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc refund paid hours to the employer if report was approved
+//@route POST /api/v1/:contractId/worked-hours/refund
+//@access authorization (admin & owner)
+const refundPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { paymentId, reason } = req.body;
+
+    // check if reason is provided
+    if (!reason || typeof reason !== "string" || reason.trim() === "") {
+        throw new BadRequestError("Reason is required");
+    }
+
+    // check if valid reason
+    if (reason !== "duplicate" && reason !== "fraudulent" && reason !== "requested_by_customer") {
+        throw new BadRequestError("Unsupported reason");
+    }
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    }
+
+    // find the contract
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+        throw new NotFoundError(`Found no contract with ID ${contractId}`);
+    }
+
+    // find the payment
+    const payment = contract.payments.find(payment => payment._id?.toString() === paymentId);
+    if (!payment) {
+        throw new BadRequestError(`Found no payment with ID ${paymentId}`);
+    }
+
+    // check if already been paid
+    const session = await stripe.checkout.sessions.retrieve(payment.sessionId!);
+    if (payment.employer?.status !== "paid" || session.payment_status !== "paid") {
+        throw new BadRequestError("Cannot refund unpaid amount");
+    }
+
+    // check if the payment has't pass 7 days
+    const sevenDaysInMilliSec = 7 * 24 * 60 * 60 * 1000; // 7 days
+    const paidAt = new Date(payment.employer.paidAt).getTime();
+    const currentTime = new Date(Date.now()).getTime();
+    const totalMilliSec = currentTime - sevenDaysInMilliSec;
+    const isValidDate = paidAt - totalMilliSec > 0;
+    if (!isValidDate) {
+        throw new BadRequestError("Unable to refund. 7 days has already been passed");
+    }
+
+    // refund the payment
+    const stripeAmount = transferToStripeAmount(payment.amount!);
+    const refund = await stripe.refunds.create({
+        // amount: stripeAmount,
+        charge: payment.chargeId,
+        refund_application_fee: true,
+        reverse_transfer: true,
+        metadata: {
+            contractId: contract._id.toString(),
+            paymentId: payment._id!.toString()
+        },
+        reason
+    });
+
+    // set payment status to refunded if its succeed
+    if (refund.status === "succeeded") {
+        payment.employer.status = "refunded";
+        payment.freelancer!.status = "refunded";
+        contract.save();
+    }
+
+    res.status(StatusCodes.OK).json({ msg: "Payment has been refunded" });
+}
+
+
 export {
     getContracts,
     cancelationRequests,
@@ -778,5 +855,6 @@ export {
     cancelContract,
     submitWorkedHours,
     payWorkedHours,
-    setAsPaidHours
+    setAsPaidHours,
+    refundPaidHours
 }

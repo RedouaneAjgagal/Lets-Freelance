@@ -635,6 +635,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     // use pay, collect and transfer method with one function
     const session = await stripe.checkout.sessions.create({
         mode: "payment",
+        currency: "usd",
         line_items: [
             {
                 price: product.default_price!.toString(),
@@ -642,9 +643,9 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         ],
         payment_intent_data: {
-            // application_fee_amount: transferToStripeAmount(employerfeesAmount),
+            application_fee_amount: employerAmount - freelancerReceiveAmount,
             transfer_data: {
-                amount: freelancerReceiveAmount,
+                // amount: freelancerReceiveAmount,
                 destination: contract.freelancer.user.stripe!.id!
             },
             on_behalf_of: contract.freelancer.user.stripe!.id!,
@@ -730,8 +731,8 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     payment.freelancer = {
-        status: "pending",
-        paidAt: ""
+        status: "paid",
+        paidAt: new Date(Date.now()).toString()
     }
 
     // set payment charge id
@@ -770,10 +771,10 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-//@desc refund paid hours to the employer if report was approved
-//@route POST /api/v1/:contractId/worked-hours/refund
+//@desc refund paid amount to the employer if report was approved
+//@route POST /api/v1/:contractId/refund
 //@access authorization (admin & owner)
-const refundPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
+const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
     const { paymentId, reason } = req.body;
 
@@ -811,23 +812,24 @@ const refundPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("Cannot refund unpaid amount");
     }
 
-    // check if the payment has't pass 7 days
+    // check if the payment has't pass 7 days for hourly price job
     const sevenDaysInMilliSec = 7 * 24 * 60 * 60 * 1000; // 7 days
     const paidAt = new Date(payment.employer.paidAt).getTime();
     const currentTime = new Date(Date.now()).getTime();
     const totalMilliSec = currentTime - sevenDaysInMilliSec;
     const isValidDate = paidAt - totalMilliSec > 0;
-    if (!isValidDate) {
+    if (contract.activityType === "job" && contract.job?.priceType === "hourly" && !isValidDate) {
         throw new BadRequestError("Unable to refund. 7 days has already been passed");
     }
 
     // refund the payment
+    const isTransferData = contract.activityType === "job" && contract.job?.priceType === "hourly";
     const stripeAmount = transferToStripeAmount(payment.amount!);
     const refund = await stripe.refunds.create({
         // amount: stripeAmount,
         charge: payment.chargeId,
-        refund_application_fee: true,
-        reverse_transfer: true,
+        refund_application_fee: isTransferData,
+        reverse_transfer: isTransferData,
         metadata: {
             contractId: contract._id.toString(),
             paymentId: payment._id!.toString()
@@ -856,5 +858,5 @@ export {
     submitWorkedHours,
     payWorkedHours,
     setAsPaidHours,
-    refundPaidHours
+    refundPaidAmount
 }

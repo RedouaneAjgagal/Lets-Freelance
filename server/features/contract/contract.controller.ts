@@ -243,7 +243,7 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
     }
 
     // find contract
-    const contract = await Contract.findOne({ _id: contractId, activityType: "service" }).populate({ path: "freelancer.user employer.user", select: "email" });
+    const contract = await Contract.findOne({ _id: contractId, activityType: "service" }).populate({ path: "freelancer.user employer.user", select: "email stripe" });
     if (!contract) {
         throw new NotFoundError(`Found no contract with id ${contractId}`);
     }
@@ -269,12 +269,15 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
         throw new BadRequestError("You have already completed this service");
     }
 
+    // check if already been canceled
+    if (contract.freelancer.status === "canceled" || contract.employer.status === "canceled") {
+        throw new BadRequestError("You cant set canceled contracts to completed");
+    }
+
     // update contract status
     contract[user.profile!.userAs!].status = "completed";
 
-
     if (contract.freelancer.status === "completed" && contract.employer.status === "completed") {
-
         const servicePrice = contract.service!.tier.price;
 
         // get calculated prices after fees
@@ -286,9 +289,20 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
         const payment = contract.payments[0];
         if (payment.employer?.status === "paid") {
             console.log({ freelancerReceiveAmount });
+            await stripe.transfers.create({
+                currency: "usd",
+                amount: transferToStripeAmount(freelancerReceiveAmount),
+                destination: contract.freelancer.user.stripe!.id!,
+                description: "Service Completed",
+                source_transaction: payment.chargeId,
+                metadata: {
+                    contractId: contract._id.toString()
+                }
+            });
+
             payment.freelancer = {
-                status: "pending",
-                paidAt: ""
+                status: "paid",
+                paidAt: new Date(Date.now()).toString()
             }
         }
 
@@ -364,6 +378,11 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
     // check if status is completed
     if (!isCompleted) {
         throw new BadRequestError("You cant set contract to completed when its not");
+    }
+
+    // check if fixed price job has already been canceled
+    if (contract.job?.priceType === "fixed" && (contract.freelancer.status === "canceled" || contract.employer.status === "canceled")) {
+        throw new BadRequestError("You cant set canceled contracts to completed");
     }
 
     // check if the user already completed the contract
@@ -803,6 +822,11 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
         throw new NotFoundError(`Found no contract with ID ${contractId}`);
     }
 
+    // check if contract is already in progress
+    if (contract.freelancer.status !== "inProgress" && contract.employer.status !== "inProgress") {
+        throw new BadRequestError("In progress contracts only can be refunded");
+    }
+
     // find the payment
     const payment = contract.payments.find(payment => payment._id?.toString() === paymentId);
     if (!payment) {
@@ -847,8 +871,8 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
 
         // check if the contract for service or fixed price job to cancel
         if (contract.activityType === "service" || contract.job?.priceType === "fixed") {
-            contract.freelancer.status === "canceled";
-            contract.employer.status === "canceled";
+            contract.freelancer.status = "canceled";
+            contract.employer.status = "canceled";
 
             // send contract cancelation email to the employer
             sendContractCancelationEmail({

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllservices, singleService, createService, updateService, deleteService, uploadFeaturedImg, uploadGallery, orderService } from "./service.controller";
+import { getAllservices, singleService, createService, updateService, deleteService, uploadFeaturedImg, uploadGallery, orderService, setServiceAsPaid } from "./service.controller";
 import authentication from "../../middlewares/authentication";
 
 const router = Router();
@@ -19,7 +19,8 @@ router.route("/:serviceId")
     .delete(authentication, deleteService);
 
 router.route("/:serviceId/order")
-    .post(authentication, orderService);
+    .post(authentication, orderService)
+    .get(authentication, setServiceAsPaid);
 
 
 export default router;

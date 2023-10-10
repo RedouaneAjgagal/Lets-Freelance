@@ -14,6 +14,9 @@ import { isValidObjectId } from "mongoose";
 import { Profile } from "../profile";
 import { contractModel as Contract } from "../contract";
 import sendOrderServiceEmail from "./services/sendOrderServiceEmail";
+import stripe from "../../stripe/stripeConntect";
+import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
+import { ContractPayments } from "../contract/contract.model";
 
 
 
@@ -119,7 +122,7 @@ const singleService: RequestHandler = async (req, res) => {
     }
 
     // find the service
-    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs");
+    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs").select("-orders -keywords");
 
     // check if service exist
     if (!service) {
@@ -166,7 +169,8 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
         featuredImage: inputs.featuredImage,
         gallery: inputs.gallery,
         tier: inputs.tier,
-        keywords: inputs.keywords
+        keywords: inputs.keywords,
+        orders: []
     }
 
     // create service
@@ -193,7 +197,7 @@ const updateService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // check permission
     if (service.user._id.toString() !== req.user!.userId) {
-        throw new UnauthorizedError("You dont have access to edit this recipe");
+        throw new UnauthorizedError("You dont have access to edit this service");
     }
 
     // get updated info
@@ -296,9 +300,9 @@ const uploadGallery: RequestHandler = async (req: CustomAuthRequest, res) => {
     res.status(StatusCodes.OK).json({ galleryImgURL: imageResponse.secure_url });
 }
 
-//@desc an employer can order the service
+//@desc an employer can order the service and pay
 //@route POST /api/v1/services/:serviceId/order
-//@access authentication
+//@access authentication (employers only)
 const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { serviceId } = req.params;
     const { tier } = req.body;
@@ -347,16 +351,133 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     const selectedTier: "starter" | "standard" | "advanced" = tier;
 
+    // add stripe payment (add later)
+    const employerPaidAmount = service.tier[selectedTier].price;
+    console.log({ employerPaidAmount });
 
-    // create a contract
+    // create stripe product
+    const serviceProduct = await stripe.products.create({
+        name: `Service tier ${selectedTier}: ${service.title}`,
+        default_price_data: {
+            currency: "usd",
+            unit_amount: transferToStripeAmount(employerPaidAmount)
+        },
+        metadata: {
+            serviceId,
+            employerId: profile.user._id.toString()
+        }
+    });
+
+    // create a new checkout stripe session
+    const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        currency: "usd",
+        line_items: [
+            {
+                price: serviceProduct.default_price?.toString(),
+                quantity: 1
+            }
+        ],
+        customer_email: profile.user.email,
+        client_reference_id: profile.user._id.toString(),
+        success_url: `http://localhost:5000/api/v1/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: "http://localhost:5173",
+        metadata: {
+            productId: serviceProduct.id,
+            serviceId: service._id.toString(),
+            employerProfileId: profile._id.toString(),
+            selectedTier
+        }
+    });
+
+    console.log(session.url);
+
+    // set orders data to help cheking if got paid or not
+    service.orders.push({
+        employerId: profile.user._id.toString(),
+        sessionId: session.id,
+        amount: employerPaidAmount,
+        status: "pending"
+    });
+
+    await service.save();
+
+    return res.redirect(session.url!);
+}
+
+
+//@desc set service to paid and create contract when the payment was successful
+//@route GET /api/v1/services/:serviceId/order
+//@access authentication (employers or powerful roles)
+const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { serviceId } = req.params;
+    const { session_id } = req.query;
+
+    // check if session exist
+    if (!session_id || session_id.toString().trim() === "") {
+        throw new BadRequestError("session ID is required");
+    }
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(serviceId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    }
+
+    // find the service
+    const service = await Service.findById(serviceId).populate({ path: "user", select: "email" });
+    if (!service) {
+        throw new BadRequestError(`Found no service with ID ${serviceId}`);
+    }
+
+    // find current user
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "email role" });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the user is an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthenticatedError("Must be an employer to pay services");
+    }
+
+    // find the order
+    const order = service.orders.find(order => order.sessionId === session_id.toString());
+    if (!order) {
+        throw new BadRequestError(`Found no order session with ID ${session_id}`);
+    }
+
+    // check if the order belongs to the current employer or the user is a powerful role
+    const isPowerfulRole = rolePermissionChecker({
+        allowedRoles: ["admin", "owner"],
+        currentRole: profile.user.role!
+    })
+    if (order.employerId !== profile.user._id.toString() && !isPowerfulRole) {
+        throw new UnauthorizedError("You dont have access to these ressources");
+    }
+
+    // find session
+    const session = await stripe.checkout.sessions.retrieve(session_id.toString());
+    if (!session) {
+        throw new BadRequestError(`Found no session with ID ${session_id}`);
+    }
+
+    // check if session has been paid
+    if (session.payment_status !== "paid") {
+        throw new BadRequestError("Must pay the service first");
+    }
+
+    // create service contract
+    const selectedTier = session.metadata!.selectedTier as "starter" | "standard" | "advanced";
+
     const refs = {
         freelancer: {
             user: service.user._id,
             profile: service.profile._id
         },
         employer: {
-            user: profile.user._id,
-            profile: profile._id
+            user: session.client_reference_id,
+            profile: session.metadata!.employerProfileId
         }
     }
 
@@ -372,23 +493,22 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     }
 
-    // add stripe payment (add later)
-    const employerPaidAmount = service.tier[selectedTier].price;
-    console.log({ employerPaidAmount });
-
-    const stripeValidation = true;
-    if (!stripeValidation) {
-        throw new BadRequestError("Invalid payment");
-    }
-
-    const payment = {
-        amount: employerPaidAmount,
+    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+    const payment: ContractPayments = {
+        amount: session.amount_total! / 100,
         employer: {
             status: "paid",
-            paidAt: new Date(Date.now()).toString()
-        }
+            paidAt: new Date(paymentIntent.created * 1000).toString()
+        },
+        sessionId: session.id,
+        chargeId: paymentIntent.latest_charge?.toString()
     }
+
     await Contract.create({ ...contractInfo, payments: [payment] });
+
+    // set order status to paid
+    order.status = "paid";
+    await service.save();
 
     // send order service email to the freelancer
     sendOrderServiceEmail({
@@ -402,7 +522,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // send order service email to the employer
     sendOrderServiceEmail({
-        email: profile.user.email!,
+        email: session.customer_email!,
         serviceId: service._id.toString(),
         servicePrice: service.tier[selectedTier].price,
         serviceTitle: service.title,
@@ -410,11 +530,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         userAs: "employer"
     });
 
-    res.status(StatusCodes.OK).json({
-        title: contractInfo.service.title,
-        description: contractInfo.service.description,
-        tier: contractInfo.service.tier
-    });
+    res.status(StatusCodes.OK).json({ msg: "service has been paid successfully" });
 }
 
 
@@ -427,5 +543,6 @@ export {
     deleteService,
     uploadFeaturedImg,
     uploadGallery,
-    orderService
+    orderService,
+    setServiceAsPaid
 }

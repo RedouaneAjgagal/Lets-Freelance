@@ -724,10 +724,14 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("You must pay the worked hours first");
     }
 
+    // get paid at
+    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
+    const paidAt = new Date(paymentIntent.created * 1000).toString();
+
     // set payments to paid
     payment.employer = {
         status: "paid",
-        paidAt: new Date(Date.now()).toString()
+        paidAt,
     }
 
     payment.freelancer = {
@@ -736,7 +740,6 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // set payment charge id
-    const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const chargeId = paymentIntent.latest_charge?.toString();
     payment.chargeId = chargeId;
 

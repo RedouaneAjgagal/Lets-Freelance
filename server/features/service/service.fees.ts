@@ -5,7 +5,7 @@ type ServiceFees = {
 }
 
 const serviceFees: ServiceFees = {
-    amount: 10,
+    amount: 15,
     type: "percent",
     whoPay: "freelancer"
 }

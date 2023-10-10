@@ -357,6 +357,9 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const chargeId = paymentIntent.latest_charge?.toString();
 
+    // get paid at
+    const paidAt = new Date(paymentIntent.created * 1000).toString();
+
     const refs = {
         freelancer: {
             user: proposal.user,
@@ -386,7 +389,7 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                 amount: proposal.price,
                 employer: {
                     status: "paid",
-                    paidAt: new Date(Date.now()).toString()
+                    paidAt
                 },
                 sessionId: session.id,
                 chargeId

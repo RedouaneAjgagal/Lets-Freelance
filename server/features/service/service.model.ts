@@ -19,6 +19,13 @@ export type ServiceTier = {
     advanced: ServicePlan;
 }
 
+export type Order = {
+    employerId: string;
+    sessionId: string;
+    amount: number;
+    status: "pending" | "paid" | "refunded";
+}
+
 export type ServiceWithoutRefs = {
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
@@ -27,23 +34,17 @@ export type ServiceWithoutRefs = {
     featuredImage: string;
     gallery: string[];
     keywords: string[];
+    orders: Order[]
 }
 
-export interface IService {
+export type IService = {
     user: {
         _id: mongoose.Types.ObjectId
     } & Partial<IUser>;
     profile: {
         _id: mongoose.Types.ObjectId
     } & Partial<IProfile>;
-    title: string;
-    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
-    tier: ServiceTier;
-    description: string;
-    featuredImage: string;
-    gallery: string[];
-    keywords: string[];
-}
+} & ServiceWithoutRefs
 
 const serviceSchema = new mongoose.Schema<IService>({
     user: {
@@ -127,7 +128,26 @@ const serviceSchema = new mongoose.Schema<IService>({
                 }
             }]
         }
-    }
+    },
+    orders: [{
+        employerId: {
+            type: String
+        },
+        sessionId: {
+            type: String
+        },
+        amount: {
+            type: Number
+        },
+        status: {
+            type: String,
+            enum: {
+                values: ["pending", "paid", "refunded"],
+                message: "{VALUE} is not supported"
+            },
+            default: "pending"
+        }
+    }]
 }, {
     timestamps: true
 }

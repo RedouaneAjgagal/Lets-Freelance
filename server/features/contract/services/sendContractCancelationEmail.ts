@@ -5,13 +5,14 @@ type ContractCancelationEmail = {
     contractId: string;
     activityTitle: string;
     value: "canceled" | "rejected";
+    isRefund?: boolean;
 }
 
-const sendContractCancelationEmail = ({ email, contractId, activityTitle, value }: ContractCancelationEmail) => {
+const sendContractCancelationEmail = ({ email, contractId, activityTitle, value, isRefund }: ContractCancelationEmail) => {
 
     const approvedCancelationContent = `
         <h1>Contract ID ${contractId} has been canceled.</h1>
-        <p>Due to the cancelation request we have verified and checked the contract process and come out with a decision, this contract has been canceled.</p>
+        <p>Due to the ${isRefund ? "refund" : "cancelation"} request we have verified and checked the contract process and come out with a decision, this contract has been canceled. ${isRefund ? "The employer is going to be refunded" : ""}</p>
         <p>Contract title: <strong>${activityTitle}</strong></p>
     `;
 
@@ -24,7 +25,7 @@ const sendContractCancelationEmail = ({ email, contractId, activityTitle, value 
     const content = value === "canceled" ? approvedCancelationContent : rejectedCancelationContent;
 
     return sendEmail({
-        subject: "Contract Cancellation Request - Lets Freelance",
+        subject: "Contract Cancellation - Lets Freelance",
         to: email,
         html: content
     });

@@ -798,7 +798,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     }
 
     // find the contract
-    const contract = await Contract.findById(contractId);
+    const contract = await Contract.findById(contractId).populate({ path: "employer.user freelancer.user", select: "email" });
     if (!contract) {
         throw new NotFoundError(`Found no contract with ID ${contractId}`);
     }
@@ -844,7 +844,32 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     if (refund.status === "succeeded") {
         payment.employer.status = "refunded";
         payment.freelancer!.status = "refunded";
-        contract.save();
+
+        // check if the contract for service or fixed price job to cancel
+        if (contract.activityType === "service" || contract.job?.priceType === "fixed") {
+            contract.freelancer.status === "canceled";
+            contract.employer.status === "canceled";
+
+            // send contract cancelation email to the employer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.employer.user.email!,
+                value: "canceled",
+                isRefund: true
+            });
+
+            // send contract cancelation email to the employer
+            sendContractCancelationEmail({
+                activityTitle: contract[contract.activityType]!.title,
+                contractId: contract._id.toString(),
+                email: contract.freelancer.user.email!,
+                value: "canceled",
+                isRefund: true
+            });
+        }
+
+        await contract.save();
     }
 
     res.status(StatusCodes.OK).json({ msg: "Payment has been refunded" });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getContracts, cancelContractRequest, cancelationRequests, completeServiceContract, completeJobContract, cancelContract, submitWorkedHours, payWorkedHours, setAsPaidHours, refundPaidAmount } from "./contract.controller";
+import { getContracts, cancelContractRequest, cancelationRequests, completeServiceContract, completeJobContract, cancelContract, submitWorkedHours, payWorkedHours, setAsPaidHours, refundPaidAmount, createRefundRequest } from "./contract.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
 
@@ -21,7 +21,8 @@ router.route("/:contractId/worked-hours")
     .patch(authentication, payWorkedHours);
 
 router.route("/:contractId/refund")
-    .post(authentication, authorization("admin"), refundPaidAmount);
+    .post(authentication, createRefundRequest)
+    .patch(authentication, authorization("admin"), refundPaidAmount);
 
 router.route("/:contractId/service")
     .patch(authentication, completeServiceContract);

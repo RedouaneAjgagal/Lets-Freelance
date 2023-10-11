@@ -4,11 +4,11 @@ const isInvalidSubject = (subject: CancelRequestType["subject"] | undefined) => 
     let error = "";
 
     if (!subject || subject.toString().trim() === "") {
-        return error = "Cancelation subject is required";
+        return error = "Subject is required";
     }
 
     if (typeof subject !== "string") {
-        return error = "Invalid cancelation subject format";
+        return error = "Invalid subject format";
     }
 
     return error;
@@ -18,7 +18,7 @@ const isInvalidReason = (reason: CancelRequestType["reason"] | undefined) => {
     let error = "";
 
     if (!reason || reason.toString().trim() === "") {
-        return error = "Cancelation reason is required";
+        return error = "Reason is required";
     }
 
     if (typeof reason !== "string") {

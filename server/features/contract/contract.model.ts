@@ -41,11 +41,17 @@ export type UserPayment = {
     paidAt: string;
 }
 
+export type RefundRequest = {
+    status: "pending" | "rejected" | "approved";
+    subject: string;
+    reason: string;
+}
+
 export type ContractPayments = {
     _id?: typeof mongoose.Types.ObjectId;
     workedHours?: number;
     amount?: number;
-    employer?: UserPayment;
+    employer?: UserPayment & { refundRequest?: RefundRequest };
     freelancer?: UserPayment;
     sessionId?: string;
     chargeId?: string;
@@ -195,7 +201,19 @@ const contractSchema = new mongoose.Schema<ContractType>({
                         message: "{VALUE} is not supported"
                     }
                 },
-                paidAt: String
+                paidAt: String,
+                refundRequest: {
+                    subject: String,
+                    reason: String,
+                    status: {
+                        type: String,
+                        enum: {
+                            values: ["pending", "rejected", "approved"],
+                            message: "{VALUE} is not supported"
+                        },
+                        default: "pending"
+                    }
+                }
             },
             freelancer: {
                 status: {

@@ -19,6 +19,8 @@ import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
 import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
+import hasPeriodExpired from "../../utils/hasPeriodExpired";
+import refundContractValidator from "./validators/refundContractValidator";
 
 
 //@desc get all contracts related to the current user
@@ -750,7 +752,7 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     // set payments to paid
     payment.employer = {
         status: "paid",
-        paidAt,
+        paidAt
     }
 
     payment.freelancer = {
@@ -793,8 +795,106 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-//@desc refund paid amount to the employer if report was approved
+//@desc create a refund request so powerful roles can check it and approve it or reject it
 //@route POST /api/v1/:contractId/refund
+//@access authentication (employers only)
+const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+    const { paymentId, subject, reason } = req.body;
+
+    // check if valid mongodb id
+    const isValidContractId = isValidObjectId(contractId);
+    if (!isValidContractId) {
+        throw new BadRequestError("Invalid contract ID");
+    }
+
+    // check if valid payment id
+    const isValidPaymentId = isValidObjectId(paymentId);
+    if (!isValidPaymentId) {
+        throw new BadRequestError("Invalid payment ID");
+    }
+
+    // check if valid values
+    refundContractValidator({
+        subject,
+        reason
+    });
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthorizedError("Found no user");
+    }
+
+    // check if user is an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("Must be an employer to request a refund");
+    }
+
+    // find contract
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
+    }
+
+    // check if the employer have access to this contract
+    if (contract.employer.profile._id.toString() !== profile._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this contract");
+    }
+
+    // check if the contract still in progress
+    if (contract.freelancer.status === "canceled" || contract.employer.status === "canceled") {
+        throw new BadRequestError("You cant request refund for a canceled contract");
+    }
+
+    // find the payment
+    const payment = contract.payments.find(payment => payment._id?.toString() === paymentId);
+    if (!payment) {
+        throw new BadRequestError(`Found no payment with ID ${paymentId}`);
+    }
+
+    // check if the payment has already been refunded
+    if (payment.employer?.status === "refunded") {
+        throw new BadRequestError("This payment has already been refunded");
+    }
+
+    // check if the payment has been paid
+    if (payment.employer?.status !== "paid") {
+        throw new BadRequestError("You cannot request a refund for unpaid payment");
+    }
+
+    // check if the employer have already submitted refund request
+    if (payment.employer.refundRequest) {
+        throw new BadRequestError("You have already created a request refund");
+    }
+
+    // check if didnt pass 5 days since the freelancer get paid
+    if (payment.freelancer?.status === "paid") {
+        const isFiveDaysPassed = hasPeriodExpired({
+            timeInMs: 5 * 60 * 60 * 1000, // 5 days
+            date: payment.freelancer!.paidAt
+        });
+
+        // check if the 5 days has been passed since the freelancer get paid
+        if (isFiveDaysPassed) {
+            throw new BadRequestError("5 days has already passed since the freelancer get paid");
+        }
+    }
+
+    // create refund request
+    payment.employer.refundRequest = {
+        subject,
+        reason,
+        status: "pending"
+    }
+
+    await contract.save();
+
+    res.status(StatusCodes.OK).json({ msg: "You have created a refund request successfully" });
+}
+
+//@desc refund paid amount to the employer if report was approved
+//@route PATCH /api/v1/:contractId/refund
 //@access authorization (admin & owner)
 const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
@@ -840,12 +940,12 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     }
 
     // check if the payment has't pass 7 days for hourly price job
-    const sevenDaysInMilliSec = 7 * 24 * 60 * 60 * 1000; // 7 days
-    const paidAt = new Date(payment.employer.paidAt).getTime();
-    const currentTime = new Date(Date.now()).getTime();
-    const totalMilliSec = currentTime - sevenDaysInMilliSec;
-    const isValidDate = paidAt - totalMilliSec > 0;
-    if (contract.activityType === "job" && contract.job?.priceType === "hourly" && !isValidDate) {
+    const isExpired = hasPeriodExpired({
+        timeInMs: 7 * 24 * 60 * 60 * 1000, // 7 days
+        date: payment.employer.paidAt
+    });
+
+    if (contract.activityType === "job" && contract.job?.priceType === "hourly" && isExpired) {
         throw new BadRequestError("Unable to refund. 7 days has already been passed");
     }
 
@@ -869,7 +969,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
         payment.employer.status = "refunded";
         payment.freelancer!.status = "refunded";
 
-        // check if the contract for service or fixed price job to cancel
+        // check if the contract is a  service or a fixed price job to cancel
         if (contract.activityType === "service" || contract.job?.priceType === "fixed") {
             contract.freelancer.status = "canceled";
             contract.employer.status = "canceled";
@@ -883,7 +983,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
                 isRefund: true
             });
 
-            // send contract cancelation email to the employer
+            // send contract cancelation email to the freelancer
             sendContractCancelationEmail({
                 activityTitle: contract[contract.activityType]!.title,
                 contractId: contract._id.toString(),
@@ -910,5 +1010,6 @@ export {
     submitWorkedHours,
     payWorkedHours,
     setAsPaidHours,
+    createRefundRequest,
     refundPaidAmount
 }

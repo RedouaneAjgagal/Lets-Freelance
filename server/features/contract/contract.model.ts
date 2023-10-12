@@ -210,8 +210,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                         enum: {
                             values: ["pending", "rejected", "approved"],
                             message: "{VALUE} is not supported"
-                        },
-                        default: "pending"
+                        }
                     }
                 }
             },

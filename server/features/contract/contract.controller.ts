@@ -864,8 +864,8 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     }
 
     // check if the employer have already submitted refund request
-    if (payment.employer.refundRequest) {
-        throw new BadRequestError("You have already created a request refund");
+    if (payment.employer.refundRequest?.status) {
+        throw new BadRequestError("You have already created a refund request");
     }
 
     // check if didnt pass 5 days since the freelancer get paid
@@ -898,8 +898,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
 //@access authorization (admin & owner)
 const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { contractId } = req.params;
-    const { paymentId, reason } = req.body;
-
+    const { paymentId, reason, status } = req.body;
     // check if reason is provided
     if (!reason || typeof reason !== "string" || reason.trim() === "") {
         throw new BadRequestError("Reason is required");
@@ -933,8 +932,23 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
         throw new BadRequestError(`Found no payment with ID ${paymentId}`);
     }
 
-    // check if already been paid
+    // check employer made a refund request
+    if (!payment.employer?.refundRequest?.status) {
+        throw new BadRequestError("Employer must make a refund request first");
+    }
+
+    // check if refund request is a pending status
+    if (payment.employer.refundRequest.status !== "pending") {
+        throw new BadRequestError("Only pending refund requests can be refunded");
+    }
+
+    // find session
     const session = await stripe.checkout.sessions.retrieve(payment.sessionId!);
+    if (!session) {
+        throw new BadRequestError(`Found no session with ID payment.sessionId`);
+    }
+
+    // check if already been paid
     if (payment.employer?.status !== "paid" || session.payment_status !== "paid") {
         throw new BadRequestError("Cannot refund unpaid amount");
     }
@@ -947,6 +961,26 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
 
     if (contract.activityType === "job" && contract.job?.priceType === "hourly" && isExpired) {
         throw new BadRequestError("Unable to refund. 7 days has already been passed");
+    }
+
+    // check if valid status
+    if (!status || typeof status !== "string" || status.trim() === "") {
+        throw new BadRequestError("Status is required");
+    }
+
+    if (status !== "approved" && status !== "rejected") {
+        throw new BadRequestError("Status must be 'approved' or 'rejected'");
+    }
+
+    if (status === "rejected") {
+        // reject the refund request
+        payment.employer.refundRequest = {
+            ...payment.employer.refundRequest,
+            status,
+        };
+
+        await contract.save();
+        return res.status(StatusCodes.OK).json({ msg: "Refund request has been rejected" });
     }
 
     // refund the payment
@@ -963,6 +997,12 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
         },
         reason
     });
+
+    // approve the refund request
+    payment.employer.refundRequest = {
+        ...payment.employer.refundRequest,
+        status,
+    };
 
     // set payment status to refunded if its succeed
     if (refund.status === "succeeded") {

@@ -12,8 +12,6 @@ import sendContractCancelationEmail from "./services/sendContractCancelationEmai
 import { getServicePriceAfterFees } from "../service";
 import sendServiceContractCompletedEmail from "./services/sendServiceContractCompletedEmail";
 import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEmail";
-import getFixedPriceJobAfterFees from "../job/utils/getFixedPriceJobAfterFees";
-import getHourlyPriceJobAfterFees from "../job/utils/getHourlyPriceJobAfterFees";
 import { jobFees } from "../job";
 import sendPaidHoursEmail from "./services/sendPaidHoursEmail";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
@@ -885,12 +883,24 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     payment.employer.refundRequest = {
         subject,
         reason,
-        status: "pending"
+        status: "pending",
+        requestedAt: new Date(Date.now()).toString()
     }
 
     await contract.save();
 
     res.status(StatusCodes.OK).json({ msg: "You have created a refund request successfully" });
+}
+
+
+//@desc create a refund request so powerful roles can check it and approve it or reject it
+//@route POST /api/v1/:contractId/refund
+//@access authentication (employers only)
+const getRefundRequests: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find all refund requested contracts
+    const contracts = await Contract.find({ "payments.employer.refundRequest.status": { $in: ["pending"] } }).select("-freelancer -employer -cancelRequest").sort("payments.employer.refundRequest.requestedAt");
+    
+    res.status(StatusCodes.OK).json(contracts);
 }
 
 //@desc refund paid amount to the employer if report was approved
@@ -1051,5 +1061,6 @@ export {
     payWorkedHours,
     setAsPaidHours,
     createRefundRequest,
+    getRefundRequests,
     refundPaidAmount
 }

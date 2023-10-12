@@ -45,6 +45,7 @@ export type RefundRequest = {
     status: "pending" | "rejected" | "approved";
     subject: string;
     reason: string;
+    requestedAt: string;
 }
 
 export type ContractPayments = {
@@ -205,6 +206,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                 refundRequest: {
                     subject: String,
                     reason: String,
+                    requestedAt: Date,
                     status: {
                         type: String,
                         enum: {

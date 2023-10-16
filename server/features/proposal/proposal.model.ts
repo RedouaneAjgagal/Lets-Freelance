@@ -13,6 +13,9 @@ export type ProposalWithoutRef = {
     };
     status: "pending" | "interviewing" | "rejected" | "approved";
     sessionId?: string;
+    boostProposal: {
+        spentConnects: number
+    };
 };
 
 export type ProposalType = {
@@ -79,6 +82,12 @@ const proposalSchema = new mongoose.Schema<ProposalType>({
     },
     sessionId: {
         type: String
+    },
+    boostProposal: {
+        spentConnects: {
+            type: Number,
+            default: 0
+        }
     }
 }, {
     timestamps: true

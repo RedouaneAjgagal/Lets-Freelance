@@ -120,10 +120,33 @@ const isInvalidStatus = (status: ProposalType["status"] | undefined) => {
     return error;
 }
 
+const isInvalidConnects = (connects: ProposalType["boostProposal"]["spentConnects"] | undefined) => {
+    let error = "";
+
+    if (connects === undefined || connects.toString().trim() === "") {
+        return error = "Spent connects is required";
+    }
+
+    if (typeof connects !== "number") {
+        return error = "Invalid spent connects format";
+    }
+
+    if (connects < 0) {
+        return error = "Spent connects cannot be less than 0";
+    }
+
+    if (connects - Math.floor(connects) !== 0) {
+        return error = "Must be an integer number";
+    }
+
+    return error;
+}
+
 export {
     isInvalidCoverLetter,
     isInvalidEstimatedTime,
     isInvalidPrice,
     isInvalidPriceType,
-    isInvalidStatus
+    isInvalidStatus,
+    isInvalidConnects
 }

@@ -38,7 +38,7 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find proposals
-    const proposals = await Proposal.find({ job: jobId }).populate({ path: "job", select: "_id user" });
+    const proposals = await Proposal.find({ job: jobId }).populate({ path: "job", select: "_id user" }).sort("-boostProposal.spentConnects createdAt").select("-boostProposal.spentConnects");
 
     // check if belong to the current employer
     const isCurrentEmployerJob = proposals.every(proposal => proposal.job.user!.toString() === profile.user._id.toString());
@@ -54,10 +54,10 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route POST /api/v1/proposals
 //@access authentication (freelancers only)
 const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { jobId, coverLetter, estimatedTime, price } = req.body;
+    const { jobId, coverLetter, estimatedTime, price, spentConnects } = req.body;
 
     // check if valid inputs
-    createProposalValidator({ coverLetter, estimatedTime, price });
+    createProposalValidator({ coverLetter, estimatedTime, price, spentConnects });
 
     // check if valid mongodb id
     const isValidMongodbId = isValidObjectId(jobId);
@@ -94,7 +94,8 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // check if the freelancer have enough connects to submit the proposal
-    if (profile.roles.freelancer!.connects.connectionsCount < job.connects) {
+    const totalConnects: number = job.connects + spentConnects;
+    if (profile.roles.freelancer!.connects.connectionsCount < totalConnects) {
         throw new BadRequestError("You don't have enough connects to submit this proposal");
     }
 
@@ -106,10 +107,13 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         estimatedTime,
         price,
         priceType: job.priceType,
-        status: "pending"
+        status: "pending",
+        boostProposal: {
+            spentConnects
+        }
     });
 
-    profile.roles.freelancer!.connects.connectionsCount -= job.connects;
+    profile.roles.freelancer!.connects.connectionsCount -= totalConnects;
     await profile.save();
 
     res.status(StatusCodes.CREATED).json({ msg: "You have submitted a new proposal" });

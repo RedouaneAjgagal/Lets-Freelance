@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 import { IUser } from "../auth/auth.model";
 import { IProfile } from "../profile/profile.model";
+import jobFees from "./job.fees";
+
+export type JobDuration = {
+    dateType: "hours" | "days" | "months";
+    dateValue: number;
+}
 
 export type JobTypeWithoutRefs = {
     title: string;
@@ -12,10 +18,7 @@ export type JobTypeWithoutRefs = {
         max: number;
     };
     locationType: "remote" | "onsite";
-    duration: {
-        dateType: "hours" | "days" | "months";
-        dateValue: number;
-    } | null;
+    duration: JobDuration | null;
     weeklyHours: {
         min: number;
         max: number;
@@ -133,10 +136,10 @@ const jobSchema = new mongoose.Schema<JobType>({
     },
     connects: {
         type: Number,
-        min: 1,
-        max: 16,
+        min: jobFees.connectsPerJob.min,
+        max: jobFees.connectsPerJob.max,
         required: true,
-        default: 1
+        default: jobFees.connectsPerJob.min
     }
 }, {
     timestamps: true

@@ -56,13 +56,39 @@ const operatorTiers: OperatorTiers = {
     }
 }
 
+const connectsPerJob = {
+    min: 1,
+    max: 16,
+    fixedPriceJob: {
+        percent: 1.5
+    },
+    hourlyPriceJob: {
+        starterDuration: {
+            lowPercent: 5.5,
+            midPercent: 6.3,
+            highPercent: 8.4
+        },
+        standardDuration: {
+            lowPercent: 7.8,
+            midPercent: 8.9,
+            highPercent: 10.5
+        },
+        advancedDuration: {
+            lowPercent: 12.3,
+            midPercent: 13.5,
+            highPercent: 14.5
+        }
+    }
+};
+
 const jobFees = {
     creatingJobFees,
     hourlyJobFees,
     tierOneFees,
     tierTwoFees,
     tierThreeFees,
-    operatorTiers
+    operatorTiers,
+    connectsPerJob
 }
 
 export default jobFees;

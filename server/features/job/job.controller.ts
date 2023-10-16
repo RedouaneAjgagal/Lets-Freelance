@@ -11,6 +11,7 @@ import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import getFixedPriceJobAfterFees from "./utils/getFixedPriceJobAfterFees";
 import sendCreatedJobEmail from "./services/sendCreatedJobEmail";
 import jobFees from "./job.fees";
+import generateJobConnects from "./utils/generateJobConnects";
 
 
 //@desc get all jobs info
@@ -121,7 +122,7 @@ const getAllJobs: RequestHandler = async (req, res) => {
     const start = (currentPage - 1) * limit;
 
     // find jobs
-    const jobs = await Job.find(searchQuery).populate({ path: "profile", select: "userAs" }).select("title description priceType price experienceLevel createdAt tags duration").sort("-createdAt");
+    const jobs = await Job.find(searchQuery).populate({ path: "profile", select: "userAs" }).select("title description priceType price experienceLevel createdAt tags duration connects").sort("-createdAt");
 
     // filter for only employers
     const allJobs = jobs.filter(job => job.profile.userAs === "employer");
@@ -193,6 +194,13 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         currentUserRole: user.profile!.userAs!
     });
 
+    const jobConnects = inputs.priceType === "fixed" ?
+        generateJobConnects.fixedPriceJob({
+            jobPrice: inputs.price.min // for fixed price job min and max are the same value
+        }) : generateJobConnects.hourlyPriceJob({
+            price: inputs.price,
+            jobDuration: inputs.duration
+        });
 
     // get all job info
     const jobInfo: JobType = {
@@ -207,7 +215,8 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         duration: inputs.duration,
         weeklyHours: inputs.weeklyHours,
         experienceLevel: inputs.experienceLevel,
-        tags: inputs.tags
+        tags: inputs.tags,
+        connects: jobConnects
     }
 
     if (jobInfo.priceType === "fixed") {

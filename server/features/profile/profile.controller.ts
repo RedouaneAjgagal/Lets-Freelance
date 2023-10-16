@@ -8,6 +8,9 @@ import getUpdatedProfileInfo from "./helpers/getUpdatedProfileInfo";
 import { destroyCookie } from "../../utils/cookies";
 import { UploadedFile } from "express-fileupload";
 import uploadImage from "../../utils/uploadImage";
+import isInvalidConnect from "./validators/buyConnectsValidator";
+import stripe from "../../stripe/stripeConntect";
+import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 
 
 //@desc get current user profile
@@ -74,7 +77,7 @@ type Employer = {
 
 const singleProfile: RequestHandler = async (req, res) => {
     const { profileId } = req.params;
-    const profile = await Profile.findById(profileId).populate({ path: "user", select: "role" });
+    const profile = await Profile.findById(profileId).populate({ path: "user", select: "role" }).select("-roles.freelancer.connects");
     if (!profile) {
         throw new NotFoundError("Found no profile");
     }
@@ -262,7 +265,6 @@ const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-
 //@desc delete single profile
 //@route DELETE /api/v1/profile/:profileId
 //@access authorization
@@ -300,6 +302,128 @@ const deleteSingleProfile: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 
+//@desc buy connects for freelancers
+//@route POST /api/v1/profile/connects
+//@access authentication (freelancers only)
+const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { connects } = req.body;
+
+    // check if valid connects value
+    const invalidConnects = isInvalidConnect(connects);
+    if (invalidConnects) {
+        throw new BadRequestError(invalidConnects);
+    }
+
+    // find profile
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "email" });
+    if (!profile) {
+        throw new UnauthorizedError("Found no user");
+    }
+
+    // check if profile is a freelancer
+    if (profile.userAs !== "freelancer") {
+        throw new UnauthorizedError("Only freelancers have access to buy connects");
+    }
+
+    // get connect product
+    const connectProduct = await stripe.products.retrieve("prod_OpXMa2pFYUTp65");
+
+    const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        currency: "usd",
+        client_reference_id: profile.user._id.toString(),
+        line_items: [
+            {
+                price: connectProduct.default_price!.toString(), // 0.5 usd
+                quantity: connects
+            }
+        ],
+        success_url: `http://localhost:5000/api/v1/profiles/connects?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: "http://localhost:5173",
+        customer_email: profile.user.email,
+        metadata: {
+            freelancerId: profile.user._id.toString(),
+            connects
+        }
+    });
+
+    console.log(session.url);
+
+    profile.roles.freelancer!.connects.payments.push({
+        status: "pending",
+        sessionId: session.id,
+        connectionsCount: connects
+    });
+
+    await profile.save();
+
+    res.redirect(session.url!);
+}
+
+
+//@desc set connects to paid and increase profile connects
+//@route PATCH /api/v1/profile/connects
+//@access authentication (freelancers only)
+const setPaidConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { session_id } = req.query;
+
+    if (!session_id) {
+        throw new BadRequestError("Session ID is required");
+    }
+
+    // find profile
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthorizedError("Found no user");
+    }
+
+    // check if the user is a freelancer
+    if (profile.userAs !== "freelancer") {
+        throw new UnauthorizedError("Must be a freelancer");
+    }
+
+    // find the payment
+    const payment = profile.roles.freelancer!.connects.payments.find(payment => payment.sessionId === session_id);
+    if (!payment) {
+        throw new BadRequestError(`Found no payment with session ID ${session_id}`);
+    }
+
+    // check if the payment is at pending status
+    if (payment.status !== "pending") {
+        throw new BadRequestError("Only pending payments are valid to set as paid");
+    }
+
+    // find session
+    const session = await stripe.checkout.sessions.retrieve(payment.sessionId);
+    if (!session) {
+        throw new BadRequestError(`Found no session with ID ${payment.sessionId}`);
+    }
+
+    // check if the session has been paid
+    if (session.payment_status !== "paid") {
+        throw new BadRequestError("Must pay the connects first");
+    }
+
+    // set payment description to connect purchase
+    const paymentIntent = await stripe.paymentIntents.update(session.payment_intent!.toString(), {
+        description: "Connect Purchase",
+        metadata: {
+            freelancerId: profile.user._id.toString()
+        }
+    });
+
+    // set new values
+    payment.status = "paid";
+    payment.amountPaid = session.amount_total! / 100;
+    payment.connectionsCount = Number(session.metadata!.connects);
+    payment.paidAt = new Date(paymentIntent.created * 1000).toString();
+    profile.roles.freelancer!.connects.connectionsCount += Number(session.metadata!.connects);
+
+    await profile.save();
+
+
+    res.status(StatusCodes.OK).json({ msg: `You have bought ${session.metadata!.connects} connects successfully` });
+}
 
 export {
     profileInfo,
@@ -307,5 +431,7 @@ export {
     uploadAvatar,
     updateProfile,
     deleteProfile,
-    deleteSingleProfile
+    deleteSingleProfile,
+    buyConnects,
+    setPaidConnects
 }

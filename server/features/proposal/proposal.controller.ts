@@ -109,7 +109,7 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         status: "pending"
     });
 
-    profile.roles.freelancer!.connects.connectionsCount = profile.roles.freelancer!.connects.connectionsCount - job.connects;
+    profile.roles.freelancer!.connects.connectionsCount -= job.connects;
     await profile.save();
 
     res.status(StatusCodes.CREATED).json({ msg: "You have submitted a new proposal" });

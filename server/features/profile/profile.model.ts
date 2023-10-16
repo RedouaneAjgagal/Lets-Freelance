@@ -2,9 +2,11 @@ import mongoose from "mongoose";
 import { User } from "../auth";
 
 export type ConnectPayment = {
+    status: "pending" | "paid";
+    sessionId: string;
     connectionsCount: number;
-    amountPaid: number;
-    paidAt: string;
+    amountPaid?: number;
+    paidAt?: string;
 }
 
 export type Connects = {
@@ -138,6 +140,11 @@ const profileSchema = new mongoose.Schema<IProfile>({
             connects: {
                 payments: [
                     {
+                        status: {
+                            type: String,
+                            enum: ["pending", "paid"]
+                        },
+                        sessionId: String,
                         connectionsCount: Number,
                         amountPaid: Number,
                         paidAt: Date

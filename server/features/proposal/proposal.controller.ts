@@ -93,6 +93,11 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("You have already submitted a proposal to this job");
     }
 
+    // check if the freelancer have enough connects to submit the proposal
+    if (profile.roles.freelancer!.connects.connectionsCount < job.connects) {
+        throw new BadRequestError("You don't have enough connects to submit this proposal");
+    }
+
     await Proposal.create({
         job: jobId,
         user: profile.user,
@@ -103,6 +108,9 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         priceType: job.priceType,
         status: "pending"
     });
+
+    profile.roles.freelancer!.connects.connectionsCount = profile.roles.freelancer!.connects.connectionsCount - job.connects;
+    await profile.save();
 
     res.status(StatusCodes.CREATED).json({ msg: "You have submitted a new proposal" });
 }

@@ -142,7 +142,7 @@ const singleJob: RequestHandler = async (req, res) => {
     }
 
     // find the job
-    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees" }).lean();
+    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees" }).select("-tags").lean();
     if (!job) {
         throw new NotFoundError(`Found no job with id ${jobId}`);
     }
@@ -194,6 +194,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         currentUserRole: user.profile!.userAs!
     });
 
+    // generate job connects
     const jobConnects = inputs.priceType === "fixed" ?
         generateJobConnects.fixedPriceJob({
             jobPrice: inputs.price.min // for fixed price job min and max are the same value

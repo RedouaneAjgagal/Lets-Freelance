@@ -1,28 +1,21 @@
 import mongoose from "mongoose";
 import { User } from "../auth";
 
+export type ConnectPayment = {
+    connectionsCount: number;
+    amountPaid: number;
+    paidAt: string;
+}
 
+export type Connects = {
+    connectionsCount: number;
+    payments: ConnectPayment[];
+}
 
-export interface IProfile {
-    user: {
-        _id: typeof mongoose.Types.ObjectId;
-        email?: string;
-        isVerified?: boolean;
-        verifiedDate?: Date | null;
-        role?: "user" | "admin" | "owner";
-    };
-    name: string;
-    avatar: string;
-    showProfile: boolean;
-    userAs: "freelancer" | "employer";
-    country?: string;
-    phoneNumber?: number;
-    description?: string;
-    category?: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
-    roles: {
-        freelancer: IFreelancerRole | undefined;
-        employer: IEmployerRole | undefined;
-    };
+export interface IEmployerRole {
+    employees: number;
+    companyName?: string;
+    website?: string;
 }
 
 export interface IFreelancerRole {
@@ -47,12 +40,29 @@ export interface IFreelancerRole {
         endDate: string;
         description: string;
     }[];
+    connects: Connects;
 }
 
-export interface IEmployerRole {
-    employees: number;
-    companyName?: string;
-    website?: string;
+export interface IProfile {
+    user: {
+        _id: typeof mongoose.Types.ObjectId;
+        email?: string;
+        isVerified?: boolean;
+        verifiedDate?: Date | null;
+        role?: "user" | "admin" | "owner";
+    };
+    name: string;
+    avatar: string;
+    showProfile: boolean;
+    userAs: "freelancer" | "employer";
+    country?: string;
+    phoneNumber?: number;
+    description?: string;
+    category?: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    roles: {
+        freelancer: IFreelancerRole | undefined;
+        employer: IEmployerRole | undefined;
+    };
 }
 
 const profileSchema = new mongoose.Schema<IProfile>({
@@ -124,7 +134,22 @@ const profileSchema = new mongoose.Schema<IProfile>({
             },
             skills: Array,
             education: Array,
-            experience: Array
+            experience: Array,
+            connects: {
+                payments: [
+                    {
+                        connectionsCount: Number,
+                        amountPaid: Number,
+                        paidAt: Date
+                    }
+                ],
+                connectionsCount: {
+                    type: Number,
+                    min: 0,
+                    required: true,
+                    default: 16
+                }
+            }
         },
         employer: {
             companyName: String,
@@ -132,7 +157,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
             employees: {
                 type: Number,
                 min: 0,
-                default: 0
+                default: 10
             }
         }
     }

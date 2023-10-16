@@ -22,6 +22,7 @@ export type JobTypeWithoutRefs = {
     };
     experienceLevel: "expert" | "intermediate" | "entryLevel";
     tags: string[];
+    connects: number;
 }
 
 
@@ -129,6 +130,13 @@ const jobSchema = new mongoose.Schema<JobType>({
     tags: {
         type: [],
         require: true
+    },
+    connects: {
+        type: Number,
+        min: 1,
+        max: 16,
+        required: true,
+        default: 1
     }
 }, {
     timestamps: true

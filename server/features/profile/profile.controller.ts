@@ -334,7 +334,7 @@ const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
         client_reference_id: profile.user._id.toString(),
         line_items: [
             {
-                price: connectProduct.default_price!.toString(), // 0.5 usd
+                price: connectProduct.default_price!.toString(), // 0.34 usd
                 quantity: connects
             }
         ],

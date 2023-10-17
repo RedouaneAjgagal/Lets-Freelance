@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError, TooManyRequestsError, UnauthenticatedError, UnauthorizedError } from "../../errors";
-import Review from "./review.model";
+import Review, { ReviewType, ReviewWithoutRefs } from "./review.model";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
@@ -12,30 +12,28 @@ import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
 import { isInvalidActivityType } from "./validators/reviewInputValidator";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { User } from "../auth";
+import { contractModel as Contract } from "../contract";
 
 
 //@desc get all reviews related to the activity
 //@route GET /api/v1/reviews
 //@access public
-const getActivityReviews: RequestHandler = async (req, res) => {
-    const { activityId, activityType } = req.body;
+const getServiceReviews: RequestHandler = async (req, res) => {
+    const { service_id } = req.query;
 
     // check if valid mongodb id
-    const isValidMongooseId = isValidObjectId(activityId);
+    const isValidMongooseId = isValidObjectId(service_id);
     if (!isValidMongooseId) {
         throw new BadRequestError("Invalid id");
     }
 
-    // check if valid activity type (service or job)
-    const invalidActivityType = isInvalidActivityType(activityType);
-    if (invalidActivityType) {
-        throw new BadRequestError("Invalid activity");
-    }
-
     // find the activity
-    const activity = await Review.find({ [activityType]: activityId }).select("_id description rating createdAt updatedAt");
+    const activityReviews = await Review.find({ service: service_id }).populate({ path: "profile", select: " userAs" }).select("_id activityTitle description rating createdAt updatedAt").lean();
 
-    res.status(StatusCodes.OK).json(activity);
+    // get just the employer reviews
+    const activityEmployerReviews = activityReviews.filter(review => review.profile.userAs === "employer");
+
+    res.status(StatusCodes.OK).json(activityEmployerReviews);
 }
 
 
@@ -43,7 +41,7 @@ const getActivityReviews: RequestHandler = async (req, res) => {
 //@route POST /api/v1/reviews
 //@access authentication
 const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const inputs = req.body;
+    const { contractId, description, rating } = req.body;
 
     // find current user
     const profile = await Profile.findOne({ user: req.user!.userId });
@@ -52,46 +50,50 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // check if valid inputs
-    const reviewInfo = createReviewValidator(inputs);
+    const reviewInfo = createReviewValidator({
+        description,
+        rating
+    });
 
     // check if valid mongodb id
-    const activityId = inputs.activityId;
-    const isValidMongooseId = isValidObjectId(activityId);
-    if (!isValidMongooseId) {
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
         throw new BadRequestError("Invalid id");
     }
 
     // find the activity (job or service)
-    const activity = reviewInfo.activityType === "job" ?
-        await Job.findById(activityId)
-        :
-        await Service.findById(activityId);
-
-    if (!activity) {
-        throw new NotFoundError(`Found no ${reviewInfo.activityType} with id ${activityId}`);
+    const contract = await Contract.findById(contractId);
+    if (!contract) {
+        throw new BadRequestError(`Found no contract with ID ${contractId}`);
     }
 
-    // get all review info
-    const getReviewInfo = {
-        user: profile.user._id,
-        profile: profile._id,
-        [reviewInfo.activityType]: activityId,
-        activityTitle: activity.title,
-        ...reviewInfo
+    // check if the current user have access to this contract
+    if (contract[profile.userAs].user._id.toString() !== profile.user._id.toString()) {
+        throw new UnauthorizedError("You dont have access to this contract");
     }
 
-    // check if the user didnt create a review on this activiry (service or job) before
-    const existedReview = await Review.findOne({ user: profile.user, profile: profile._id, [reviewInfo.activityType]: activityId });
+    // check if the user didnt make any review on this contract yet
+    const existedReview = await Review.findOne({ user: profile.user, profile: profile._id, contract: contract._id });
     if (existedReview) {
-        throw new BadRequestError(`You have already left a review on this ${reviewInfo.activityType}`);
+        throw new BadRequestError(`You have already left a review on this ${contract.activityType}`);
     }
 
-
-    // add contract checker later (if the user already completed a contract with this activity then can create a review) 
-
+    // check if the user already completed the contract
+    if (contract[profile.userAs].status !== "completed") {
+        throw new BadRequestError("You can't submit a review on uncompleted contract");
+    }
 
     // create the review
-    const review = await Review.create(getReviewInfo);
+    const review = await Review.create({
+        contract: contract._id,
+        user: profile.user._id,
+        profile: profile._id,
+        activityType: contract.activityType,
+        activityTitle: contract[contract.activityType]!.title,
+        description: reviewInfo.description,
+        rating: reviewInfo.rating,
+        [contract.activityType]: contract.activityType === "job" ? contract.job!.jobInfo._id : contract.service!.serviceInfo._id
+    });
 
     const reviewData = {
         activity: review.activityType,
@@ -193,7 +195,7 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 export {
-    getActivityReviews,
+    getServiceReviews,
     createReview,
     updateReview,
     deleteReview

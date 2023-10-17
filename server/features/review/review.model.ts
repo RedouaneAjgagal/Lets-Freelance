@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import { IUser } from "../auth";
+import { IProfile } from "../profile";
+import { IService } from "../service";
+import { JobType } from "../job";
+import { ContractType } from "../contract";
 
 export type ReviewWithoutRefs = {
     activityType: "service" | "job";
@@ -7,22 +12,26 @@ export type ReviewWithoutRefs = {
     description: string;
 }
 
-export type Review = {
+export type ReviewType = {
     user: {
         _id: mongoose.Types.ObjectId;
-    };
+    } & Partial<IUser>;
     profile: {
         _id: mongoose.Types.ObjectId;
-    };
+    } & Partial<IProfile>;
     service: {
         _id: mongoose.Types.ObjectId;
-    } | undefined;
+    } | undefined & Partial<IService>;
     job: {
         _id: mongoose.Types.ObjectId;
-    } | undefined;
+    } | undefined & Partial<JobType>;
+    contract: {
+        _id: mongoose.Types.ObjectId;
+    } & Partial<ContractType>;
+
 } & ReviewWithoutRefs;
 
-const reviewSchema = new mongoose.Schema<Review>({
+const reviewSchema = new mongoose.Schema<ReviewType>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -40,6 +49,11 @@ const reviewSchema = new mongoose.Schema<Review>({
     job: {
         type: mongoose.Types.ObjectId,
         ref: "Job"
+    },
+    contract: {
+        type: mongoose.Types.ObjectId,
+        ref: "Contract",
+        required: true
     },
     activityType: {
         type: String,

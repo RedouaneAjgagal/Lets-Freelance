@@ -18,10 +18,10 @@ import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 //@route get /api/v1/proposals
 //@access authentication (job creator only)
 const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { jobId } = req.body;
+    const { job_id } = req.query;
 
     // check if valid mongodb id
-    const isValidMongodbId = isValidObjectId(jobId);
+    const isValidMongodbId = isValidObjectId(job_id);
     if (!isValidMongodbId) {
         throw new BadRequestError("Invalid id");
     }
@@ -38,7 +38,7 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find proposals
-    const proposals = await Proposal.find({ job: jobId }).populate({ path: "job", select: "_id user" }).sort("-boostProposal.spentConnects createdAt").select("-boostProposal.spentConnects");
+    const proposals = await Proposal.find({ job: job_id }).populate({ path: "job", select: "_id user" }).sort("-boostProposal.spentConnects createdAt").select("-boostProposal.spentConnects");
 
     // check if belong to the current employer
     const isCurrentEmployerJob = proposals.every(proposal => proposal.job.user!.toString() === profile.user._id.toString());

@@ -6,6 +6,7 @@ import { JobType } from "../job";
 import { ContractType } from "../contract";
 
 export type ReviewWithoutRefs = {
+    submittedBy: "freelancer" | "employer";
     activityType: "service" | "job";
     activityTitle: string;
     rating: number;
@@ -13,10 +14,10 @@ export type ReviewWithoutRefs = {
 }
 
 export type ReviewType = {
-    user: {
+    freelancer: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IUser>;
-    profile: {
+    employer: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IProfile>;
     service: {
@@ -32,14 +33,14 @@ export type ReviewType = {
 } & ReviewWithoutRefs;
 
 const reviewSchema = new mongoose.Schema<ReviewType>({
-    user: {
+    freelancer: {
         type: mongoose.Types.ObjectId,
         ref: "User",
         required: true
     },
-    profile: {
+    employer: {
         type: mongoose.Types.ObjectId,
-        ref: "Profile",
+        ref: "User",
         required: true
     },
     service: {
@@ -53,6 +54,11 @@ const reviewSchema = new mongoose.Schema<ReviewType>({
     contract: {
         type: mongoose.Types.ObjectId,
         ref: "Contract",
+        required: true
+    },
+    submittedBy: {
+        type: String,
+        enum: ["freelancer", "employer"],
         required: true
     },
     activityType: {
@@ -81,7 +87,7 @@ const reviewSchema = new mongoose.Schema<ReviewType>({
     timestamps: true
 });
 
-reviewSchema.index({ user: 1, profile: 1, service: 1, job: 1 }, { unique: true });
+reviewSchema.index({ contract: 1, submittedBy: 1, freelancer: 1, employer: 1 }, { unique: true });
 
 const Review = mongoose.model("Review", reviewSchema);
 

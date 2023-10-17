@@ -3,23 +3,14 @@ import { ReviewWithoutRefs } from "../review.model"
 import { isInvalidActivityType, isInvalidDescription, isInvalidRating } from "./reviewInputValidator";
 
 type ExpectedInputs = {
-    activityType: ReviewWithoutRefs["activityType"] | undefined;
-} & Outputs;
-
-type Outputs = {
     description: ReviewWithoutRefs["description"] | undefined;
     rating: ReviewWithoutRefs["rating"] | undefined;
-}
+};
 
 const getUpdatedReviewInfo = (inputs: ExpectedInputs) => {
-    const { activityType, description, rating } = inputs;
+    const { description, rating } = inputs;
 
-    const updatedReviewInfo: Partial<Outputs> = {};
-
-    const invalidActivityType = isInvalidActivityType(activityType);
-    if (invalidActivityType) {
-        throw new BadRequestError("Activity type is required");
-    }
+    const updatedReviewInfo: Partial<ExpectedInputs> = {};
 
     const invalidDescription = isInvalidDescription(description);
     if (!invalidDescription) {

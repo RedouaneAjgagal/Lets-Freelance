@@ -5,17 +5,14 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
 import createReviewValidator from "./validators/createReviewValidator";
-import { jobModel as Job } from "../job";
-import { serviceModel as Service } from "../service";
 import { isValidObjectId } from "mongoose";
 import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
-import { isInvalidActivityType } from "./validators/reviewInputValidator";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { User } from "../auth";
 import { contractModel as Contract } from "../contract";
 
 
-//@desc get all reviews related to the activity
+//@desc get all service reviews
 //@route GET /api/v1/reviews
 //@access public
 const getServiceReviews: RequestHandler = async (req, res) => {
@@ -28,12 +25,31 @@ const getServiceReviews: RequestHandler = async (req, res) => {
     }
 
     // find the activity
-    const activityReviews = await Review.find({ service: service_id }).populate({ path: "profile", select: " userAs" }).select("_id activityTitle description rating createdAt updatedAt").lean();
+    const activityReviews = await Review.find({ service: service_id, submittedBy: "employer", activityType: "service" }).select("_id activityTitle description rating createdAt updatedAt").lean();
 
-    // get just the employer reviews
-    const activityEmployerReviews = activityReviews.filter(review => review.profile.userAs === "employer");
+    res.status(StatusCodes.OK).json(activityReviews);
+}
 
-    res.status(StatusCodes.OK).json(activityEmployerReviews);
+
+//@desc get all profile job reviews
+//@route GET /api/v1/reviews/profile
+//@access authentication
+const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthorizedError("Found no user");
+    }
+
+    // get completed job reviews
+    const submittedBy = profile.userAs === "employer" ? "freelancer" : "employer";
+    const completedJobReviews = await Review.find({ [profile.userAs]: profile.user._id, submittedBy, activityType: "job" }).select("_id activityTitle description rating createdAt updatedAt user").lean();
+
+    // get in progress jobs
+    const user = `${[profile.userAs]}.user`;
+    const inProgressJobs = await Contract.find({ [user]: profile.user, activityType: "job", $and: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }] }).select("_id job.title");
+
+    res.status(StatusCodes.OK).json({ completedJobReviews, inProgressJobs });
 }
 
 
@@ -73,9 +89,9 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // check if the user didnt make any review on this contract yet
-    const existedReview = await Review.findOne({ user: profile.user, profile: profile._id, contract: contract._id });
+    const existedReview = await Review.findOne({ contract: contract._id, [profile.userAs]: profile.user._id, submittedBy: profile.userAs }).lean();
     if (existedReview) {
-        throw new BadRequestError(`You have already left a review on this ${contract.activityType}`);
+        throw new BadRequestError(`You have already submitted a review on this ${contract.activityType}`);
     }
 
     // check if the user already completed the contract
@@ -86,8 +102,9 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     // create the review
     const review = await Review.create({
         contract: contract._id,
-        user: profile.user._id,
-        profile: profile._id,
+        employer: contract.employer.user._id,
+        freelancer: contract.freelancer.user._id,
+        submittedBy: profile.userAs,
         activityType: contract.activityType,
         activityTitle: contract[contract.activityType]!.title,
         description: reviewInfo.description,
@@ -107,20 +124,23 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc update a review
-//@route PATCH /api/v1/reviews
+//@route PATCH /api/v1/reviews/reviewId
 //@access authentication
 const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const inputs = req.body;
-
-    // get the valid updated values
-    const updatedReviewInfo = getUpdatedReviewInfo(inputs);
+    const { reviewId } = req.params;
+    const { description, rating } = req.body;
 
     // check if valid mongodb id
-    const activityId = inputs.activityId;
-    const isValidMongooseId = isValidObjectId(activityId);
-    if (!isValidMongooseId) {
-        throw new BadRequestError("Invalid id");
+    const isValidMongodbId = isValidObjectId(reviewId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
     }
+
+    // get the valid updated values
+    const updatedReviewInfo = getUpdatedReviewInfo({
+        description,
+        rating
+    });
 
     // find current user
     const profile = await Profile.findOne({ user: req.user!.userId });
@@ -128,17 +148,28 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Found no user");
     }
 
-    // find the review and update it
-    const review = await Review.findOneAndUpdate({ profile: profile._id, user: profile.user, [inputs.activityType]: activityId },
-        updatedReviewInfo,
-        { runValidators: true, sanitizeFilter: true, new: true });
-
-
+    // find review
+    const review = await Review.findById(reviewId);
     if (!review) {
-        throw new BadRequestError("Found no review to update");
+        throw new BadRequestError(`Found no review with ID ${reviewId}`);
     }
 
-    res.status(StatusCodes.OK).json({ rating: review.rating, description: review.description });
+    // check if the current user have acces to this review
+    if (review[review.submittedBy]._id.toString() !== profile.user._id.toString()) {
+        throw new UnauthorizedError("You don't have access to update this review");
+    }
+
+    // update the review
+    await review.updateOne({
+        $set: {
+            rating: updatedReviewInfo.rating,
+            description: updatedReviewInfo.description
+        }
+    }, {
+        runValidators: true, sanitizeFilter: true, new: true
+    });
+
+    res.status(StatusCodes.OK).json({ rating: updatedReviewInfo.rating, description: updatedReviewInfo.description });
 }
 
 //@desc delete a review
@@ -160,7 +191,7 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find user
-    const user = await User.findById(req.user!.userId);
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
     if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
@@ -182,12 +213,12 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // check if the review belongs to current user
-    if (review.user._id.toString() !== user._id.toString()) {
+    if ((review[review.submittedBy]._id.toString() !== user._id.toString())) {
         throw new UnauthorizedError("You dont have access to delete this review");
     }
 
     // delete review
-    review.deleteOne();
+    await review.deleteOne();
 
     res.status(StatusCodes.OK).json({ msg: `Your review has been deleted` });
 
@@ -196,6 +227,7 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 export {
     getServiceReviews,
+    profileJobReviews,
     createReview,
     updateReview,
     deleteReview

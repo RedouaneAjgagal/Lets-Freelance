@@ -43,11 +43,43 @@ const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) =>
 
     // get completed job reviews
     const submittedBy = profile.userAs === "employer" ? "freelancer" : "employer";
-    const completedJobReviews = await Review.find({ [profile.userAs]: profile.user._id, submittedBy, activityType: "job" }).select("_id activityTitle description rating createdAt updatedAt user").lean();
+    const completedJobReviews = await Review.aggregate([
+        {
+            $match: {
+                $and: [{ [profile.userAs]: profile.user._id, submittedBy, activityType: "job" }]
+            }
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                localField: "contract",
+                foreignField: "_id",
+                as: "contract"
+            }
+        },
+        {
+            $unwind: "$contract"
+        },
+        {
+            $sort: {
+                "contract.completedAt": -1
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                activityTitle: 1,
+                description: 1,
+                rating: 1,
+                "contract.createdAt": 1,
+                "contract.completedAt": 1
+            }
+        },
+    ]);
 
     // get in progress jobs
     const user = `${[profile.userAs]}.user`;
-    const inProgressJobs = await Contract.find({ [user]: profile.user, activityType: "job", $and: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }] }).select("_id job.title");
+    const inProgressJobs = await Contract.find({ [user]: profile.user, activityType: "job", $and: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }] }).select("_id job.title createdAt").sort("-createdAt");
 
     res.status(StatusCodes.OK).json({ completedJobReviews, inProgressJobs });
 }

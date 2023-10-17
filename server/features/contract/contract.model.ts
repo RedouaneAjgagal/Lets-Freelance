@@ -70,6 +70,7 @@ export type ContractType = {
         employer: CancelRequestType;
         status: "pending" | "rejected" | "approved" | undefined;
     };
+    completedAt?: string;
 }
 
 const contractSchema = new mongoose.Schema<ContractType>({
@@ -260,7 +261,8 @@ const contractSchema = new mongoose.Schema<ContractType>({
                 message: "{VALUE} is not supported"
             }
         }
-    }
+    },
+    completedAt: Date
 }, {
     timestamps: true
 });

@@ -327,6 +327,9 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
             feeAmount,
             feeType,
         });
+
+        // set completed at
+        contract.completedAt = new Date(Date.now()).toString();
     }
 
     await contract.save();
@@ -487,6 +490,9 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
                 totalAmount
             });
         }
+
+        // set completed at
+        contract.completedAt = new Date(Date.now()).toString();
     }
 
     // update the contract
@@ -899,7 +905,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
 const getRefundRequests: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find all refund requested contracts
     const contracts = await Contract.find({ "payments.employer.refundRequest.status": { $in: ["pending"] } }).select("-freelancer -employer -cancelRequest").sort("payments.employer.refundRequest.requestedAt");
-    
+
     res.status(StatusCodes.OK).json(contracts);
 }
 

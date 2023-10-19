@@ -5,7 +5,7 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
 import createReviewValidator from "./validators/createReviewValidator";
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, model } from "mongoose";
 import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { User } from "../auth";
@@ -145,11 +145,18 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     });
 
     const reviewData = {
+        _id: review._id.toString(),
         activity: review.activityType,
         title: review.activityTitle,
         rating: review.rating,
         description: review.description
     }
+
+    // update profile average rating
+    await review.profileAvgRating({
+        userAs: profile.userAs,
+        userRatedId: profile.userAs === "employer" ? contract.freelancer.user._id : contract.employer.user._id
+    });
 
     res.status(StatusCodes.CREATED).json(reviewData);
 }
@@ -201,6 +208,14 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
         runValidators: true, sanitizeFilter: true, new: true
     });
 
+    // update profile average rating if rating is updated
+    if (updatedReviewInfo.rating !== review.rating) {
+        await review.profileAvgRating({
+            userAs: profile.userAs,
+            userRatedId: profile.userAs === "employer" ? review.freelancer._id : review.employer._id
+        });
+    }
+
     res.status(StatusCodes.OK).json({ rating: updatedReviewInfo.rating, description: updatedReviewInfo.description });
 }
 
@@ -251,6 +266,12 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // delete review
     await review.deleteOne();
+
+    // update profile average rating
+    await review.profileAvgRating({
+        userAs: user.profile!.userAs!,
+        userRatedId: user.profile!.userAs === "employer" ? review.freelancer._id : review.employer._id
+    });
 
     res.status(StatusCodes.OK).json({ msg: `Your review has been deleted` });
 

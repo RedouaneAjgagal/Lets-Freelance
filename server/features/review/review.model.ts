@@ -1,9 +1,22 @@
 import mongoose from "mongoose";
 import { IUser } from "../auth";
-import { IProfile } from "../profile";
+import { IProfile, Profile } from "../profile";
 import { IService } from "../service";
 import { JobType } from "../job";
 import { ContractType } from "../contract";
+
+type GetAvgRating = {
+    userAs: "freelancer" | "employer";
+    userRatedId: mongoose.Types.ObjectId;
+}
+
+export interface ReviewInterfaceFunction extends mongoose.Model<ReviewType> {
+    getAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
+}
+
+type ReviewFunctions = {
+    profileAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
+}
 
 export type ReviewWithoutRefs = {
     submittedBy: "freelancer" | "employer";
@@ -30,7 +43,7 @@ export type ReviewType = {
         _id: mongoose.Types.ObjectId;
     } & Partial<ContractType>;
 
-} & ReviewWithoutRefs;
+} & ReviewWithoutRefs & ReviewFunctions;
 
 const reviewSchema = new mongoose.Schema<ReviewType>({
     freelancer: {
@@ -88,6 +101,55 @@ const reviewSchema = new mongoose.Schema<ReviewType>({
 });
 
 reviewSchema.index({ contract: 1, submittedBy: 1, freelancer: 1, employer: 1 }, { unique: true });
+
+// submit profile average rating after making a review  
+reviewSchema.statics.getAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
+    const [data]: { _id: null; avgRating: number; numOfReviews: number }[] = await Review.aggregate([
+        {
+            $match: {
+                $and: [
+                    { [userAs === "employer" ? "freelancer" : "employer"]: userRatedId },
+                    { submittedBy: userAs }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                avgRating: {
+                    $avg: "$rating"
+                },
+                numOfReviews: {
+                    $sum: 1
+                }
+            }
+        }
+    ]);
+
+    if (data) {
+        await Profile.findOneAndUpdate({
+            user: userRatedId
+        }, {
+            $set: {
+                "rating.avgRate": data.avgRating.toFixed(1),
+                "rating.numOfReviews": data.numOfReviews
+            }
+        });
+    }
+}
+
+reviewSchema.methods.profileAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
+    await (this.constructor as ReviewInterfaceFunction).getAvgRating({
+        userAs,
+        userRatedId
+    })
+}
+
+// reviewSchema.post((["save"]), { document: true }, async function () {
+//     console.log(true);
+
+//     // await (this.constructor as ReviewInterfaceFunction).profileAvgRating(this[this.submittedBy]._id.toString());
+// })
 
 const Review = mongoose.model("Review", reviewSchema);
 

@@ -20,6 +20,11 @@ export interface IEmployerRole {
     website?: string;
 }
 
+export type Rating = {
+    avgRate?: number;
+    numOfReviews: number;
+}
+
 export interface IFreelancerRole {
     dateOfBirth?: Date;
     hourlyRate?: number;
@@ -61,6 +66,7 @@ export interface IProfile {
     phoneNumber?: number;
     description?: string;
     category?: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    rating: Rating;
     roles: {
         freelancer: IFreelancerRole | undefined;
         employer: IEmployerRole | undefined;
@@ -105,6 +111,17 @@ const profileSchema = new mongoose.Schema<IProfile>({
     description: {
         type: String,
         maxLength: 1000
+    },
+    rating: {
+        avgRate: {
+            type: Number,
+            min: 1,
+            max: 5
+        },
+        numOfReviews: {
+            type: Number,
+            default: 0
+        }
     },
     roles: {
         freelancer: {
@@ -174,8 +191,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
 // delete all related document
 profileSchema.pre("deleteOne", { document: true, query: false }, async function () {
     await User.deleteOne({ _id: this.user._id });
-})
-
+});
 
 const Profile = mongoose.model("Profile", profileSchema);
 

@@ -1,6 +1,6 @@
-import { Review } from "../review.model";
+import { ReviewWithoutRefs } from "../review.model";
 
-const isInvalidActivityType = (activityType: Review["activityType"] | undefined) => {
+const isInvalidActivityType = (activityType: ReviewWithoutRefs["activityType"] | undefined) => {
     let error = "";
     if (!activityType || activityType.toString().trim() === "") {
         return error = "Activity type is required";
@@ -18,7 +18,7 @@ const isInvalidActivityType = (activityType: Review["activityType"] | undefined)
     return error;
 }
 
-const isInvalidRating = (rating: Review["rating"] | undefined) => {
+const isInvalidRating = (rating: ReviewWithoutRefs["rating"] | undefined) => {
     let error = "";
     if (!rating || rating.toString().trim() === "") {
         return error = "rating is required";
@@ -39,7 +39,7 @@ const isInvalidRating = (rating: Review["rating"] | undefined) => {
     return error;
 }
 
-const isInvalidDescription = (description: Review["description"] | undefined) => {
+const isInvalidDescription = (description: ReviewWithoutRefs["description"] | undefined) => {
     let error = "";
 
     if (description && typeof description !== "string") {

@@ -8,7 +8,7 @@ router.route("/")
     .get(getServiceReviews)
     .post(authentication, createReview);
 
-router.route("/profile")
+router.route("/profile/:profileId")
     .get(authentication, profileJobReviews);
 
 router.route("/:reviewId")

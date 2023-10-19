@@ -35,10 +35,18 @@ const getServiceReviews: RequestHandler = async (req, res) => {
 //@route GET /api/v1/reviews/profile
 //@access authentication
 const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { profileId } = req.params;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(profileId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    }
+
     // find user
-    const profile = await Profile.findOne({ user: req.user!.userId });
+    const profile = await Profile.findById(profileId);
     if (!profile) {
-        throw new UnauthorizedError("Found no user");
+        throw new NotFoundError(`Found no profile with ID ${profileId}`);
     }
 
     // get completed job reviews

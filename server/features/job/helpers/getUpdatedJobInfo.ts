@@ -1,5 +1,5 @@
 import { JobTypeWithoutRefs } from "../job.model"
-import { isInvalidCategory, isInvalidDescription, isInvalidDuration, isInvalidExperienceLevel, isInvalidLocationType, isInvalidPrice, isInvalidPriceType, isInvalidTags, isInvalidTitle, isInvalidWeeklyHours } from "../validators/jobInputValidators"
+import { isInvalidCategory, isInvalidDescription, isInvalidDuration, isInvalidExperienceLevel, isInvalidLocationType, isInvalidPrice, isInvalidPriceType, isInvalidTags, isInvalidTitle, isInvalidWeeklyHours, isInvalidStatus } from "../validators/jobInputValidators"
 
 type ExpectedInputs = Partial<JobTypeWithoutRefs>
 
@@ -9,7 +9,7 @@ type UpdatedJobInfo = {
 }
 
 const getUpdatedJobInfo = ({ inputs, jobPriceType }: UpdatedJobInfo) => {
-    const { category, description, duration, experienceLevel, locationType, price, priceType, tags, title, weeklyHours } = inputs;
+    const { category, description, duration, experienceLevel, locationType, price, priceType, tags, title, weeklyHours, status } = inputs;
 
     const updatedInfo: Partial<JobTypeWithoutRefs> = {}
 
@@ -29,12 +29,14 @@ const getUpdatedJobInfo = ({ inputs, jobPriceType }: UpdatedJobInfo) => {
     }
 
     const invalidPriceType = isInvalidPriceType(priceType);
-    if (!invalidPriceType) {
-        updatedInfo.priceType = priceType;
-    }
 
     const getPriceType = invalidPriceType ? jobPriceType : priceType;
     const invalidPrice = isInvalidPrice(price, getPriceType!);
+
+    if (!invalidPriceType && !invalidPrice) {
+        updatedInfo.priceType = priceType;
+    }
+
     if (!invalidPrice) {
         updatedInfo.price = price;
     }
@@ -62,6 +64,11 @@ const getUpdatedJobInfo = ({ inputs, jobPriceType }: UpdatedJobInfo) => {
     const invalidTags = isInvalidTags(tags);
     if (!invalidTags) {
         updatedInfo.tags = tags;
+    }
+
+    const invalidStatus = isInvalidStatus(status);
+    if (!invalidStatus) {
+        updatedInfo.status = status;
     }
 
     return updatedInfo;

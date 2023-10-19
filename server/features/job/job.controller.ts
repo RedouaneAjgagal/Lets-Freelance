@@ -217,7 +217,8 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
         weeklyHours: inputs.weeklyHours,
         experienceLevel: inputs.experienceLevel,
         tags: inputs.tags,
-        connects: jobConnects
+        connects: jobConnects,
+        status: "open"
     }
 
     if (jobInfo.priceType === "fixed") {

@@ -26,6 +26,7 @@ export type JobTypeWithoutRefs = {
     experienceLevel: "expert" | "intermediate" | "entryLevel";
     tags: string[];
     connects: number;
+    status: "open" | "closed";
 }
 
 
@@ -140,6 +141,12 @@ const jobSchema = new mongoose.Schema<JobType>({
         max: jobFees.connectsPerJob.max,
         required: true,
         default: jobFees.connectsPerJob.min
+    },
+    status: {
+        type: String,
+        enum: ["open", "closed"],
+        required: true,
+        default: "open"
     }
 }, {
     timestamps: true

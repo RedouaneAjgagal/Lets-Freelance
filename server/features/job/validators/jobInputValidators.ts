@@ -105,6 +105,10 @@ const isInvalidPrice = (price: JobTypeWithoutRefs["price"] | undefined, priceTyp
         return true;
     });
 
+    if (priceType === "fixed" && price.min !== price.max) {
+        return error = "For fixed price job, min/max price must be the same";
+    }
+
     if (!isValidPrice) {
         return error = "Invalid price format";
     }
@@ -268,6 +272,25 @@ const isInvalidTags = (tags: JobTypeWithoutRefs["tags"] | undefined) => {
     return error;
 }
 
+const isInvalidStatus = (status: JobTypeWithoutRefs["status"] | undefined) => {
+    let error = "";
+
+    if (!status || status.toString().trim() === "") {
+        return error = "Job status is required";
+    }
+
+    if (typeof status !== "string") {
+        return error = "Invalid job's status format";
+    }
+
+    const validStatus = ["open", "closed"];
+    if (!validStatus.includes(status)) {
+        return error = "Unsupported job's status";
+    }
+
+    return error;
+}
+
 
 export {
     isInvalidCategory,
@@ -279,5 +302,6 @@ export {
     isInvalidPriceType,
     isInvalidTags,
     isInvalidWeeklyHours,
-    isInvalidTitle
+    isInvalidTitle,
+    isInvalidStatus
 }

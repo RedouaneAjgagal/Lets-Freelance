@@ -32,7 +32,7 @@ const getServiceReviews: RequestHandler = async (req, res) => {
 
 
 //@desc get all profile job reviews
-//@route GET /api/v1/reviews/profile
+//@route GET /api/v1/reviews/profile/:profileId
 //@access authentication
 const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { profileId } = req.params;
@@ -166,6 +166,11 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
         userRatedId: profile.userAs === "employer" ? contract.freelancer.user._id : contract.employer.user._id
     });
 
+    // set average rating if its a service review submitted by an employer
+    if (review.activityType === "service" && review.submittedBy === "employer") {
+        await review.serviceAvgRating(review.service._id);
+    }
+
     res.status(StatusCodes.CREATED).json(reviewData);
 }
 
@@ -222,6 +227,11 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
             userAs: profile.userAs,
             userRatedId: profile.userAs === "employer" ? review.freelancer._id : review.employer._id
         });
+
+        // update average rating if its a service review
+        if (review.activityType === "service" && review.submittedBy === "employer" && review.employer._id.toString() === profile.user._id.toString()) {
+            await review.serviceAvgRating(review.service._id);
+        }
     }
 
     res.status(StatusCodes.OK).json({ rating: updatedReviewInfo.rating, description: updatedReviewInfo.description });
@@ -280,6 +290,11 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
         userAs: user.profile!.userAs!,
         userRatedId: user.profile!.userAs === "employer" ? review.freelancer._id : review.employer._id
     });
+
+    // update average rating if its a service review
+    if (review.activityType === "service" && review.submittedBy === "employer" && review.employer._id.toString() === user._id.toString()) {
+        await review.serviceAvgRating(review.service._id);
+    }
 
     res.status(StatusCodes.OK).json({ msg: `Your review has been deleted` });
 

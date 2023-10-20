@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { IUser } from "../auth";
 import { IProfile, Profile } from "../profile";
-import { IService } from "../service";
+import { IService, serviceModel as Service } from "../service";
 import { JobType } from "../job";
 import { ContractType } from "../contract";
 
@@ -11,11 +11,13 @@ type GetAvgRating = {
 }
 
 export interface ReviewInterfaceFunction extends mongoose.Model<ReviewType> {
-    getAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
+    getProfileAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
+    getServiceAvgRating: (serviceId: mongoose.Types.ObjectId) => Promise<void>;
 }
 
 type ReviewFunctions = {
     profileAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
+    serviceAvgRating: (serviceId: mongoose.Types.ObjectId) => Promise<void>;
 }
 
 export type ReviewWithoutRefs = {
@@ -44,6 +46,7 @@ export type ReviewType = {
     } & Partial<ContractType>;
 
 } & ReviewWithoutRefs & ReviewFunctions;
+
 
 const reviewSchema = new mongoose.Schema<ReviewType>({
     freelancer: {
@@ -103,7 +106,7 @@ const reviewSchema = new mongoose.Schema<ReviewType>({
 reviewSchema.index({ contract: 1, submittedBy: 1, freelancer: 1, employer: 1 }, { unique: true });
 
 // submit profile average rating after making a review  
-reviewSchema.statics.getAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
+reviewSchema.statics.getProfileAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
     const [data]: { _id: null; avgRating: number; numOfReviews: number }[] = await Review.aggregate([
         {
             $match: {
@@ -139,17 +142,62 @@ reviewSchema.statics.getAvgRating = async function ({ userAs, userRatedId }: Get
 }
 
 reviewSchema.methods.profileAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
-    await (this.constructor as ReviewInterfaceFunction).getAvgRating({
+    await (this.constructor as ReviewInterfaceFunction).getProfileAvgRating({
         userAs,
         userRatedId
-    })
+    });
 }
 
-// reviewSchema.post((["save"]), { document: true }, async function () {
-//     console.log(true);
+reviewSchema.statics.getServiceAvgRating = async function (serviceId: mongoose.Types.ObjectId,) {
+    const [data]: { _id: null; avgRate: number; numOfReviews: number }[] = await this.aggregate([
+        {
+            $match: {
+                $and: [
+                    { activityType: "service" },
+                    { service: serviceId },
+                    { submittedBy: "employer" }
+                ]
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                avgRate: {
+                    $avg: "$rating"
+                },
+                numOfReviews: {
+                    $sum: 1
+                }
+            }
+        }
+    ]);
 
-//     // await (this.constructor as ReviewInterfaceFunction).profileAvgRating(this[this.submittedBy]._id.toString());
-// })
+    console.log(data);
+
+
+    // check if the last review got deleted then set default values 
+    if (!data) {
+        return await Service.findByIdAndUpdate(serviceId, {
+            $set: {
+                "rating.avgRate": null,
+                "rating.numOfReviews": 0
+            }
+        });
+    }
+
+    // set service ratings
+    await Service.findByIdAndUpdate(serviceId, {
+        $set: {
+            "rating.avgRate": data.avgRate.toFixed(1),
+            "rating.numOfReviews": data.numOfReviews
+        }
+    });
+
+}
+
+reviewSchema.methods.serviceAvgRating = async function (serviceId: mongoose.Types.ObjectId) {
+    await (this.constructor as ReviewInterfaceFunction).getServiceAvgRating(serviceId);
+}
 
 const Review = mongoose.model("Review", reviewSchema);
 

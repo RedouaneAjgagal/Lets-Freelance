@@ -170,6 +170,9 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
         gallery: inputs.gallery,
         tier: inputs.tier,
         keywords: inputs.keywords,
+        rating: {
+            numOfReviews: 0
+        },
         orders: []
     }
 

@@ -7,6 +7,11 @@ export type IncludedIn = {
     result: string | number | boolean;
 }
 
+type Rating = {
+    avgRate?: number;
+    numOfReviews: number;
+}
+
 export type ServicePlan = {
     deliveryTime: number;
     price: number;
@@ -34,7 +39,8 @@ export type ServiceWithoutRefs = {
     featuredImage: string;
     gallery: string[];
     keywords: string[];
-    orders: Order[]
+    orders: Order[];
+    rating: Rating;
 }
 
 export type IService = {
@@ -129,6 +135,17 @@ const serviceSchema = new mongoose.Schema<IService>({
             }]
         }
     },
+    rating: {
+        avgRate: {
+            type: Number,
+            min: 1,
+            max: 5
+        },
+        numOfReviews: {
+            type: Number,
+            default: 0
+        }
+    },
     orders: [{
         employerId: {
             type: String
@@ -150,8 +167,7 @@ const serviceSchema = new mongoose.Schema<IService>({
     }]
 }, {
     timestamps: true
-}
-);
+});
 
 const Service = mongoose.model("Service", serviceSchema);
 

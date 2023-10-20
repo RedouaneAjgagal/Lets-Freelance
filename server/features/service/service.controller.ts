@@ -122,7 +122,7 @@ const singleService: RequestHandler = async (req, res) => {
     }
 
     // find the service
-    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs").select("-orders -keywords");
+    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs rating").select("-orders -keywords");
 
     // check if service exist
     if (!service) {

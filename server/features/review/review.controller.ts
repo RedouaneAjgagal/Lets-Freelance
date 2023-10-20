@@ -33,14 +33,27 @@ const getServiceReviews: RequestHandler = async (req, res) => {
 
 //@desc get all profile job reviews
 //@route GET /api/v1/reviews/profile/:profileId
-//@access authentication
-const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
+//@access public
+const profileReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { profileId } = req.params;
+    const { completed_reviews_type, inprogress_reviews_type } = req.query;
 
     // check if valid mongodb id
     const isValidMongodbId = isValidObjectId(profileId);
     if (!isValidMongodbId) {
         throw new BadRequestError("Invalid ID");
+    }
+
+    const validActivityTypes = ["job", "service"];
+
+    // check if valid completed reviews type
+    if (completed_reviews_type && !validActivityTypes.includes(completed_reviews_type.toString())) {
+        throw new BadRequestError("Invalid activity type, must be 'job' or 'service'");
+    }
+
+    // check if valid in progress reviews type
+    if (inprogress_reviews_type && !validActivityTypes.includes(inprogress_reviews_type.toString())) {
+        throw new BadRequestError("Invalid activity type, must be 'job' or 'service'");
     }
 
     // find user
@@ -51,10 +64,14 @@ const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) =>
 
     // get completed job reviews
     const submittedBy = profile.userAs === "employer" ? "freelancer" : "employer";
-    const completedJobReviews = await Review.aggregate([
+    const completedReviews = await Review.aggregate([
         {
             $match: {
-                $and: [{ [profile.userAs]: profile.user._id, submittedBy, activityType: "job" }]
+                $and: [
+                    { [profile.userAs]: profile.user._id },
+                    { submittedBy },
+                    completed_reviews_type ? { activityType: completed_reviews_type } : {}
+                ]
             }
         },
         {
@@ -87,9 +104,16 @@ const profileJobReviews: RequestHandler = async (req: CustomAuthRequest, res) =>
 
     // get in progress jobs
     const user = `${[profile.userAs]}.user`;
-    const inProgressJobs = await Contract.find({ [user]: profile.user, activityType: "job", $and: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }] }).select("_id job.title createdAt").sort("-createdAt");
+    const inProgressReviews = await Contract.find({
+        [user]: profile.user,
+        $and: [
+            inprogress_reviews_type ? { activityType: inprogress_reviews_type } : {},
+            { "freelancer.status": "inProgress" },
+            { "employer.status": "inProgress" }
+        ]
+    }).select("_id job.title service.title createdAt").sort("-createdAt");
 
-    res.status(StatusCodes.OK).json({ completedJobReviews, inProgressJobs });
+    res.status(StatusCodes.OK).json({ completedReviews, inProgressReviews });
 }
 
 
@@ -161,14 +185,11 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // update profile average rating
-    await review.profileAvgRating({
-        userAs: profile.userAs,
-        userRatedId: profile.userAs === "employer" ? contract.freelancer.user._id : contract.employer.user._id
-    });
+    await review.profileAvgRating(profile.userAs);
 
     // set average rating if its a service review submitted by an employer
     if (review.activityType === "service" && review.submittedBy === "employer") {
-        await review.serviceAvgRating(review.service._id);
+        await review.serviceAvgRating();
     }
 
     res.status(StatusCodes.CREATED).json(reviewData);
@@ -223,14 +244,11 @@ const updateReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // update profile average rating if rating is updated
     if (updatedReviewInfo.rating !== review.rating) {
-        await review.profileAvgRating({
-            userAs: profile.userAs,
-            userRatedId: profile.userAs === "employer" ? review.freelancer._id : review.employer._id
-        });
+        await review.profileAvgRating(profile.userAs);
 
         // update average rating if its a service review
         if (review.activityType === "service" && review.submittedBy === "employer" && review.employer._id.toString() === profile.user._id.toString()) {
-            await review.serviceAvgRating(review.service._id);
+            await review.serviceAvgRating();
         }
     }
 
@@ -286,14 +304,11 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     await review.deleteOne();
 
     // update profile average rating
-    await review.profileAvgRating({
-        userAs: user.profile!.userAs!,
-        userRatedId: user.profile!.userAs === "employer" ? review.freelancer._id : review.employer._id
-    });
+    await review.profileAvgRating(user.profile!.userAs!);
 
     // update average rating if its a service review
     if (review.activityType === "service" && review.submittedBy === "employer" && review.employer._id.toString() === user._id.toString()) {
-        await review.serviceAvgRating(review.service._id);
+        await review.serviceAvgRating();
     }
 
     res.status(StatusCodes.OK).json({ msg: `Your review has been deleted` });
@@ -303,7 +318,7 @@ const deleteReview: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 export {
     getServiceReviews,
-    profileJobReviews,
+    profileReviews,
     createReview,
     updateReview,
     deleteReview

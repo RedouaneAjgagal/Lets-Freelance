@@ -16,8 +16,8 @@ export interface ReviewInterfaceFunction extends mongoose.Model<ReviewType> {
 }
 
 type ReviewFunctions = {
-    profileAvgRating: ({ userAs, userRatedId }: GetAvgRating) => Promise<void>;
-    serviceAvgRating: (serviceId: mongoose.Types.ObjectId) => Promise<void>;
+    profileAvgRating: (userAs: "freelancer" | "employer") => Promise<void>;
+    serviceAvgRating: () => Promise<void>;
 }
 
 export type ReviewWithoutRefs = {
@@ -129,26 +129,38 @@ reviewSchema.statics.getProfileAvgRating = async function ({ userAs, userRatedId
         }
     ]);
 
-    if (data) {
-        await Profile.findOneAndUpdate({
+    // set defualt rating values if the last review got delete
+    if (!data) {
+        return await Profile.findOneAndUpdate({
             user: userRatedId
         }, {
             $set: {
-                "rating.avgRate": data.avgRating.toFixed(1),
-                "rating.numOfReviews": data.numOfReviews
+                "rating.avgRate": null,
+                "rating.numOfReviews": 0
             }
         });
     }
+
+    // update profile rating
+    await Profile.findOneAndUpdate({
+        user: userRatedId
+    }, {
+        $set: {
+            "rating.avgRate": data.avgRating.toFixed(1),
+            "rating.numOfReviews": data.numOfReviews
+        }
+    });
+
 }
 
-reviewSchema.methods.profileAvgRating = async function ({ userAs, userRatedId }: GetAvgRating) {
+reviewSchema.methods.profileAvgRating = async function (userAs: "employer" | "freelancer") {
     await (this.constructor as ReviewInterfaceFunction).getProfileAvgRating({
         userAs,
-        userRatedId
+        userRatedId: userAs === "employer" ? this.freelancer._id : this.employer._id
     });
 }
 
-reviewSchema.statics.getServiceAvgRating = async function (serviceId: mongoose.Types.ObjectId,) {
+reviewSchema.statics.getServiceAvgRating = async function (serviceId: mongoose.Types.ObjectId) {
     const [data]: { _id: null; avgRate: number; numOfReviews: number }[] = await this.aggregate([
         {
             $match: {
@@ -172,9 +184,6 @@ reviewSchema.statics.getServiceAvgRating = async function (serviceId: mongoose.T
         }
     ]);
 
-    console.log(data);
-
-
     // check if the last review got deleted then set default values 
     if (!data) {
         return await Service.findByIdAndUpdate(serviceId, {
@@ -195,8 +204,8 @@ reviewSchema.statics.getServiceAvgRating = async function (serviceId: mongoose.T
 
 }
 
-reviewSchema.methods.serviceAvgRating = async function (serviceId: mongoose.Types.ObjectId) {
-    await (this.constructor as ReviewInterfaceFunction).getServiceAvgRating(serviceId);
+reviewSchema.methods.serviceAvgRating = async function () {
+    await (this.constructor as ReviewInterfaceFunction).getServiceAvgRating(this.service._id);
 }
 
 const Review = mongoose.model("Review", reviewSchema);

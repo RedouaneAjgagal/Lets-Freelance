@@ -1,4 +1,4 @@
-import { getServiceReviews, createReview, updateReview, deleteReview, profileJobReviews } from "./review.controller";
+import { getServiceReviews, createReview, updateReview, deleteReview, profileReviews } from "./review.controller";
 import authentication from "../../middlewares/authentication";
 
 import { Router } from "express";
@@ -9,7 +9,7 @@ router.route("/")
     .post(authentication, createReview);
 
 router.route("/profile/:profileId")
-    .get(authentication, profileJobReviews);
+    .get(profileReviews);
 
 router.route("/:reviewId")
     .patch(authentication, updateReview)

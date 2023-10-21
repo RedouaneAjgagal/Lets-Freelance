@@ -14,6 +14,26 @@ import jobFees from "./job.fees";
 import generateJobConnects from "./utils/generateJobConnects";
 import { contractModel as Contract } from "../contract";
 import { Profile } from "../profile";
+import { proposalModel as Proposal } from "../proposal";
+
+type JobAggregateData = {
+    proposals: {
+        _id: null;
+        total: number;
+    }[];
+    interviewing: {
+        _id: null;
+        total: number;
+    }[];
+    approved: {
+        _id: null;
+        total: number;
+    }[];
+    rejected: {
+        _id: null;
+        total: number;
+    }[];
+}
 
 type ProfileAggregateData = {
     totalSpentData: {
@@ -227,6 +247,82 @@ const singleJob: RequestHandler = async (req, res) => {
         }
     ]);
 
+    // get activity on this job
+    const [jobActivity]: JobAggregateData[] = await Proposal.aggregate([
+        {
+            $match: {
+                $and: [
+                    { job: job._id }
+                ]
+            }
+        },
+        {
+            $facet: {
+                proposals: [
+                    {
+                        $group: {
+                            _id: null,
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ],
+                interviewing: [
+                    {
+                        $match: {
+                            $and: [
+                                { status: "interviewing" }
+                            ]
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ],
+                approved: [
+                    {
+                        $match: {
+                            $and: [
+                                { status: "approved" }
+                            ]
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ],
+                rejected: [
+                    {
+                        $match: {
+                            $and: [
+                                { status: "rejected" }
+                            ]
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
+
     // get all job details
     const jobDetails = {
         ...job,
@@ -236,6 +332,12 @@ const singleJob: RequestHandler = async (req, res) => {
             totalJobPosted: job.profile.roles?.employer?.totalJobPosted || 0,
             totalSpentOnJobs: data.totalSpentData[0]?.totalSpent || 0,
             avgHourlyRatePaid: data.avgHourlyRateData[0]?.avgHourlyRatePaid || 0
+        },
+        activity: {
+            totalProposals: jobActivity?.proposals[0]?.total || 0,
+            interviewing: jobActivity?.interviewing[0]?.total || 0,
+            approved: jobActivity?.approved[0]?.total || 0,
+            rejected: jobActivity?.rejected[0]?.total || 0
         }
     }
 

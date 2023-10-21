@@ -191,7 +191,7 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     if (review.activityType === "service" && review.submittedBy === "employer") {
         await review.serviceAvgRating();
     }
-
+    
     res.status(StatusCodes.CREATED).json(reviewData);
 }
 

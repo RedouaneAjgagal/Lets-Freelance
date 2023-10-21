@@ -18,6 +18,7 @@ export interface IEmployerRole {
     employees: number;
     companyName?: string;
     website?: string;
+    totalJobPosted: number
 }
 
 export type Rating = {
@@ -182,6 +183,11 @@ const profileSchema = new mongoose.Schema<IProfile>({
                 type: Number,
                 min: 0,
                 default: 10
+            },
+            totalJobPosted: {
+                type: Number,
+                min: 0,
+                default: 0
             }
         }
     }

@@ -12,7 +12,21 @@ import getFixedPriceJobAfterFees from "./utils/getFixedPriceJobAfterFees";
 import sendCreatedJobEmail from "./services/sendCreatedJobEmail";
 import jobFees from "./job.fees";
 import generateJobConnects from "./utils/generateJobConnects";
+import { contractModel as Contract } from "../contract";
+import { Profile } from "../profile";
 
+type ProfileAggregateData = {
+    totalSpentData: {
+        _id: null;
+        totalSpent: number;
+    }[];
+    avgHourlyRateData: {
+        _id: null;
+        avgWorkedHours: number;
+        avgAmount: number;
+        avgHourlyRatePaid: number;
+    }[]
+}
 
 //@desc get all jobs info
 //@route GET /api/v1/jobs
@@ -142,7 +156,7 @@ const singleJob: RequestHandler = async (req, res) => {
     }
 
     // find the job
-    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees" }).select("-tags").lean();
+    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees roles.employer.totalJobPosted" }).select("-tags").lean();
     if (!job) {
         throw new NotFoundError(`Found no job with id ${jobId}`);
     }
@@ -152,20 +166,76 @@ const singleJob: RequestHandler = async (req, res) => {
         throw new UnauthorizedError(`${job.profile.name} is no longer an employer`);
     }
 
-    const totalJobPosted = await Job.countDocuments({ _id: jobId });
-
-    // dummy data for now
-    const totalSpent = 505;
-    const avgHourlyRatePaid = 23;
+    // calc average hourly rate paid and total spent by the employer
+    const [data]: ProfileAggregateData[] = await Contract.aggregate([
+        {
+            $unwind: "$payments"
+        },
+        {
+            $match: {
+                $and: [
+                    { activityType: "job" },
+                    { "employer.user": job.user._id },
+                    { "payments.employer.status": "paid" }
+                ]
+            }
+        },
+        {
+            $facet: {
+                totalSpentData: [
+                    {
+                        $group: {
+                            _id: null,
+                            totalSpent: {
+                                $sum: "$payments.amount"
+                            }
+                        }
+                    }
+                ],
+                avgHourlyRateData: [
+                    {
+                        $match: {
+                            $and: [
+                                { "job.priceType": "hourly" },
+                            ]
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            avgWorkedHours: {
+                                $avg: "$payments.workedHours"
+                            },
+                            avgAmount: {
+                                $avg: "$payments.amount"
+                            }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            avgHourlyRatePaid: {
+                                $cond: [
+                                    { $eq: ["$avgWorkedHours", 0] },
+                                    0,
+                                    { $divide: ["$avgAmount", "$avgWorkedHours"] }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]);
 
     // get all job details
     const jobDetails = {
         ...job,
         profile: {
             ...job.profile,
-            totalJobPosted,
-            totalSpent,
-            avgHourlyRatePaid
+            roles: undefined,
+            totalJobPosted: job.profile.roles?.employer?.totalJobPosted || 0,
+            totalSpentOnJobs: data.totalSpentData[0]?.totalSpent || 0,
+            avgHourlyRatePaid: data.avgHourlyRateData[0]?.avgHourlyRatePaid || 0
         }
     }
 
@@ -183,15 +253,15 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
     createJobValidator(inputs);
 
     // find user
-    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs" });
-    if (!user) {
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "email" });
+    if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
 
     // check if the user is a employer
     userAsPermission({
         permissionedRole: "employer",
-        currentUserRole: user.profile!.userAs!
+        currentUserRole: profile.userAs
     });
 
     // generate job connects
@@ -205,8 +275,8 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // get all job info
     const jobInfo: JobType = {
-        user: user._id,
-        profile: user.profile!._id,
+        user: Object(profile.user._id),
+        profile: profile!._id,
         title: inputs.title,
         description: inputs.description,
         category: inputs.category,
@@ -235,7 +305,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 
         // send created fixed price job email
         sendCreatedJobEmail.fixedPrice({
-            email: user.email.toString(),
+            email: profile.user.email!.toString(),
             jobTitle: jobInfo.title,
             feeAmount,
             feeType
@@ -243,7 +313,7 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
     } else {
         // send created hourly price job email
         sendCreatedJobEmail.hourlyPrice({
-            email: user.email.toString(),
+            email: profile.user.email!.toString(),
             jobTitle: jobInfo.title,
             feeAmount: jobFees.creatingJobFees.amount,
             feeType: jobFees.creatingJobFees.type
@@ -252,6 +322,10 @@ const createJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // create job
     await Job.create(jobInfo);
+
+    // increase employer total job posted
+    profile.roles.employer!.totalJobPosted++;
+    await profile.save()
 
     res.status(StatusCodes.CREATED).json({ msg: "You have created a job successfully" });
 }

@@ -537,6 +537,51 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
 }
 
 
+//@desc display employer's bought services
+//@route GET /api/v1/services/profile
+//@access authentication (employers)
+const boughtServices: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { status } = req.query;
+
+    const validStatus = ["inprogress", "completed", "canceled"];
+    if (status && !validStatus.includes(status.toString())) {
+        throw new BadRequestError("status can only be 'inprogress', 'completed' or 'canceled'");
+    }
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthorizedError("Found no user");
+    }
+
+    // check if the user is an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("Must be an employer");
+    }
+
+    const contractStatus = {
+        inprogress: "inProgress",
+        completed: "completed",
+        canceled: "canceled"
+    }
+
+    // get bought services
+    const boughtServices = await Contract.find({
+        $and: [
+            { "employer.user": profile.user._id },
+            { activityType: "service" },
+            status ? {
+                $and: [
+                    { "employer.status": contractStatus[status as "inprogress" | "completed" | "canceled"] },
+                    { "freelancer.status": contractStatus[status as "inprogress" | "completed" | "canceled"] }
+                ]
+            } : {}
+        ]
+    }).select("_id freelancer.profile freelancer.status service.serviceInfo service.title service.tierName payments.amount createdAt completedAt").populate({ path: "freelancer.profile", select: "_id name avatar country createdAt" });
+
+
+    res.status(StatusCodes.OK).json(boughtServices);
+}
 
 export {
     getAllservices,
@@ -547,5 +592,6 @@ export {
     uploadFeaturedImg,
     uploadGallery,
     orderService,
-    setServiceAsPaid
+    setServiceAsPaid,
+    boughtServices
 }

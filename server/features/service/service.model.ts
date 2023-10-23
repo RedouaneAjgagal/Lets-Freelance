@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 import { IProfile } from "../profile/profile.model";
 import { IUser } from "../auth";
 
+export type TrandingServices = {
+    service: Partial<IService & { _id: mongoose.Types.ObjectId }>;
+    profile: Partial<IProfile & { _id: mongoose.Types.ObjectId }>;
+}
+
 export type IncludedIn = {
     description: string;
     result: string | number | boolean;

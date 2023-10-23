@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getAllservices, singleService, createService, updateService, deleteService, uploadFeaturedImg, uploadGallery, orderService, setServiceAsPaid, boughtServices } from "./service.controller";
+import { getAllservices, singleService, createService, updateService, deleteService, uploadFeaturedImg, uploadGallery, orderService, setServiceAsPaid, boughtServices, trendingServices } from "./service.controller";
 import authentication from "../../middlewares/authentication";
 
 const router = Router();
@@ -12,6 +12,8 @@ router.route("/")
 router.post("/upload-featured", authentication, uploadFeaturedImg);
 router.post("/upload-gallery", authentication, uploadGallery);
 
+router.route("/trending")
+    .get(trendingServices);
 
 router.route("/profile")
     .get(authentication, boughtServices);

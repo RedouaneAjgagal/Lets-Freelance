@@ -4,14 +4,14 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
-import Service, { ServiceWithoutRefs } from "./service.model";
+import Service, { IService, ServiceWithoutRefs, TrandingServices } from "./service.model";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
 import getUpdatedServiceInfo from "./helpers/getUpdatedServiceInfo";
 import userAsPermission from "../../helpers/userAsOnly";
-import { isValidObjectId } from "mongoose";
-import { Profile } from "../profile";
+import mongoose, { Aggregate, AggregateExtract, PipelineStage, isValidObjectId } from "mongoose";
+import { IProfile, Profile } from "../profile";
 import { contractModel as Contract } from "../contract";
 import sendOrderServiceEmail from "./services/sendOrderServiceEmail";
 import stripe from "../../stripe/stripeConntect";
@@ -577,11 +577,139 @@ const boughtServices: RequestHandler = async (req: CustomAuthRequest, res) => {
                 ]
             } : {}
         ]
-    }).select("_id freelancer.profile freelancer.status service.serviceInfo service.title service.tierName payments.amount createdAt completedAt").populate({ path: "freelancer.profile", select: "_id name avatar country createdAt" });
+    }).select("_id freelancer.profile freelancer.status service.serviceInfo service.title service.tierName payments.amount createdAt completedAt")
+        .populate({ path: "freelancer.profile", select: "_id name avatar country createdAt" })
+        .sort("-createdAt");
 
 
     res.status(StatusCodes.OK).json(boughtServices);
 }
+
+
+//@desc get trending services
+//@route GET /api/v1/services/trending
+//@access public
+const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const LIMIT = 8;
+    const getTrendingServicesAggregate = ({ match, limit }: { match: PipelineStage.Match["$match"]; limit: number }): [] => {
+        const aggregate = [
+            {
+                $match: match
+            },
+            {
+                $lookup: {
+                    from: "services",
+                    localField: "service.serviceInfo",
+                    foreignField: "_id",
+                    as: "serviceInfo"
+                }
+            },
+            {
+                $unwind: "$serviceInfo"
+            },
+            {
+                $group: {
+                    _id: "$serviceInfo", // grouping by serviceId
+                    contractCount: { $sum: 1 },  // count by created contracts with the same serviceId
+                    // contractIds: { $push: "$_id" }
+                }
+            },
+            {
+                $project: {
+                    service: "$_id", // change the _id to service
+                    _id: 0,
+                    contractCount: 1,
+                }
+            },
+            {
+                $lookup: {
+                    from: "profiles",
+                    localField: "service.profile",
+                    foreignField: "_id",
+                    as: "profile"
+                }
+            },
+            {
+                $unwind: "$profile"
+            },
+            {
+                $sort: {
+                    contractCount: -1, // sort by contractCount
+                    "_id.createdAt": -1 // if contractCount match with another contract then sort by createdAt
+                }
+            },
+            {
+                $project: {
+                    "profile._id": 1,
+                    "profile.name": 1,
+                    "profile.avatar": 1,
+                    "service.createdAt": 1,
+                    "service._id": 1,
+                    "service.category": 1,
+                    "service.title": 1,
+                    "service.featuredImage": 1,
+                    "service.tier.starter.price": 1,
+                    "service.rating.numOfReviews": 1,
+                    "service.rating.avgRate": 1,
+                }
+            },
+            {
+                $limit: limit
+            }
+        ];
+        return aggregate as [];
+    }
+
+    const ONE_WEEK_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    const trendingServicesAggregate = getTrendingServicesAggregate({
+        match: {
+            createdAt: { $gte: ONE_WEEK_AGO }, // looking for contract created in the last week
+            activityType: "service"
+        },
+        limit: LIMIT
+    });
+
+    let trendingServices: TrandingServices[] = await Contract.aggregate(trendingServicesAggregate);
+
+    // if the last week trending is not enough to be 8 then get 30 days trending as well
+    if (trendingServices.length !== 8) {
+        const alreadySelectedServices = trendingServices.map(data => {
+            return { "service.serviceInfo": new mongoose.Types.ObjectId(data.service._id) }
+        });
+
+        const ONE_MONTH_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
+
+        const trendingServicesAggregate = getTrendingServicesAggregate({
+            match: alreadySelectedServices.length ?
+                {
+                    $and: [
+                        { createdAt: { $gte: ONE_MONTH_AGO } }, // looking for contracts created in the last month
+                        { activityType: "service" }
+                    ],
+                    $nor: alreadySelectedServices // dont select already selected services
+                }
+                :
+                {
+                    $and: [
+                        { createdAt: { $gte: ONE_MONTH_AGO } }, // looking for contracts created in the last month
+                        { activityType: "service" }
+                    ]
+                }
+            ,
+            limit: LIMIT - trendingServices.length
+        });
+
+        const oneMonthTrandingServices: TrandingServices[] = await Contract.aggregate(trendingServicesAggregate);
+
+        trendingServices = [...trendingServices, ...oneMonthTrandingServices];
+    }
+
+    res.status(StatusCodes.OK).json(trendingServices);
+}
+
+
+
 
 export {
     getAllservices,
@@ -593,5 +721,6 @@ export {
     uploadGallery,
     orderService,
     setServiceAsPaid,
-    boughtServices
+    boughtServices,
+    trendingServices
 }

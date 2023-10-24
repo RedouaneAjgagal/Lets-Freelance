@@ -157,10 +157,12 @@ const createService: RequestHandler = async (req: CustomAuthRequest, res) => {
         permissionedRole: "freelancer"
     });
 
-
     // check if valid inputs
     createServiceValidator(inputs);
 
+    if (!user.stripe.bankAccounts.length) {
+        throw new BadRequestError("You must set bank details first");
+    }
 
     const serviceInfo: ServiceWithoutRefs = {
         title: inputs.title,

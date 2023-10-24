@@ -72,7 +72,7 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // find user
-    const profile = await Profile.findOne({ user: req.user!.userId });
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "stripe" });
     if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
@@ -91,6 +91,11 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
     const existedProposal = await Proposal.findOne({ job: jobId, user: profile.user });
     if (existedProposal) {
         throw new BadRequestError("You have already submitted a proposal to this job");
+    }
+
+    // check if the user already set bank account
+    if (!profile.user.stripe?.bankAccounts.length) {
+        throw new BadRequestError("You must set bank details first");
     }
 
     // check if the freelancer have enough connects to submit the proposal

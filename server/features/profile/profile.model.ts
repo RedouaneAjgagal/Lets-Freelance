@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User } from "../auth";
+import { IUser, User } from "../auth";
 
 export type ConnectPayment = {
     status: "pending" | "paid";
@@ -52,13 +52,7 @@ export interface IFreelancerRole {
 }
 
 export interface IProfile {
-    user: {
-        _id: typeof mongoose.Types.ObjectId;
-        email?: string;
-        isVerified?: boolean;
-        verifiedDate?: Date | null;
-        role?: "user" | "admin" | "owner";
-    };
+    user: Partial<IUser> & { _id: mongoose.Types.ObjectId };
     name: string;
     avatar: string;
     showProfile: boolean;

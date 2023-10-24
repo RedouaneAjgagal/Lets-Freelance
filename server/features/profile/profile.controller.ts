@@ -340,6 +340,83 @@ const setPaidConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
     res.status(StatusCodes.OK).json({ msg: `You have bought ${session.metadata!.connects} connects successfully` });
 }
 
+
+//@desc get high rated freelancers
+//@route GET /api/v1/profile/high-rated
+//@access public
+const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const category = req.query.category?.toString() as (
+        "digital-marketing" |
+        "design-creative" |
+        "programming-tech" |
+        "writing-translation" |
+        "video-animation" |
+        "finance-accounting" |
+        "music-audio" | undefined
+    );
+
+    const getCategory = {
+        "digital-marketing": "digital marketing",
+        "design-creative": "design & creative",
+        "programming-tech": "programming & tech",
+        "writing-translation": "writing & translation",
+        "video-animation": "video & animation",
+        "finance-accounting": "finance & accounting",
+        "music-audio": "music & audio",
+    }
+
+    if (category && !Object.keys(getCategory).includes(category.toString())) {
+        throw new BadRequestError("Invalid category");
+    }
+
+    const LIMIT = 8;
+
+    const highRatedFreelancers = await Profile.aggregate([
+        {
+            $match: {
+                $and: [
+                    { userAs: "freelancer" },
+                    category ? { category: getCategory[category] } : {}
+                ]
+            }
+        },
+        {
+            $addFields: {
+                score: {
+                    $multiply: [
+                        { $divide: ["$rating.numOfReviews", 100] },
+                        "$rating.avgRate"
+                    ]
+                }
+            }
+        },
+        {
+            $sort: {
+                score: -1,
+                createdAt: 1
+            }
+        },
+        {
+            $limit: LIMIT
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                avatar: 1,
+                category: 1,
+                country: 1,
+                "roles.freelancer.skills": 1,
+                "roles.freelancer.hourlyRate": 1,
+                "rating.avgRate": 1,
+                "rating.numOfReviews": 1
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(highRatedFreelancers);
+}
+
 export {
     profileInfo,
     singleProfile,
@@ -348,5 +425,6 @@ export {
     deleteProfile,
     deleteSingleProfile,
     buyConnects,
-    setPaidConnects
+    setPaidConnects,
+    highRatedFrelancers
 }

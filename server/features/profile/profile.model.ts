@@ -49,6 +49,7 @@ export interface IFreelancerRole {
         description: string;
     }[];
     connects: Connects;
+    badge: "none" | "rising talent" | "top rated" | "top rated plus"
 }
 
 export interface IProfile {
@@ -149,6 +150,11 @@ const profileSchema = new mongoose.Schema<IProfile>({
             skills: Array,
             education: Array,
             experience: Array,
+            badge: {
+                type: String,
+                enum: ["none", "rising talent", "top rated", "top rated plus"],
+                default: "none"
+            },
             connects: {
                 payments: [
                     {

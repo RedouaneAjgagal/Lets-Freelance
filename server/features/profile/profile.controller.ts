@@ -14,6 +14,8 @@ import { IService, serviceModel as Service } from "../service";
 import { contractModel as Contract } from "../contract";
 import { jobModel as Job, JobType } from "../job";
 import mongoose from "mongoose";
+import "./badge_upgrade/upgrades";
+import { proposalModel as Proposal } from "../proposal";
 
 type Freelancer = {
     projectSuccess: number;
@@ -417,6 +419,201 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
     res.status(StatusCodes.OK).json(highRatedFreelancers);
 }
 
+
+//@desc upgrade badge every two week
+//@route GET /api/v1/profile/badge-upgrade
+//@access public
+const badgeUpgrade: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const ONE_MONTH_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    type ProposalsAggregateResult = {
+        _id: string;
+    };
+
+    const completedProfileAggregateMatch = {
+        "profile.category": { $exists: true, $ne: "" },
+        "profile.country": { $exists: true, $ne: "" },
+        "profile.phoneNumber": { $exists: true, $ne: 0 },
+        "profile.description": { $exists: true, $ne: "" },
+        "profile.roles.freelancer.dateOfBirth": { $exists: true, $ne: "" },
+        "profile.roles.freelancer.jobTitle": { $exists: true, $ne: "" },
+        "profile.roles.freelancer.skills": { $exists: true, $ne: [] },
+        "user.stripe.bankAccounts": { $exists: true, $ne: [] },
+    }
+    const aggregateData: ProposalsAggregateResult[] = await Proposal.aggregate([
+        {
+            $lookup: {
+                from: "profiles",
+                localField: "profile",
+                foreignField: "_id",
+                as: "profile"
+            }
+        },
+        {
+            $unwind: "$profile"
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "profile.user",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        {
+            $unwind: "$user"
+        },
+        {
+            $match: {
+                createdAt: { $gte: ONE_MONTH_AGO },
+                "profile.roles.freelancer.badge": "none",
+                // ...completedProfileAggregateMatch
+            }
+        },
+        {
+            $project: {
+                profile: "$profile._id",
+                status: "$status",
+                _id: 0
+            }
+        },
+        {
+            $facet: {
+                allProposalProfiles: [
+                    {
+                        $group: {
+                            _id: "$profile",
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $match: {
+                            total: { $gte: 1 }
+                        }
+                    }
+                ],
+                twoAndMoreApprovedProfiles: [
+                    {
+                        $match: { status: "approved" }
+                    },
+                    {
+                        $group: {
+                            _id: "$profile",
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $match: {
+                            total: { $gte: 0 }
+                        }
+                    }
+                ],
+                oneApprovedProfiles: [
+                    {
+                        $match: { status: "approved" }
+                    },
+                    {
+                        $group: {
+                            _id: "$profile",
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $match: {
+                            total: { $eq: 0 }
+                        }
+                    }
+                ],
+                interviewingProfiles: [
+                    {
+                        $match: { status: "interviewing" }
+                    },
+                    {
+                        $group: {
+                            _id: "$profile",
+                            total: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $match: {
+                            total: { $gte: 1 }
+                        }
+                    }
+                ]
+            }
+        },
+        // add conditions
+        {
+            $project: {
+                allProposalProfiles: "$allProposalProfiles._id",
+                twoAndMoreApprovedProfiles: "$twoAndMoreApprovedProfiles._id",
+                oneApprovedProfiles: "$oneApprovedProfiles._id",
+                interviewingProfiles: "$interviewingProfiles._id"
+            }
+        },
+        {
+            $project: {
+                firstCondition: {
+                    $setIntersection: ["$twoAndMoreApprovedProfiles", "$allProposalProfiles"]
+                },
+                secondCondition: {
+                    $setIntersection: ["$oneApprovedProfiles", "$interviewingProfiles", "$allProposalProfiles"]
+                },
+            }
+        },
+        {
+            $project: {
+                combinedProfileIds: {
+                    $setUnion: ["$firstCondition", "$secondCondition"]
+                }
+            }
+        },
+        {
+            $unwind: "$combinedProfileIds"
+        },
+        {
+            $project: {
+                _id: { $toString: "$combinedProfileIds" }
+            }
+        }
+    ]);
+
+    const BATCH_LIMIT = 5;
+    let ROUND = 1;
+    let isActive = true;
+    while (isActive) {
+        const profileIds = aggregateData.slice(((BATCH_LIMIT * ROUND) - BATCH_LIMIT), (BATCH_LIMIT * ROUND));
+        if (profileIds.length) {
+            const profiles = await Profile.updateMany({ _id: { $in: profileIds } }, { "roles.freelancer.badge": "none" });
+            console.log(`Updated ${profiles.modifiedCount} profiles to 'RISING TALENT' on ${new Date()}`);
+            ROUND++
+        }
+        if (profileIds.length !== BATCH_LIMIT) {
+            isActive = false;
+            break;
+        }
+    }
+    console.log("finish");
+
+    // console.log(aggregateData);
+
+
+    // for (let i = 0; i < BATCH_LIMIT; i++) {
+
+    // }
+
+    // const profiles = await Profile.find({ $or: [...aggregateData] });
+
+    res.status(StatusCodes.OK).json(aggregateData);
+}
+
 export {
     profileInfo,
     singleProfile,
@@ -426,5 +623,6 @@ export {
     deleteSingleProfile,
     buyConnects,
     setPaidConnects,
-    highRatedFrelancers
+    highRatedFrelancers,
+    badgeUpgrade
 }

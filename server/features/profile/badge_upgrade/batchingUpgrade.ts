@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Profile from "../profile.model";
 
 function delay(ms: number) {

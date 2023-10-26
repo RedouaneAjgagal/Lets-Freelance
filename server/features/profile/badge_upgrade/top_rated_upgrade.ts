@@ -1,5 +1,4 @@
 import { contractModel as Contract } from "../../contract";
-import Profile from "../profile.model";
 import batchingUpgrade from "./batchingUpgrade";
 import completedProfileAggregateMatch from "./completedProfileAggregateMatch";
 

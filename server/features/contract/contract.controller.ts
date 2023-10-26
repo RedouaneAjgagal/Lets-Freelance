@@ -302,7 +302,7 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
 
             payment.freelancer = {
                 status: "paid",
-                paidAt: new Date(Date.now()).toString()
+                paidAt: new Date(Date.now())
             }
         }
 
@@ -459,7 +459,7 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             const payment = contract.payments[0];
             payment.freelancer = {
                 status: "paid",
-                paidAt: new Date(Date.now()).toString()
+                paidAt: new Date(Date.now())
             }
 
         } else {
@@ -751,7 +751,7 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // get paid at
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
-    const paidAt = new Date(paymentIntent.created * 1000).toString();
+    const paidAt = new Date(paymentIntent.created * 1000);
 
     // set payments to paid
     payment.employer = {
@@ -761,7 +761,7 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     payment.freelancer = {
         status: "paid",
-        paidAt: new Date(Date.now()).toString()
+        paidAt: new Date(Date.now())
     }
 
     // set payment charge id
@@ -876,7 +876,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     if (payment.freelancer?.status === "paid") {
         const isFiveDaysPassed = hasPeriodExpired({
             timeInMs: 5 * 60 * 60 * 1000, // 5 days
-            date: payment.freelancer!.paidAt
+            date: payment.freelancer!.paidAt.toString()
         });
 
         // check if the 5 days has been passed since the freelancer get paid
@@ -972,7 +972,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     // check if the payment has't pass 7 days for hourly price job
     const isExpired = hasPeriodExpired({
         timeInMs: 7 * 24 * 60 * 60 * 1000, // 7 days
-        date: payment.employer.paidAt
+        date: payment.employer.paidAt.toString()
     });
 
     if (contract.activityType === "job" && contract.job?.priceType === "hourly" && isExpired) {

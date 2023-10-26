@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { profileInfo, singleProfile, uploadAvatar, updateProfile, deleteProfile, deleteSingleProfile, buyConnects, setPaidConnects, highRatedFrelancers, badgeUpgrade } from "./profile.controller";
+import { profileInfo, singleProfile, uploadAvatar, updateProfile, deleteProfile, deleteSingleProfile, buyConnects, setPaidConnects, highRatedFrelancers } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
 
@@ -19,9 +19,6 @@ router.route("/connects")
 
 router.route("/high-rated")
     .get(highRatedFrelancers);
-
-router.route("/badge-upgrade")
-    .get(badgeUpgrade);
 
 router.route("/:profileId")
     .get(singleProfile)

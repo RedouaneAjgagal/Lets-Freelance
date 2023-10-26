@@ -38,7 +38,7 @@ export type ContractJob = {
 
 export type UserPayment = {
     status: "pending" | "paid" | "refunded";
-    paidAt: string;
+    paidAt: Date;
 }
 
 export type RefundRequest = {
@@ -203,7 +203,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                         message: "{VALUE} is not supported"
                     }
                 },
-                paidAt: String,
+                paidAt: Date,
                 refundRequest: {
                     subject: String,
                     reason: String,
@@ -225,7 +225,7 @@ const contractSchema = new mongoose.Schema<ContractType>({
                         message: "{VALUE} is not supported"
                     }
                 },
-                paidAt: String
+                paidAt: Date
             },
             sessionId: {
                 type: String

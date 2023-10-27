@@ -15,6 +15,10 @@ import { contractModel as Contract } from "../contract";
 import { jobModel as Job, JobType } from "../job";
 import mongoose from "mongoose";
 import "./badge_upgrade/upgrades";
+import { proposalModel as Proposal } from "../proposal";
+import completedProfileAggregateMatch from "./badge_upgrade/completedProfileAggregateMatch";
+import topRatedUpgrade from "./badge_upgrade/top_rated_upgrade";
+import batchingUpgrade from "./badge_upgrade/batchingUpgrade";
 
 type Freelancer = {
     projectSuccess: number;

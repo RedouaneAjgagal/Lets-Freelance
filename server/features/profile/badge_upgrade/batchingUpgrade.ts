@@ -1,14 +1,14 @@
 import Profile from "../profile.model";
 
-function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 type BatchingUpgrade = {
     aggregateProfiles: { _id: string }[];
     batchLimit: number;
     delayInMs: number;
     upgradeTo: "rising talent" | "top rated" | "top rated plus";
+}
+
+function delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const batchingUpgrade = async ({ delayInMs, aggregateProfiles, upgradeTo, batchLimit }: BatchingUpgrade) => {
@@ -18,6 +18,10 @@ const batchingUpgrade = async ({ delayInMs, aggregateProfiles, upgradeTo, batchL
 
     while (isActive) {
         const profiles = aggregateProfiles.slice(((BATCH_LIMIT * ROUND) - BATCH_LIMIT), ((BATCH_LIMIT * ROUND)));
+        
+        if (!profiles.length && ROUND === 1) {
+            console.log(`Found no qualified profiles to upgrade to '${upgradeTo.toUpperCase()}'`);
+        }
 
         try {
             if (profiles.length) {

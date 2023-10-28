@@ -25,7 +25,7 @@ import { ContractPayments } from "../contract/contract.model";
 //@route GET /api/v1/services
 //@access public
 const getAllservices: RequestHandler = async (req, res) => {
-    const { category, delivery_time, english_level, search, country, price_range, page } = req.query;
+    const { category, delivery_time, english_level, search, country, price_range, page, rating, badge } = req.query;
     let searchQuery: Partial<{
         category: string;
         $or: {}[];
@@ -84,7 +84,7 @@ const getAllservices: RequestHandler = async (req, res) => {
     const end = currentPage * 12;
 
 
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel" }).lean();
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge rating" }).lean();
 
     services = services.filter(service => service.profile.userAs === "freelancer");
 
@@ -102,8 +102,22 @@ const getAllservices: RequestHandler = async (req, res) => {
     }
 
 
-    // search by rating (later..)
+    // search by rating
+    const isValidRating = rating && /^\d+(\.\d+)?$/.test(rating.toString()) && (Number(rating.toString()) >= 1 || Number(rating.toString()) <= 5);
+    if (isValidRating) {
+        services = services.filter(service => service.profile.rating?.avgRate && service.profile.rating?.avgRate >= Number(rating.toString()))
+    }
 
+    // search by profile badges
+    const badges = {
+        "rising-talent": "rising talent",
+        "top-rated": "top rated",
+        "top-rated-plus": "top rated plus",
+    }
+    const isValidBadge = badge && Object.keys(badges).includes(badge.toString());
+    if (isValidBadge) {
+        services = services.filter(service => service.profile.roles?.freelancer?.badge === badges[badge.toString() as "rising-talent" || "top-rated" || "top-rated-plus"]);
+    }
 
     // get number of pages for pagination
     const numOfPages = Math.ceil(services.length / limit);
@@ -503,7 +517,7 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
         amount: session.amount_total! / 100,
         employer: {
             status: "paid",
-            paidAt: new Date(paymentIntent.created * 1000).toString()
+            paidAt: new Date(paymentIntent.created * 1000)
         },
         sessionId: session.id,
         chargeId: paymentIntent.latest_charge?.toString()

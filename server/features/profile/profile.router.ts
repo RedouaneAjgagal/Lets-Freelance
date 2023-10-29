@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { profileInfo, singleProfile, uploadAvatar, updateProfile, deleteProfile, deleteSingleProfile, buyConnects, setPaidConnects, highRatedFrelancers } from "./profile.controller";
+import { profileInfo, singleProfile, uploadAvatar, updateProfile, deleteProfile, deleteSingleProfile, buyConnects, setPaidConnects, highRatedFrelancers, getAllFreelancers } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
 
@@ -19,6 +19,9 @@ router.route("/connects")
 
 router.route("/high-rated")
     .get(highRatedFrelancers);
+
+router.route("/freelancers")
+    .get(getAllFreelancers);
 
 router.route("/:profileId")
     .get(singleProfile)

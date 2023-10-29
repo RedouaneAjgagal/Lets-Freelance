@@ -11,10 +11,12 @@ import uploadImage from "../../utils/uploadImage";
 import isInvalidConnect from "./validators/buyConnectsValidator";
 import stripe from "../../stripe/stripeConntect";
 import { IService, serviceModel as Service } from "../service";
-import { contractModel as Contract } from "../contract";
+import { contractModel as Contract, contractModel } from "../contract";
 import { jobModel as Job, JobType } from "../job";
-import mongoose from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import "./badge_upgrade/upgrades";
+import searchFreelancersQueryValidator from "./validators/searchQueriesValidator";
+import createHash from "../../utils/createHash";
 
 type Freelancer = {
     projectSuccess: number;
@@ -34,7 +36,7 @@ type ProfileData = FreelancerProfile | EmployerProfile
 
 
 //@desc get current user profile
-//@route GET /api/v1/profile
+//@route GET /api/v1/profiles
 //@access authentication
 const profileInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
     const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "email role" });
@@ -47,7 +49,7 @@ const profileInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc get signle profile info 
-//@route GET /api/v1/profile/:profileId
+//@route GET /api/v1/profiles/:profileId
 //@access public
 const singleProfile: RequestHandler = async (req, res) => {
     const { profileId } = req.params;
@@ -109,7 +111,7 @@ const singleProfile: RequestHandler = async (req, res) => {
 
 
 //@desc upload profile avatar
-//@route POST /api/v1/profile
+//@route POST /api/v1/profiles
 //@access authentication
 const uploadAvatar: RequestHandler = async (req: CustomAuthRequest, res) => {
     const imageFile = req.files?.avatar as UploadedFile;
@@ -125,7 +127,7 @@ const uploadAvatar: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc update profile
-//@route PATCH /api/v1/profile
+//@route PATCH /api/v1/profiles
 //@access authentication
 const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
     const profile = await Profile.findOne({ user: req.user!.userId });
@@ -156,7 +158,7 @@ const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc delete current user profile
-//@route DELETE /api/v1/profile
+//@route DELETE /api/v1/profiles
 //@access authentication
 const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find profile
@@ -182,7 +184,7 @@ const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc delete single profile
-//@route DELETE /api/v1/profile/:profileId
+//@route DELETE /api/v1/profiles/:profileId
 //@access authorization
 const deleteSingleProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { profileId } = req.params;
@@ -219,7 +221,7 @@ const deleteSingleProfile: RequestHandler = async (req: CustomAuthRequest, res) 
 
 
 //@desc buy connects for freelancers
-//@route POST /api/v1/profile/connects
+//@route POST /api/v1/profiles/connects
 //@access authentication (freelancers only)
 const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { connects } = req.body;
@@ -278,7 +280,7 @@ const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc set connects to paid and increase profile connects
-//@route PATCH /api/v1/profile/connects
+//@route PATCH /api/v1/profiles/connects
 //@access authentication (freelancers only)
 const setPaidConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { session_id } = req.query;
@@ -343,7 +345,7 @@ const setPaidConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc get high rated freelancers
-//@route GET /api/v1/profile/high-rated
+//@route GET /api/v1/profiles/high-rated
 //@access public
 const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) => {
     const category = req.query.category?.toString() as (
@@ -418,6 +420,208 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
     res.status(StatusCodes.OK).json(highRatedFreelancers);
 }
 
+
+//@desc get all freelancers
+//@route GET /api/v1/profiles/freelancers
+//@access public
+const getAllFreelancers: RequestHandler = async (req, res) => {
+    const { badge, rating, country, hourly_rate, category, revenue, english_level, talent_type, search } = req.query;
+
+    const match: PipelineStage.Match["$match"] = {
+        $and: [
+            { userAs: "freelancer" }
+        ]
+    };
+
+    // search by profile badges
+    const getBadge = searchFreelancersQueryValidator.isValidBadge(badge);
+    if (getBadge) {
+        match.$and!.push({
+            'roles.freelancer.badge': getBadge
+        });
+    }
+
+    // search by profile rating
+    const getRating = searchFreelancersQueryValidator.isValidRating(rating);
+    if (getRating) {
+        match.$and!.push({
+            "rating.avgRate": { $gte: Number(getRating) }
+        });
+    }
+
+    // search by country
+    const getCountry = searchFreelancersQueryValidator.isValidCountry(country);
+    if (getCountry) {
+        match.$and!.push({
+            country: getCountry
+        });
+    }
+
+    // search by hourly rate
+    const getHourlyRate = searchFreelancersQueryValidator.isValidHourlyRate(hourly_rate);
+    if (getHourlyRate) {
+        const [minHourlyRate, maxHourlyRate] = getHourlyRate.split(",");
+        if (Number(minHourlyRate) <= Number(maxHourlyRate)) {
+            match.$and!.push({
+                $and: [
+                    { "roles.freelancer.hourlyRate": { $gte: Number(minHourlyRate) } },
+                    { "roles.freelancer.hourlyRate": { $lte: Number(maxHourlyRate) } },
+                ]
+            });
+        }
+    }
+
+    // search by category
+    const getCategory = searchFreelancersQueryValidator.isValidCategory(category);
+    if (getCategory) {
+        match.$and!.push({
+            category: getCategory
+        });
+    }
+
+    // search by english level
+    const getEnglishLevel = searchFreelancersQueryValidator.isValidEnglishLevel(english_level);
+    if (getEnglishLevel) {
+        match.$and!.push({
+            "roles.freelancer.englishLevel": getEnglishLevel
+        });
+    }
+
+    // search by telent type
+    const getTalentType = searchFreelancersQueryValidator.isValidTalentType(talent_type);
+    if (getTalentType) {
+        console.log(getTalentType);
+
+        match.$and!.push({
+            "roles.freelancer.types": getTalentType
+        });
+    }
+
+    // search by search keywords
+    const getSearch = searchFreelancersQueryValidator.isValidSearch(search);
+    if (getSearch) {
+        match.$and!.push({
+            $or: [
+                { "roles.freelancer.skills": { $in: [getSearch.toLowerCase()] } },
+                { "roles.freelancer.skills": { $in: getSearch.toLowerCase().split(" ") } }
+            ]
+        });
+    }
+
+    // check if valid revenue value
+    const getRevenue = searchFreelancersQueryValidator.isValidRevenue(revenue);
+
+    // sort by ip address
+    const ipAddress = req.ip;
+    const hash = createHash({ algorithm: "md5", value: ipAddress });
+    const bigIntValue = BigInt('0x' + hash);
+    const seed = +bigIntValue.toString().slice(0, 12);
+
+    const profileAggregate: PipelineStage[] = [
+        {
+            $match: match
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                localField: "_id",
+                foreignField: "freelancer.profile",
+                as: "contracts"
+            }
+        },
+        {
+            $addFields: {
+                paidAmounts: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$contracts",
+                                as: "contract",
+                                in: {
+                                    $filter: {
+                                        input: "$$contract.payments",
+                                        as: "payment",
+                                        cond: { $eq: ["$$payment.freelancer.status", "paid"] }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: [],
+                        in: { $concatArrays: ["$$value", "$$this"] }
+                    },
+                }
+            }
+        },
+        {
+            $addFields: {
+                totalRevenue: {
+                    $sum: {
+                        $map: {
+                            input: "$paidAmounts",
+                            as: "paidAmount",
+                            in: "$$paidAmount.amount"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                sortOrder: {
+                    $mod: [
+                        { $add: [{ $toLong: { $toDate: "$_id" } }, seed] },
+                        100000
+                    ]
+                }
+            }
+        },
+        {
+            $sort: {
+                sortOrder: 1
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                avatar: 1,
+                description: 1,
+                rating: 1,
+                country: 1,
+                totalRevenue: 1,
+                createdAt: 1,
+                "roles.freelancer.hourlyRate": 1,
+                "roles.freelancer.badge": 1,
+                "roles.freelancer.jobTitle": 1,
+                "roles.freelancer.englishLevel": 1,
+                "roles.freelancer.types": 1,
+                "roles.freelancer.skills": 1
+            }
+        },
+    ];
+
+    // search by revenue
+    if (getRevenue) {
+        const [minRevenue, maxRevenue] = getRevenue.split(",");
+        if ((Number(minRevenue) <= Number(maxRevenue)) || maxRevenue === "infinity") {
+            profileAggregate.push({
+                $match: {
+                    $and: [
+                        { totalRevenue: { $gte: Number(minRevenue) } },
+                        maxRevenue === "infinity" ? {}
+                            : { totalRevenue: { $lte: Number(maxRevenue) } }
+                    ]
+                }
+            });
+        }
+    }
+
+    const freelancersAggregate = await Profile.aggregate(profileAggregate);
+
+    res.status(StatusCodes.OK).json(freelancersAggregate);
+}
+
+
 export {
     profileInfo,
     singleProfile,
@@ -427,5 +631,6 @@ export {
     deleteSingleProfile,
     buyConnects,
     setPaidConnects,
-    highRatedFrelancers
+    highRatedFrelancers,
+    getAllFreelancers
 }

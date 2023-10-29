@@ -319,6 +319,103 @@ const uploadGallery: RequestHandler = async (req: CustomAuthRequest, res) => {
     res.status(StatusCodes.OK).json({ galleryImgURL: imageResponse.secure_url });
 }
 
+
+//@desc display freelancer's services
+//@route POST /api/v1/services/profile/freelancer-services
+//@access authentication
+const getFreelancerServices: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if its a freelancer user
+    if (profile.userAs !== "freelancer") {
+        throw new UnauthorizedError("Only freelancer have access to their services");
+    }
+
+    const aggregateServices = await Service.aggregate([
+        {
+            $match: {
+                profile: profile._id // get the freelancer's services
+            }
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                foreignField: "service.serviceInfo",
+                localField: "_id",
+                as: "contracts"
+            }
+        },
+        {
+            // add a field of only paid orders
+            $addFields: {
+                paidOrders: {
+                    $filter: {
+                        input: "$orders",
+                        as: "order",
+                        cond: { $eq: ["$$order.status", "paid"] }
+                    }
+                }
+            }
+        },
+        {
+            // calc the paid orders amount
+            $addFields: {
+                totalRevenue: {
+                    $reduce: {
+                        input: "$paidOrders",
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amount"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // add a field of contracts that still in progress
+            $addFields: {
+                inProgressContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $or: [
+                                { $eq: ["$$contract.freelancer.status", "inProgress"] },
+                                { $eq: ["$$contract.employer.status", "inProgress"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // calc in queue contracts
+            $addFields: {
+                inQueue: {
+                    $size: "$inProgressContracts"
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                title: 1,
+                category: 1,
+                createdAt: 1,
+                inQueue: 1,
+                totalRevenue: 1
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(aggregateServices);
+}
+
+
 //@desc an employer can order the service and pay
 //@route POST /api/v1/services/:serviceId/order
 //@access authentication (employers only)
@@ -554,7 +651,7 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
 
 
 //@desc display employer's bought services
-//@route GET /api/v1/services/profile
+//@route GET /api/v1/services/profile/bought-services
 //@access authentication (employers)
 const boughtServices: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { status } = req.query;
@@ -735,6 +832,7 @@ export {
     deleteService,
     uploadFeaturedImg,
     uploadGallery,
+    getFreelancerServices,
     orderService,
     setServiceAsPaid,
     boughtServices,

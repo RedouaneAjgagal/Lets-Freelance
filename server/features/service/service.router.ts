@@ -1,6 +1,19 @@
 import { Router } from "express";
-import { getAllservices, singleService, createService, updateService, deleteService, uploadFeaturedImg, uploadGallery, orderService, setServiceAsPaid, boughtServices, trendingServices } from "./service.controller";
 import authentication from "../../middlewares/authentication";
+import {
+    getAllservices,
+    singleService,
+    createService,
+    updateService,
+    deleteService,
+    uploadFeaturedImg,
+    uploadGallery,
+    orderService,
+    setServiceAsPaid,
+    boughtServices,
+    trendingServices,
+    getFreelancerServices
+} from "./service.controller";
 
 const router = Router();
 
@@ -15,8 +28,11 @@ router.post("/upload-gallery", authentication, uploadGallery);
 router.route("/trending")
     .get(trendingServices);
 
-router.route("/profile")
+router.route("/profile/bought-services")
     .get(authentication, boughtServices);
+
+router.route("/profile/freelancer-services")
+    .get(authentication, getFreelancerServices);
 
 router.route("/:serviceId")
     .get(singleService)

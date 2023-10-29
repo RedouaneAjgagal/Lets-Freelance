@@ -508,9 +508,6 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
         });
     }
 
-    // check if valid revenue value
-    const getRevenue = searchFreelancersQueryValidator.isValidRevenue(revenue);
-
     // sort by ip address
     const ipAddress = req.ip;
     const hash = createHash({ algorithm: "md5", value: ipAddress });
@@ -601,6 +598,7 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
     ];
 
     // search by revenue
+    const getRevenue = searchFreelancersQueryValidator.isValidRevenue(revenue);
     if (getRevenue) {
         const [minRevenue, maxRevenue] = getRevenue.split(",");
         if ((Number(minRevenue) <= Number(maxRevenue)) || maxRevenue === "infinity") {

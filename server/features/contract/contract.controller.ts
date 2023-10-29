@@ -4,7 +4,7 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import Contract from "./contract.model";
-import { isValidObjectId } from "mongoose";
+import mongoose, { PipelineStage, isValidObjectId } from "mongoose";
 import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
 import { isInvalidStatus, isInvalidSumbitedWokedHours } from "./validators/contractInputValidator";
@@ -25,17 +25,7 @@ import refundContractValidator from "./validators/refundContractValidator";
 //@route GET /api/v1/contracts
 //@access authentication
 const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { status } = req.query;
-
-    const getStatus = status?.toString() as "inProgress" | "completed" | "canceled" | undefined;
-
-    // if status exist check if its valid
-    if (getStatus) {
-        const invalidStatus = isInvalidStatus(getStatus);
-        if (invalidStatus) {
-            throw new BadRequestError(invalidStatus);
-        }
-    }
+    const { status, service_id, job_id } = req.query;
 
     // find profile
     const profile = await Profile.findOne({ user: req.user!.userId });
@@ -43,26 +33,61 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Found no user");
     }
 
-    // find contracts & filter if either freelancer or employer have inProgress status
 
-    const contracts = await Contract.find({
-        $or: [
-            {
-                [profile.userAs]: {
-                    user: profile.user._id,
-                    profile: profile._id,
-                    status: getStatus || "inProgress"
-                }
-            },
-            {
-                [`${profile.userAs}.user`]: profile.user._id,
-                [`${profile.userAs}.profile`]: profile._id,
-                [profile.userAs === "employer" ? "freelancer.status" : "employer.status"]: getStatus || "inProgress"
+    const aggregate: PipelineStage[] = [
+        {
+            $match: { [`${profile.userAs}.profile`]: profile._id } // find only contracts related to this user
+        },
+        {
+            $project: {
+                cancelRequest: 0 // hide cancel request
             }
-        ]
-    }, { cancelRequest: false }).sort({ createdAt: -1 });
+        },
+        {
+            $sort: {
+                createdAt: -1 // sort by the newest contracts
+            }
+        }
+    ];
 
-    res.status(StatusCodes.OK).json(contracts);
+    const getStatus = status?.toString() as "inProgress" | "completed" | "canceled" | undefined;
+
+    // check if its valid status
+    if (getStatus) {
+        const invalidStatus = isInvalidStatus(getStatus);
+        if (invalidStatus) {
+            throw new BadRequestError(invalidStatus);
+        }
+
+        // search based on the status provided
+        aggregate.push({
+            $match: {
+                [getStatus === "inProgress" ? "$or" : "$and"]: [
+                    { "freelancer.status": getStatus },
+                    { "employer.status": getStatus }
+                ]
+            }
+        });
+    }
+
+    // if service id provided then get service's contracts
+    if (isValidObjectId(service_id?.toString())) {
+        aggregate.push({
+            $match: { "service.serviceInfo": new mongoose.Types.ObjectId(service_id!.toString()) }
+        });
+    }
+
+    // if job id provided then get job's contracts
+    if (isValidObjectId(job_id?.toString())) {
+        aggregate.push({
+            $match: { "job.jobInfo": new mongoose.Types.ObjectId(job_id!.toString()) }
+        });
+    }
+
+    // find contracts
+    const aggregateContracts = await Contract.aggregate(aggregate);
+
+    res.status(StatusCodes.OK).json(aggregateContracts);
 }
 
 

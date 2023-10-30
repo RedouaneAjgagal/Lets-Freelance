@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { isValidObjectId } from "mongoose";
+import { PipelineStage, isValidObjectId } from "mongoose";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import createProposalValidator from "./validators/createProposalValidator";
 import Proposal from "./proposal.model";
@@ -301,7 +301,9 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-
+//@desc set fixed price job as paid when an employer accepts and pay a proposal
+//@route GET /api/v1/proposals/:proposalId/fixed-job
+//@access authentication (job creator only)
 const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { proposalId } = req.params;
     const { session_id } = req.query;
@@ -442,10 +444,98 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
 }
 
 
+//@desc get all proposals related to the current freelancer
+//@route GET /api/v1/proposals/profile/freelancer-proposals
+//@access authentication (freelancers only)
+const getFreelancerProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { status, page } = req.query;
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the current user is a freelancer
+    if (profile.userAs !== "freelancer") {
+        throw new UnauthorizedError("Only freelancers have access to thier proposals");
+    }
+
+    const aggregate: PipelineStage[] = [
+        {
+            $match: {
+                profile: profile._id // find only proposals related to this freelancer
+            }
+        },
+        {
+            $lookup: {
+                from: "jobs",
+                foreignField: "_id",
+                localField: "job",
+                as: "job"
+            }
+        },
+        {
+            $unwind: "$job"
+        },
+        {
+            $project: {
+                _id: 1,
+                coverLetter: 1,
+                priceType: 1,
+                price: 1,
+                status: 1,
+                boostProposal: 1,
+                createdAt: 1,
+                "job._id": 1,
+                "job.title": 1,
+                "job.category": 1,
+                "job.locationType": 1,
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1 // sort by newest proposals
+            }
+        }
+    ]
+
+    // display proposals by the status
+    const invalidStatus = isInvalidStatus(status?.toString());
+    if (!invalidStatus) {
+        aggregate.push({
+            $match: {
+                status: status!.toString()
+            }
+        })
+    }
+
+    // add pagination
+    const CURRENT_PAGE = /^\d+$/.test(page?.toString() || "") ? +page!.toString() : 1;
+    const LIMIT = 8;
+    const SKIP = (CURRENT_PAGE - 1) * LIMIT;
+    const paginationPipline: PipelineStage[] = [
+        {
+            $skip: SKIP // the amount to be skiped by each page
+        },
+        {
+            $limit: LIMIT // the amount of proposals to be displayed
+        }
+    ];
+    aggregate.push(...paginationPipline);
+    
+
+    const aggregateProposals = await Proposal.aggregate(aggregate);
+
+    res.status(StatusCodes.OK).json(aggregateProposals);
+}
+
+
 export {
     getProposals,
     createProposal,
     actionProposal,
-    setAsPaidFixedPriceJob
+    setAsPaidFixedPriceJob,
+    getFreelancerProposals
 }
 

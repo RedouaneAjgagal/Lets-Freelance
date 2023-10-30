@@ -101,7 +101,7 @@ const isInvalidEstimatedTime = (estimatedTime: ProposalType["estimatedTime"] | u
     return error;
 }
 
-const isInvalidStatus = (status: ProposalType["status"] | undefined) => {
+const isInvalidStatus = (status: string | undefined) => {
     let error = "";
 
     if (!status || status.toString().trim() === "") {

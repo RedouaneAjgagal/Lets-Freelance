@@ -9,7 +9,7 @@ import cancelContractValidator from "./validators/cancelContractValidator";
 import { User } from "../auth";
 import { isInvalidStatus, isInvalidSumbitedWokedHours } from "./validators/contractInputValidator";
 import sendContractCancelationEmail from "./services/sendContractCancelationEmail";
-import { getServicePriceAfterFees } from "../service";
+import { getServicePriceAfterFees, serviceModel as Service } from "../service";
 import sendServiceContractCompletedEmail from "./services/sendServiceContractCompletedEmail";
 import sendCompletedJobContractEmail from "./services/sendCompletedJobContractEmail";
 import { jobFees } from "../job";
@@ -924,9 +924,9 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 
-//@desc create a refund request so powerful roles can check it and approve it or reject it
-//@route POST /api/v1/:contractId/refund
-//@access authentication (employers only)
+//@desc display pending refund requests that are made by employers
+//@route POST /api/v1/refund
+//@access authorization
 const getRefundRequests: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find all refund requested contracts
     const contracts = await Contract.find({ "payments.employer.refundRequest.status": { $in: ["pending"] } }).select("-freelancer -employer -cancelRequest").sort("payments.employer.refundRequest.requestedAt");
@@ -1052,6 +1052,13 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
 
         // check if the contract is a  service or a fixed price job to cancel
         if (contract.activityType === "service" || contract.job?.priceType === "fixed") {
+            if (contract.activityType === "service") {
+                const service = await Service.findById(contract.service!.serviceInfo);
+                const order = service?.orders.find(order => order.sessionId === payment.sessionId);
+                if (order) order.status = "refunded";
+                await service?.save();
+            }
+
             contract.freelancer.status = "canceled";
             contract.employer.status = "canceled";
 

@@ -12,6 +12,9 @@ router.route("/cancel-requests")
     .get(authentication, authorization("admin"), cancelationRequests)
     .patch(authentication, authorization("admin"), cancelContract);
 
+router.route("/refund")
+    .get(authentication, authorization("admin"), getRefundRequests);
+
 router.route("/:contractId")
     .post(authentication, cancelContractRequest);
 
@@ -21,7 +24,6 @@ router.route("/:contractId/worked-hours")
     .patch(authentication, payWorkedHours);
 
 router.route("/:contractId/refund")
-    .get(authentication, authorization("admin"), getRefundRequests)
     .post(authentication, createRefundRequest)
     .patch(authentication, authorization("admin"), refundPaidAmount);
 

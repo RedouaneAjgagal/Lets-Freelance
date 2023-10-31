@@ -517,11 +517,80 @@ const deleteJob: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc get employer's jobs
+//@route GET /api/v1/jobs/profile/employer-jobs
+//@access authentication (employers only)
+const getEmployerJobs: RequestHandler = async (req: CustomAuthRequest, res) => {
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // check if the user is an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("Only employers have access to their jobs");
+    }
+
+    const aggregateJobs = await Job.aggregate([
+        {
+            $match: {
+                profile: profile._id // get jobs related to this employer
+            }
+        },
+        {
+            // get proposals related to the job
+            $lookup: {
+                from: "proposals",
+                foreignField: "job",
+                localField: "_id",
+                as: "proposals"
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                title: {
+                    $first: "$title"
+                },
+                status: {
+                    $first: "$status"
+                },
+                priceType: {
+                    $first: "$priceType"
+                },
+                price: {
+                    $first: "$price"
+                },
+                experienceLevel: {
+                    $first: "$experienceLevel"
+                },
+                createdAt: {
+                    $first: "$createdAt"
+                },
+                proposals: {
+                    $sum: {
+                        $size: "$proposals" // calc the amount of proposals has been submitted
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1 // sort by newest jobs
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(aggregateJobs);
+}
+
 
 export {
     getAllJobs,
     singleJob,
     createJob,
     updateJob,
-    deleteJob
+    deleteJob,
+    getEmployerJobs
 }

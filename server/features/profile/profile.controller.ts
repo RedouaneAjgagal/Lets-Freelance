@@ -620,6 +620,185 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
 }
 
 
+//@desc get current user statements
+//@route GET /api/v1/profiles/statements
+//@access authentication
+const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    const aggregateStatements = await Contract.aggregate([
+        {
+            $match: {
+                [`${profile.userAs}.profile`]: profile._id // find only contracts related to this user
+            }
+        },
+        {
+            // get user paid payments
+            $addFields: {
+                paidPayments: {
+                    $filter: {
+                        input: "$payments",
+                        as: "payment",
+                        cond: { $eq: [`$$payment.${profile.userAs}.status`, "paid"] }
+                    }
+                }
+            }
+        },
+        {
+            // get one month payments
+            $addFields: {
+                oneMonthPayments: {
+                    $reduce: {
+                        input: {
+                            $filter: {
+                                input: "$paidPayments",
+                                as: "payment",
+                                cond: { $gte: [`$$payment.${profile.userAs}.paidAt`, (new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))] }
+                            },
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amount"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get one year payments
+            $addFields: {
+                oneYearPaymets: {
+                    $reduce: {
+                        input: {
+                            $filter: {
+                                input: "$paidPayments",
+                                as: "payment",
+                                cond: { $gte: [`$$payment.${profile.userAs}.paidAt`, (new Date(Date.now() - 365 * 24 * 60 * 60 * 1000))] }
+                            },
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amount"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get overall total
+            $addFields: {
+                total: {
+                    $reduce: {
+                        input: "$paidPayments",
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amount"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get pending payments
+            $addFields: {
+                pendingPayments: {
+                    $reduce: {
+                        input: {
+                            $filter: {
+                                input: "$payments",
+                                as: "payment",
+                                cond: { $eq: [`$$payment.${profile.userAs}.status`, "pending"] }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amount"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get user payments that are pending, paid or refunded 
+            $addFields: {
+                allPayments: {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: "$payments",
+                                as: "payment",
+                                cond: {
+                                    $or: [
+                                        { $eq: [`$$payment.${profile.userAs}.status`, "pending"] },
+                                        { $eq: [`$$payment.${profile.userAs}.status`, "paid"] },
+                                        { $eq: [`$$payment.${profile.userAs}.status`, "refunded"] }
+                                    ]
+                                }
+                            }
+                        },
+                        as: "payment",
+                        in: {
+                            _id: "$$payment._id",
+                            activityType: "$activityType",
+                            projectType: { $cond: ["$job.priceType", "$job.priceType", "fixed"] },
+                            amount: "$$payment.amount",
+                            employer: "$$payment.employer",
+                            freelancer: "$$payment.freelancer"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $group: {
+                _id: `$${profile.userAs}.profile`,
+                allPayments: {
+                    $push: "$allPayments" // push all payments to one array
+                },
+                oneMonthPayments: {
+                    $sum: "$oneMonthPayments"
+                },
+                oneYearPaymets: {
+                    $sum: "$oneYearPaymets"
+                },
+                total: {
+                    $sum: "$total"
+                },
+                pendingPayments: {
+                    $sum: "$pendingPayments"
+                },
+            }
+        },
+        {
+            // remove duplicate arrays
+            $addFields: {
+                payments: {
+                    $reduce: {
+                        input: "$allPayments",
+                        initialValue: [],
+                        in: {
+                            $concatArrays: ["$$value", "$$this"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                allPayments: 0
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(aggregateStatements);
+}
+
+
 export {
     profileInfo,
     singleProfile,
@@ -630,5 +809,6 @@ export {
     buyConnects,
     setPaidConnects,
     highRatedFrelancers,
-    getAllFreelancers
+    getAllFreelancers,
+    getProfileStatements
 }

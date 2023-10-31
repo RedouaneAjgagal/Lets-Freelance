@@ -410,6 +410,10 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                     status: "paid",
                     paidAt
                 },
+                freelancer: {
+                    status: "pending",
+                    paidAt: undefined
+                },
                 sessionId: session.id,
                 chargeId
             }
@@ -523,7 +527,7 @@ const getFreelancerProposals: RequestHandler = async (req: CustomAuthRequest, re
         }
     ];
     aggregate.push(...paginationPipline);
-    
+
 
     const aggregateProposals = await Proposal.aggregate(aggregate);
 

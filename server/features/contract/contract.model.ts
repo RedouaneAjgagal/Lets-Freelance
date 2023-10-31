@@ -38,7 +38,7 @@ export type ContractJob = {
 
 export type UserPayment = {
     status: "pending" | "paid" | "refunded";
-    paidAt: Date;
+    paidAt: Date | undefined;
 }
 
 export type RefundRequest = {

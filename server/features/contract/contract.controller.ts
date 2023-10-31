@@ -901,7 +901,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     if (payment.freelancer?.status === "paid") {
         const isFiveDaysPassed = hasPeriodExpired({
             timeInMs: 5 * 60 * 60 * 1000, // 5 days
-            date: payment.freelancer!.paidAt.toString()
+            date: payment.freelancer!.paidAt!.toString()
         });
 
         // check if the 5 days has been passed since the freelancer get paid
@@ -997,7 +997,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     // check if the payment has't pass 7 days for hourly price job
     const isExpired = hasPeriodExpired({
         timeInMs: 7 * 24 * 60 * 60 * 1000, // 7 days
-        date: payment.employer.paidAt.toString()
+        date: payment.employer.paidAt!.toString()
     });
 
     if (contract.activityType === "job" && contract.job?.priceType === "hourly" && isExpired) {

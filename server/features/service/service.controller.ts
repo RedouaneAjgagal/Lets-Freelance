@@ -616,6 +616,10 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
             status: "paid",
             paidAt: new Date(paymentIntent.created * 1000)
         },
+        freelancer: {
+            status: "pending",
+            paidAt: undefined
+        },
         sessionId: session.id,
         chargeId: paymentIntent.latest_charge?.toString()
     }

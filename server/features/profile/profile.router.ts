@@ -11,7 +11,8 @@ import {
     highRatedFrelancers,
     getAllFreelancers,
     getProfileStatements,
-    getFreelancerReports
+    getFreelancerReports,
+    getEmployersReports
 } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
@@ -38,6 +39,9 @@ router.route("/freelancers")
 
 router.route("/freelancers/reports")
     .get(authentication, getFreelancerReports)
+
+router.route("/employers/reports")
+    .get(authentication, getEmployersReports);
 
 router.route("/statements")
     .get(authentication, getProfileStatements);

@@ -900,7 +900,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     // check if didnt pass 5 days since the freelancer get paid
     if (payment.freelancer?.status === "paid") {
         const isFiveDaysPassed = hasPeriodExpired({
-            timeInMs: 5 * 60 * 60 * 1000, // 5 days
+            timeInMs: 5 * 24 * 60 * 60 * 1000, // 5 days
             date: payment.freelancer!.paidAt!.toString()
         });
 

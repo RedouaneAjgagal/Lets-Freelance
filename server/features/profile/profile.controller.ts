@@ -1170,6 +1170,405 @@ const getFreelancerReports: RequestHandler = async (req: CustomAuthRequest, res)
     res.status(StatusCodes.OK).json(aggregateReports);
 }
 
+
+
+const getEmployersReports: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const [aggregateReports] = await Profile.aggregate([
+        {
+            // find current employer
+            $match: {
+                $and: [
+                    { user: new mongoose.Types.ObjectId(req.user!.userId) },
+                    { userAs: "employer" }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "jobs",
+                foreignField: "profile",
+                localField: "_id",
+                as: "jobs"
+            }
+        },
+        {
+            // get how many jobs are posted by this employer
+            $addFields: {
+                postedJobs: {
+                    $size: "$jobs"
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                foreignField: "employer.profile",
+                localField: "_id",
+                as: "contracts"
+            }
+        },
+        {
+            // get in progress contracts
+            $addFields: {
+                inProgressContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $or: [
+                                { $eq: ["$$contract.freelancer.status", "inProgress"] },
+                                { $eq: ["$$contract.employer.status", "inProgress"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get completed contracts
+            $addFields: {
+                completedContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.freelancer.status", "completed"] },
+                                { $eq: ["$$contract.employer.status", "completed"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many in progress job contracts
+            $addFields: {
+                inProgressJobs: {
+                    $size: {
+                        $filter: {
+                            input: "$inProgressContracts",
+                            as: "inProgressContract",
+                            cond: {
+                                $eq: ["$$inProgressContract.activityType", "job"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many completed job contracts
+            $addFields: {
+                completedJobs: {
+                    $size: {
+                        $filter: {
+                            input: "$completedContracts",
+                            as: "completedContract",
+                            cond: {
+                                $eq: ["$$completedContract.activityType", "job"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many in progress service contracts
+            $addFields: {
+                inProgressServices: {
+                    $size: {
+                        $filter: {
+                            input: "$inProgressContracts",
+                            as: "inProgressContract",
+                            cond: {
+                                $eq: ["$$inProgressContract.activityType", "service"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many completed service contracts
+            $addFields: {
+                completedServices: {
+                    $size: {
+                        $filter: {
+                            input: "$completedContracts",
+                            as: "completedContract",
+                            cond: {
+                                $eq: ["$$completedContract.activityType", "service"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many bought services
+            $addFields: {
+                boughServices: {
+                    $size: {
+                        $filter: {
+                            input: "$contracts",
+                            as: "contract",
+                            cond: {
+                                $eq: ["$$contract.activityType", "service"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "proposals",
+                foreignField: "job",
+                localField: "jobs._id",
+                as: "proposals"
+            }
+        },
+        {
+            // get how many pending proposals
+            $addFields: {
+                pendingProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "pending"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many approved proposals
+            $addFields: {
+                hiredProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "approved"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many interviewing proposals
+            $addFields: {
+                interviewingProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "interviewing"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get how many rejected proposals
+            $addFields: {
+                rejectedProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "rejected"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get job contracts
+            $addFields: {
+                jobContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $eq: ["$$contract.activityType", "job"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total spent on jobs
+            $addFields: {
+                spentOnJobs: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$jobContracts",
+                                as: "jobContract",
+                                in: {
+                                    $reduce: {
+                                        input: {
+                                            $filter: {
+                                                input: "$$jobContract.payments",
+                                                as: "payment",
+                                                cond: {
+                                                    $eq: ["$$payment.employer.status", "paid"]
+                                                }
+                                            }
+                                        },
+                                        initialValue: 0,
+                                        in: {
+                                            $add: ["$$value", "$$this.amount"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this"]
+                        }
+                    },
+                }
+            }
+        },
+        {
+            // get service contracts
+            $addFields: {
+                serviceContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $eq: ["$$contract.activityType", "service"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total spent on services
+            $addFields: {
+                spentOnServices: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$serviceContracts",
+                                as: "serviceContract",
+                                in: {
+                                    $reduce: {
+                                        input: {
+                                            $filter: {
+                                                input: "$$serviceContract.payments",
+                                                as: "payment",
+                                                cond: {
+                                                    $eq: ["$$payment.employer.status", "paid"]
+                                                }
+                                            }
+                                        },
+                                        initialValue: 0,
+                                        in: {
+                                            $add: ["$$value", "$$this.amount"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this"]
+                        }
+                    },
+                }
+            }
+        },
+        {
+            // get the total has been refunded
+            $addFields: {
+                refunded: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$contracts",
+                                as: "contract",
+                                in: {
+                                    $reduce: {
+                                        input: {
+                                            $filter: {
+                                                input: "$$contract.payments",
+                                                as: "payment",
+                                                cond: {
+                                                    $eq: ["$$payment.employer.status", "refunded"]
+                                                }
+                                            }
+                                        },
+                                        initialValue: 0,
+                                        in: {
+                                            $add: ["$$value", "$$this.amount"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this"]
+                        }
+                    },
+                }
+            }
+        },
+        {
+            $project: {
+                profile: {
+                    name: "$name",
+                    avatar: "$avatar",
+                    rating: "$rating"
+                },
+                job: {
+                    postedJobs: "$postedJobs",
+                    inProgressJobs: "$inProgressJobs",
+                    completedJobs: "$completedJobs"
+                },
+                service: {
+                    boughServices: "$boughServices",
+                    inProgressServices: "$inProgressServices",
+                    completedServices: "$completedServices"
+                },
+                proposal: {
+                    pendingProposals: "$pendingProposals",
+                    hiredProposals: "$hiredProposals",
+                    interviewingProposals: "$interviewingProposals",
+                    rejectedProposals: "$rejectedProposals"
+                },
+                totalSpent: {
+                    spentOnJobs: "$spentOnJobs",
+                    spentOnServices: "$spentOnServices",
+                    refunded: "$refunded"
+                }
+            }
+        }
+    ]);
+
+    // if the user is not a freelancer or has been deleted
+    if (!aggregateReports) {
+        throw new UnauthorizedError("Found no employer");
+    }
+
+    res.status(StatusCodes.OK).json(aggregateReports)
+}
+
 export {
     profileInfo,
     singleProfile,
@@ -1182,5 +1581,6 @@ export {
     highRatedFrelancers,
     getAllFreelancers,
     getProfileStatements,
-    getFreelancerReports
+    getFreelancerReports,
+    getEmployersReports
 }

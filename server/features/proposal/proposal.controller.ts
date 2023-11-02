@@ -87,6 +87,11 @@ const createProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthorizedError("Only freelancers can apply");
     }
 
+    // check if the job already open for proposals
+    if (job.status !== "open") {
+        throw new BadRequestError("You cannot submit proposals to closed jobs");
+    }
+
     // check if already submitted a proposal
     const existedProposal = await Proposal.findOne({ job: jobId, user: profile.user });
     if (existedProposal) {

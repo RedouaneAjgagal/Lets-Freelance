@@ -799,6 +799,377 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
 }
 
 
+//@desc get current freelancer reports for the dashboard
+//@route GET /api/v1/profiles/freelancers/reports
+//@access authentication (freelancers only)
+const getFreelancerReports: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const [aggregateReports] = await Profile.aggregate([
+        {
+            // find current freelancer
+            $match: {
+                user: new mongoose.Types.ObjectId(req.user!.userId),
+                userAs: "freelancer"
+            }
+        },
+        {
+            $lookup: {
+                from: "services",
+                foreignField: "profile",
+                localField: "_id",
+                as: "services"
+            }
+        },
+        {
+            // get the total of freelancer's services
+            $addFields: {
+                postedServices: {
+                    $size: "$services"
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                foreignField: "freelancer.profile",
+                localField: "_id",
+                as: "contracts"
+            }
+        },
+        {
+            // get completed contract services
+            $addFields: {
+                completedServices: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.activityType", "service"] },
+                                { $eq: ["$$contract.freelancer.status", "completed"] },
+                                { $eq: ["$$contract.employer.status", "completed"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get total revenue made from services
+            $addFields: {
+                servicesRevenue: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$completedServices",
+                                as: "service",
+                                in: {
+                                    $reduce: {
+                                        input: {
+                                            $filter: {
+                                                input: "$$service.payments",
+                                                as: "payment",
+                                                cond: { $eq: ["$$payment.freelancer.status", "paid"] }
+                                            }
+                                        },
+                                        initialValue: 0,
+                                        in: {
+                                            $add: ["$$value", "$$this.amount"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total of completed services
+            $addFields: {
+                totalOfCompletedServices: {
+                    $size: "$completedServices"
+                }
+            }
+        },
+        {
+            // get the total of in progress services
+            $addFields: {
+                inQueueServices: {
+                    $size: {
+                        $filter: {
+                            input: "$contracts",
+                            as: "contract",
+                            cond: {
+                                $and: [
+                                    {
+                                        $eq: ["$$contract.activityType", "service"]
+                                    },
+                                    {
+                                        $or: [
+                                            { $eq: ["$$contract.freelancer.status", "inProgress"] },
+                                            { $eq: ["$$contract.employer.status", "inProgress"] }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get job contracts
+            $addFields: {
+                jobContracts: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $eq: ["$$contract.activityType", "job"],
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get completed job contracts
+            $addFields: {
+                completedJobContracts: {
+                    $filter: {
+                        input: "$jobContracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.freelancer.status", "completed"] },
+                                { $eq: ["$$contract.employer.status", "completed"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get total of completed jobs
+            $addFields: {
+                totalOfCompletedJobs: {
+                    $size: "$completedJobContracts"
+                }
+            }
+        },
+        {
+            // get total of in progress jobs
+            $addFields: {
+                inQueueJobs: {
+                    $size: {
+                        $filter: {
+                            input: "$jobContracts",
+                            as: "contract",
+                            cond: {
+                                $or: [
+                                    { $eq: ["$$contract.freelancer.status", "inProgress"] },
+                                    { $eq: ["$$contract.employer.status", "inProgress"] }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get total revenue made from jobs
+            $addFields: {
+                jobsRevenue: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$jobContracts",
+                                as: "jobContract",
+                                in: {
+                                    $reduce: {
+                                        input: {
+                                            $filter: {
+                                                input: "$$jobContract.payments",
+                                                as: "payment",
+                                                cond: {
+                                                    $eq: ["$$payment.freelancer.status", "paid"]
+                                                }
+                                            }
+                                        },
+                                        initialValue: 0,
+                                        in: {
+                                            $add: ["$$value", "$$this.amount"]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "proposals",
+                foreignField: "profile",
+                localField: "_id",
+                as: "proposals"
+            }
+        },
+        {
+            // get the total of approved proposals
+            $addFields: {
+                approvedProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "approved"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total of interviewing proposals
+            $addFields: {
+                interviewingProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "interviewing"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total of rejected proposals
+            $addFields: {
+                rejectedProposals: {
+                    $size: {
+                        $filter: {
+                            input: "$proposals",
+                            as: "proposal",
+                            cond: {
+                                $eq: ["$$proposal.status", "rejected"]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total spent to boost proposals
+            $addFields: {
+                connectsSpendToBoostProposals: {
+                    $reduce: {
+                        input: "$proposals",
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.boostProposal.spentConnects"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "jobs",
+                foreignField: "_id",
+                localField: "proposals.job",
+                as: "jobs"
+            }
+        },
+        {
+            // calc the total connects that has been spent on proposals
+            $addFields: {
+                connectsSpentOnProposals: {
+                    $reduce: {
+                        input: "$jobs",
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.connects"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the total amount spent on proposals
+            $addFields: {
+                totalSpentOnConnects: {
+                    $reduce: {
+                        input: {
+                            $filter: {
+                                input: "$roles.freelancer.connects.payments",
+                                as: "payment",
+                                cond: {
+                                    $eq: ["$$payment.status", "paid"]
+                                }
+                            }
+                        },
+                        initialValue: 0,
+                        in: {
+                            $add: ["$$value", "$$this.amountPaid"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                profile: {
+                    name: "$name",
+                    avatar: "$avatar",
+                    rating: "$rating",
+                    badge: "$roles.freelancer.badge"
+                },
+                service: {
+                    postedServices: "$postedServices",
+                    completedServices: "$totalOfCompletedServices",
+                    inQueueServices: "$inQueueServices",
+                    servicesRevenue: "$servicesRevenue"
+                },
+                job: {
+                    completedJobs: "$totalOfCompletedJobs",
+                    inQueueJobs: "$inQueueJobs",
+                    jobsRevenue: "$jobsRevenue"
+                },
+                proposal: {
+                    approvedProposals: "$approvedProposals",
+                    interviewingProposals: "$interviewingProposals",
+                    rejectedProposals: "$rejectedProposals",
+                },
+                connect: {
+                    connectsSpentOnProposals: "$connectsSpentOnProposals",
+                    connectsSpendToBoostProposals: "$connectsSpendToBoostProposals",
+                    totalSpentOnConnects: "$totalSpentOnConnects"
+                }
+            }
+        }
+    ]);
+
+    // if the user is not a freelancer or has been deleted
+    if (!aggregateReports) {
+        throw new UnauthorizedError("Found no freelancer");
+    }
+
+    res.status(StatusCodes.OK).json(aggregateReports);
+}
+
 export {
     profileInfo,
     singleProfile,
@@ -810,5 +1181,6 @@ export {
     setPaidConnects,
     highRatedFrelancers,
     getAllFreelancers,
-    getProfileStatements
+    getProfileStatements,
+    getFreelancerReports
 }

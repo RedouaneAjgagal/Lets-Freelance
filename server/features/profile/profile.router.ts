@@ -10,7 +10,8 @@ import {
     setPaidConnects,
     highRatedFrelancers,
     getAllFreelancers,
-    getProfileStatements
+    getProfileStatements,
+    getFreelancerReports
 } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
@@ -34,6 +35,9 @@ router.route("/high-rated")
 
 router.route("/freelancers")
     .get(getAllFreelancers);
+
+router.route("/freelancers/reports")
+    .get(authentication, getFreelancerReports)
 
 router.route("/statements")
     .get(authentication, getProfileStatements);

@@ -1308,7 +1308,7 @@ const getEmployersReports: RequestHandler = async (req: CustomAuthRequest, res) 
         {
             // get how many bought services
             $addFields: {
-                boughServices: {
+                boughtServices: {
                     $size: {
                         $filter: {
                             input: "$contracts",
@@ -1542,7 +1542,7 @@ const getEmployersReports: RequestHandler = async (req: CustomAuthRequest, res) 
                     completedJobs: "$completedJobs"
                 },
                 service: {
-                    boughServices: "$boughServices",
+                    boughtServices: "$boughtServices",
                     inProgressServices: "$inProgressServices",
                     completedServices: "$completedServices"
                 },

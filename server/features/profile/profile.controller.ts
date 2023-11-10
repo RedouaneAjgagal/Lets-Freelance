@@ -11,7 +11,7 @@ import uploadImage from "../../utils/uploadImage";
 import isInvalidConnect from "./validators/buyConnectsValidator";
 import stripe from "../../stripe/stripeConntect";
 import { IService, serviceModel as Service } from "../service";
-import { contractModel as Contract, contractModel } from "../contract";
+import { contractModel as Contract } from "../contract";
 import { jobModel as Job, JobType } from "../job";
 import mongoose, { PipelineStage } from "mongoose";
 import "./badge_upgrade/upgrades";

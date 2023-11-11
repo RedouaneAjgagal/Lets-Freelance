@@ -7,6 +7,7 @@ import { Profile } from "../profile";
 import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
 import mongoose from "mongoose";
+import { isInvalidBudgetType } from "./validators/inputValidations";
 
 
 //@desc create campaign
@@ -84,6 +85,81 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc display freelancer's campaigns
+//@route GET api/v1/advertisements
+//@access authentication (freelancers only)
+const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { search, budget_type, budget_range } = req.query;
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the current profile is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to these ressources. Freelancers only");
+  }
+
+  // pick only freelancer's campaigns
+  const match: mongoose.PipelineStage.Match["$match"] = {
+    $and: [
+      {
+        user: profile.user._id
+      }
+    ]
+  }
+
+  // check if freelancer want to search by title
+  if (search && search.toString() !== "") {
+    match.$and!.push({
+      name: { $regex: search, $options: "i" }
+    });
+  }
+
+  // search by budget type
+  const isValidBudgetType = budget_type && !isInvalidBudgetType(budget_type);
+  if (isValidBudgetType) {
+    match.$and!.push({
+      budgetType: budget_type
+    });
+  }
+
+  // search by budget range (e.g. 5,10)
+  const isValidBudgetRage = budget_range && budget_range.toString().trim() !== "" && /^\d+,\d+$/.test(budget_range.toString());
+  if (isValidBudgetRage) {
+    const [minBudget, maxBudget] = budget_range.toString().split(",");
+    if (Number(minBudget) <= Number(maxBudget)) {
+      match.$and!.push({
+        $and: [
+          { budget: { $gte: Number(minBudget) } },
+          { budget: { $lte: Number(maxBudget) } }
+        ]
+      });
+    }
+  }
+
+  // campaign aggregation
+  const campaignsAggregation = await advertisementModels.Campaign.aggregate([
+    {
+      $match: match
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        budget: 1,
+        budgetType: 1
+      }
+    }
+  ]);
+
+  res.status(StatusCodes.OK).json(campaignsAggregation);
+}
+
+
 export {
-  createCampaign
+  createCampaign,
+  getCampaigns
 }

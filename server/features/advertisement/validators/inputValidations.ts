@@ -1,3 +1,5 @@
+import { isValidObjectId } from "mongoose";
+
 const isInvalidName = (name: any) => {
     if (!name || name.toString().trim() === "") {
         return "Campaign name is required"
@@ -84,13 +86,26 @@ const isInvalidEndDate = ({ startDate, endDate }: { startDate: any; endDate: any
     const getStartDate = new Date(startDate).getTime();
     const oneDayAhead = new Date(getStartDate + (24 * 60 * 60 * 1000)).getTime();
     const getEndDate = new Date(endDate).getTime();
-    
+
     if (getEndDate < getStartDate) {
         return "Invalid dates"
     }
 
     if (oneDayAhead > getEndDate) {
         return "Invalid campaign ending date. Must be at least 24h longer from the starting date";
+    }
+
+    return "";
+}
+
+const isInvalidServiceId = (serviceId: any) => {
+    if (!serviceId) {
+        return "Service id is required";
+    }
+
+    const isValidMongodbId = isValidObjectId(serviceId);
+    if (!isValidMongodbId) {
+        return "Invalid service ID";
     }
 
     return "";
@@ -200,6 +215,11 @@ const isInvalidAd = (ad: any) => {
         return "Invalid ad format";
     }
 
+    const invalidServiceId = isInvalidServiceId(ad.service);
+    if (invalidServiceId) {
+        return invalidServiceId;
+    }
+
     const invalidBidAmount = isInvalidBidAmount(ad.bidAmount);
     if (invalidBidAmount) {
         return invalidBidAmount;
@@ -229,8 +249,6 @@ const isInvalidAd = (ad: any) => {
 }
 
 const isInvalidAds = (ads: any) => {
-    // console.log(ads);
-
     if (!ads) {
         return "Campaign ads are required";
     }
@@ -241,6 +259,10 @@ const isInvalidAds = (ads: any) => {
 
     if (!ads.length) {
         return "You must provide at least one ad";
+    }
+
+    if (ads.length > 10) {
+        return "Max ads per campaign is 10";
     }
 
     const errors: string[] = [];

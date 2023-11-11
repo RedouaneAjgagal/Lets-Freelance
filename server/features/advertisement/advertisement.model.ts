@@ -69,7 +69,7 @@ const Ad = mongoose.model("Ad", adSchema);
 
 
 // --------- Campaign --------- //
-type CampaignTypeWithoutRefs = {
+export type CampaignTypeWithoutRefs = {
     name: string;
     budget: number;
     budgetType: "daily" | "total";
@@ -77,7 +77,7 @@ type CampaignTypeWithoutRefs = {
     endDate: Date;
 }
 
-type CampaignType = {
+export type CampaignType = {
     user: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IUser>;

@@ -1,12 +1,12 @@
 import { StatusCodes } from "http-status-codes";
-import { BadRequestError, UnauthenticatedError, UnauthorizedError } from "../../errors";
+import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
 import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
-import mongoose from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
 
 
@@ -86,7 +86,7 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc display freelancer's campaigns
-//@route GET api/v1/advertisements
+//@route GET api/v1/advertisements/campaigns
 //@access authentication (freelancers only)
 const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
   const { search, budget_type, budget_range } = req.query;
@@ -159,7 +159,56 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc get freelancer's campaign details
+//@route GET api/v1/advertisements/campaigns/campaignId
+//@access authentication (freelancers only)
+const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { campaignId } = req.params;
+
+  // check if valid mongodb id
+  const isValidMongodbId = isValidObjectId(campaignId);
+  if (!isValidMongodbId) {
+    throw new BadRequestError("Invalid campaign ID");
+  }
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the current profile is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to these ressources. Freelancers only");
+  }
+
+  // get campaign
+  const campaign = await advertisementModels.Campaign.findOne({ _id: campaignId })
+    .populate({
+      path: "ads",
+      select: "-dailyBudgetAllocation",
+      populate: {
+        path: "service",
+        select: "_id title"
+      }
+    });
+
+  // check if the campaign exists
+  if (!campaign) {
+    throw new NotFoundError(`Found no campaign with ID ${campaignId}`);
+  }
+
+  // check if campaign belongs to the current freelancer
+  if (campaign.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to this campaign");
+  }
+
+  res.status(StatusCodes.OK).json(campaign);
+}
+
+
 export {
   createCampaign,
-  getCampaigns
+  getCampaigns,
+  getCampaignDetails
 }

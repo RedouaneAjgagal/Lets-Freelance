@@ -4,10 +4,11 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
-import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType } from "./advertisement.model";
-import { serviceModel as Service } from "../service";
+import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType, CampaignTypeWithoutRefs } from "./advertisement.model";
+import { serviceModel as Service, serviceFees } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
+import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInputs";
 
 
 //@desc create campaign
@@ -81,7 +82,7 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   // create campaign
   const campaign = await advertisementModels.Campaign.create(campaignDetails);
 
-  res.status(StatusCodes.CREATED).json(campaign);
+  res.status(StatusCodes.CREATED).json({ msg: `New campaign '${campaign.name}' has been created` });
 }
 
 
@@ -150,7 +151,14 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
         _id: 1,
         name: 1,
         budget: 1,
-        budgetType: 1
+        budgetType: 1,
+        isActive: 1,
+        createdAt: 1
+      }
+    },
+    {
+      $sort: {
+        createdAt: -1
       }
     }
   ]);
@@ -183,7 +191,7 @@ const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) =
   }
 
   // get campaign
-  const campaign = await advertisementModels.Campaign.findOne({ _id: campaignId })
+  const campaign = await advertisementModels.Campaign.findById(campaignId)
     .populate({
       path: "ads",
       select: "-dailyBudgetAllocation",
@@ -207,8 +215,75 @@ const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) =
 }
 
 
+//@desc update freelancer's campaign
+//@route PATCH api/v1/advertisements/campaigns/:campaignId
+//@access authentication (freelancers only)
+const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const input = req.body;
+
+  const { campaignId } = req.params;
+
+  // check if valid mongodb id
+  const isValidCampaignId = isValidObjectId(campaignId);
+  if (!isValidCampaignId) {
+    throw new BadRequestError("Invalid campaign ID");
+  }
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the user is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to these ressources. Freelancers only");
+  }
+
+  // find campaign
+  const campaign = await advertisementModels.Campaign.findById(campaignId).populate({ path: "ads" });
+  if (!campaign) {
+    throw new BadRequestError(`Found no campaign with ID ${campaignId}`);
+  }
+
+  // check if the current freelancer have access to this campaign
+  if (campaign.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to this campaign");
+  }
+
+  // get only the valid inputs
+  const validUpdatedCampaignDetails = getValidUpdatedCampaignInputs(input);
+
+  // update daily budget allocation to the ads if campaign budget has changed
+  if (validUpdatedCampaignDetails.budget) {
+    const ads = campaign.ads;
+
+    const budget = validUpdatedCampaignDetails.budget;
+
+    const getTotalbidAmount = ads.reduce((num, ad) => {
+      return num + ad.bidAmount!
+    }, 0);
+
+    ads.map(async (ad) => {
+      const dailyBudgetAllocation = (ad.bidAmount! / getTotalbidAmount) * budget;
+
+      // update daily budget allocation for each ad
+      await advertisementModels.Ad.findByIdAndUpdate(ad, {
+        dailyBudgetAllocation
+      });
+    });
+  }
+
+  // update campaign
+  await campaign.updateOne(validUpdatedCampaignDetails);
+
+  res.status(StatusCodes.OK).json({ msg: `Campaign '${campaign.name}' has been updated` });
+}
+
+
 export {
   createCampaign,
   getCampaigns,
-  getCampaignDetails
+  getCampaignDetails,
+  updateCampaign
 }

@@ -5,10 +5,10 @@ import {
     isInvalidBudget,
     isInvalidBudgetType,
     isInvalidEndDate,
-    isInvalidStartDate
-} from "./inputValidations"
+    isInvalidStatus
+} from "./inputValidations";
 
-const createCampaignValidator = (input: any) => {
+const updateCampaignValidator = (input: any) => {
     const invalidName = isInvalidName(input.name);
     if (invalidName) {
         throw new BadRequestError(invalidName);
@@ -24,26 +24,26 @@ const createCampaignValidator = (input: any) => {
         throw new BadRequestError(invalidBudgetType);
     }
 
-    const invalidStartDate = isInvalidStartDate(input.startDate);
-    if (invalidStartDate) {
-        throw new BadRequestError(invalidStartDate);
-    }
-
     const invalidEndDate = isInvalidEndDate({
-        startDate: input.startDate,
+        startDate: new Date(),
         endDate: input.endDate
     });
     if (invalidEndDate) {
         throw new BadRequestError(invalidEndDate);
     }
 
+    const invalidStatus = isInvalidStatus(input.status);
+    if (invalidStatus) {
+        throw new BadRequestError(invalidStatus);
+    }
+
     const invalidAds = isInvalidAds({
         ads: input.ads,
-        includeStatus: false
+        includeStatus: true
     });
     if (invalidAds) {
         throw new BadRequestError(invalidAds);
     }
 }
 
-export default createCampaignValidator;
+export default updateCampaignValidator;

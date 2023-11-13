@@ -206,7 +206,24 @@ const isInvalidCountry = (country: any) => {
     return ""
 }
 
-const isInvalidAd = (ad: any) => {
+const isInvalidStatus = (status: any) => {
+    if (!status || status.toString().trim() === "") {
+        return "Status is required";
+    }
+
+    if (typeof status !== "string") {
+        return "Invalid status format";
+    }
+
+    const validStatus = ["active", "inactive"];
+    if (!validStatus.includes(status)) {
+        return "Invalid status"
+    }
+
+    return "";
+}
+
+const isInvalidAd = ({ ad, includeStatus }: { ad: any; includeStatus: boolean }) => {
     if (!ad) {
         return "Ad is required";
     }
@@ -245,10 +262,17 @@ const isInvalidAd = (ad: any) => {
         return invalidCountry;
     }
 
+    if (includeStatus) {
+        const invalidStatus = isInvalidStatus(ad.status);
+        if (invalidStatus) {
+            return invalidStatus;
+        }
+    }
+
     return "";
 }
 
-const isInvalidAds = (ads: any) => {
+const isInvalidAds = ({ ads, includeStatus }: { ads: any; includeStatus: boolean }) => {
     if (!ads) {
         return "Campaign ads are required";
     }
@@ -268,7 +292,10 @@ const isInvalidAds = (ads: any) => {
     const errors: string[] = [];
 
     ads.forEach(ad => {
-        const invalidAd = isInvalidAd(ad);
+        const invalidAd = isInvalidAd({
+            ad,
+            includeStatus
+        });
         if (invalidAd) {
             errors.push(invalidAd);
         }
@@ -288,5 +315,6 @@ export {
     isInvalidBudgetType,
     isInvalidStartDate,
     isInvalidEndDate,
-    isInvalidAds
+    isInvalidAds,
+    isInvalidStatus
 }

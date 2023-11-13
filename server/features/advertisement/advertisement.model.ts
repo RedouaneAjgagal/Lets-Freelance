@@ -6,12 +6,15 @@ import { IUser } from "../auth";
 
 // --------- Ad --------- //
 export type AdTypeWithoutRefs = {
+    status: "active" | "inactive";
     bidAmount: number;
     dailyBudgetAllocation: number;
     keywords: string[];
     category: IService["category"];
     event: "cpc" | "cpm";
     country?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export type AdType = {
@@ -32,6 +35,12 @@ const adSchema = new mongoose.Schema<AdType>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active",
         required: true
     },
     bidAmount: {
@@ -62,6 +71,8 @@ const adSchema = new mongoose.Schema<AdType>({
     country: {
         type: String
     }
+}, {
+    timestamps: true
 });
 
 const Ad = mongoose.model("Ad", adSchema);
@@ -70,11 +81,14 @@ const Ad = mongoose.model("Ad", adSchema);
 
 // --------- Campaign --------- //
 export type CampaignTypeWithoutRefs = {
+    status: "active" | "inactive";
     name: string;
     budget: number;
     budgetType: "daily" | "total";
     startDate: Date;
     endDate: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export type CampaignType = {
@@ -90,6 +104,12 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ["active", "inactive"],
+        default: "active",
         required: true
     },
     name: {
@@ -122,6 +142,8 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
         }],
         required: true,
     },
+}, {
+    timestamps: true
 });
 
 const Campaign = mongoose.model("Campaign", campaignSchema);
@@ -132,9 +154,10 @@ const Campaign = mongoose.model("Campaign", campaignSchema);
 type PerformaceTypeWithoutRefs = {
     ip: string;
     userAgent: string;
-    date: Date;
     isClick: boolean;
     isGuest: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 type PerformanceType = {
@@ -168,15 +191,13 @@ const performanceSchema = new mongoose.Schema<PerformanceType>({
         type: String,
         required: true
     },
-    date: {
-        type: Date,
-        required: true
-    },
     isClick: {
         type: Boolean,
         default: false,
         required: true
     }
+}, {
+    timestamps: true
 });
 
 const Performance = mongoose.model("Performance", performanceSchema);

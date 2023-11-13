@@ -1,6 +1,11 @@
 import { Router } from "express";
-import { createCampaign, getCampaignDetails, getCampaigns } from "./advertisement.controller";
 import authentication from "../../middlewares/authentication";
+import {
+    createCampaign,
+    getCampaignDetails,
+    getCampaigns,
+    updateCampaign
+} from "./advertisement.controller";
 
 
 const router = Router();
@@ -12,7 +17,8 @@ router.route("/campaigns")
     .get(authentication, getCampaigns);
 
 router.route("/campaigns/:campaignId")
-    .get(authentication, getCampaignDetails);
+    .get(authentication, getCampaignDetails)
+    .patch(authentication, updateCampaign);
 
 
 export default router;

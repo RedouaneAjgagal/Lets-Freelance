@@ -147,13 +147,45 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
       $match: match
     },
     {
+      $lookup: {
+        from: "ads",
+        localField: "ads",
+        foreignField: "_id",
+        as: "ads"
+      }
+    },
+    {
+      $addFields: {
+        totalAds: {
+          $size: "$ads"
+        }
+      }
+    },
+    {
+      $addFields: {
+        activeAds: {
+          $size: {
+            $filter: {
+              input: "$ads",
+              as: "ad",
+              cond: {
+                $eq: ["$$ad.status", "active"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       $project: {
         _id: 1,
         name: 1,
         budget: 1,
         budgetType: 1,
         isActive: 1,
-        createdAt: 1
+        createdAt: 1,
+        totalAds: 1,
+        activeAds: 1
       }
     },
     {

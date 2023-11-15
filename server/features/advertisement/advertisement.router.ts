@@ -4,7 +4,8 @@ import {
     createCampaign,
     getCampaignDetails,
     getCampaigns,
-    updateCampaign
+    updateCampaign,
+    createAd
 } from "./advertisement.controller";
 
 
@@ -19,6 +20,11 @@ router.route("/campaigns")
 router.route("/campaigns/:campaignId")
     .get(authentication, getCampaignDetails)
     .patch(authentication, updateCampaign);
+
+
+
+router.route("/ads")
+    .post(authentication, createAd);
 
 
 export default router;

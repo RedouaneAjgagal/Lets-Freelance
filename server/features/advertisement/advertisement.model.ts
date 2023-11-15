@@ -13,8 +13,6 @@ export type AdTypeWithoutRefs = {
     category: IService["category"];
     event: "cpc" | "cpm";
     country?: string;
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export type AdType = {
@@ -95,9 +93,9 @@ export type CampaignType = {
     user: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IUser>;
-    ads: {
+    ads: ({
         _id: mongoose.Types.ObjectId;
-    } & Partial<AdType>[]
+    } & Partial<AdType>)[]
 } & CampaignTypeWithoutRefs;
 
 const campaignSchema = new mongoose.Schema<CampaignType>({
@@ -140,7 +138,7 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
             ref: "Ad",
             required: true
         }],
-        required: true,
+        required: true
     },
 }, {
     timestamps: true

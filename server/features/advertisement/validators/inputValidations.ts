@@ -193,7 +193,7 @@ const isInvalidKeywords = (keywords: any) => {
 }
 
 const isInvalidCountry = (country: any) => {
-    if (!country) return "";
+    if (country === undefined) return "";
 
     if (country.toString().trim() === "") {
         return "Country cannot be empty";
@@ -315,6 +315,7 @@ export {
     isInvalidBudgetType,
     isInvalidStartDate,
     isInvalidEndDate,
+    isInvalidAd,
     isInvalidAds,
     isInvalidStatus
 }

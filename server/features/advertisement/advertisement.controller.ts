@@ -4,11 +4,13 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
-import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType, CampaignTypeWithoutRefs } from "./advertisement.model";
-import { serviceModel as Service, serviceFees } from "../service";
+import advertisementModels, { AdType, AdTypeWithoutRefs } from "./advertisement.model";
+import { serviceModel as Service } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
 import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInputs";
+import createAdValidator from "./validators/createAdValidator";
+import calcDailyBudgetAllocation from "./utils/calcDailyBudgetAllocation";
 
 
 //@desc create campaign
@@ -226,7 +228,7 @@ const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) =
   const campaign = await advertisementModels.Campaign.findById(campaignId)
     .populate({
       path: "ads",
-      select: "-dailyBudgetAllocation",
+      // select: "-dailyBudgetAllocation",
       populate: {
         path: "service",
         select: "_id title"
@@ -313,9 +315,107 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc add an ad to an existing campaign
+//@route PATCH api/v1/advertisements/ads
+//@access authentication (freelancers only)
+const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const input = req.body;
+  const { campaign_id } = req.query;
+
+  // check if campaign id exists
+  if (!campaign_id) {
+    throw new BadRequestError("Campaign ID is missing");
+  }
+
+  // check if valid mongodb id
+  const isValidCampaignId = isValidObjectId(campaign_id);
+  if (!isValidCampaignId) {
+    throw new BadRequestError("Invalid campaign ID");
+  }
+
+  // check if valid ad values
+  createAdValidator(input);
+
+  // find profile
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the current user is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to create Ads. Freelancers only");
+  }
+
+  // find the campaign
+  const campaign = await advertisementModels.Campaign.findById(campaign_id.toString()).populate({ path: "ads" });
+  if (!campaign) {
+    throw new BadRequestError(`Found no campaign with ID ${campaign_id.toString()}`);
+  }
+
+  // check if the current user have access to this campaign
+  if (campaign.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to this campaign");
+  }
+
+  // check if the service provided belongs to the current freelancer
+  const isExistService = await Service.countDocuments({ _id: input.service, user: profile.user._id });
+  if (!isExistService) {
+    throw new BadRequestError(`You dont have any service with ID ${input.service}`);
+  }
+
+  const newAd: AdType = {
+    service: input.service,
+    user: profile.user._id,
+    bidAmount: input.bidAmount,
+    dailyBudgetAllocation: input.bidAmount, // initial value before caluclate based on all ads
+    event: input.event,
+    category: input.category,
+    keywords: input.keywords,
+    country: input.country,
+    status: "active"
+  }
+
+  // create ad
+  const ad = await advertisementModels.Ad.create(newAd);
+
+  // push the ad to the campaign
+  campaign.ads.push(ad);
+  await campaign.save();
+
+  // get the calculated daily budget allocation for each ad
+  const ads = calcDailyBudgetAllocation({
+    ads: campaign.ads,
+    campaignBudget: campaign.budget
+  });
+
+  // loop through ads to update their daily budget allocation
+  const updates = ads.map(ad => {
+    const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+      updateOne: {
+        filter: {
+          _id: ad._id
+        },
+        update: {
+          $set: {
+            dailyBudgetAllocation: ad.dailyBudgetAllocation
+          }
+        }
+      }
+    }
+    return bulkWrite;
+  });
+
+  // update daily budget allocation to all campaign ads
+  advertisementModels.Ad.bulkWrite(updates);
+
+  res.status(StatusCodes.CREATED).json({ msg: `New ad has been added to '${campaign.name}' campaign` });
+}
+
 export {
   createCampaign,
   getCampaigns,
   getCampaignDetails,
-  updateCampaign
+  updateCampaign,
+  createAd
 }

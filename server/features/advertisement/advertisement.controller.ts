@@ -475,7 +475,7 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
       ads: campaign.ads,
       campaignBudget: campaign.budget
     });
-    
+
     // loop through ads to update their daily budget allocation
     const updates = updatedAds.map(ad => {
       const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
@@ -501,11 +501,95 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   res.status(StatusCodes.OK).json(updatedAdDetails);
 }
 
+
+//@desc delete ad
+//@route DELETE api/v1/advertisements/ads/adId
+//@access authentication (freelancers only)
+const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { adId } = req.params;
+
+  // check if valid mongodb id 
+  const isValidAdId = isValidObjectId(adId);
+  if (!isValidAdId) {
+    throw new BadRequestError("Invalid ad ID");
+  }
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the current user is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to delete ads. Freelancers only");
+  }
+
+  // find ad
+  const ad = await advertisementModels.Ad.findById(adId);
+  if (!ad) {
+    throw new BadRequestError(`Found no ad with ID ${adId}`);
+  }
+
+  // check if the ad belongs to the freelancer
+  if (ad.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to delete this ad");
+  }
+
+  // find campaign
+  const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id.toString() } }).populate({ path: "ads" });
+  if (!campaign) {
+    throw new BadRequestError("Found no campaign for this ad");
+  }
+
+  // do not delete the last ad of the campaign
+  if (campaign.ads.length === 1) {
+    throw new BadRequestError("You cant delete the last ad of the campaign");
+  }
+
+  // get the calculated daily budget allocation for each ad
+  const updatedAds = calcDailyBudgetAllocation({
+    ads: campaign.ads.filter(campaignAd => campaignAd._id.toString() !== ad._id.toString()),
+    campaignBudget: campaign.budget
+  });
+
+  // loop through ads to update their daily budget allocation
+  const update = updatedAds.map(ad => {
+    const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+      updateOne: {
+        filter: {
+          _id: ad._id
+        },
+        update: {
+          $set: {
+            dailyBudgetAllocation: ad.dailyBudgetAllocation
+          }
+        }
+      }
+    }
+    return bulkWrite;
+  });
+
+  // delete ad
+  await ad.deleteOne();
+
+  // update daily budget allocation to campaign's ads
+  advertisementModels.Ad.bulkWrite(update);
+
+
+  // delete the ad ID from campaign ads collection
+  campaign.ads = campaign.ads.filter(campaignAd => campaignAd._id.toString() !== ad._id.toString());
+  campaign.save();
+
+  res.status(StatusCodes.OK).json({ msg: `Ad ID '${adId}' has been deleted` });
+}
+
 export {
   createCampaign,
   getCampaigns,
   getCampaignDetails,
   updateCampaign,
   createAd,
-  updateAd
+  updateAd,
+  deleteAd
 }

@@ -11,6 +11,7 @@ import { isInvalidBudgetType } from "./validators/inputValidations";
 import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInputs";
 import createAdValidator from "./validators/createAdValidator";
 import calcDailyBudgetAllocation from "./utils/calcDailyBudgetAllocation";
+import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
 
 
 //@desc create campaign
@@ -316,7 +317,7 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
 
 //@desc add an ad to an existing campaign
-//@route PATCH api/v1/advertisements/ads
+//@route POST api/v1/advertisements/ads
 //@access authentication (freelancers only)
 const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   const input = req.body;
@@ -406,10 +407,98 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     return bulkWrite;
   });
 
-  // update daily budget allocation to all campaign ads
+  // update daily budget allocation to campaign's ads
   advertisementModels.Ad.bulkWrite(updates);
 
   res.status(StatusCodes.CREATED).json({ msg: `New ad has been added to '${campaign.name}' campaign` });
+}
+
+
+//@desc update an existing ad
+//@route PATCH api/v1/advertisements/ads/adId
+//@access authentication (freelancers only)
+const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const input = req.body;
+  const { adId } = req.params;
+
+  // check if valid mongodb ID
+  const isValidAdId = isValidObjectId(adId);
+  if (!isValidAdId) {
+    throw new BadRequestError("Invalid ad ID");
+  }
+
+  // get valid ad inputs
+  const updatedAdDetails = getValidUpdatedAdInputs(input);
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the current user is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to update ads. Freelancers only");
+  }
+
+  // find ad
+  const ad = await advertisementModels.Ad.findById(adId);
+  if (!ad) {
+    throw new BadRequestError(`Found no ad with ID ${adId}`);
+  }
+
+  // check if the freelancer have access to this ad
+  if (ad.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to this ad");
+  }
+
+  // check if the updated service belongs to the freelancer if its provided
+  if (updatedAdDetails.service && updatedAdDetails.service !== ad.service._id.toString()) {
+    const isExists = await Service.findOne({ _id: updatedAdDetails.service, user: profile.user._id });
+    if (!isExists) {
+      throw new BadRequestError(`You dont have any service with ID ${updatedAdDetails.service}`);
+    }
+  }
+
+  // update ad
+  await ad.updateOne({ $set: updatedAdDetails });
+
+  // check if bid amount changing so must change daily budget allocation to all campaign ads
+  if (updatedAdDetails.bidAmount && updatedAdDetails.bidAmount !== ad.bidAmount) {
+    const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } }).populate({ path: "ads" });
+    if (!campaign) {
+      throw new BadRequestError(`Found no campaign for this ad`);
+    }
+
+    // get the calculated daily budget allocation for each ad
+    const updatedAds = calcDailyBudgetAllocation({
+      ads: campaign.ads,
+      campaignBudget: campaign.budget
+    });
+    
+    // loop through ads to update their daily budget allocation
+    const updates = updatedAds.map(ad => {
+      const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+        updateOne: {
+          filter: {
+            _id: ad._id
+          },
+          update: {
+            $set: {
+              dailyBudgetAllocation: ad.dailyBudgetAllocation
+            }
+          }
+        }
+      }
+      return bulkWrite;
+    });
+
+    // update daily budget allocation to campaign's ads
+    advertisementModels.Ad.bulkWrite(updates)
+  }
+
+
+  res.status(StatusCodes.OK).json(updatedAdDetails);
 }
 
 export {
@@ -417,5 +506,6 @@ export {
   getCampaigns,
   getCampaignDetails,
   updateCampaign,
-  createAd
+  createAd,
+  updateAd
 }

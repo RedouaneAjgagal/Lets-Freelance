@@ -317,5 +317,12 @@ export {
     isInvalidEndDate,
     isInvalidAd,
     isInvalidAds,
-    isInvalidStatus
+    isInvalidStatus,
+    isInvalidBidAmount,
+    isInvalidCategory,
+    isInvalidCountry,
+    isInvalidDate,
+    isInvalidEvent,
+    isInvalidKeywords,
+    isInvalidServiceId
 }

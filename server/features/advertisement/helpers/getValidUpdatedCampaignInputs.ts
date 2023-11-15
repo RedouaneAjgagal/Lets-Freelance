@@ -1,7 +1,6 @@
-import { AdTypeWithoutRefs, CampaignTypeWithoutRefs } from "../advertisement.model";
+import { CampaignTypeWithoutRefs } from "../advertisement.model";
 import {
     isInvalidName,
-    isInvalidAds,
     isInvalidBudget,
     isInvalidBudgetType,
     isInvalidEndDate,

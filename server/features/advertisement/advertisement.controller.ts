@@ -290,23 +290,30 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   const validUpdatedCampaignDetails = getValidUpdatedCampaignInputs(input);
 
   // update daily budget allocation to the ads if campaign budget has changed
-  if (validUpdatedCampaignDetails.budget) {
-    const ads = campaign.ads;
+  if (validUpdatedCampaignDetails.budget && validUpdatedCampaignDetails.budget !== campaign.budget) {
 
-    const budget = validUpdatedCampaignDetails.budget;
-
-    const getTotalbidAmount = ads.reduce((num, ad) => {
-      return num + ad.bidAmount!
-    }, 0);
-
-    ads.map(async (ad) => {
-      const dailyBudgetAllocation = (ad.bidAmount! / getTotalbidAmount) * budget;
-
-      // update daily budget allocation for each ad
-      await advertisementModels.Ad.findByIdAndUpdate(ad, {
-        dailyBudgetAllocation
-      });
+    const updatedAds = calcDailyBudgetAllocation({
+      ads: campaign.ads.filter(ad => ad.status === "active"),
+      campaignBudget: validUpdatedCampaignDetails.budget
     });
+
+    const update = updatedAds.map(campaignAd => {
+      const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+        updateOne: {
+          filter: {
+            _id: campaignAd._id
+          },
+          update: {
+            $set: {
+              dailyBudgetAllocation: campaignAd.dailyBudgetAllocation
+            }
+          }
+        }
+      }
+      return bulkWrite;
+    });
+
+    advertisementModels.Ad.bulkWrite(update);
   }
 
   // update campaign
@@ -365,6 +372,11 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     throw new BadRequestError(`You dont have any service with ID ${input.service}`);
   }
 
+  // check if the campaign ads are not 10 (max ads per campaign is 10)
+  if (campaign.ads.length === 10) {
+    throw new BadRequestError("You cannot add more than 10 ads");
+  }
+
   const newAd: AdType = {
     service: input.service,
     user: profile.user._id,
@@ -386,7 +398,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
 
   // get the calculated daily budget allocation for each ad
   const ads = calcDailyBudgetAllocation({
-    ads: campaign.ads,
+    ads: campaign.ads.filter(ad => ad.status === "active"),
     campaignBudget: campaign.budget
   });
 
@@ -464,7 +476,7 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   await ad.updateOne({ $set: updatedAdDetails });
 
   // check if bid amount changing so must change daily budget allocation to all campaign ads
-  if (updatedAdDetails.bidAmount && updatedAdDetails.bidAmount !== ad.bidAmount) {
+  if ((updatedAdDetails.bidAmount && updatedAdDetails.bidAmount !== ad.bidAmount) || (updatedAdDetails.status && updatedAdDetails.status !== ad.status)) {
     const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } }).populate({ path: "ads" });
     if (!campaign) {
       throw new BadRequestError(`Found no campaign for this ad`);
@@ -472,7 +484,7 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // get the calculated daily budget allocation for each ad
     const updatedAds = calcDailyBudgetAllocation({
-      ads: campaign.ads,
+      ads: campaign.ads.filter(ad => ad.status === "active"),
       campaignBudget: campaign.budget
     });
 
@@ -496,7 +508,6 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     // update daily budget allocation to campaign's ads
     advertisementModels.Ad.bulkWrite(updates)
   }
-
 
   res.status(StatusCodes.OK).json(updatedAdDetails);
 }

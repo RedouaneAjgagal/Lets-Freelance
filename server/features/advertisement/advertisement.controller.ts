@@ -323,6 +323,47 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc delete freelancer's campaign
+//@route DELETE api/v1/advertisements/campaigns/:campaignId
+//@access authentication (freelancers only)
+const deleteCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { campaignId } = req.params;
+
+  // check if valid mongodb id
+  const isValidCampaignId = isValidObjectId(campaignId);
+  if (!isValidCampaignId) {
+    throw new BadRequestError("Invalid campaign ID");
+  }
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if current user is a freelancer
+  if (profile.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to delete campaigns. Freelancers only");
+  }
+
+  // find campaign
+  const campaign = await advertisementModels.Campaign.findById(campaignId);
+  if (!campaign) {
+    throw new BadRequestError(`Found no campaign with ID ${campaignId}`);
+  }
+
+  // check if the campaign belongs to the freelancer
+  if (campaign.user._id.toString() !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to delete this campaign");
+  }
+
+  // delete the campaign
+  await campaign.deleteOne();
+
+  res.status(StatusCodes.OK).json({ msg: `Campaign '${campaign.name}' has been deleted` });
+}
+
+
 //@desc add an ad to an existing campaign
 //@route POST api/v1/advertisements/ads
 //@access authentication (freelancers only)
@@ -600,6 +641,7 @@ export {
   getCampaigns,
   getCampaignDetails,
   updateCampaign,
+  deleteCampaign,
   createAd,
   updateAd,
   deleteAd

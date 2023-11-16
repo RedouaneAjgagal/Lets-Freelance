@@ -144,6 +144,22 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
     timestamps: true
 });
 
+// delete all ads related to the deleted campaign
+campaignSchema.post("deleteOne", { document: true, query: false }, async function () {
+    const ads = this.ads;
+    const deleteMany = ads.map(ad => {
+        const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+            deleteOne: {
+                filter: {
+                    _id: ad._id
+                }
+            }
+        }
+        return bulkWrite;
+    })
+    advertisementModels.Ad.bulkWrite(deleteMany);
+});
+
 const Campaign = mongoose.model("Campaign", campaignSchema);
 
 

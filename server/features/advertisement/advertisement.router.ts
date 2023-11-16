@@ -5,6 +5,7 @@ import {
     getCampaignDetails,
     getCampaigns,
     updateCampaign,
+    deleteCampaign,
     createAd,
     updateAd,
     deleteAd
@@ -21,7 +22,8 @@ router.route("/campaigns")
 
 router.route("/campaigns/:campaignId")
     .get(authentication, getCampaignDetails)
-    .patch(authentication, updateCampaign);
+    .patch(authentication, updateCampaign)
+    .delete(authentication, deleteCampaign);
 
 router.route("/ads")
     .post(authentication, createAd);

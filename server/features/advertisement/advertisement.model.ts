@@ -2,13 +2,14 @@ import mongoose from "mongoose";
 import { IService } from "../service";
 import { IUser } from "../auth";
 
-
+type BudgetAllocationTypes = "dailyBudgetAllocation" | "totalBudgetAllocation";
 
 // --------- Ad --------- //
 export type AdTypeWithoutRefs = {
     status: "active" | "inactive";
     bidAmount: number;
-    dailyBudgetAllocation: number;
+    dailyBudgetAllocation?: number;
+    totalBudgetAllocation?: number;
     keywords: string[];
     category: IService["category"];
     event: "cpc" | "cpm";
@@ -48,8 +49,11 @@ const adSchema = new mongoose.Schema<AdType>({
     },
     dailyBudgetAllocation: {
         type: Number,
-        min: [0.1, "Daily budget allocation cannot be less than $0.1"],
-        required: [true, "Daily budget allocation is required"]
+        min: [0.1, "Daily budget allocation cannot be less than $0.1"]
+    },
+    totalBudgetAllocation: {
+        type: Number,
+        min: [0.1, "Total budget allocation cannot be less than $0.1"]
     },
     keywords: {
         type: [{

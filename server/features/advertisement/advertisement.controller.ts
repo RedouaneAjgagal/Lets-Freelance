@@ -10,7 +10,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
 import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInputs";
 import createAdValidator from "./validators/createAdValidator";
-import calcDailyBudgetAllocation from "./utils/calcDailyBudgetAllocation";
+import calcBudgetAllocation from "./utils/calcBudgetAllocation";
 import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
 
 
@@ -51,10 +51,11 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
     idServices.push(new mongoose.Types.ObjectId(ad.service));
 
     // calc daily budget allocation and push to ads array
-    const dailyBudgetAllocation = (ad.bidAmount / getTotalbidAmount) * input.budget;
+    const budgetAllocation = (ad.bidAmount / getTotalbidAmount) * input.budget;
+    const budgetAllocationType = input.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation"
     ads.push({
-      ...ad, user: profile.user._id, dailyBudgetAllocation
-    })
+      ...ad, user: profile.user._id, [budgetAllocationType]: budgetAllocation
+    });
   })
 
   // find services by id provided and if belongs to the current user
@@ -292,10 +293,13 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   // update daily budget allocation to the ads if campaign budget has changed
   if (validUpdatedCampaignDetails.budget && validUpdatedCampaignDetails.budget !== campaign.budget) {
 
-    const updatedAds = calcDailyBudgetAllocation({
+    const updatedAds = calcBudgetAllocation({
       ads: campaign.ads.filter(ad => ad.status === "active"),
+      campaignBudgetType: campaign.budgetType,
       campaignBudget: validUpdatedCampaignDetails.budget
     });
+
+    const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
     const update = updatedAds.map(campaignAd => {
       const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
@@ -305,7 +309,7 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
           },
           update: {
             $set: {
-              dailyBudgetAllocation: campaignAd.dailyBudgetAllocation
+              [budgetAllocationType]: campaignAd[budgetAllocationType]
             }
           }
         }
@@ -422,7 +426,6 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     service: input.service,
     user: profile.user._id,
     bidAmount: input.bidAmount,
-    dailyBudgetAllocation: input.bidAmount, // initial value before caluclate based on all ads
     event: input.event,
     category: input.category,
     keywords: input.keywords,
@@ -438,10 +441,13 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   await campaign.save();
 
   // get the calculated daily budget allocation for each ad
-  const ads = calcDailyBudgetAllocation({
+  const ads = calcBudgetAllocation({
     ads: campaign.ads.filter(ad => ad.status === "active"),
+    campaignBudgetType: campaign.budgetType,
     campaignBudget: campaign.budget
   });
+
+  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
   // loop through ads to update their daily budget allocation
   const updates = ads.map(ad => {
@@ -452,7 +458,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            dailyBudgetAllocation: ad.dailyBudgetAllocation
+            [budgetAllocationType]: ad[budgetAllocationType]
           }
         }
       }
@@ -460,10 +466,13 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     return bulkWrite;
   });
 
+
+
   // update daily budget allocation to campaign's ads
   advertisementModels.Ad.bulkWrite(updates);
 
-  res.status(StatusCodes.CREATED).json({ msg: `New ad has been added to '${campaign.name}' campaign` });
+  // res.status(StatusCodes.CREATED).json({ msg: `New ad has been added to '${campaign.name}' campaign` });
+  res.status(StatusCodes.CREATED).json({ updates });
 }
 
 
@@ -524,10 +533,13 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
 
     // get the calculated daily budget allocation for each ad
-    const updatedAds = calcDailyBudgetAllocation({
+    const updatedAds = calcBudgetAllocation({
       ads: campaign.ads.filter(ad => ad.status === "active"),
+      campaignBudgetType: campaign.budgetType,
       campaignBudget: campaign.budget
     });
+
+    const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
     // loop through ads to update their daily budget allocation
     const updates = updatedAds.map(ad => {
@@ -538,7 +550,7 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
           },
           update: {
             $set: {
-              dailyBudgetAllocation: ad.dailyBudgetAllocation
+              [budgetAllocationType]: ad[budgetAllocationType]
             }
           }
         }
@@ -599,11 +611,17 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     throw new BadRequestError("You cant delete the last ad of the campaign");
   }
 
+  // delete the ad ID from campaign ads collection
+  campaign.ads = campaign.ads.filter(campaignAd => campaignAd._id.toString() !== ad._id.toString());
+
   // get the calculated daily budget allocation for each ad
-  const updatedAds = calcDailyBudgetAllocation({
-    ads: campaign.ads.filter(campaignAd => campaignAd._id.toString() !== ad._id.toString()),
+  const updatedAds = calcBudgetAllocation({
+    ads: campaign.ads.filter(campaignAd => campaignAd.status === "active"),
+    campaignBudgetType: campaign.budgetType,
     campaignBudget: campaign.budget
   });
+
+  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
   // loop through ads to update their daily budget allocation
   const update = updatedAds.map(ad => {
@@ -614,7 +632,7 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            dailyBudgetAllocation: ad.dailyBudgetAllocation
+            [budgetAllocationType]: ad[budgetAllocationType]
           }
         }
       }
@@ -627,10 +645,7 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
 
   // update daily budget allocation to campaign's ads
   advertisementModels.Ad.bulkWrite(update);
-
-
-  // delete the ad ID from campaign ads collection
-  campaign.ads = campaign.ads.filter(campaignAd => campaignAd._id.toString() !== ad._id.toString());
+  
   campaign.save();
 
   res.status(StatusCodes.OK).json({ msg: `Ad ID '${adId}' has been deleted` });

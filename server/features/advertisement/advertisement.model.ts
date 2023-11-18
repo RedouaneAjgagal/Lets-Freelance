@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import { IService } from "../service";
 import { IUser } from "../auth";
 
-type BudgetAllocationTypes = "dailyBudgetAllocation" | "totalBudgetAllocation";
+export type DisplayPeriod = {
+    startTime: Date;
+    endTime: Date;
+}
 
 // --------- Ad --------- //
 export type AdTypeWithoutRefs = {
@@ -13,7 +16,9 @@ export type AdTypeWithoutRefs = {
     keywords: string[];
     category: IService["category"];
     event: "cpc" | "cpm";
+    displayPeriods: DisplayPeriod[];
     country?: string;
+    budgetAllocationCompleted: boolean;
 }
 
 export type AdType = {
@@ -70,8 +75,25 @@ const adSchema = new mongoose.Schema<AdType>({
         enum: ["cpc", "cpm"],
         required: [true, "Ad event is required"]
     },
+    displayPeriods: [
+        {
+            startTime: {
+                type: Date,
+                required: true
+            },
+            endTime: {
+                type: Date,
+                required: true
+            }
+        }
+    ],
     country: {
         type: String
+    },
+    budgetAllocationCompleted: {
+        type: Boolean,
+        default: false,
+        required: true
     }
 }, {
     timestamps: true
@@ -89,8 +111,7 @@ export type CampaignTypeWithoutRefs = {
     budgetType: "daily" | "total";
     startDate: Date;
     endDate: Date;
-    createdAt: Date;
-    updatedAt: Date;
+    isPaused: boolean;
 }
 
 export type CampaignType = {
@@ -144,6 +165,11 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
         }],
         required: true
     },
+    isPaused: {
+        type: Boolean,
+        default: false,
+        required: true
+    }
 }, {
     timestamps: true
 });

@@ -14,6 +14,13 @@ type GetDisplayPeriods = {
     }
 }
 
+type DisplayAmountType = {
+    displayAmount: number;
+    campaignBudgetType: CampaignType["budgetType"];
+    startDate: Date;
+    endDate: Date;
+}
+
 type GetDisplayAmount = {
     bidAmount: AdType["bidAmount"];
     event: AdType["event"];
@@ -32,7 +39,7 @@ const cpcDisplayBoost: CpcDisplayBoost = {
     value: 30
 }
 
-const getDisplayAmount = ({ bidAmount, dailyBudgetAllocation, event, totalBudgetAllocation, budgetType }: GetDisplayAmount): number => {
+export const getDisplayAmount = ({ bidAmount, dailyBudgetAllocation, event, totalBudgetAllocation, budgetType }: GetDisplayAmount): number => {
     const budgetAllocation = budgetType === "daily" ? dailyBudgetAllocation : totalBudgetAllocation;
     let displayAmount = budgetAllocation! / bidAmount;
     if (event === "cpc") {
@@ -43,22 +50,14 @@ const getDisplayAmount = ({ bidAmount, dailyBudgetAllocation, event, totalBudget
     return Math.ceil(displayAmount);
 }
 
-const getDisplayPeriods = ({ campaign, ad }: GetDisplayPeriods): DisplayPeriod[] => {
-    const displayAmount = getDisplayAmount({
-        budgetType: campaign.budgetType,
-        bidAmount: ad.bidAmount,
-        dailyBudgetAllocation: ad.dailyBudgetAllocation,
-        totalBudgetAllocation: ad.totalBudgetAllocation,
-        event: ad.event
-    });
-
+export const generateDisplayPeriods = ({ displayAmount, startDate, endDate, campaignBudgetType }: DisplayAmountType) => {
     const displayPeriods: DisplayPeriod[] = [];
 
     const oneDayTime = 24 * 60 * 60 * 1000; // 24 hours
-    const startTime = new Date(campaign.startDate);
-    const endTime = new Date(campaign.endDate);
+    const startTime = new Date(startDate);
+    const endTime = new Date(endDate);
 
-    const periodTime = campaign.budgetType === "daily" ? oneDayTime : (new Date(endTime).getTime() - startTime.getTime());
+    const periodTime = campaignBudgetType === "daily" ? oneDayTime : (new Date(endTime).getTime() - startTime.getTime());
 
     const END_TIME_PERIOD = 5 * 60 * 1000; // 5 min
 
@@ -76,6 +75,25 @@ const getDisplayPeriods = ({ campaign, ad }: GetDisplayPeriods): DisplayPeriod[]
             endTime: end
         });
     }
+
+    return displayPeriods;
+}
+
+const getDisplayPeriods = ({ campaign, ad }: GetDisplayPeriods): DisplayPeriod[] => {
+    const displayAmount = getDisplayAmount({
+        budgetType: campaign.budgetType,
+        bidAmount: ad.bidAmount,
+        dailyBudgetAllocation: ad.dailyBudgetAllocation,
+        totalBudgetAllocation: ad.totalBudgetAllocation,
+        event: ad.event
+    });
+
+    const displayPeriods = generateDisplayPeriods({
+        campaignBudgetType: campaign.budgetType,
+        endDate: campaign.endDate,
+        startDate: campaign.startDate,
+        displayAmount
+    });
 
     return displayPeriods;
 }

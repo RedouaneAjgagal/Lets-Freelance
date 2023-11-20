@@ -12,7 +12,7 @@ import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInpu
 import createAdValidator from "./validators/createAdValidator";
 import calcBudgetAllocation from "./utils/calcBudgetAllocation";
 import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
-import getDisplayPeriods from "./helpers/getDisplayPeriods";
+import getDisplayPeriods, { generateDisplayPeriods, getDisplayAmount } from "./helpers/getDisplayPeriods";
 
 
 //@desc create campaign
@@ -305,35 +305,62 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   // get only the valid inputs
   const validUpdatedCampaignDetails = getValidUpdatedCampaignInputs(input);
 
-  // update daily budget allocation to the ads if campaign budget has changed
-  if (validUpdatedCampaignDetails.budget && validUpdatedCampaignDetails.budget !== campaign.budget) {
+  const updatedAds = calcBudgetAllocation({
+    ads: campaign.ads.filter(ad => ad.status === "active"),
+    campaignBudgetType: validUpdatedCampaignDetails.budgetType || campaign.budgetType,
+    campaignBudget: validUpdatedCampaignDetails.budget || campaign.budget
+  });
 
-    const updatedAds = calcBudgetAllocation({
-      ads: campaign.ads.filter(ad => ad.status === "active"),
-      campaignBudgetType: campaign.budgetType,
-      campaignBudget: validUpdatedCampaignDetails.budget
+  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
+
+  const update = updatedAds.map(ad => {
+    let newDisplayPeriods = ad.displayPeriods!;
+
+    const currentTime = new Date(Date.now()).getTime();
+    const alreadyPassedAds = ad.displayPeriods!.filter(ad => new Date(ad.endTime).getTime() < currentTime);
+    const hasAlreadyStartedDate = currentTime > new Date(campaign.startDate).getTime();
+
+
+    const displayAmount = getDisplayAmount({
+      bidAmount: ad.bidAmount!,
+      budgetType: validUpdatedCampaignDetails.budgetType || campaign.budgetType,
+      dailyBudgetAllocation: ad.dailyBudgetAllocation,
+      totalBudgetAllocation: ad.totalBudgetAllocation,
+      event: ad.event!
     });
 
-    const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
+    const budgetTypeChanged = validUpdatedCampaignDetails.budgetType && (validUpdatedCampaignDetails.budgetType !== campaign.budgetType);
+    const campaignBudgetChanged = validUpdatedCampaignDetails.budget && (validUpdatedCampaignDetails.budget !== campaign.budget);
+    const endDateChanged = validUpdatedCampaignDetails.endDate && (validUpdatedCampaignDetails.endDate !== campaign.endDate);
 
-    const update = updatedAds.map(campaignAd => {
-      const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
-        updateOne: {
-          filter: {
-            _id: campaignAd._id
-          },
-          update: {
-            $set: {
-              [budgetAllocationType]: campaignAd[budgetAllocationType]
-            }
+    if (budgetTypeChanged || campaignBudgetChanged || endDateChanged) {
+      const displayPeriods = generateDisplayPeriods({
+        campaignBudgetType: validUpdatedCampaignDetails.budgetType || campaign.budgetType,
+        displayAmount: displayAmount - alreadyPassedAds.length,
+        startDate: hasAlreadyStartedDate ? new Date(Date.now()) : campaign.startDate,
+        endDate: validUpdatedCampaignDetails.endDate || campaign.endDate
+      });
+
+      newDisplayPeriods = [...alreadyPassedAds, ...displayPeriods];
+    }
+
+    const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
+      updateOne: {
+        filter: {
+          _id: ad._id
+        },
+        update: {
+          $set: {
+            [budgetAllocationType]: ad[budgetAllocationType],
+            displayPeriods: newDisplayPeriods
           }
         }
       }
-      return bulkWrite;
-    });
+    }
+    return bulkWrite;
+  });
 
-    advertisementModels.Ad.bulkWrite(update);
-  }
+  advertisementModels.Ad.bulkWrite(update);
 
   // update campaign
   await campaign.updateOne(validUpdatedCampaignDetails);

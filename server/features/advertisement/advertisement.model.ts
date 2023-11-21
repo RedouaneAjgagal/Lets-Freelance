@@ -11,8 +11,7 @@ export type DisplayPeriod = {
 export type AdTypeWithoutRefs = {
     status: "active" | "inactive";
     bidAmount: number;
-    dailyBudgetAllocation?: number;
-    totalBudgetAllocation?: number;
+    budgetAllocation: number;
     keywords: string[];
     category: IService["category"];
     event: "cpc" | "cpm";
@@ -52,13 +51,9 @@ const adSchema = new mongoose.Schema<AdType>({
         min: [0.1, "You cannot bid with less than $0.1"],
         required: [true, "Bid amount is required"]
     },
-    dailyBudgetAllocation: {
+    budgetAllocation: {
         type: Number,
-        min: [0.1, "Daily budget allocation cannot be less than $0.1"]
-    },
-    totalBudgetAllocation: {
-        type: Number,
-        min: [0.1, "Total budget allocation cannot be less than $0.1"]
+        min: [0.1, "Budget allocation cannot be less than $0.1"]
     },
     keywords: {
         type: [{

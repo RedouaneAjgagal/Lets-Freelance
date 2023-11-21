@@ -53,12 +53,11 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // calc daily budget allocation and push to ads array
     const budgetAllocation = (ad.bidAmount / getTotalbidAmount) * input.budget;
-    const budgetAllocationType = input.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
     const displayPeriods = getDisplayPeriods({
       ad: {
         bidAmount: ad.bidAmount,
-        [budgetAllocationType]: budgetAllocation,
+        budgetAllocation,
         event: ad.event
       },
       campaign: {
@@ -69,7 +68,7 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
     });
 
     ads.push({
-      ...ad, user: profile.user._id, [budgetAllocationType]: budgetAllocation, displayPeriods
+      ...ad, user: profile.user._id, budgetAllocation, displayPeriods
     });
   });
 
@@ -307,11 +306,8 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
   const updatedAds = calcBudgetAllocation({
     ads: campaign.ads.filter(ad => ad.status === "active"),
-    campaignBudgetType: validUpdatedCampaignDetails.budgetType || campaign.budgetType,
     campaignBudget: validUpdatedCampaignDetails.budget || campaign.budget
   });
-
-  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
   const update = updatedAds.map(ad => {
     let newDisplayPeriods = ad.displayPeriods!;
@@ -323,9 +319,7 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     const displayAmount = getDisplayAmount({
       bidAmount: ad.bidAmount!,
-      budgetType: validUpdatedCampaignDetails.budgetType || campaign.budgetType,
-      dailyBudgetAllocation: ad.dailyBudgetAllocation,
-      totalBudgetAllocation: ad.totalBudgetAllocation,
+      budgetAllocation: ad.budgetAllocation!,
       event: ad.event!
     });
 
@@ -344,6 +338,9 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
       newDisplayPeriods = [...alreadyPassedAds, ...displayPeriods];
     }
 
+    console.log(ad.budgetAllocation);
+
+
     const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
       updateOne: {
         filter: {
@@ -351,7 +348,7 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            [budgetAllocationType]: ad[budgetAllocationType],
+            budgetAllocation: ad.budgetAllocation,
             displayPeriods: newDisplayPeriods
           }
         }
@@ -474,6 +471,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     displayPeriods: [],
     country: input.country,
     status: "active",
+    budgetAllocation: input.bidAmount, // initial budget allocation value
     budgetAllocationCompleted: false
   }
 
@@ -487,11 +485,8 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   // get the calculated daily budget allocation for each ad
   const ads = calcBudgetAllocation({
     ads: campaign.ads.filter(ad => ad.status === "active"),
-    campaignBudgetType: campaign.budgetType,
     campaignBudget: campaign.budget
   });
-
-  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
   // loop through ads to update their daily budget allocation
   const updates = ads.map(ad => {
@@ -502,7 +497,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            [budgetAllocationType]: ad[budgetAllocationType]
+            budgetAllocation: ad.budgetAllocation
           }
         }
       }
@@ -576,11 +571,8 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     // get the calculated daily budget allocation for each ad
     const updatedAds = calcBudgetAllocation({
       ads: campaign.ads.filter(ad => ad.status === "active"),
-      campaignBudgetType: campaign.budgetType,
       campaignBudget: campaign.budget
     });
-
-    const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
     // loop through ads to update their daily budget allocation
     const updates = updatedAds.map(ad => {
@@ -591,7 +583,7 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
           },
           update: {
             $set: {
-              [budgetAllocationType]: ad[budgetAllocationType]
+              budgetAllocation: ad.budgetAllocation
             }
           }
         }
@@ -658,11 +650,8 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   // get the calculated daily budget allocation for each ad
   const updatedAds = calcBudgetAllocation({
     ads: campaign.ads.filter(campaignAd => campaignAd.status === "active"),
-    campaignBudgetType: campaign.budgetType,
     campaignBudget: campaign.budget
   });
-
-  const budgetAllocationType = campaign.budgetType === "daily" ? "dailyBudgetAllocation" : "totalBudgetAllocation";
 
   // loop through ads to update their daily budget allocation
   const update = updatedAds.map(ad => {
@@ -673,7 +662,7 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            [budgetAllocationType]: ad[budgetAllocationType]
+            budgetAllocation: ad.budgetAllocation
           }
         }
       }

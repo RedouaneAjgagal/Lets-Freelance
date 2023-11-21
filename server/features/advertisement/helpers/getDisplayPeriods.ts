@@ -9,8 +9,7 @@ type GetDisplayPeriods = {
     ad: {
         bidAmount: AdType["bidAmount"];
         event: AdType["event"];
-        dailyBudgetAllocation?: AdType["dailyBudgetAllocation"];
-        totalBudgetAllocation?: AdType["totalBudgetAllocation"];
+        budgetAllocation: AdType["budgetAllocation"];
     }
 }
 
@@ -24,9 +23,7 @@ type DisplayAmountType = {
 type GetDisplayAmount = {
     bidAmount: AdType["bidAmount"];
     event: AdType["event"];
-    dailyBudgetAllocation: AdType["dailyBudgetAllocation"];
-    totalBudgetAllocation: AdType["totalBudgetAllocation"];
-    budgetType: CampaignType["budgetType"];
+    budgetAllocation: AdType["budgetAllocation"];
 }
 
 type CpcDisplayBoost = {
@@ -39,8 +36,7 @@ const cpcDisplayBoost: CpcDisplayBoost = {
     value: 30
 }
 
-export const getDisplayAmount = ({ bidAmount, dailyBudgetAllocation, event, totalBudgetAllocation, budgetType }: GetDisplayAmount): number => {
-    const budgetAllocation = budgetType === "daily" ? dailyBudgetAllocation : totalBudgetAllocation;
+export const getDisplayAmount = ({ bidAmount, budgetAllocation, event }: GetDisplayAmount): number => {
     let displayAmount = budgetAllocation! / bidAmount;
     if (event === "cpc") {
         const getCpcInitialBoost = cpcDisplayBoost.type === "percent" ? budgetAllocation! / 100 * cpcDisplayBoost.value : budgetAllocation! + cpcDisplayBoost.value;
@@ -81,10 +77,8 @@ export const generateDisplayPeriods = ({ displayAmount, startDate, endDate, camp
 
 const getDisplayPeriods = ({ campaign, ad }: GetDisplayPeriods): DisplayPeriod[] => {
     const displayAmount = getDisplayAmount({
-        budgetType: campaign.budgetType,
         bidAmount: ad.bidAmount,
-        dailyBudgetAllocation: ad.dailyBudgetAllocation,
-        totalBudgetAllocation: ad.totalBudgetAllocation,
+        budgetAllocation: ad.budgetAllocation,
         event: ad.event
     });
 

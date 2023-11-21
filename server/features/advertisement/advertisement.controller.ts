@@ -694,15 +694,36 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   });
 
   // loop through ads to update their daily budget allocation
-  const update = updatedAds.map(ad => {
+  const update = updatedAds.map(adCampaign => {
+
+    const currentTime = new Date(Date.now()).getTime();
+    const alreadyDisplayedAds = adCampaign.displayPeriods!.filter(ad => new Date(ad.endTime).getTime() < currentTime);
+    const campaignAlreadyStarted = new Date(campaign.startDate).getTime() < currentTime;
+
+    const displayAmount = getDisplayAmount({
+      bidAmount: adCampaign.bidAmount!,
+      budgetAllocation: adCampaign.budgetAllocation!,
+      event: adCampaign.event!
+    });
+
+    const adPeriods = generateDisplayPeriods({
+      displayAmount: displayAmount - alreadyDisplayedAds.length,
+      campaignBudgetType: campaign.budgetType,
+      endDate: campaign.endDate,
+      startDate: campaignAlreadyStarted ? new Date(Date.now()) : campaign.startDate
+    });
+
+    const displayPeriods = [...alreadyDisplayedAds, ...adPeriods];
+
     const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
       updateOne: {
         filter: {
-          _id: ad._id
+          _id: adCampaign._id
         },
         update: {
           $set: {
-            budgetAllocation: ad.budgetAllocation
+            budgetAllocation: adCampaign.budgetAllocation,
+            displayPeriods
           }
         }
       }

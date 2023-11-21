@@ -579,8 +579,8 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   // update ad
   await ad.updateOne({ $set: updatedAdDetails });
 
-  // check if bid amount changing so must change daily budget allocation to all campaign ads
-  if ((updatedAdDetails.bidAmount && updatedAdDetails.bidAmount !== ad.bidAmount) || (updatedAdDetails.status && updatedAdDetails.status !== ad.status)) {
+  // update ads display periods and budget allocation
+  if ((updatedAdDetails.bidAmount && updatedAdDetails.bidAmount !== ad.bidAmount) || (updatedAdDetails.status && updatedAdDetails.status !== ad.status) || (updatedAdDetails.event && updatedAdDetails.event !== ad.event)) {
     const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } }).populate({ path: "ads" });
     if (!campaign) {
       throw new BadRequestError(`Found no campaign for this ad`);
@@ -592,20 +592,42 @@ const updateAd: RequestHandler = async (req: CustomAuthRequest, res) => {
       campaignBudget: campaign.budget
     });
 
-    // loop through ads to update their daily budget allocation
-    const updates = updatedAds.map(ad => {
+    // loop through ads to update their daily budget allocation and display periods
+    const updates = updatedAds.map(adCampaign => {
+
+      const currentTime = new Date(Date.now()).getTime();
+      const alreadyDisplayedAds = adCampaign.displayPeriods!.filter(ad => new Date(ad.endTime).getTime() < currentTime);
+      const campaignAlreadyStarted = new Date(campaign.startDate).getTime() < currentTime;
+
+      const displayAmount = getDisplayAmount({
+        bidAmount: adCampaign.bidAmount!,
+        budgetAllocation: adCampaign.budgetAllocation!,
+        event: adCampaign._id.toString() === ad._id.toString() ? updatedAdDetails.event || adCampaign.event! : adCampaign.event!
+      });
+
+      const adPeriods = generateDisplayPeriods({
+        displayAmount: displayAmount - alreadyDisplayedAds.length,
+        campaignBudgetType: campaign.budgetType,
+        endDate: campaign.endDate,
+        startDate: campaignAlreadyStarted ? new Date(Date.now()) : campaign.startDate
+      });
+
+      const displayPeriods = [...alreadyDisplayedAds, ...adPeriods];
+
       const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
         updateOne: {
           filter: {
-            _id: ad._id
+            _id: adCampaign._id
           },
           update: {
             $set: {
-              budgetAllocation: ad.budgetAllocation
+              budgetAllocation: adCampaign.budgetAllocation,
+              displayPeriods
             }
           }
         }
       }
+
       return bulkWrite;
     });
 

@@ -338,9 +338,6 @@ const updateCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
       newDisplayPeriods = [...alreadyPassedAds, ...displayPeriods];
     }
 
-    console.log(ad.budgetAllocation);
-
-
     const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
       updateOne: {
         filter: {
@@ -490,6 +487,26 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
 
   // loop through ads to update their daily budget allocation
   const updates = ads.map(ad => {
+
+    const currentTime = new Date(Date.now()).getTime();
+    const alreadyDisplayedAds = ad.displayPeriods!.filter(ad => new Date(ad.endTime).getTime() < currentTime);
+    const campaignAlreadyStarted = new Date(campaign.startDate).getTime() < currentTime;
+
+    const displayAmount = getDisplayAmount({
+      bidAmount: ad.bidAmount!,
+      budgetAllocation: ad.budgetAllocation!,
+      event: ad.event!
+    });
+
+    const adPeriods = generateDisplayPeriods({
+      displayAmount: displayAmount - alreadyDisplayedAds.length,
+      campaignBudgetType: campaign.budgetType,
+      endDate: campaign.endDate,
+      startDate: campaignAlreadyStarted ? new Date(Date.now()) : campaign.startDate
+    });
+
+    const displayPeriods = [...alreadyDisplayedAds, ...adPeriods];
+
     const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
       updateOne: {
         filter: {
@@ -497,7 +514,8 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         update: {
           $set: {
-            budgetAllocation: ad.budgetAllocation
+            budgetAllocation: ad.budgetAllocation,
+            displayPeriods
           }
         }
       }

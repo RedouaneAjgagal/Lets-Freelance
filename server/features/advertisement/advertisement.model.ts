@@ -16,6 +16,7 @@ export type AdTypeWithoutRefs = {
     category: IService["category"];
     event: "cpc" | "cpm";
     displayPeriods: DisplayPeriod[];
+    nextPeriodGenerationDates: Date[];
     country?: string;
     budgetAllocationCompleted: boolean;
 }
@@ -80,6 +81,11 @@ const adSchema = new mongoose.Schema<AdType>({
                 type: Date,
                 required: true
             }
+        }
+    ],
+    nextPeriodGenerationDates: [
+        {
+            type: Date
         }
     ],
     country: {

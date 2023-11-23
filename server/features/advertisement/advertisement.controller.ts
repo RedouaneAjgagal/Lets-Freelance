@@ -12,7 +12,9 @@ import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInpu
 import createAdValidator from "./validators/createAdValidator";
 import calcBudgetAllocation from "./utils/calcBudgetAllocation";
 import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
-import getDisplayPeriods, { createCampaignAdDisplayPeriods } from "./helpers/getDisplayPeriods";
+import getDisplayPeriods, { createCampaignAdDisplayPeriods } from "./display_periods/getDisplayPeriods";
+import generateDailyDisplayPeriods from "./display_periods/generate_daily_display_periods";
+import "./display_periods/generates";
 
 
 //@desc create campaign
@@ -67,8 +69,12 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
       }
     });
 
+
+    const startDate = new Date(input.startDate);
+    const nextPeriod = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
+
     ads.push({
-      ...ad, user: profile.user._id, budgetAllocation, displayPeriods
+      ...ad, user: profile.user._id, budgetAllocation, displayPeriods, nextPeriodGenerationDates: input.budgetType === "daily" ? [nextPeriod] : []
     });
   });
 
@@ -462,6 +468,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     category: input.category,
     keywords: input.keywords,
     displayPeriods: [],
+    nextPeriodGenerationDates: [new Date(Date.now() + 24 * 60 * 60 * 1000)], // next 24h
     country: input.country,
     status: "active",
     budgetAllocation: input.bidAmount, // initial budget allocation value

@@ -1,3 +1,4 @@
+import delay from "../../../utils/delay";
 import Profile, { IProfile } from "../profile.model";
 import mongoose from "mongoose";
 
@@ -6,10 +7,6 @@ type BatchingUpgrade = {
     batchLimit: number;
     delayInMs: number;
     upgradeTo: "rising talent" | "top rated" | "top rated plus";
-}
-
-function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const upgradeConnects = {

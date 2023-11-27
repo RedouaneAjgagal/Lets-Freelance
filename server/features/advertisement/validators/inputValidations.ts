@@ -308,6 +308,22 @@ const isInvalidAds = ({ ads, includeStatus }: { ads: any; includeStatus: boolean
     return "";
 }
 
+const isInvalidAdKeyword = (keyword: string | undefined) => {
+    if (!keyword || keyword.toString().trim() === "") {
+        return "Ad keyword is required";
+    }
+
+    if (typeof keyword !== "string") {
+        return "Invalid ad keyword format";
+    }
+
+    if (keyword.trim().length < 3) {
+        return "Ad keyword must be at least 3 letters";
+    }
+
+    return "";
+}
+
 
 export {
     isInvalidName,
@@ -324,5 +340,6 @@ export {
     isInvalidDate,
     isInvalidEvent,
     isInvalidKeywords,
-    isInvalidServiceId
+    isInvalidServiceId,
+    isInvalidAdKeyword
 }

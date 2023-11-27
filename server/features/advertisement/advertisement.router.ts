@@ -8,7 +8,8 @@ import {
     deleteCampaign,
     createAd,
     updateAd,
-    deleteAd
+    deleteAd,
+    displayAds
 } from "./advertisement.controller";
 
 
@@ -26,6 +27,7 @@ router.route("/campaigns/:campaignId")
     .delete(authentication, deleteCampaign);
 
 router.route("/ads")
+    .get(displayAds)
     .post(authentication, createAd);
 
 router.route("/ads/:adId")

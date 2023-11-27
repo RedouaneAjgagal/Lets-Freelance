@@ -15,6 +15,7 @@ import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
 import getDisplayPeriods, { createCampaignAdDisplayPeriods } from "./display_periods/getDisplayPeriods";
 import generateDailyDisplayPeriods from "./display_periods/generate_daily_display_periods";
 import "./display_periods/generates";
+import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
 
 
 //@desc create campaign
@@ -730,6 +731,214 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   res.status(StatusCodes.OK).json({ msg: `Ad ID '${adId}' has been deleted` });
 }
 
+
+//@desc delete ad
+//@route DELETE api/v1/advertisements/ads/adId
+//@access authentication (freelancers only)
+const displayAds: RequestHandler = async (req, res) => {
+  const query = req.query;
+
+  // get valid keyword input
+  const keyword = getValidAdKeywordInput(query.keyword?.toString());
+  const getKeywords = keyword.split(" ");
+
+  // seach by category
+  const categories = ["digital-marketing", "design-creative", "programming-tech", "writing-translation", "video-animation", "finance-accounting", "music-audio"];
+  let category = "";
+  if (query.category && categories.includes(query.category.toString())) {
+    category = query.category === "digital-marketing" ? query.category.toString().split("-").join(" ") : query.category.toString().split("-").join(" & ");
+  }
+
+  // search by pages
+  const page = query.page && /^\d+$/.test(query.page.toString()) ? Number(query.page) : 1;
+
+  // get current time to check for compaign range time and ads display period times
+  const currentTime = new Date();
+
+  const ads = await advertisementModels.Campaign.aggregate([
+    {
+      $match: {
+        status: "active", // find only active campaigns
+        isPaused: false, // find only unpaused ads 
+
+        // get only campaigns that are still in current day range 
+        $and: [
+          { startDate: { $lte: currentTime } },
+          { endDate: { $gte: currentTime } }
+        ]
+      }
+    },
+    {
+      // populate ads documents
+      $lookup: {
+        from: "ads",
+        localField: "ads",
+        foreignField: "_id",
+        as: "ad"
+      }
+    },
+    {
+      $unwind: {
+        path: "$ad"
+      }
+    },
+    {
+      $match: category ? {
+        "ad.status": "active", // find only active ads
+        "ad.budgetAllocationCompleted": false, // find only uncompleted budget allocations ads
+        "ad.category": category // find ads with a specific category
+      } : {
+        "ad.status": "active", // find only active ads
+        "ad.budgetAllocationCompleted": false // find only uncompleted budget allocations ads
+      }
+    },
+    {
+      // create an ads array that match current time display
+      $addFields: {
+        currentDisplayedAds: {
+          $size: {
+            $filter: {
+              input: "$ad.displayPeriods",
+              as: "displayPeriod",
+              cond: {
+                $and: [
+                  { $lte: ["$$displayPeriod.startTime", currentTime] },
+                  { $gte: ["$$displayPeriod.endTime", currentTime] }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      // get only ads that are visible at the moment
+      $match: {
+        currentDisplayedAds: { $ne: 0 }
+      }
+    },
+    {
+      // create a commonKeywords array where it shows search keywords that match ads keywords 
+      $addFields: {
+        commonKeywords: {
+          $setIntersection: ["$ad.keywords", getKeywords]
+        }
+      }
+    },
+    {
+      // create score field where it multiply by 2 each time a search keyword match ad keywords
+      $addFields: {
+        score: {
+          $multiply: [
+            { $size: "$commonKeywords" },
+            2
+          ]
+        }
+      }
+    },
+    {
+      // get only ads that has score is not equal to 0
+      $match: {
+        score: { $ne: 0 }
+      }
+    },
+    {
+      // multiply bid amount by 10 and add it to the score
+      $addFields: {
+        score: {
+          $add: [
+            "$score",
+            {
+              $multiply: [
+                "$ad.bidAmount",
+                10
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // populate the ad service document
+      $lookup: {
+        from: "services",
+        localField: "ad.service",
+        foreignField: "_id",
+        as: "service"
+      }
+    },
+    {
+      $addFields: {
+        service: {
+          $arrayElemAt: ["$service", 0]
+        }
+      }
+    },
+    {
+      // populate the service profile document
+      $lookup: {
+        from: "profiles",
+        localField: "service.profile",
+        foreignField: "_id",
+        as: "profile"
+      }
+    },
+    {
+      $addFields: {
+        "service.profile": {
+          $arrayElemAt: ["$profile", 0]
+        }
+      }
+    },
+    {
+      $sort: {
+        score: -1, // make ads with higher score shows first
+        "ad.bidAmount": -1, // if multiple ads scores match, then sort by bid amount
+        "ad.budgetAllocation": -1, // if multiple ads scores match and bid amount match, then sort by budgetAllocation,
+        "ad.createdAt": -1 // if all match then display old ads first
+      }
+    },
+    {
+      $limit: page * 2 // display only 2 ads per page
+    },
+    {
+      $skip: (page - 1) * 2 // display the rest of ads based on the search page
+    },
+    {
+      // set service as sponsored
+      $set: {
+        "service.sponsored": true
+      }
+    },
+    {
+      // response with only ad ID, and the service info
+      $project: {
+        "_id": 1,
+        "ad._id": 1,
+        "service._id": 1,
+        "service.sponsored": 1,
+        "service.title": 1,
+        "service.featuredImage": 1,
+        "service.category": 1,
+        "service.tier.starter.price": 1,
+        "service.profile._id": 1,
+        "service.profile.name": 1,
+        "service.profile.avatar": 1,
+        "service.profile.country": 1,
+        "service.profile.userAs": 1,
+        "service.profile.rating": 1,
+        "service.profile.roles.freelancer.englishLevel": 1,
+        "service.profile.roles.freelancer.badge": 1,
+      }
+    }
+  ]);
+
+  res.status(StatusCodes.OK).json(ads);
+}
+
+
+
+
 export {
   createCampaign,
   getCampaigns,
@@ -738,5 +947,6 @@ export {
   deleteCampaign,
   createAd,
   updateAd,
-  deleteAd
+  deleteAd,
+  displayAds
 }

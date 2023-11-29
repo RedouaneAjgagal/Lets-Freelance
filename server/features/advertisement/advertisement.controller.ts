@@ -4,7 +4,7 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
-import advertisementModels, { AdType, AdTypeWithoutRefs } from "./advertisement.model";
+import advertisementModels, { AdType, AdTypeWithoutRefs, PerformanceType } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
@@ -92,6 +92,20 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 
   // create ads
   const createdAds = await advertisementModels.Ad.insertMany(ads);
+
+  // create the ads performance
+  createdAds.forEach(ad => {
+    const performace: PerformanceType = {
+      ad,
+      trackers: [],
+      cpmImpressions: 0,
+      displayCount: 0,
+      clicks: 0,
+      orders: 0,
+      ctr: 0
+    }
+    advertisementModels.Performance.create(performace);
+  });
 
   // get all campaign details
   const campaignDetails = {
@@ -473,7 +487,8 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     country: input.country,
     status: "active",
     budgetAllocation: input.bidAmount, // initial budget allocation value
-    budgetAllocationCompleted: false
+    budgetAllocationCompleted: false,
+    amounts: []
   }
 
   // create ad
@@ -482,6 +497,18 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   // push the ad to the campaign
   campaign.ads.push(ad);
   await campaign.save();
+
+  // create the ad performance
+  const performace: PerformanceType = {
+    ad,
+    trackers: [],
+    cpmImpressions: 0,
+    displayCount: 0,
+    clicks: 0,
+    orders: 0,
+    ctr: 0
+  }
+  advertisementModels.Performance.create(performace);
 
   // get the calculated daily budget allocation for each ad
   const ads = calcBudgetAllocation({
@@ -732,9 +759,9 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
-//@desc delete ad
-//@route DELETE api/v1/advertisements/ads/adId
-//@access authentication (freelancers only)
+//@desc display ads
+//@route GET api/v1/advertisements/ads
+//@access public
 const displayAds: RequestHandler = async (req, res) => {
   const query = req.query;
 
@@ -898,12 +925,12 @@ const displayAds: RequestHandler = async (req, res) => {
         "ad.createdAt": -1 // if all match then display old ads first
       }
     },
-    {
-      $limit: page * 2 // display only 2 ads per page
-    },
-    {
-      $skip: (page - 1) * 2 // display the rest of ads based on the search page
-    },
+    // {
+    //   $limit: page * 2 // display only 2 ads per page
+    // },
+    // {
+    //   $skip: (page - 1) * 2 // display the rest of ads based on the search page
+    // },
     {
       // set service as sponsored
       $set: {
@@ -913,6 +940,9 @@ const displayAds: RequestHandler = async (req, res) => {
     {
       // response with only ad ID, and the service info
       $project: {
+        "score": 1,
+        "ad.bidAmount": 1,
+        "ad.budgetAllocation": 1,
         "_id": 1,
         "ad._id": 1,
         "service._id": 1,
@@ -933,10 +963,19 @@ const displayAds: RequestHandler = async (req, res) => {
     }
   ]);
 
+  console.log(ads.length);
+
+
   res.status(StatusCodes.OK).json(ads);
 }
 
 
+//@desc track ad engagement based on the ad performance
+//@route POST api/v1/advertisements/ads/adId
+//@access authentication (freelancers only)
+const trackAdEngagement: RequestHandler = async (req, res) => {
+  res.status(StatusCodes.OK).json({ msg: "track ad engagement" });
+}
 
 
 export {
@@ -948,5 +987,6 @@ export {
   createAd,
   updateAd,
   deleteAd,
-  displayAds
+  displayAds,
+  trackAdEngagement
 }

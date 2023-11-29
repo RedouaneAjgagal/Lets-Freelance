@@ -19,6 +19,7 @@ export type AdTypeWithoutRefs = {
     nextPeriodGenerationDates: Date[];
     country?: string;
     budgetAllocationCompleted: boolean;
+    amounts: { date: Date; amount: number }[];
 }
 
 export type AdType = {
@@ -95,9 +96,28 @@ const adSchema = new mongoose.Schema<AdType>({
         type: Boolean,
         default: false,
         required: true
-    }
+    },
+    amounts: [
+        {
+            date: Date,
+            amount: Number
+        }
+    ]
 }, {
     timestamps: true
+});
+
+// delete ad's performance related to the deleted ad
+adSchema.post("deleteOne", { document: true, query: false }, function () {
+    advertisementModels.Performance.bulkWrite([
+        {
+            deleteOne: {
+                filter: {
+                    ad: this._id
+                }
+            }
+        }
+    ]);
 });
 
 const Ad = mongoose.model("Ad", adSchema);
@@ -175,20 +195,31 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
     timestamps: true
 });
 
-// delete all ads related to the deleted campaign
+// delete all ads and ads performance related to the deleted campaign
 campaignSchema.post("deleteOne", { document: true, query: false }, async function () {
     const ads = this.ads;
-    const deleteMany = ads.map(ad => {
-        const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType> = {
-            deleteOne: {
-                filter: {
-                    _id: ad._id
+
+    const adsIds = (foreignField: string) => {
+        const deleteMany = ads.map(ad => {
+            const bulkWrite: mongoose.mongo.AnyBulkWriteOperation<AdType | PerformanceType> = {
+                deleteOne: {
+                    filter: {
+                        [foreignField]: ad._id
+                    }
                 }
             }
-        }
-        return bulkWrite;
-    })
-    advertisementModels.Ad.bulkWrite(deleteMany);
+            return bulkWrite;
+        });
+        return deleteMany;
+    }
+
+    // delete ads
+    const deleteAds = adsIds("_id");
+    advertisementModels.Ad.bulkWrite(deleteAds);
+
+    // delete ads performance
+    const deleteAdsPerformance = adsIds("ad");
+    advertisementModels.Performance.bulkWrite(deleteAdsPerformance);
 });
 
 const Campaign = mongoose.model("Campaign", campaignSchema);
@@ -196,22 +227,28 @@ const Campaign = mongoose.model("Campaign", campaignSchema);
 
 
 // --------- Performance --------- //
-type PerformaceTypeWithoutRefs = {
+
+type Tracker = {
     ip: string;
     userAgent: string;
     isClick: boolean;
-    isGuest: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+    isOrder: boolean;
+    date: Date;
 }
 
-type PerformanceType = {
+export type PerformaceTypeWithoutRefs = {
+    trackers: Tracker[];
+    cpmImpressions: number;
+    displayCount: number;
+    clicks: number;
+    orders: number;
+    ctr: number;
+}
+
+export type PerformanceType = {
     ad: {
         _id: mongoose.Types.ObjectId;
-    } & AdType
-    user?: {
-        _id: mongoose.Types.ObjectId;
-    } & IUser
+    } & Partial<AdType>;
 } & PerformaceTypeWithoutRefs;
 
 const performanceSchema = new mongoose.Schema<PerformanceType>({
@@ -220,25 +257,38 @@ const performanceSchema = new mongoose.Schema<PerformanceType>({
         ref: "Ad",
         required: true
     },
-    user: {
-        type: mongoose.Types.ObjectId,
-        ref: "User"
-    },
-    isGuest: {
-        type: Boolean,
+    trackers: [
+        {
+            ip: String,
+            userAgent: String,
+            isClick: Boolean,
+            isOrder: Boolean,
+            date: Date
+        }
+    ],
+    cpmImpressions: {
+        type: Number,
+        default: 0,
         required: true
     },
-    ip: {
-        type: String,
+    displayCount: {
+        type: Number,
+        default: 0,
         required: true
     },
-    userAgent: {
-        type: String,
+    clicks: {
+        type: Number,
+        default: 0,
         required: true
     },
-    isClick: {
-        type: Boolean,
-        default: false,
+    orders: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    ctr: {
+        type: Number,
+        default: 0,
         required: true
     }
 }, {

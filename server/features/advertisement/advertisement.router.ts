@@ -9,7 +9,8 @@ import {
     createAd,
     updateAd,
     deleteAd,
-    displayAds
+    displayAds,
+    trackAdEngagement
 } from "./advertisement.controller";
 
 
@@ -33,6 +34,9 @@ router.route("/ads")
 router.route("/ads/:adId")
     .patch(authentication, updateAd)
     .delete(authentication, deleteAd);
+
+router.route("/performace")
+    .patch(trackAdEngagement);
 
 
 

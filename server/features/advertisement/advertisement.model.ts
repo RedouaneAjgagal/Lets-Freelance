@@ -228,7 +228,7 @@ const Campaign = mongoose.model("Campaign", campaignSchema);
 
 // --------- Performance --------- //
 
-type Tracker = {
+export type Tracker = {
     ip: string;
     userAgent: string;
     isClick: boolean;
@@ -243,6 +243,8 @@ export type PerformaceTypeWithoutRefs = {
     clicks: number;
     orders: number;
     ctr: number;
+    cr: number;
+    cpc: number;
 }
 
 export type PerformanceType = {
@@ -287,6 +289,16 @@ const performanceSchema = new mongoose.Schema<PerformanceType>({
         required: true
     },
     ctr: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    cr: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    cpc: {
         type: Number,
         default: 0,
         required: true

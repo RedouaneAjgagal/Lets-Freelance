@@ -4,7 +4,7 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
-import advertisementModels, { AdType, AdTypeWithoutRefs, PerformanceType } from "./advertisement.model";
+import advertisementModels, { AdType, AdTypeWithoutRefs, PerformanceType, Tracker } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType } from "./validators/inputValidations";
@@ -16,6 +16,7 @@ import getDisplayPeriods, { createCampaignAdDisplayPeriods } from "./display_per
 import generateDailyDisplayPeriods from "./display_periods/generate_daily_display_periods";
 import "./display_periods/generates";
 import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
+import calculateCtr from "./utils/calculateCtr";
 
 
 //@desc create campaign
@@ -102,7 +103,9 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
       displayCount: 0,
       clicks: 0,
       orders: 0,
-      ctr: 0
+      ctr: 0,
+      cr: 0,
+      cpc: 0
     }
     advertisementModels.Performance.create(performace);
   });
@@ -506,7 +509,9 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     displayCount: 0,
     clicks: 0,
     orders: 0,
-    ctr: 0
+    ctr: 0,
+    cr: 0,
+    cpc: 0
   }
   advertisementModels.Performance.create(performace);
 
@@ -974,7 +979,85 @@ const displayAds: RequestHandler = async (req, res) => {
 //@route POST api/v1/advertisements/ads/adId
 //@access authentication (freelancers only)
 const trackAdEngagement: RequestHandler = async (req, res) => {
-  res.status(StatusCodes.OK).json({ msg: "track ad engagement" });
+  const { ad: adId } = req.body;
+
+  // check if valid mongodb id
+  const isValidMongodbId = isValidObjectId(adId);
+  if (!isValidMongodbId) {
+    throw new BadRequestError("Invalid ad ID");
+  }
+
+  // find the ad
+  const ad = await advertisementModels.Ad.findById(adId);
+  if (!ad) {
+    throw new BadRequestError(`Found no ad with ID ${adId}`);
+  }
+
+  // check if ad is still active
+  if (ad.status !== "active") {
+    throw new BadRequestError("Inactive ad");
+  }
+
+  // find ad's performance
+  const performace = await advertisementModels.Performance.findOne({ ad: ad._id });
+  if (!performace) {
+    throw new BadRequestError(`Found no ad's performances`);
+  }
+
+  // if ad event is cpm then increase cpm impression and push 
+  if (ad.event === "cpm") {
+    performace.cpmImpressions += 1;
+
+    // set ad amount to be paid if cpm impression become 1000
+    if (performace.cpmImpressions === 1000) {
+      const currentTime = new Date().toLocaleDateString();
+
+      const adAmount = ad.amounts.find(adAmount => {
+        const timeToPayCpmImpressions = new Date(adAmount.date).toLocaleDateString();
+        if (currentTime === timeToPayCpmImpressions) {
+          return true
+        }
+        return false;
+      });
+
+      // check if already have amounts for the same day
+      if (adAmount) {
+        adAmount.amount += ad.bidAmount;
+      } else {
+        // push new day amount if its the first one today 
+        ad.amounts.push({
+          amount: ad.bidAmount,
+          date: new Date()
+        });
+      }
+
+      await ad.save();
+      performace.cpmImpressions = 0; // reset cpm impressions to 0
+    }
+  }
+
+  const newTracker: Tracker = {
+    ip: req.ip,
+    date: new Date(),
+    isClick: false,
+    isOrder: false,
+    userAgent: req.headers["user-agent"] || "unknown"
+  }
+
+  performace.trackers.push(newTracker); // push new tracker data
+  performace.displayCount += 1; // increase display count by 1
+
+  const ctr = calculateCtr({
+    clicks: performace.clicks,
+    impressions: performace.displayCount
+  });
+  performace.ctr = ctr; // calc new ctr based on the new display count
+
+  const tracker = performace.trackers[performace.trackers.length - 1] as Tracker & { _id: mongoose.Types.ObjectId }; // tracker ID is necessary to mark ads as click or order
+
+  performace.save();
+
+  res.status(StatusCodes.OK).json({ track_id: tracker._id, ad_id: ad._id });
 }
 
 

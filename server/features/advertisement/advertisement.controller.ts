@@ -17,6 +17,7 @@ import generateDailyDisplayPeriods from "./display_periods/generate_daily_displa
 import "./display_periods/generates";
 import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
 import calculateCtr from "./utils/calculateCtr";
+import calculateCr from "./utils/calculateCr";
 
 
 //@desc create campaign
@@ -976,8 +977,8 @@ const displayAds: RequestHandler = async (req, res) => {
 
 
 //@desc track ad engagement based on the ad performance
-//@route POST api/v1/advertisements/ads/adId
-//@access authentication (freelancers only)
+//@route PATCH api/v1/advertisements/performace/engagement
+//@access public
 const trackAdEngagement: RequestHandler = async (req, res) => {
   const { ad: adId } = req.body;
 
@@ -1061,6 +1062,97 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
 }
 
 
+//@desc track ad click actions
+//@route PATCH api/v1/advertisements/performace/actions/click
+//@access public
+const trackAdClickAction: RequestHandler = async (req, res) => {
+  const { ad: adId, track: trackId } = req.body;
+
+  // check if valid ad mongodb id
+  const isValidAdMongodbId = isValidObjectId(adId);
+  if (!isValidAdMongodbId) {
+    throw new BadRequestError("Invalid ad ID");
+  }
+
+  // check if valid track mongodb id
+  const isValidTrackMongodbId = isValidObjectId(trackId);
+  if (!isValidTrackMongodbId) {
+    throw new BadRequestError("Invalid track ID");
+  }
+
+  // find the ad
+  const ad = await advertisementModels.Ad.findById(adId);
+  if (!ad) {
+    throw new BadRequestError(`Found no ad with ID ${adId}`);
+  }
+
+  // check if ad is still active
+  if (ad.status !== "active") {
+    throw new BadRequestError("Inactive ad");
+  }
+
+  // find ad's performance
+  const performace = await advertisementModels.Performance.findOne({ ad: ad._id });
+  if (!performace) {
+    throw new BadRequestError(`Found no ad's performances`);
+  }
+
+  // find tracker
+  const tracker = (performace.trackers as (Tracker & { _id: mongoose.Types.ObjectId })[]).find(tracker => tracker._id.toString() === trackId.toString());
+  if (!tracker) {
+    throw new BadRequestError(`Found no tracker with ID ${trackId}`);
+  }
+
+  // return if the user has already clicked on the ad
+  if (tracker.isClick) {
+    return res.status(StatusCodes.OK).json({ msg: "Ad has already been clicked on" });
+  }
+
+  // set new tracker values
+  tracker.isClick = true;
+  performace.clicks += 1;
+  performace.ctr = calculateCtr({
+    clicks: performace.clicks,
+    impressions: performace.displayCount
+  });
+  performace.cr = calculateCr({
+    clicks: performace.clicks,
+    orders: performace.orders
+  });
+
+  // save new trackers
+  performace.save();
+
+
+  // push a new amount if the ad event is cpc
+  if (ad.event === "cpc") {
+    const currentDate = new Date().toLocaleDateString();
+
+    const adAmount = ad.amounts.find(adAmount => {
+      const timeToPayCpc = new Date(adAmount.date).toLocaleDateString();
+      if (currentDate === timeToPayCpc) {
+        return true
+      }
+      return false;
+    });
+
+    // if there is already an amount in the same day then increase it with the new amount
+    if (adAmount) {
+      adAmount.amount += ad.bidAmount;
+    } else {
+      // otherwise create a new amount with a new day
+      ad.amounts.push({
+        amount: ad.bidAmount,
+        date: new Date()
+      });
+    }
+    await ad.save();
+  }
+
+  res.status(StatusCodes.OK).json({ track_id: tracker._id, ad_id: ad._id });
+}
+
+
 export {
   createCampaign,
   getCampaigns,
@@ -1071,5 +1163,6 @@ export {
   updateAd,
   deleteAd,
   displayAds,
-  trackAdEngagement
+  trackAdEngagement,
+  trackAdClickAction
 }

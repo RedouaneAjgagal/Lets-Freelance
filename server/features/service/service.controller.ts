@@ -4,7 +4,7 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
-import Service, { IService, ServiceWithoutRefs, TrandingServices } from "./service.model";
+import Service, { IService, Order, ServiceWithoutRefs, TrandingServices } from "./service.model";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
@@ -421,7 +421,7 @@ const getFreelancerServices: RequestHandler = async (req: CustomAuthRequest, res
 //@access authentication (employers only)
 const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { serviceId } = req.params;
-    const { tier } = req.body;
+    const { tier, track: trackId } = req.body;
 
     // check if valid mongodb id
     const isValidMongodbId = isValidObjectId(serviceId);
@@ -484,6 +484,8 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     });
 
+    const isValidTrackId = isValidObjectId(trackId);
+
     // create a new checkout stripe session
     const session = await stripe.checkout.sessions.create({
         mode: "payment",
@@ -496,7 +498,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         ],
         customer_email: profile.user.email,
         client_reference_id: profile.user._id.toString(),
-        success_url: `http://localhost:5000/api/v1/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `http://localhost:5000/api/v1/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}${isValidTrackId ? `&track_id=${trackId}` : ""}`,
         cancel_url: "http://localhost:5173",
         metadata: {
             productId: serviceProduct.id,
@@ -527,7 +529,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@access authentication (employers or powerful roles)
 const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { serviceId } = req.params;
-    const { session_id } = req.query;
+    const { session_id, track_id } = req.query;
 
     // check if session exist
     if (!session_id || session_id.toString().trim() === "") {
@@ -558,7 +560,7 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
     }
 
     // find the order
-    const order = service.orders.find(order => order.sessionId === session_id.toString());
+    const order = (service.orders as (Order & { _id: mongoose.Types.ObjectId })[]).find(order => order.sessionId === session_id.toString());
     if (!order) {
         throw new BadRequestError(`Found no order session with ID ${session_id}`);
     }
@@ -650,7 +652,25 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
         userAs: "employer"
     });
 
-    res.status(StatusCodes.OK).json({ msg: "service has been paid successfully" });
+    const response: {
+        msg: string;
+        ad?: {
+            track: string;
+            order: string
+        }
+    } = {
+        msg: "service has been paid successfully"
+    }
+
+    // add ad details if this order has come from ad campaign
+    if (track_id && isValidObjectId(track_id)) {
+        response.ad = {
+            track: track_id.toString(),
+            order: order._id.toString()
+        }
+    }
+
+    res.status(StatusCodes.OK).json(response);
 }
 
 

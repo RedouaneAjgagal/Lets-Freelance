@@ -20,6 +20,7 @@ export type AdTypeWithoutRefs = {
     country?: string;
     budgetAllocationCompleted: boolean;
     amounts: { date: Date; amount: number }[];
+    orders: mongoose.Types.ObjectId[];
 }
 
 export type AdType = {
@@ -101,6 +102,11 @@ const adSchema = new mongoose.Schema<AdType>({
         {
             date: Date,
             amount: Number
+        }
+    ],
+    orders: [
+        {
+            type: mongoose.Types.ObjectId
         }
     ]
 }, {

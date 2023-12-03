@@ -11,7 +11,8 @@ import {
     deleteAd,
     displayAds,
     trackAdEngagement,
-    trackAdClickAction
+    trackAdClickAction,
+    trackAdOrderAction
 } from "./advertisement.controller";
 
 
@@ -41,6 +42,9 @@ router.route("/performace/engagement")
 
 router.route("/performace/actions/click")
     .patch(trackAdClickAction);
+
+router.route("/performace/actions/order")
+    .patch(authentication, trackAdOrderAction);
 
 
 

@@ -18,6 +18,8 @@ import "./display_periods/generates";
 import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
 import calculateCtr from "./utils/calculateCtr";
 import calculateCr from "./utils/calculateCr";
+import { Order } from "../service/service.model";
+import calculateCpc from "./utils/calculateCpc";
 
 
 //@desc create campaign
@@ -492,7 +494,8 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     status: "active",
     budgetAllocation: input.bidAmount, // initial budget allocation value
     budgetAllocationCompleted: false,
-    amounts: []
+    amounts: [],
+    orders: []
   }
 
   // create ad
@@ -1153,6 +1156,93 @@ const trackAdClickAction: RequestHandler = async (req, res) => {
 }
 
 
+//@desc track ad order actions
+//@route PATCH api/v1/advertisements/performace/actions/order
+//@access authentication (employers only)
+const trackAdOrderAction: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { track: trackId, order: orderId } = req.body;
+
+  // check if valid mongodb IDs
+  const isValidTrackId = isValidObjectId(trackId);
+  const isValidOrderId = isValidObjectId(orderId);
+  if (!isValidTrackId || !isValidOrderId) {
+    throw new BadRequestError("Invalid IDs");
+  }
+
+  // find user
+  const profile = await Profile.findOne({ user: req.user!.userId });
+  if (!profile) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the user is an employer
+  if (profile.userAs !== "employer") {
+    throw new UnauthorizedError("You dont have access. Employers only");
+  }
+
+  // find performace
+  const performace = await advertisementModels.Performance.findOne({ trackers: { $elemMatch: { _id: trackId } } });
+  if (!performace) {
+    throw new BadRequestError(`Found no performance has a track ID ${trackId}`);
+  }
+
+  // check if already has been clicked on this tracker
+  const tracker = (performace.trackers as (Tracker & { _id: mongoose.Types.ObjectId })[]).find(tracker => tracker._id.toString() === trackId.toString());
+  if (!tracker!.isClick) {
+    throw new BadRequestError("Invalid ad request");
+  }
+
+  // find ad
+  const ad = await advertisementModels.Ad.findById(performace.ad).populate({ path: "service", select: "orders" });
+  if (!ad) {
+    throw new BadRequestError("Found no ad related to the performance's tracker ID");
+  }
+
+  // check if this order has not been tracked before
+  const alreadyTrackedOrder = ad.orders.find(order => order._id.toString() === orderId.toString());
+  if (alreadyTrackedOrder) {
+    throw new BadRequestError("This order has already been tracked");
+  }
+
+  // find order
+  const order = (ad.service.orders as (Order & { _id: mongoose.Types.ObjectId })[])!.find(order => order._id.toString() === orderId.toString());
+  if (!order) {
+    throw new BadRequestError(`Found no order with ID ${orderId}`);
+  }
+
+  // check if the order has been made by the current employer
+  if (order.employerId !== profile.user._id.toString()) {
+    throw new UnauthorizedError("You dont have access to this order");
+  }
+
+  // push new order to ad orders
+  ad.orders.push(order._id);
+
+  // set new reconds
+  tracker!.isOrder = true;
+  performace.orders += 1;
+
+  // calculate cost per conversion
+  const totalSpent = ad.amounts.reduce((num, ad) => {
+    return num + ad.amount;
+  }, 0)
+  performace.cpc = calculateCpc({
+    orders: performace.orders,
+    totalSpent
+  });
+
+  // calculate conversion Rate
+  performace.cr = calculateCr({
+    clicks: performace.clicks,
+    orders: performace.orders
+  });
+
+  await ad.save();
+  performace.save();
+
+  res.status(StatusCodes.OK).json({ msg: "Tracked new ad order successfully" });
+}
+
 export {
   createCampaign,
   getCampaigns,
@@ -1164,5 +1254,6 @@ export {
   deleteAd,
   displayAds,
   trackAdEngagement,
-  trackAdClickAction
+  trackAdClickAction,
+  trackAdOrderAction
 }

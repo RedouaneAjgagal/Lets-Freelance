@@ -135,7 +135,7 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route GET api/v1/advertisements/campaigns
 //@access authentication (freelancers only)
 const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
-  const { search, budget_type, budget_range } = req.query;
+  const { search, budget_type, budget_range, ads } = req.query;
 
   // find user
   const profile = await Profile.findOne({ user: req.user!.userId });
@@ -186,12 +186,15 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
     }
   }
 
+  const isAllAds = ads && ads.toString() === "all"; // to display campaign metrics for active and inactive ads or just active ads
+
   // campaign aggregation
   const campaignsAggregation = await advertisementModels.Campaign.aggregate([
     {
-      $match: match
+      $match: match // get only campaigns based on title, budgetType and budgetRange
     },
     {
+      // populate ads documents
       $lookup: {
         from: "ads",
         localField: "ads",
@@ -200,6 +203,7 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
       }
     },
     {
+      // get the campaign's total ads 
       $addFields: {
         totalAds: {
           $size: "$ads"
@@ -207,15 +211,251 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
       }
     },
     {
+      // filter only active ads
       $addFields: {
         activeAds: {
-          $size: {
-            $filter: {
-              input: "$ads",
-              as: "ad",
-              cond: {
-                $eq: ["$$ad.status", "active"]
-              }
+          $filter: {
+            input: "$ads",
+            as: "ad",
+            cond: {
+              $eq: ["$$ad.status", "active"]
+            }
+          }
+        }
+      }
+    },
+    {
+      $addFields: {
+        ads: isAllAds ? "$ads" : "$activeAds" // depends on the ads query, if its all then select active and inactive ads, otherwise select only active ads
+      }
+    },
+    {
+      // populate ads performances
+      $lookup: {
+        from: "performances",
+        localField: "ads._id",
+        foreignField: "ad",
+        as: "performances"
+      }
+    },
+    {
+      // add clicks field, where it sum campaign's ads clicks
+      $addFields: {
+        clicks: {
+          $reduce: {
+            input: "$performances",
+            initialValue: 0,
+            in: {
+              $add: ["$$this.clicks", "$$value"]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add impressions field, where it sum campaign's ads impressions
+      $addFields: {
+        impressions: {
+          $reduce: {
+            input: "$performances",
+            initialValue: 0,
+            in: {
+              $add: ["$$this.displayCount", "$$value"]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add orders field, where it sum campaign's ads orders
+      $addFields: {
+        orders: {
+          $reduce: {
+            input: "$performances",
+            initialValue: 0,
+            in: {
+              $add: ["$$this.orders", "$$value"]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add ctr field, where it gets the average of campaign's ads ctr
+      $addFields: {
+        ctr: {
+          // using $cond to check if displayCount result doesnt equal to 0 to avoid dividing by 0
+          $cond: [
+            {
+              $eq: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.displayCount", 0]
+                      }
+                    }
+                  }
+                },
+                0
+              ]
+            },
+            0, // if its true, then set 0 as a return
+            {
+              $divide: [
+                {
+                  $reduce: {
+                    input: "$performances",
+                    initialValue: 0,
+                    in: {
+                      $add: ["$$this.ctr", "$$value"]
+                    }
+                  }
+                },
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.displayCount", 0]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // add cr field, where it gets the average of campaign's ads cr
+      $addFields: {
+        cr: {
+          $cond: [
+            // using $cond to check if clicks result doesnt equal to 0 to avoid dividing by 0
+            {
+              $eq: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.clicks", 0]
+                      }
+                    }
+                  }
+                },
+                0
+              ]
+            },
+            0, // if its true, then set 0 as a return
+            {
+              $divide: [
+                {
+                  $reduce: {
+                    input: "$performances",
+                    initialValue: 0,
+                    in: {
+                      $add: ["$$this.cr", "$$value"]
+                    }
+                  }
+                },
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.clicks", 0]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // add cpc field, where it gets the average of campaign's ads cpc
+      $addFields: {
+        cpc: {
+          // using $cond to check if cpc result doesnt equal to 0 to avoid dividing by 0
+          $cond: [
+            {
+              $eq: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.cpc", 0]
+                      }
+                    }
+                  }
+                },
+                0
+              ]
+            },
+            0, // if its true, then set 0 as a return
+            {
+              $divide: [
+                {
+                  $reduce: {
+                    input: "$performances",
+                    initialValue: 0,
+                    in: {
+                      $add: ["$$this.cpc", "$$value"]
+                    }
+                  }
+                },
+                {
+                  $size: {
+                    $filter: {
+                      input: "$performances",
+                      as: "performance",
+                      cond: {
+                        $ne: ["$$performance.cpc", 0]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // add amounts array field, where it has campaigns ads amounts object
+      $addFields: {
+        amounts: {
+          $reduce: {
+            input: "$ads",
+            initialValue: [],
+            in: {
+              $concatArrays: ["$$this.amounts", "$$value"]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add spend field, where it has the total spend amount on the campaign
+      $addFields: {
+        spend: {
+          $reduce: {
+            input: "$amounts",
+            initialValue: 0,
+            in: {
+              $add: ["$$this.amount", "$$value"]
             }
           }
         }
@@ -227,10 +467,22 @@ const getCampaigns: RequestHandler = async (req: CustomAuthRequest, res) => {
         name: 1,
         budget: 1,
         budgetType: 1,
-        isActive: 1,
+        status: 1,
+        startDate: 1,
+        endDate: 1,
         createdAt: 1,
+        isPaused: 1,
+        clicks: 1,
+        impressions: 1,
+        orders: 1,
+        ctr: 1,
+        cr: 1,
+        cpc: 1,
+        spend: 1,
         totalAds: 1,
-        activeAds: 1
+        activeAds: {
+          $size: "$activeAds"
+        },
       }
     },
     {
@@ -1036,7 +1288,18 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
       }
 
       await ad.save();
-      performace.cpmImpressions = 0; // reset cpm impressions to 0
+
+      const totalSpent = ad.amounts.reduce((num, ad) => {
+        return num + ad.amount;
+      }, 0);
+
+      // set new cost per click value because of the change of total spent
+      performace.cpc = calculateCpc({
+        orders: performace.orders,
+        totalSpent
+      });
+      // reset cpm impressions to 0
+      performace.cpmImpressions = 0;
     }
   }
 

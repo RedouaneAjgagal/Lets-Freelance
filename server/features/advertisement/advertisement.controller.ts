@@ -520,24 +520,213 @@ const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) =
   }
 
   // get campaign
-  const campaign = await advertisementModels.Campaign.findById(campaignId)
-    .populate({
-      path: "ads",
-      // select: "-dailyBudgetAllocation",
-      populate: {
-        path: "service",
-        select: "_id title"
+  const [campaign] = await advertisementModels.Campaign.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(campaignId),
+        user: profile.user // get only the campaign that belongs to the freelancer
       }
-    });
+    },
+    {
+      // populate ads documents thats related to this campaign
+      $lookup: {
+        from: "ads",
+        localField: "ads",
+        foreignField: "_id",
+        as: "ads"
+      }
+    },
+    {
+      // populate performances documents thats related to campaign's ads
+      $lookup: {
+        from: "performances",
+        localField: "ads._id",
+        foreignField: "ad",
+        as: "performances"
+      }
+    },
+    {
+      // add ads field, where it merge both ads and performances that are related to each other (ad ID)
+      $addFields: {
+        ads: {
+          $map: {
+            input: "$ads",
+            as: "ad",
+            in: {
+              $mergeObjects: [
+                "$$ad",
+                {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$performances",
+                        as: "performance",
+                        cond: {
+                          $eq: ["$$performance.ad", "$$ad._id"]
+                        }
+                      }
+                    },
+                    0
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the total spend per ad
+      $addFields: {
+        ads: {
+          $map: {
+            input: "$ads",
+            as: "ad",
+            in: {
+              $mergeObjects: [
+                "$$ad",
+                {
+                  spend: {
+                    $sum: "$$ad.amounts.amount"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's total clicks
+      $addFields: {
+        totalClicks: {
+          $sum: "$ads.clicks"
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's total impressions
+      $addFields: {
+        totalImpressions: {
+          $sum: "$ads.displayCount"
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's total orders
+      $addFields: {
+        totalOrders: {
+          $sum: "$ads.orders"
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's total spend
+      $addFields: {
+        totalSpend: {
+          $sum: "$ads.spend"
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's ctr
+      $addFields: {
+        ctr: {
+          // add $cond to check if totalImpressions is not 0, otherwise dont divide by 0
+          $cond: [
+            { $eq: ["$totalImpressions", 0] },
+            0, // if true then set 0 as a return ctr value
+            {
+              $multiply: [
+                {
+                  $divide: [
+                    "$totalClicks",
+                    "$totalImpressions"
+                  ]
+                }
+                ,
+                100
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's cr
+      $addFields: {
+        cr: {
+          // add $cond to check if totalClicks is not 0, otherwise dont divide by 0
+          $cond: [
+            { $eq: ["$totalClicks", 0] },
+            0, // if true then set 0 as a return cr value
+            {
+              $multiply: [
+                {
+                  $divide: [
+                    "$totalOrders",
+                    "$totalClicks"
+                  ]
+                }
+                ,
+                100
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      // add new field, where it calculate the campaign's cpc
+      $addFields: {
+        cpc: {
+          // add $cond to check if totalOrders is not 0, otherwise dont divide by 0
+          $cond: [
+            { $eq: ["$totalOrders", 0] },
+            0, // if true then set 0 as a return cpc value
+            {
+              $divide: [
+                "$totalSpend"
+                ,
+                "$totalOrders"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        status: 1,
+        name: 1,
+        "ads.ad": 1,
+        "ads.status": 1,
+        "ads.bidAmount": 1,
+        "ads.event": 1,
+        "ads.category": 1,
+        "ads.keywords": 1,
+        "ads.country": 1,
+        "ads.displayCount": 1,
+        "ads.clicks": 1,
+        "ads.ctr": 1,
+        "ads.cr": 1,
+        "ads.cpc": 1,
+        "ads.orders": 1,
+        "ads.spend": 1,
+        "totalClicks": 1,
+        "totalImpressions": 1,
+        "totalOrders": 1,
+        "totalSpend": 1,
+        "ctr": 1,
+        "cr": 1,
+        "cpc": 1
+      }
+    }
+  ]);
 
-  // check if the campaign exists
   if (!campaign) {
     throw new NotFoundError(`Found no campaign with ID ${campaignId}`);
-  }
-
-  // check if campaign belongs to the current freelancer
-  if (campaign.user._id.toString() !== profile.user._id.toString()) {
-    throw new UnauthorizedError("You dont have access to this campaign");
   }
 
   res.status(StatusCodes.OK).json(campaign);

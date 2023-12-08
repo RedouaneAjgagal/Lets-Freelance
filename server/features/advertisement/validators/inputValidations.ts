@@ -324,6 +324,37 @@ const isInvalidAdKeyword = (keyword: string | undefined) => {
     return "";
 }
 
+const isInvalidEmail = (email: string | undefined) => {
+    if (!email || email.toString().trim() === "") {
+        return "Email is required";
+    }
+    const validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+    if (!validEmail) {
+        return "Invalid email";
+    }
+    return "";
+}
+
+const isInvalidPaymentMethodName = (name: string | undefined) => {
+    if (!name || name.toString().trim() === "") {
+        return "Payment method name is required";
+    }
+    if (typeof name !== "string") {
+        return "Invalid payment method name format";
+    }
+    return "";
+}
+
+const isInvalidCardToken = (cardToken: string | undefined) => {
+    if (!cardToken || cardToken.toString().trim() === "") {
+        return "Payment method's card token is required";
+    }
+    if (typeof cardToken !== "string") {
+        return "Invalid payment method's card token format";
+    }
+    return "";
+}
+
 
 export {
     isInvalidName,
@@ -341,5 +372,8 @@ export {
     isInvalidEvent,
     isInvalidKeywords,
     isInvalidServiceId,
-    isInvalidAdKeyword
+    isInvalidAdKeyword,
+    isInvalidEmail,
+    isInvalidPaymentMethodName,
+    isInvalidCardToken
 }

@@ -7,23 +7,68 @@ import { Profile } from "../profile";
 import advertisementModels, { AdType, AdTypeWithoutRefs, PerformanceType, Tracker } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
-import { isInvalidBudgetType } from "./validators/inputValidations";
+import { isInvalidBudgetType, isInvalidEmail } from "./validators/inputValidations";
 import getValidUpdatedCampaignInputs from "./helpers/getValidUpdatedCampaignInputs";
 import createAdValidator from "./validators/createAdValidator";
 import calcBudgetAllocation from "./utils/calcBudgetAllocation";
 import getValidUpdatedAdInputs from "./helpers/getValidUpdatedAdInputs";
 import getDisplayPeriods, { createCampaignAdDisplayPeriods } from "./display_periods/getDisplayPeriods";
-import generateDailyDisplayPeriods from "./display_periods/generate_daily_display_periods";
 import "./display_periods/generates";
 import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
 import calculateCtr from "./utils/calculateCtr";
 import calculateCr from "./utils/calculateCr";
 import { Order } from "../service/service.model";
 import calculateCpc from "./utils/calculateCpc";
+import createCustomer from "../../stripe/createCustomer";
+import { User } from "../auth";
+import createCustomerValidator from "./validators/createCustomerValidator";
+
+
+
+//@desc set payment methods info for advertisements
+//@route POST /api/v1/advertisements/payment-methods
+//@access authentication (freelancers only)
+const createPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { cardToken, name, email } = req.body;
+
+  // find user
+  const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
+  if (!user) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the user is a freelancer
+  if (user.profile!.userAs !== "freelancer") {
+    throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
+  }
+
+  
+  // make sure the freelancer is not a customer yet
+  if (user.stripe.customer_id) {
+    throw new BadRequestError("You have already created a payment method");
+  }
+  
+  // check if valid values
+  createCustomerValidator({ cardToken, name, email });
+
+  // create new customer
+  const customer = await createCustomer({
+    userId: user._id.toString(),
+    cardToken,
+    email,
+    name
+  });
+
+  // set customer ID to the user
+  user.stripe.customer_id = customer.id;
+  await user.save();
+
+  res.status(StatusCodes.CREATED).json({ msg: "Payment method has been added successfully" });
+}
 
 
 //@desc create campaign
-//@route POST api/v1/advertisements
+//@route POST api/v1/advertisements/campaigns
 //@access authentication (freelancers only)
 const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   const input = req.body;
@@ -1708,5 +1753,6 @@ export {
   displayAds,
   trackAdEngagement,
   trackAdClickAction,
-  trackAdOrderAction
+  trackAdOrderAction,
+  createPaymentMethod
 }

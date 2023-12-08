@@ -22,6 +22,8 @@ import calculateCpc from "./utils/calculateCpc";
 import createCustomer from "../../stripe/createCustomer";
 import { User } from "../auth";
 import createCustomerValidator from "./validators/createCustomerValidator";
+import stripe from "../../stripe/stripeConntect";
+import Stripe from "stripe";
 
 
 
@@ -42,12 +44,12 @@ const createPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) 
     throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
   }
 
-  
+
   // make sure the freelancer is not a customer yet
   if (user.stripe.customer_id) {
     throw new BadRequestError("You have already created a payment method");
   }
-  
+
   // check if valid values
   createCustomerValidator({ cardToken, name, email });
 
@@ -66,6 +68,44 @@ const createPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) 
   res.status(StatusCodes.CREATED).json({ msg: "Payment method has been added successfully" });
 }
 
+
+//@desc get payment methods info
+//@route GET /api/v1/advertisements/payment-methods
+//@access authentication (freelancers only)
+const getPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res) => {
+  // find user
+  const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
+  if (!user) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if the user is a freelancer
+  if (user.profile!.userAs !== "freelancer") {
+    throw new BadRequestError("You dont have access to payment methods. Freelancers only");
+  }
+
+  // if the freelancer didnt set a payment method then return an empty array
+  if (!user.stripe.customer_id) {
+    return res.status(StatusCodes.OK).json([]);
+  }
+
+  // get freelancer's payment methods
+  const paymentMethods = await stripe.paymentMethods.list({ customer: user.stripe.customer_id });
+
+  const cards = paymentMethods.data.map(data => {
+    const cardDetails = {
+      id: data.id,
+      brand: data.card!.brand,
+      exp_month: data.card!.exp_month,
+      exp_year: data.card!.exp_year,
+      last4: data.card!.last4
+    };
+
+    return cardDetails;
+  });
+
+  res.status(StatusCodes.OK).json(cards);
+}
 
 //@desc create campaign
 //@route POST api/v1/advertisements/campaigns
@@ -1742,6 +1782,8 @@ const trackAdOrderAction: RequestHandler = async (req: CustomAuthRequest, res) =
 }
 
 export {
+  createPaymentMethod,
+  getPaymentMethods,
   createCampaign,
   getCampaigns,
   getCampaignDetails,
@@ -1754,5 +1796,4 @@ export {
   trackAdEngagement,
   trackAdClickAction,
   trackAdOrderAction,
-  createPaymentMethod
 }

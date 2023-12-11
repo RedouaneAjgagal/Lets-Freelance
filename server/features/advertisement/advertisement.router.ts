@@ -13,7 +13,7 @@ import {
     trackAdEngagement,
     trackAdClickAction,
     trackAdOrderAction,
-    createPaymentMethod,
+    createPaymentMethods,
     getPaymentMethods
 } from "./advertisement.controller";
 
@@ -21,7 +21,7 @@ import {
 const router = Router();
 
 router.route("/payment-methods")
-    .post(authentication, createPaymentMethod)
+    .post(authentication, createPaymentMethods)
     .get(authentication, getPaymentMethods);
 
 router.route("/campaigns")

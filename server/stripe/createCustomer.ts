@@ -1,4 +1,5 @@
-import stripe from "./stripeConntect"
+import stripe from "./stripeConntect";
+import createPaymentMethod from "./createPaymentMethod";
 
 type CreateCustomer = {
     userId: string;
@@ -8,13 +9,10 @@ type CreateCustomer = {
 }
 
 const createCustomer = async ({ userId, cardToken, name, email }: CreateCustomer) => {
-    const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-            token: cardToken
-        },
-    });
+    // create payment method
+    const paymentMethod = await createPaymentMethod({ cardToken, email, name, userId });
 
+    // create customer
     const customer = await stripe.customers.create({
         name,
         email,
@@ -25,7 +23,7 @@ const createCustomer = async ({ userId, cardToken, name, email }: CreateCustomer
         metadata: {
             freelancer_user_id: userId
         }
-    });
+    }); 
 
     return customer;
 }

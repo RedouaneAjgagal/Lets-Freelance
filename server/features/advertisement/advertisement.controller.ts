@@ -23,14 +23,14 @@ import createCustomer from "../../stripe/createCustomer";
 import { User } from "../auth";
 import createCustomerValidator from "./validators/createCustomerValidator";
 import stripe from "../../stripe/stripeConntect";
-import Stripe from "stripe";
+import { createPaymentMethodAndAttachToCustomer } from "../../stripe/createPaymentMethod";
 
 
 
 //@desc set payment methods info for advertisements
 //@route POST /api/v1/advertisements/payment-methods
 //@access authentication (freelancers only)
-const createPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) => {
+const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res) => {
   const { cardToken, name, email } = req.body;
 
   // find user
@@ -44,22 +44,32 @@ const createPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) 
     throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
   }
 
-
-  // make sure the freelancer is not a customer yet
-  if (user.stripe.customer_id) {
-    throw new BadRequestError("You have already created a payment method");
-  }
-
   // check if valid values
   createCustomerValidator({ cardToken, name, email });
 
-  // create new customer
-  const customer = await createCustomer({
+  const customerDetails = {
     userId: user._id.toString(),
     cardToken,
     email,
     name
-  });
+  }
+
+  // if the freelancer already is a customer then create another payment method for the same customer
+  if (user.stripe.customer_id) {
+    const paymentMethod = await createPaymentMethodAndAttachToCustomer({ ...customerDetails, customerId: user.stripe.customer_id });
+
+    // make the new payment method as default payment
+    await stripe.customers.update(user.stripe.customer_id, {
+      invoice_settings: {
+        default_payment_method: paymentMethod.id,
+      },
+    });
+
+    return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
+  }
+
+  // create new customer
+  const customer = await createCustomer(customerDetails);
 
   // set customer ID to the user
   user.stripe.customer_id = customer.id;
@@ -98,11 +108,15 @@ const getPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res) =>
       brand: data.card!.brand,
       exp_month: data.card!.exp_month,
       exp_year: data.card!.exp_year,
-      last4: data.card!.last4
+      last4: data.card!.last4,
+      createdAt: data.created
     };
 
     return cardDetails;
   });
+
+  // make the default payment method be first
+  cards.sort((a, b) => b.createdAt - a.createdAt);
 
   res.status(StatusCodes.OK).json(cards);
 }
@@ -1782,7 +1796,7 @@ const trackAdOrderAction: RequestHandler = async (req: CustomAuthRequest, res) =
 }
 
 export {
-  createPaymentMethod,
+  createPaymentMethods,
   getPaymentMethods,
   createCampaign,
   getCampaigns,

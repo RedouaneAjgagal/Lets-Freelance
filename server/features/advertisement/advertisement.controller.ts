@@ -121,6 +121,63 @@ const getPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res) =>
   res.status(StatusCodes.OK).json(cards);
 }
 
+
+//@desc delete payment method
+//@route DELETE /api/v1/advertisements/payment-methods/:paymentMethodId
+//@access authentication (freelancers only)
+const deletePaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) => {
+  const { paymentMethodId } = req.params;
+  // check if paymentMethodId is exist
+  if (!paymentMethodId || paymentMethodId.toString().trim() === "") {
+    throw new BadRequestError("Payment method ID is missing");
+  }
+
+  // find user
+  const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
+  if (!user) {
+    throw new UnauthenticatedError("Found no user");
+  }
+
+  // check if user is a freelancer
+  if (user.profile!.userAs !== "freelancer") {
+    throw new BadRequestError("You dont have access to delete payment methods. Freelancers only");
+  }
+
+  // check if the freelancer is already a customer
+  if (!user.stripe.customer_id) {
+    throw new BadRequestError("You haven't set a payment method yet");
+  }
+
+  // get the stripe customer
+  const paymentMethods = await stripe.paymentMethods.list({ customer: user.stripe.customer_id });
+  // sort by newest
+  paymentMethods.data.sort((a, b) => b.created - a.created);
+
+  const paymentMethod = paymentMethods.data.find(data => data.id === paymentMethodId.toString());
+  if (!paymentMethod) {
+    throw new NotFoundError(`Found no payment method with ID ${paymentMethodId}`);
+  }
+
+  // detach payment method from customer's payment methods
+  await stripe.paymentMethods.detach(paymentMethod.id);
+
+  // if default payment method has been detached then make the latest one created to be default
+  if ((paymentMethods.data[0].id === paymentMethod.id) && paymentMethods.data.length > 1) {
+    const updatedPaymentMethods = paymentMethods.data.filter(data => data.id !== paymentMethod.id);
+
+    const defaultPaymentMethod = updatedPaymentMethods[0];
+
+    await stripe.customers.update(defaultPaymentMethod.customer!.toString(), {
+      invoice_settings: {
+        default_payment_method: defaultPaymentMethod.id
+      }
+    });
+  }
+
+  res.status(StatusCodes.OK).json({ msg: `The ${paymentMethod.card!.brand} card ending in ${paymentMethod.card!.last4} was removed` });
+}
+
+
 //@desc create campaign
 //@route POST api/v1/advertisements/campaigns
 //@access authentication (freelancers only)
@@ -1798,6 +1855,7 @@ const trackAdOrderAction: RequestHandler = async (req: CustomAuthRequest, res) =
 export {
   createPaymentMethods,
   getPaymentMethods,
+  deletePaymentMethod,
   createCampaign,
   getCampaigns,
   getCampaignDetails,

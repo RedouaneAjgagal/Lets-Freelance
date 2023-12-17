@@ -1,9 +1,11 @@
+import { IncomingMessage } from "http";
+
 import dotenv from "dotenv";
 dotenv.config();
 import "express-async-errors";
 
 // express
-import express from "express";
+import express, { RequestHandler } from "express";
 const app = express();
 
 // db
@@ -29,6 +31,7 @@ import { reviewRouter } from "./features/review";
 import { proposalRouter } from "./features/proposal";
 import { contractRouter } from "./features/contract";
 import { advertisementRouter } from "./features/advertisement";
+import { stripeRouter } from "./stripe/index";
 
 
 // middlewares
@@ -43,8 +46,11 @@ cloudinary.config({
     secure: true
 });
 
-
-app.use(express.json());
+app.use(express.json({
+    verify: (req: IncomingMessage & { rawBody: string }, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+}));
 app.use(cors({
     origin,
     credentials: true
@@ -63,6 +69,12 @@ app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/proposals", proposalRouter);
 app.use("/api/v1/contracts", contractRouter);
 app.use("/api/v1/advertisements", advertisementRouter);
+
+
+// webhooks
+
+app.use("/api/v1/stripe-webhook", stripeRouter);
+
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

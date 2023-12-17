@@ -8,6 +8,7 @@ export type DisplayPeriod = {
 }
 
 // --------- Ad --------- //
+
 export type AdTypeWithoutRefs = {
     status: "active" | "inactive";
     bidAmount: number;
@@ -131,6 +132,13 @@ const Ad = mongoose.model("Ad", adSchema);
 
 
 // --------- Campaign --------- //
+
+export type CampaignPayment = {
+    amount: number;
+    status: "pending" | "paid" | "failed";
+    invoiceId: string;
+}
+
 export type CampaignTypeWithoutRefs = {
     status: "active" | "inactive";
     name: string;
@@ -138,7 +146,7 @@ export type CampaignTypeWithoutRefs = {
     budgetType: "daily" | "total";
     startDate: Date;
     endDate: Date;
-    isPaused: boolean;
+    payments: CampaignPayment[];
 }
 
 export type CampaignType = {
@@ -192,11 +200,17 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
         }],
         required: true
     },
-    isPaused: {
-        type: Boolean,
-        default: false,
-        required: true
-    }
+    payments: [
+        {
+            amount: Number,
+            status: {
+                type: String,
+                enum: ["pending", "paid", "failed"],
+                default: "paid"
+            },
+            invoiceId: String
+        }
+    ]
 }, {
     timestamps: true
 });

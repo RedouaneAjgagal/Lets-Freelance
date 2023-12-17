@@ -49,7 +49,10 @@ export interface IFreelancerRole {
         description: string;
     }[];
     connects: Connects;
-    badge: "none" | "rising talent" | "top rated" | "top rated plus"
+    badge: "none" | "rising talent" | "top rated" | "top rated plus";
+    advertisement: {
+        unpaidInvoices: string[];
+    }
 }
 
 export interface IProfile {
@@ -174,6 +177,9 @@ const profileSchema = new mongoose.Schema<IProfile>({
                     required: true,
                     default: 16
                 }
+            },
+            advertisement: {
+                unpaidInvoices: [{ type: String }]
             }
         },
         employer: {

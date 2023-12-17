@@ -4,7 +4,7 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import createCampaignValidator from "./validators/createCampaignValidator";
 import { Profile } from "../profile";
-import advertisementModels, { AdType, AdTypeWithoutRefs, PerformanceType, Tracker } from "./advertisement.model";
+import advertisementModels, { AdType, AdTypeWithoutRefs, CampaignType, PerformanceType, Tracker } from "./advertisement.model";
 import { serviceModel as Service } from "../service";
 import mongoose, { isValidObjectId } from "mongoose";
 import { isInvalidBudgetType, isInvalidEmail } from "./validators/inputValidations";
@@ -24,6 +24,7 @@ import { User } from "../auth";
 import createCustomerValidator from "./validators/createCustomerValidator";
 import stripe from "../../stripe/stripeConntect";
 import { createPaymentMethodAndAttachToCustomer } from "../../stripe/createPaymentMethod";
+import "./payments/invoicesSchedule";
 
 
 
@@ -34,13 +35,15 @@ const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res)
   const { cardToken, name, email } = req.body;
 
   // find user
-  const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "_id userAs" });
-  if (!user) {
+  const user = await User.findById(req.user!.userId);
+  const profile = await Profile.findOne({ user: user?._id });
+  if (!user || !profile) {
     throw new UnauthenticatedError("Found no user");
   }
 
+
   // check if the user is a freelancer
-  if (user.profile!.userAs !== "freelancer") {
+  if (profile.userAs !== "freelancer") {
     throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
   }
 
@@ -64,6 +67,25 @@ const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res)
         default_payment_method: paymentMethod.id,
       },
     });
+
+    // check if there is unpaid invoices
+    if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+      // pay all invoices
+      for (const unpaidInvoice of profile.roles.freelancer!.advertisement.unpaidInvoices) {
+        try {
+          const invoice = await stripe.invoices.pay(unpaidInvoice);
+
+          // if the invoice has been paid successful then remove the unpaid invoice id from the unpaid invoices array
+          if (invoice.status === "paid") {
+            profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(unpaidInvoice => unpaidInvoice !== invoice.id);
+            profile.save();
+          }
+        } catch (error: any) {
+          console.log(`Invoice pay error when attaching new payment method: ${error.message}`);
+          throw new BadRequestError(`Unable to pay unpaid invoices after setting a new payment method`);
+        }
+      }
+    }
 
     return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
   }
@@ -188,7 +210,7 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   createCampaignValidator(input);
 
   // find user
-  const profile = await Profile.findOne({ user: req.user!.userId });
+  const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "_id stripe.customer_id" });
   if (!profile) {
     throw new UnauthenticatedError("Found no user");
   }
@@ -196,6 +218,16 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
   // check if the current profile is a freelancer
   if (profile.userAs !== "freelancer") {
     throw new UnauthorizedError("You dont have access to create campaigns. Freelancers only");
+  }
+
+  // check if the freelancer is already a customer (at least created payment method once)
+  if (!profile.user!.stripe!.customer_id) {
+    throw new BadRequestError("You must set a payment method to start creating campaigns");
+  }
+
+  // check if the freelancer doesnt have any unpaid invoices
+  if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+    throw new UnauthorizedError("You have unpaid advertisement invoices, please update your payment method");
   }
 
   // get IDs of the services
@@ -277,7 +309,8 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
     budgetType: input.budgetType,
     startDate: input.startDate,
     endDate: input.endDate,
-    ads: createdAds
+    ads: createdAds,
+    payments: []
   }
 
   // create campaign
@@ -1007,6 +1040,11 @@ const deleteCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
     throw new UnauthorizedError("You dont have access to delete campaigns. Freelancers only");
   }
 
+  // check if the freelancer doesnt have any unpaid invoices
+  if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+    throw new UnauthorizedError("You have unpaid advertisement invoices, please update your payment method");
+  }
+
   // find campaign
   const campaign = await advertisementModels.Campaign.findById(campaignId);
   if (!campaign) {
@@ -1055,6 +1093,11 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
   // check if the current user is a freelancer
   if (profile.userAs !== "freelancer") {
     throw new UnauthorizedError("You dont have access to create Ads. Freelancers only");
+  }
+
+  // check if the freelancer doesnt have any unpaid invoices
+  if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+    throw new UnauthorizedError("You have unpaid advertisement invoices, please update your payment method");
   }
 
   // find the campaign
@@ -1290,6 +1333,11 @@ const deleteAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     throw new UnauthorizedError("You dont have access to delete ads. Freelancers only");
   }
 
+  // check if the freelancer doesnt have any unpaid invoices
+  if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+    throw new UnauthorizedError("You have unpaid advertisement invoices, please update your payment method");
+  }
+
   // find ad
   const ad = await advertisementModels.Ad.findById(adId);
   if (!ad) {
@@ -1393,7 +1441,6 @@ const displayAds: RequestHandler = async (req, res) => {
     {
       $match: {
         status: "active", // find only active campaigns
-        isPaused: false, // find only unpaused ads 
 
         // get only campaigns that are still in current day range 
         $and: [
@@ -1525,6 +1572,12 @@ const displayAds: RequestHandler = async (req, res) => {
       }
     },
     {
+      // get only campaigns where their freelancers doesn't have any unpaid invoices
+      $match: {
+        "service.profile.roles.freelancer.advertisement.unpaidInvoices": { $eq: [] }
+      }
+    },
+    {
       $sort: {
         score: -1, // make ads with higher score shows first
         "ad.bidAmount": -1, // if multiple ads scores match, then sort by bid amount
@@ -1532,12 +1585,12 @@ const displayAds: RequestHandler = async (req, res) => {
         "ad.createdAt": -1 // if all match then display old ads first
       }
     },
-    // {
-    //   $limit: page * 2 // display only 2 ads per page
-    // },
-    // {
-    //   $skip: (page - 1) * 2 // display the rest of ads based on the search page
-    // },
+    {
+      $limit: page * 2 // display only 2 ads per page
+    },
+    {
+      $skip: (page - 1) * 2 // display the rest of ads based on the search page
+    },
     {
       // set service as sponsored
       $set: {
@@ -1600,6 +1653,17 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
     throw new BadRequestError("Inactive ad");
   }
 
+  // find ad freelancer to check if he doesnt have any unpaid invoices
+  const profile = await Profile.findOne({ user: ad.user, userAs: "freelancer" });
+  if (!profile) {
+    throw new BadRequestError("Couldn't find ad freelancer");
+  }
+
+  // check if the freelancer doesnt have any unpaid invoices
+  if (profile.roles.freelancer?.advertisement.unpaidInvoices.length) {
+    throw new BadRequestError("Ad has been stopped due to unpaid invoices");
+  }
+
   // find ad's performance
   const performace = await advertisementModels.Performance.findOne({ ad: ad._id });
   if (!performace) {
@@ -1617,7 +1681,7 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
       const adAmount = ad.amounts.find(adAmount => {
         const timeToPayCpmImpressions = new Date(adAmount.date).toLocaleDateString();
         if (currentTime === timeToPayCpmImpressions) {
-          return true
+          return true;
         }
         return false;
       });
@@ -1635,6 +1699,23 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
 
       await ad.save();
 
+      // set new campaign payment
+      const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } });
+      const payment = campaign!.payments[campaign!.payments.length - 1];
+
+      if (!campaign!.payments.length || payment.status !== "pending") {
+        campaign!.payments.push({
+          amount: ad.bidAmount,
+          status: "pending",
+          invoiceId: ""
+        });
+      } else {
+        payment.amount += ad.bidAmount;
+      }
+
+      await campaign!.save();
+
+      // get total spent
       const totalSpent = ad.amounts.reduce((num, ad) => {
         return num + ad.amount;
       }, 0);
@@ -1644,6 +1725,7 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
         orders: performace.orders,
         totalSpent
       });
+
       // reset cpm impressions to 0
       performace.cpmImpressions = 0;
     }
@@ -1759,7 +1841,23 @@ const trackAdClickAction: RequestHandler = async (req, res) => {
       });
     }
     await ad.save();
+
+    // set new campaign payment
+    const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } });
+    const payment = campaign!.payments[campaign!.payments.length - 1];
+    if (!campaign!.payments.length || payment.status !== "pending") {
+      campaign!.payments.push({
+        amount: ad.bidAmount,
+        status: "pending",
+        invoiceId: ""
+      });
+    } else {
+      payment.amount += ad.bidAmount;
+    }
+
+    await campaign!.save();
   }
+
 
   res.status(StatusCodes.OK).json({ track_id: tracker._id, ad_id: ad._id });
 }
@@ -1867,5 +1965,5 @@ export {
   displayAds,
   trackAdEngagement,
   trackAdClickAction,
-  trackAdOrderAction,
+  trackAdOrderAction
 }

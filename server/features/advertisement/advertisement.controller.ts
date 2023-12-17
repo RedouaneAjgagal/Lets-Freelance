@@ -889,7 +889,6 @@ const getCampaignDetails: RequestHandler = async (req: CustomAuthRequest, res) =
         _id: 1,
         status: 1,
         name: 1,
-        "ads.service": 1,
         "ads.ad": 1,
         "ads.status": 1,
         "ads.bidAmount": 1,

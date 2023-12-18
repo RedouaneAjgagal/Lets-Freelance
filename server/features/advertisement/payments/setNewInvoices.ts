@@ -1,5 +1,7 @@
 import stripe from "../../../stripe/stripeConntect";
 import getCampaignsReadyToPay, { FreelancerCampaigns } from "./getCampaignsReadyToPay";
+import transferToStripeAmount from "../../../stripe/utils/transferToStripeAmount";
+import { updateCampaign } from "../../../stripe/index";
 
 
 export const setNewInvoice = async (freelancerCampaigns: FreelancerCampaigns) => {
@@ -15,7 +17,7 @@ export const setNewInvoice = async (freelancerCampaigns: FreelancerCampaigns) =>
 
     freelancerCampaigns.campaigns.forEach(async (campaign) => {
         const price = await stripe.prices.create({
-            unit_amount_decimal: (campaign.payment.amount * 100).toFixed(2),
+            unit_amount: transferToStripeAmount(campaign.payment.amount),
             currency: "usd",
             product_data: {
                 name: `Campaign: ${campaign.name}`
@@ -36,6 +38,14 @@ export const setNewInvoice = async (freelancerCampaigns: FreelancerCampaigns) =>
                 payment_id: campaign.payment._id.toString()
             }
         });
+    });
+
+    updateCampaign({
+        type: "created",
+        campaignIds: freelancerCampaigns.campaigns.map(campaign => campaign._id.toString()),
+        paymentIds: freelancerCampaigns.campaigns.map(campaign => campaign.payment._id.toString()),
+        userId: freelancerCampaigns.user._id.toString(),
+        invoiceId: invoice.id,
     });
 }
 

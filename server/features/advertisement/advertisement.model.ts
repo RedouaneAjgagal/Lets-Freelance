@@ -135,7 +135,7 @@ const Ad = mongoose.model("Ad", adSchema);
 
 export type CampaignPayment = {
     amount: number;
-    status: "pending" | "paid" | "failed";
+    status: "unpaid" | "pending" | "paid" | "failed";
     invoiceId: string;
 }
 
@@ -205,8 +205,7 @@ const campaignSchema = new mongoose.Schema<CampaignType>({
             amount: Number,
             status: {
                 type: String,
-                enum: ["pending", "paid", "failed"],
-                default: "paid"
+                enum: ["unpaid", "pending", "paid", "failed"],
             },
             invoiceId: String
         }

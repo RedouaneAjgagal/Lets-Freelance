@@ -25,6 +25,8 @@ import createCustomerValidator from "./validators/createCustomerValidator";
 import stripe from "../../stripe/stripeConntect";
 import { createPaymentMethodAndAttachToCustomer } from "../../stripe/createPaymentMethod";
 import "./payments/invoicesSchedule";
+import setNewInvoices from "./payments/setNewInvoices";
+import getCampaignsReadyToPay from "./payments/getCampaignsReadyToPay";
 
 
 
@@ -1623,9 +1625,6 @@ const displayAds: RequestHandler = async (req, res) => {
     }
   ]);
 
-  console.log(ads.length);
-
-
   res.status(StatusCodes.OK).json(ads);
 }
 
@@ -1702,11 +1701,10 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
       // set new campaign payment
       const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } });
       const payment = campaign!.payments[campaign!.payments.length - 1];
-
-      if (!campaign!.payments.length || payment.status !== "pending") {
+      if (!campaign!.payments.length || payment.status !== "unpaid") {
         campaign!.payments.push({
           amount: ad.bidAmount,
-          status: "pending",
+          status: "unpaid",
           invoiceId: ""
         });
       } else {
@@ -1845,10 +1843,10 @@ const trackAdClickAction: RequestHandler = async (req, res) => {
     // set new campaign payment
     const campaign = await advertisementModels.Campaign.findOne({ ads: { $in: ad._id } });
     const payment = campaign!.payments[campaign!.payments.length - 1];
-    if (!campaign!.payments.length || payment.status !== "pending") {
+    if (!campaign!.payments.length || payment.status !== "unpaid") {
       campaign!.payments.push({
         amount: ad.bidAmount,
-        status: "pending",
+        status: "unpaid",
         invoiceId: ""
       });
     } else {

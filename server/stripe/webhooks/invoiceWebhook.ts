@@ -12,19 +12,20 @@ type SetUnpaidInvoice = {
 }
 
 type UpdateCampaign = {
-    type: "succeeded" | "failed";
+    type: "created" | "succeeded" | "failed";
     invoiceId: string;
     userId: string;
     campaignIds: string[];
     paymentIds: string[];
 }
 
-const updateCampaign = (payload: UpdateCampaign) => {
+export const updateCampaign = (payload: UpdateCampaign) => {
     const objectCampaignIds = payload.campaignIds.map(id => new mongoose.Types.ObjectId(id));
     const objectPaymentIds = payload.paymentIds.map(id => new mongoose.Types.ObjectId(id));
     const userId = payload.userId.toString();
     const objectUserId = new mongoose.Types.ObjectId(userId);
     const status = {
+        created: "pending",
         succeeded: "paid",
         failed: "failed"
     }

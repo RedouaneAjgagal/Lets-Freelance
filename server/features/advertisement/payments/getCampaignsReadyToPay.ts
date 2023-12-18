@@ -36,7 +36,7 @@ const getCampaignsReadyToPay = async () => {
                                 input: "$payments",
                                 as: "payment",
                                 cond: {
-                                    $eq: ["$$payment.status", "pending"]
+                                    $eq: ["$$payment.status", "unpaid"]
                                 }
                             }
                         },
@@ -67,7 +67,7 @@ const getCampaignsReadyToPay = async () => {
                                     as: "payment",
                                     cond: {
                                         $and: [
-                                            { $eq: ["$$payment.status", "pending"] },
+                                            { $eq: ["$$payment.status", "unpaid"] },
                                             { $gt: ["$$payment.amount", 0] },
                                         ]
                                     }

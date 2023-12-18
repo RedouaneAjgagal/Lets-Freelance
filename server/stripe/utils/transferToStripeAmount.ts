@@ -1,5 +1,6 @@
 const transferToStripeAmount = (amount: number) => {
-    return amount * 100;
+    const validStripeAmount = Number(amount.toFixed(2));
+    return validStripeAmount * 100;
 }
 
 export default transferToStripeAmount;

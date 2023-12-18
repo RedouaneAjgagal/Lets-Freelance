@@ -72,7 +72,6 @@ app.use("/api/v1/advertisements", advertisementRouter);
 
 
 // webhooks
-
 app.use("/api/v1/stripe-webhook", stripeRouter);
 
 

@@ -56,7 +56,7 @@ export const updateCampaign = (payload: UpdateCampaign) => {
 }
 
 
-export const setUnpaidInvoice = (payload: SetUnpaidInvoice) => {
+export const setUnpaidInvoiceToProfile = (payload: SetUnpaidInvoice) => {
     const objectUserId = new mongoose.Types.ObjectId(payload.userId);
 
     Profile.bulkWrite([
@@ -103,7 +103,7 @@ const invoiceWebhook: RequestHandler = (req, res) => {
 
             break;
         case "invoice.payment_failed":
-            const invoicePaymentFailed = event.data.object as Stripe.Event.Data.Object & Stripe.Response<Stripe.Invoice>;;
+            const invoicePaymentFailed = event.data.object as Stripe.Event.Data.Object & Stripe.Response<Stripe.Invoice>;
 
             updateCampaign({
                 type: "failed",
@@ -113,7 +113,7 @@ const invoiceWebhook: RequestHandler = (req, res) => {
                 paymentIds: invoicePaymentFailed.lines.data.map(data => data.metadata.payment_id)
             });
 
-            setUnpaidInvoice({
+            setUnpaidInvoiceToProfile({
                 invoiceId: invoicePaymentFailed.id,
                 userId: invoicePaymentFailed.metadata!.freelancer_user_id
             });

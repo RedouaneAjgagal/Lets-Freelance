@@ -3,4 +3,9 @@ const transferToStripeAmount = (amount: number) => {
     return validStripeAmount * 100;
 }
 
+export const transferToStripeDecimalAmount = (amount: number) => {
+    const transferredAmount = transferToStripeAmount(amount);
+    return transferredAmount.toFixed(2);
+}
+
 export default transferToStripeAmount;

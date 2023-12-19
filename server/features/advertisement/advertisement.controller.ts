@@ -25,8 +25,6 @@ import createCustomerValidator from "./validators/createCustomerValidator";
 import stripe from "../../stripe/stripeConntect";
 import { createPaymentMethodAndAttachToCustomer } from "../../stripe/createPaymentMethod";
 import "./payments/invoicesSchedule";
-import setNewInvoices from "./payments/setNewInvoices";
-import getCampaignsReadyToPay from "./payments/getCampaignsReadyToPay";
 
 
 
@@ -83,6 +81,11 @@ const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res)
             profile.save();
           }
         } catch (error: any) {
+          if (error.message.startsWith("This invoice can no longer be paid")) {
+            // stripe.invoices.
+
+          }
+
           console.log(`Invoice pay error when attaching new payment method: ${error.message}`);
           throw new BadRequestError(`Unable to pay unpaid invoices after setting a new payment method`);
         }

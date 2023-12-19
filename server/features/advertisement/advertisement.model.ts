@@ -19,6 +19,7 @@ export type AdTypeWithoutRefs = {
     displayPeriods: DisplayPeriod[];
     nextPeriodGenerationDates: Date[];
     country?: string;
+    budgetAllocationSpend: number;
     budgetAllocationCompleted: boolean;
     amounts: { date: Date; amount: number }[];
     orders: mongoose.Types.ObjectId[];
@@ -93,6 +94,11 @@ const adSchema = new mongoose.Schema<AdType>({
     ],
     country: {
         type: String
+    },
+    budgetAllocationSpend: {
+        type: Number,
+        default: 0,
+        required: true
     },
     budgetAllocationCompleted: {
         type: Boolean,

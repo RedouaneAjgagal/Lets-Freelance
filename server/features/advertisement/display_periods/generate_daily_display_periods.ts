@@ -122,7 +122,8 @@ const getUpdateAdsData = async () => {
                     update: {
                         $set: {
                             displayPeriods: periods,
-                            nextPeriodGenerationDates
+                            nextPeriodGenerationDates,
+                            budgetAllocationSpend: 0 // reset budget allocation after generating new display periods
                         }
                     }
                 }

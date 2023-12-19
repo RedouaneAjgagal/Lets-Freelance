@@ -1160,6 +1160,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
     country: input.country,
     status: "active",
     budgetAllocation: input.bidAmount, // initial budget allocation value
+    budgetAllocationSpend: 0,
     budgetAllocationCompleted: false,
     amounts: [],
     orders: []
@@ -1720,6 +1721,14 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
         });
       }
 
+      // increase budget allocation spent
+      ad.budgetAllocationSpend += ad.bidAmount;
+
+      // set budget to completed if the ad has spent the budget allocation
+      if (ad.budgetAllocationSpend >= ad.budgetAllocation) {
+        ad.budgetAllocationCompleted = true;
+      }
+
       await ad.save();
 
       // set new campaign payment
@@ -1862,6 +1871,15 @@ const trackAdClickAction: RequestHandler = async (req, res) => {
         date: new Date()
       });
     }
+
+    // increase budget allocation spent
+    ad.budgetAllocationSpend += ad.bidAmount;
+
+    // set budget to completed if the ad has spent the budget allocation
+    if (ad.budgetAllocationSpend >= ad.budgetAllocation) {
+      ad.budgetAllocationCompleted = true;
+    }
+
     await ad.save();
 
     // set new campaign payment

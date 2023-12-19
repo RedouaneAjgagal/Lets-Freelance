@@ -1,4 +1,4 @@
-import advertisementModels, { AdType } from "../advertisement.model";
+import advertisementModels from "../advertisement.model";
 import getUpdateAdsData from "./generate_daily_display_periods";
 import delay from "../../../utils/delay";
 

@@ -81,13 +81,34 @@ const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res)
             profile.save();
           }
         } catch (error: any) {
+          // check if the freelancer tried until the invoice is no longer payable
           if (error.message.startsWith("This invoice can no longer be paid")) {
-            // stripe.invoices.
+            // create a new invoice based on the unpayable invoice
+            const clonedInvoice = await stripe.invoices.create({
+              from_invoice: {
+                action: "revision",
+                invoice: unpaidInvoice
+              }
+            });
 
+            // push the new invoice as unpaid invoice
+            profile.roles.freelancer!.advertisement.unpaidInvoices.push(clonedInvoice.id);
+
+            // remove the unpayable invoice from freelancer's unpaid invoices to avoid the duplication
+            profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(freelancerUnpaidInvoice => freelancerUnpaidInvoice !== unpaidInvoice);
+            await profile.save();
+
+            try {
+              await stripe.invoices.pay(clonedInvoice.id);
+              return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
+            } catch (error: any) {
+              console.log(`Invoice pay error when attaching new payment method after making a new invoice clone: ${error.message}`);
+              throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
+            }
           }
 
           console.log(`Invoice pay error when attaching new payment method: ${error.message}`);
-          throw new BadRequestError(`Unable to pay unpaid invoices after setting a new payment method`);
+          throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
         }
       }
     }

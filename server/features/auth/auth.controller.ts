@@ -83,8 +83,13 @@ const login: RequestHandler = async (req, res) => {
 
     // attach cookies to response
     attachCookieToResponse({
-        userId: user._id.toString()
-    }, res);
+        cookieName: "accessToken",
+        expiresInMs: 7 * 24 * 60 * 60 * 1000, // 7 days
+        payload: {
+            userId: user._id.toString()
+        },
+        res
+    });
 
 
 
@@ -103,7 +108,10 @@ const login: RequestHandler = async (req, res) => {
 //@route GET /api/v1/auth/logout
 //@access public
 const logout: RequestHandler = async (req, res) => {
-    destroyCookie(res);
+    destroyCookie({
+        cookieName: "accessToken",
+        res
+    });
     res.status(StatusCodes.OK).json({ msg: "Logged out successfully." });
 }
 

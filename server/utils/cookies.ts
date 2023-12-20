@@ -1,17 +1,23 @@
 import { Response } from "express";
 import createJwtToken from "./createJwtToken"
 
-const attachCookieToResponse = (payload: {}, res: Response) => {
-    const expiresIn = 2 * 60 * 60 * 1000; // 2h
+type TttachCookieToResponse = {
+    cookieName: string;
+    expiresInMs: number;
+    payload: {};
+    res: Response;
+}
+
+const attachCookieToResponse = ({ cookieName, expiresInMs, payload, res }: TttachCookieToResponse) => {
     // create jwt token
     const token = createJwtToken({
         payload,
-        expiresIn: expiresIn / 1000
+        expiresIn: expiresInMs / 1000
     });
 
     // attach token to response
-    res.cookie("accessToken", token, {
-        expires: new Date(Date.now() + expiresIn),
+    res.cookie(cookieName, token, {
+        expires: new Date(Date.now() + expiresInMs),
         httpOnly: true,
         signed: true,
         sameSite: "lax",
@@ -19,8 +25,8 @@ const attachCookieToResponse = (payload: {}, res: Response) => {
     });
 }
 
-const destroyCookie = (res: Response) => {
-    res.cookie("accessToken", null, {
+const destroyCookie = ({ cookieName, res }: { cookieName: string; res: Response }) => {
+    res.cookie(cookieName, null, {
         expires: new Date(Date.now()),
         httpOnly: true,
         signed: true,

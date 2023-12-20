@@ -23,11 +23,6 @@ export type FreelancerCampaigns = {
 const getCampaignsReadyToPay = async () => {
     const freelancersCampaigns: FreelancerCampaigns[] = await advertisementModels.Campaign.aggregate([
         {
-            $match: {
-                status: "active"
-            }
-        },
-        {
             $addFields: {
                 payment: {
                     $reduce: {

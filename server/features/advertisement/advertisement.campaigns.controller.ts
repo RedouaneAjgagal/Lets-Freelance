@@ -854,11 +854,6 @@ const deleteCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthorizedError("You dont have access to delete campaigns. Freelancers only");
     }
 
-    // check if the freelancer doesnt have any unpaid invoices
-    if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
-        throw new UnauthorizedError("You have unpaid advertisement invoices, please update your payment method");
-    }
-
     // find campaign
     const campaign = await advertisementModels.Campaign.findById(campaignId);
     if (!campaign) {
@@ -868,6 +863,12 @@ const deleteCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
     // check if the campaign belongs to the freelancer
     if (campaign.user._id.toString() !== profile.user._id.toString()) {
         throw new UnauthorizedError("You dont have access to delete this campaign");
+    }
+
+    // dont delete if the campaign still have unpaid invoices
+    const hasUnpaidInvoices = campaign.payments.some(payment => payment.status === "pending" || payment.status === "unpaid");
+    if (hasUnpaidInvoices) {
+        throw new BadRequestError("Unable to delete this campaign due to unpaid invoices. Must wait until the next payment wave");
     }
 
     // delete the campaign

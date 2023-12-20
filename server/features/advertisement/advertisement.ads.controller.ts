@@ -393,13 +393,7 @@ const displayAds: RequestHandler = async (req, res) => {
     const ads = await advertisementModels.Campaign.aggregate([
         {
             $match: {
-                status: "active", // find only active campaigns
-
-                // get only campaigns that are still in current day range 
-                $and: [
-                    { startDate: { $lte: currentTime } },
-                    { endDate: { $gte: currentTime } }
-                ]
+                status: "active" // find only active campaigns
             }
         },
         {

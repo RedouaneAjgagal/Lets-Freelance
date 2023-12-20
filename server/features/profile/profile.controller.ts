@@ -177,7 +177,10 @@ const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
     await profile.deleteOne();
 
     // destroy auth cookie
-    destroyCookie(res);
+    destroyCookie({
+        cookieName: "accessToken",
+        res
+    });
 
     res.status(StatusCodes.OK).json({ msg: "Your account has been deleted permanently" });
 }

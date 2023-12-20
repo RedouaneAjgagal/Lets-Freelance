@@ -1,13 +1,13 @@
-import dbConnection from "../../db/dbConnection";
+import dbConnection from "../../../db/dbConnection";
 
 import dotenv from "dotenv";
 dotenv.config();
 import "express-async-errors";
 
 import mongoose from "mongoose";
-import { advertisementModels } from "../../features/advertisement";
-import { AdType, CampaignType } from "../../features/advertisement/advertisement.model";
-import { createCampaignAdDisplayPeriods } from "../../features/advertisement/display_periods/getDisplayPeriods";
+import { advertisementModels } from "..";
+import { AdType, CampaignType } from "../advertisement.model";
+import { createCampaignAdDisplayPeriods } from "../display_periods/getDisplayPeriods";
 
 const adsDetails: { ids: mongoose.Types.ObjectId[]; campaignBudget: number; }[] = [];
 
@@ -40,7 +40,10 @@ const createAdvertisementDocuments = async () => {
                 ],
                 country: seedAdsValues.testValue,
                 displayPeriods: [],
-                nextPeriodGenerationDates: [oneDayAhead]
+                nextPeriodGenerationDates: [oneDayAhead],
+                amounts: [],
+                budgetAllocationSpend: 0,
+                orders: [],
             },
             {
                 user: new mongoose.Types.ObjectId("650208fc18049ba3425dffeb"),
@@ -61,7 +64,10 @@ const createAdvertisementDocuments = async () => {
                 ],
                 country: seedAdsValues.testValue,
                 displayPeriods: [],
-                nextPeriodGenerationDates: [oneDayAhead]
+                nextPeriodGenerationDates: [oneDayAhead],
+                amounts: [],
+                budgetAllocationSpend: 0,
+                orders: [],
             },
             {
                 user: new mongoose.Types.ObjectId("650208fc18049ba3425dffeb"),
@@ -82,7 +88,10 @@ const createAdvertisementDocuments = async () => {
                 ],
                 country: seedAdsValues.testValue,
                 displayPeriods: [],
-                nextPeriodGenerationDates: [oneDayAhead]
+                nextPeriodGenerationDates: [oneDayAhead],
+                amounts: [],
+                budgetAllocationSpend: 0,
+                orders: [],
             },
             {
                 user: new mongoose.Types.ObjectId("650208fc18049ba3425dffeb"),
@@ -100,7 +109,10 @@ const createAdvertisementDocuments = async () => {
                 ],
                 country: seedAdsValues.testValue,
                 displayPeriods: [],
-                nextPeriodGenerationDates: [oneDayAhead]
+                nextPeriodGenerationDates: [oneDayAhead],
+                amounts: [],
+                budgetAllocationSpend: 0,
+                orders: [],
             },
         ]
 
@@ -114,7 +126,7 @@ const createAdvertisementDocuments = async () => {
                 startDate: new Date(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 ads: [],
-                isPaused: false
+                payments: []
             },
             {
                 user: new mongoose.Types.ObjectId("650208fc18049ba3425dffeb"),
@@ -125,7 +137,7 @@ const createAdvertisementDocuments = async () => {
                 startDate: new Date(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 ads: [],
-                isPaused: false
+                payments: []
             }
         ]
 
@@ -171,7 +183,7 @@ const createAdvertisementDocuments = async () => {
                 startDate: new Date(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 ads: [],
-                isPaused: false
+                payments: []
             },
             {
                 user: new mongoose.Types.ObjectId("650208fc18049ba3425dffeb"),
@@ -182,7 +194,7 @@ const createAdvertisementDocuments = async () => {
                 startDate: new Date(),
                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
                 ads: [],
-                isPaused: false
+                payments: []
             }
         ]
 

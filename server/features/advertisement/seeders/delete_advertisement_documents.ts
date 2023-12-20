@@ -1,9 +1,9 @@
-import dbConnection from "../../db/dbConnection";
+import dbConnection from "../../../db/dbConnection";
 
 import dotenv from "dotenv";
 dotenv.config();
 import "express-async-errors";
-import { advertisementModels } from "../../features/advertisement";
+import { advertisementModels } from "..";
 
 import seedAdsValues from ".";
 

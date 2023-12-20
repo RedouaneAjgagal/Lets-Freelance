@@ -1,22 +1,9 @@
 import { Router } from "express";
 import authentication from "../../middlewares/authentication";
-import {
-    createCampaign,
-    getCampaignDetails,
-    getCampaigns,
-    updateCampaign,
-    deleteCampaign,
-    createAd,
-    updateAd,
-    deleteAd,
-    displayAds,
-    trackAdEngagement,
-    trackAdClickAction,
-    trackAdOrderAction,
-    createPaymentMethods,
-    getPaymentMethods,
-    deletePaymentMethod
-} from "./advertisement.controller";
+import { createAd, deleteAd, displayAds, updateAd } from "./advertisement.ads.controller";
+import { createCampaign, deleteCampaign, getCampaignDetails, getCampaigns, updateCampaign } from "./advertisement.campaigns.controller";
+import { createPaymentMethods, deletePaymentMethod, getPaymentMethods } from "./advertisement.payments.controller";
+import { trackAdClickAction, trackAdEngagement, trackAdOrderAction } from "./advertisement.performaces.controller";
 
 
 const router = Router();

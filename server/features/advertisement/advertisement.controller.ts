@@ -1677,6 +1677,17 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
     throw new BadRequestError("Inactive ad");
   }
 
+  // check if still a valid display period
+  const currentTime = new Date().getTime();
+  const isValidDisplayPeriod = ad.displayPeriods.some(displayPeriod => {
+    const additionalTime = 15 * 60 * 1000; // 15 min
+    const endTime = new Date(new Date(displayPeriod.endTime).getTime() + additionalTime).getTime();
+    return new Date(displayPeriod.startTime).getTime() <= currentTime && endTime > currentTime;
+  });
+  if (!isValidDisplayPeriod) {
+    throw new BadRequestError("Invalid ad timing");
+  }
+
   // find ad freelancer to check if he doesnt have any unpaid invoices
   const profile = await Profile.findOne({ user: ad.user, userAs: "freelancer" });
   if (!profile) {

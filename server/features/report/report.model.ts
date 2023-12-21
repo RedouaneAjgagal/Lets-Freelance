@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 import { IProfile } from "../profile";
 import { IService } from "../service";
 import { JobType } from "../job";
+import { IUser } from "../auth";
 
-type ReportWithoutRefs = {
-    type: "profile" | "service" | "job";
+export type ReportWithoutRefs = {
+    event: "profile" | "service" | "job";
     subject: string;
     message: string;
 }
 
 export type ReportType = {
+    subbmitedByUser: {
+        _id: mongoose.Types.ObjectId;
+    } & IUser;
     profile: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IProfile>;
@@ -22,7 +26,12 @@ export type ReportType = {
 } & ReportWithoutRefs;
 
 const reportSchema = new mongoose.Schema<ReportType>({
-    type: {
+    subbmitedByUser: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    event: {
         type: String,
         enum: ["profile", "service", "job"],
         required: true
@@ -48,6 +57,8 @@ const reportSchema = new mongoose.Schema<ReportType>({
         type: String,
         maxlength: 500,
     }
+}, {
+    timestamps: true
 });
 
 const Report = mongoose.model("Report", reportSchema);

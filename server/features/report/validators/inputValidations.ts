@@ -63,9 +63,46 @@ const isInvalidMessage = (message: any) => {
     return "";
 }
 
+
+const isInvalidDuration = (duration: any) => {
+    if (!duration || duration.toString().trim() === "") {
+        return "Report duration is required";
+    }
+
+    if (typeof duration !== "string") {
+        return "Invalid report duration format";
+    }
+
+    const validDurations = ["day", "week", "month", "year"];
+    if (!validDurations.includes(duration)) {
+        return "Invalid duration. Can only be `day`, `week`, `month`, or `year`";
+    }
+
+    return "";
+}
+
+const isInvalidSorting = (sort: any) => {
+    if (!sort || sort.toString().trim() === "") {
+        return "Sorting is required";
+    }
+
+    if (typeof sort !== "string") {
+        return "Invalid sorting format";
+    }
+
+    const validSorting = ["newest", "oldest"];
+    if (!validSorting.includes(sort)) {
+        return "Invalid duration. Can only be `newest` or `oldest`";
+    }
+
+    return "";
+}
+
 export {
     isInvalidEvent,
     isInvalidTarget,
     isInvalidSubject,
-    isInvalidMessage
+    isInvalidMessage,
+    isInvalidDuration,
+    isInvalidSorting
 }

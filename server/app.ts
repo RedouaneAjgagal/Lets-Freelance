@@ -33,6 +33,7 @@ import { contractRouter } from "./features/contract";
 import { advertisementRouter } from "./features/advertisement";
 import { stripeRouter } from "./stripe/index";
 import { reportRouter } from "./features/report";
+import { favouriteRouter } from "./features/favourite";
 
 
 // middlewares
@@ -71,6 +72,7 @@ app.use("/api/v1/proposals", proposalRouter);
 app.use("/api/v1/contracts", contractRouter);
 app.use("/api/v1/advertisements", advertisementRouter);
 app.use("/api/v1/reports", reportRouter);
+app.use("/api/v1/favourites", favouriteRouter);
 
 
 // webhooks

@@ -4,11 +4,11 @@ import { IProfile } from "../profile";
 import { IService } from "../service";
 import { JobType } from "../job";
 
-type FavoutiteWithRefs = {
+export type FavoutiteWithRefs = {
     event: "service" | "job" | "profile";
 }
 
-type FavoutiteType = {
+export type FavoutiteType = {
     user: {
         _id: mongoose.Types.ObjectId;
     } & IUser;

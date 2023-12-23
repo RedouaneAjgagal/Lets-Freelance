@@ -17,6 +17,7 @@ import mongoose, { PipelineStage } from "mongoose";
 import "./badge_upgrade/upgrades";
 import searchFreelancersQueryValidator from "./validators/searchQueriesValidator";
 import createHash from "../../utils/createHash";
+import getUserPayload from "../../utils/getUserPayload";
 
 type Freelancer = {
     projectSuccess: number;
@@ -351,6 +352,9 @@ const setPaidConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@route GET /api/v1/profiles/high-rated
 //@access public
 const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { accessToken } = req.signedCookies;
+    const userPayload = getUserPayload({ accessToken });
+
     const category = req.query.category?.toString() as (
         "digital-marketing" |
         "design-creative" |
@@ -403,6 +407,29 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
             }
         },
         {
+            $lookup: {
+                from: "favourites",
+                localField: "_id",
+                foreignField: "target",
+                as: "favourites"
+            }
+        },
+        {
+            $addFields: {
+                isFavourite: {
+                    $size: {
+                        $filter: {
+                            input: "$favourites",
+                            as: "favourite",
+                            cond: {
+                                $eq: ["$$favourite.user", new mongoose.Types.ObjectId(userPayload?.userId)]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
             $limit: LIMIT
         },
         {
@@ -412,10 +439,11 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
                 avatar: 1,
                 category: 1,
                 country: 1,
+                isFavourite: 1,
                 "roles.freelancer.skills": 1,
                 "roles.freelancer.hourlyRate": 1,
                 "rating.avgRate": 1,
-                "rating.numOfReviews": 1
+                "rating.numOfReviews": 1,
             }
         }
     ]);
@@ -428,6 +456,9 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
 //@route GET /api/v1/profiles/freelancers
 //@access public
 const getAllFreelancers: RequestHandler = async (req, res) => {
+    const { accessToken } = req.signedCookies;
+    const userPayload = getUserPayload({ accessToken });
+
     const { badge, rating, country, hourly_rate, category, revenue, english_level, talent_type, search } = req.query;
 
     const match: PipelineStage.Match["$match"] = {
@@ -581,6 +612,29 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "favourites",
+                localField: "_id",
+                foreignField: "target",
+                as: "favourites"
+            }
+        },
+        {
+            $addFields: {
+                isFavourite: {
+                    $size: {
+                        $filter: {
+                            input: "$favourites",
+                            as: "favourite",
+                            cond: {
+                                $eq: ["$$favourite.user", new mongoose.Types.ObjectId(userPayload?.userId)]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 name: 1,
@@ -595,7 +649,8 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
                 "roles.freelancer.jobTitle": 1,
                 "roles.freelancer.englishLevel": 1,
                 "roles.freelancer.types": 1,
-                "roles.freelancer.skills": 1
+                "roles.freelancer.skills": 1,
+                "isFavourite": 1
             }
         },
     ];

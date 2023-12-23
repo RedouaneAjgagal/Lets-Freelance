@@ -2,7 +2,7 @@ import { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { UnauthenticatedError } from "../errors";
 
-type User = {
+export type User = {
     userId: string;
     exp: number;
 }

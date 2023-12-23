@@ -1,11 +1,12 @@
 import express from "express";
 import authentication from "../../middlewares/authentication";
-import { toggleFavourite } from "./favourite.controller";
+import { toggleFavourite, getFavourites } from "./favourite.controller";
 
 
 const router = express.Router();
 
 router.route("/")
+    .get(authentication, getFavourites)
     .post(authentication, toggleFavourite);
 
 

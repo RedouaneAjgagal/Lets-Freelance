@@ -16,7 +16,7 @@ import {
 } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
-import { getFreelancersAnalysis } from "./dashboard/admin.controller";
+import { getEmployersAnalysis, getFreelancersAnalysis } from "./dashboard/admin.controller";
 
 
 const router = Router();
@@ -54,5 +54,6 @@ router.route("/:profileId")
 
 // analytics
 router.get("/analysis/freelancers", authentication, authorization("admin"), getFreelancersAnalysis);
+router.get("/analysis/employers", authentication, authorization("admin"), getEmployersAnalysis);
 
 export default router;

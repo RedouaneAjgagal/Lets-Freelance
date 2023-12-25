@@ -154,6 +154,118 @@ const getFreelancersAnalysis: RequestHandler = async (req: CustomAuthRequest, re
     res.status(StatusCodes.OK).json(profiles);
 }
 
+
+//@desc employers analysis
+//@route GET /api/v1/profiles/analysis/employers
+//@access authrorization (admins, owners)
+const getEmployersAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const [profiles] = await Profile.aggregate([
+        {
+            $match: {
+                userAs: "employer" // get only employers
+            }
+        },
+        {
+            $facet: {
+                "totalEmployers": [
+                    {
+                        $group: {
+                            _id: null,
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ],
+                "spendOnServices": [
+                    {
+                        $lookup: {
+                            from: "contracts",
+                            localField: "_id",
+                            foreignField: "employer.profile",
+                            as: "contracts"
+                        }
+                    },
+                    {
+                        $match: {
+                            contracts: { $ne: [] }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            contracts: {
+                                $filter: {
+                                    input: "$contracts",
+                                    as: "contract",
+                                    cond: {
+                                        $in: ["paid", "$$contract.payments.employer.status"]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $match: {
+                            contracts: { $ne: [] }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 0
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                totalEmployers: {
+                    $first: "$totalEmployers.count"
+                }
+            }
+        },
+        {
+            $addFields: {
+                spendOnServices: {
+                    $first: "$spendOnServices"
+                }
+            }
+        },
+        {
+            $addFields: {
+                spendOnServices: {
+                    percentage: {
+                        $cond: [
+                            {
+                                $eq: ["$totalEmployers", 0]
+                            },
+                            0,
+                            {
+                                $multiply: [
+                                    { $divide: ["$spendOnServices.count", "$totalEmployers"] }
+                                    ,
+                                    100
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(profiles);
+}
+
 export {
-    getFreelancersAnalysis
+    getFreelancersAnalysis,
+    getEmployersAnalysis
 }

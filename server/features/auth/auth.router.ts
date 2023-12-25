@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { register, login, logout, verifyEmail, changeEmail, resetEmail, forgetPassword, resetPassword, createBankAccount, getBankAccounts, addExternalBankAccounts, removeExternalBankAccount, deleteStripeConnectedBankAccount, userInfo } from "./auth.controller";
+import { getCreatedAccounts } from "./dashboard/admin.controller";
 import authentication from "../../middlewares/authentication";
+import authorization from "../../middlewares/authorization";
 
 const router = Router();
 
@@ -21,5 +23,9 @@ router.route("/bank-account")
     .delete(authentication, deleteStripeConnectedBankAccount);
 
 router.delete("/bank-account/:bankAccountId", authentication, removeExternalBankAccount);
+
+
+// authorization
+router.get("/users", authentication, authorization("admin"), getCreatedAccounts);
 
 export default router;

@@ -148,6 +148,13 @@ const getCreatedAccounts: RequestHandler = async (req: CustomAuthRequest, res) =
                     }
                 ]
             }
+        },
+        {
+            $addFields: {
+                totalAccounts: {
+                    $first: "$totalAccounts.count"
+                }
+            }
         }
     ];
 

@@ -92,6 +92,9 @@ const getServicesAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                 ],
                 "ratingServices": [
                     {
+                        $match: match
+                    },
+                    {
                         $addFields: {
                             rateType: {
                                 $cond: [
@@ -139,6 +142,13 @@ const getServicesAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
         },
         {
             $addFields: {
+                totalDurationServices: {
+                    $sum: "$postedAt.count"
+                }
+            }
+        },
+        {
+            $addFields: {
                 ratingServices: {
                     $map: {
                         input: "$ratingServices",
@@ -148,11 +158,11 @@ const getServicesAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                             count: "$$rating.count",
                             percentage: {
                                 $cond: [
-                                    { $eq: ["$totalServices", 0] },
+                                    { $eq: ["$totalDurationServices", 0] },
                                     0,
                                     {
                                         $multiply: [
-                                            { $divide: ["$$rating.count", "$totalServices"] }
+                                            { $divide: ["$$rating.count", "$totalDurationServices"] }
                                             ,
                                             100
                                         ]

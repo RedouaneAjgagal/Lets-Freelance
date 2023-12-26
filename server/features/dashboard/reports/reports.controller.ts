@@ -29,7 +29,7 @@ const getReportAnalysis: RequestHandler = async (req: CustomAuthRequest, res) =>
         dateFormat = getMongodbDateFormat(durationKey);
     }
 
-    const reports = await Report.aggregate([
+    const [reports] = await Report.aggregate([
         {
             $facet: {
                 "totalReports": [

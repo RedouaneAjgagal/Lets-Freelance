@@ -71,6 +71,9 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
                 ],
                 "jobTypes": [
                     {
+                        $match: match
+                    },
+                    {
                         $group: {
                             _id: "$priceType",
                             count: {
@@ -95,6 +98,13 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         {
             $addFields: {
+                totalDurationJobs: {
+                    $sum: "$postedAt.count"
+                }
+            }
+        },
+        {
+            $addFields: {
                 jobTypes: {
                     $map: {
                         input: "$jobTypes",
@@ -104,11 +114,11 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
                             count: "$$jobType.count",
                             percentage: {
                                 $cond: [
-                                    { $eq: ["totalJobs", 0] },
+                                    { $eq: ["totalDurationJobs", 0] },
                                     0,
                                     {
                                         $multiply: [
-                                            { $divide: ["$$jobType.count", "$totalJobs"] }
+                                            { $divide: ["$$jobType.count", "$totalDurationJobs"] }
                                             ,
                                             100
                                         ]

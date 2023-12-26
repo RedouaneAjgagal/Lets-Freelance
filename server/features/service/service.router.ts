@@ -14,6 +14,8 @@ import {
     trendingServices,
     getFreelancerServices
 } from "./service.controller";
+import authorization from "../../middlewares/authorization";
+import { serviceControllers } from "../dashboard";
 
 const router = Router();
 
@@ -42,6 +44,10 @@ router.route("/:serviceId")
 router.route("/:serviceId/order")
     .post(authentication, orderService)
     .get(authentication, setServiceAsPaid);
+
+
+// authorized analysis
+router.get("/analysis/service", authentication, authorization("admin"), serviceControllers.getServicesAnalysis);
 
 
 export default router;

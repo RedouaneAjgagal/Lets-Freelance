@@ -6,6 +6,7 @@ import { getValidDuration } from "../validators/getValidQueries";
 import getDuration from "../utils/getDuration";
 import mongoose from "mongoose";
 import getMongodbDateFormat from "../utils/getMongodbDateFormat";
+import aggregatePercentage from "../utils/aggregatePercentage";
 
 
 //@desc reports analysis (createdAt, report events)
@@ -106,29 +107,10 @@ const getReportAnalysis: RequestHandler = async (req: CustomAuthRequest, res) =>
         },
         {
             $addFields: {
-                reportedEvents: {
-                    $map: {
-                        input: "$reportedEvents",
-                        as: "report",
-                        in: {
-                            _id: "$$report._id",
-                            count: "$$report.count",
-                            percentage: {
-                                $cond: [
-                                    { $eq: ["$totalDurationReports", 0] },
-                                    0,
-                                    {
-                                        $multiply: [
-                                            { $divide: ["$$report.count", "$totalDurationReports"] }
-                                            ,
-                                            100
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
+                reportedEvents: aggregatePercentage({
+                    input: "$reportedEvents",
+                    total: "$totalDurationReports"
+                })
             }
         }
     ]);

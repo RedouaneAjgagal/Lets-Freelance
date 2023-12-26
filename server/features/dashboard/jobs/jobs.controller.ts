@@ -6,6 +6,8 @@ import mongoose from "mongoose";
 import { getValidDuration } from "../validators/getValidQueries";
 import getDuration from "../utils/getDuration";
 import getMongodbDateFormat from "../utils/getMongodbDateFormat";
+import priceLevelJobs from "../utils/priceLevelJobs";
+import aggregatePercentage from "../utils/aggregatePercentage";
 
 
 //@desc jobs analysis (createdAt, job type)
@@ -26,6 +28,30 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
 
         dateFormat = getMongodbDateFormat(durationKey);
+    }
+
+    const getHourlyPrices = (priceLevel: "low" | "mid") => {
+        const { min, max } = priceLevelJobs.hourlyJob[priceLevel];
+        const match: mongoose.PipelineStage.Match["$match"] = {
+            $and: [
+                { $gt: ["$priceAvg", min] },
+                { $lte: ["$priceAvg", max] }
+            ]
+        };
+
+        return match
+    }
+
+    const getFixedPrices = (priceLevel: "low" | "mid" | "high") => {
+        const { min, max } = priceLevelJobs.fixedJob[priceLevel];
+        const match: mongoose.PipelineStage.Match["$match"] = {
+            $and: [
+                { $gt: ["$priceAvg", min] },
+                { $lte: ["$priceAvg", max] }
+            ]
+        };
+
+        return match
     }
 
     const [jobs] = await Job.aggregate([
@@ -86,6 +112,108 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
                             count: -1
                         }
                     }
+                ],
+                "hourlyJobs": [
+                    {
+                        $match: {
+                            $and: [
+                                match,
+                                { priceType: "hourly" }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            priceAvg: {
+                                $divide: [
+                                    { $add: ["$price.min", "$price.max"] }
+                                    ,
+                                    2
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            priceLevel: {
+                                $cond: [
+                                    getHourlyPrices("low"),
+                                    "low",
+                                    {
+                                        $cond: [
+                                            getHourlyPrices("mid"),
+                                            "mid",
+                                            "high"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$priceLevel",
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            count: -1
+                        }
+                    }
+                ],
+                "fixedJobs": [
+                    {
+                        $match: {
+                            $and: [
+                                match,
+                                { priceType: "fixed" }
+                            ]
+                        }
+                    },
+                    {
+                        $addFields: {
+                            priceAvg: "$price.min"
+                        }
+                    },
+                    {
+                        $addFields: {
+                            priceLevel: {
+                                $cond: [
+                                    getFixedPrices("low"),
+                                    "low",
+                                    {
+                                        $cond: [
+                                            getFixedPrices("mid"),
+                                            "mid",
+                                            {
+                                                $cond: [
+                                                    getFixedPrices("high"),
+                                                    "high",
+                                                    "superHigh"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$priceLevel",
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            count: -1
+                        }
+                    }
                 ]
             }
         },
@@ -105,29 +233,40 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         {
             $addFields: {
-                jobTypes: {
-                    $map: {
-                        input: "$jobTypes",
-                        as: "jobType",
-                        in: {
-                            _id: "$$jobType._id",
-                            count: "$$jobType.count",
-                            percentage: {
-                                $cond: [
-                                    { $eq: ["totalDurationJobs", 0] },
-                                    0,
-                                    {
-                                        $multiply: [
-                                            { $divide: ["$$jobType.count", "$totalDurationJobs"] }
-                                            ,
-                                            100
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    }
+                jobTypes: aggregatePercentage({
+                    input: "$jobTypes",
+                    total: "$totalDurationJobs"
+                })
+            }
+        },
+        {
+            $addFields: {
+                totalHourlyJobs: {
+                    $sum: "$hourlyJobs.count"
                 }
+            }
+        },
+        {
+            $addFields: {
+                hourlyJobs: aggregatePercentage({
+                    input: "$hourlyJobs",
+                    total: "$totalHourlyJobs"
+                })
+            }
+        },
+        {
+            $addFields: {
+                totalFixedJobs: {
+                    $sum: "$fixedJobs.count"
+                }
+            }
+        },
+        {
+            $addFields: {
+                fixedJobs: aggregatePercentage({
+                    input: "$fixedJobs",
+                    total: "$totalFixedJobs"
+                })
             }
         }
     ]);

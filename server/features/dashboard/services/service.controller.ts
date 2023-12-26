@@ -7,6 +7,7 @@ import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import mongoose from "mongoose";
 import getDuration from "../utils/getDuration";
 import getRating from "../utils/getRating";
+import aggregatePercentage from "../utils/aggregatePercentage";
 
 
 //@desc services analysis (createdAt, ratings)
@@ -149,29 +150,7 @@ const getServicesAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
         },
         {
             $addFields: {
-                ratingServices: {
-                    $map: {
-                        input: "$ratingServices",
-                        as: "rating",
-                        in: {
-                            _id: "$$rating._id",
-                            count: "$$rating.count",
-                            percentage: {
-                                $cond: [
-                                    { $eq: ["$totalDurationServices", 0] },
-                                    0,
-                                    {
-                                        $multiply: [
-                                            { $divide: ["$$rating.count", "$totalDurationServices"] }
-                                            ,
-                                            100
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
+                ratingServices: aggregatePercentage({ input: "$ratingServices", total: "$totalDurationServices" })
             }
         }
     ]);

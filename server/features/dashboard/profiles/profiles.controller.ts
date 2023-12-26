@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { Profile } from "../../profile";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../../middlewares/authentication";
+import aggregatePercentage from "../utils/aggregatePercentage";
 
 
 //@desc freelancers analysis
@@ -82,6 +83,11 @@ const getFreelancersAnalysis: RequestHandler = async (req: CustomAuthRequest, re
                                 $sum: 1
                             }
                         }
+                    },
+                    {
+                        $sort: {
+                            count: -1
+                        }
                     }
                 ]
             }
@@ -95,30 +101,10 @@ const getFreelancersAnalysis: RequestHandler = async (req: CustomAuthRequest, re
         },
         {
             $addFields: {
-                badges: {
-                    $map: {
-                        input: "$badges",
-                        as: "badge",
-                        in: {
-                            badge: "$$badge._id",
-                            count: "$$badge.count",
-                            percentage: {
-                                $cond: [
-                                    { $eq: ["$totalFreelancers", 0] },
-                                    0,
-                                    {
-                                        $multiply: [
-                                            {
-                                                $divide: ["$$badge.count", { $sum: "$totalFreelancers" }]
-                                            },
-                                            100
-                                        ]
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
+                badges: aggregatePercentage({
+                    input: "$badges",
+                    total: "$totalFreelancers"
+                })
             }
         },
         {

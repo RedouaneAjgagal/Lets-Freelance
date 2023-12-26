@@ -1,8 +1,8 @@
-import ReportModel, { ReportType } from "./report.model";
+import reportModel, { ReportType } from "./report.model";
 import reportRouter from "./report.router";
 
 export {
-    ReportModel,
+    reportModel,
     ReportType,
     reportRouter
 }

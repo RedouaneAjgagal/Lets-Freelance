@@ -1,6 +1,7 @@
 import express from "express";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
+import reportControllers from "../dashboard/reports/reports.controller";
 import {
     createReport,
     getReports
@@ -12,5 +13,7 @@ router.route("/")
     .get(authentication, authorization("admin"), getReports)
     .post(authentication, createReport);
 
+// authorized analysis
+router.get("/analysis/report", authentication, authorization("admin"), reportControllers.getReportAnalysis);
 
 export default router;

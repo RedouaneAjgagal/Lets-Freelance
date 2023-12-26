@@ -1,24 +1,25 @@
 import { StatusCodes } from "http-status-codes";
-import { jobModel as Job } from "../../job";
+import { reportModel as Report } from "../../report";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../../middlewares/authentication";
-import mongoose from "mongoose";
 import { getValidDuration } from "../validators/getValidQueries";
 import getDuration from "../utils/getDuration";
+import mongoose from "mongoose";
 import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 
 
-//@desc jobs analysis (createdAt, job type)
-//@route GET /api/v1/jobs/analysis/job
+//@desc reports analysis (createdAt, report events)
+//@route GET /api/v1/reports/analysis/report
 //@access authorization (admins & owners)
-const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { created_job_duration } = req.query;
+const getReportAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { created_report_duration } = req.query;
 
     const match: mongoose.PipelineStage.Match["$match"] = {};
+
     let dateFormat = "%Y";
 
-    if (created_job_duration) {
-        const durationKey = getValidDuration(created_job_duration.toString());
+    if (created_report_duration) {
+        const durationKey = getValidDuration(created_report_duration.toString());
         const durationDate = getDuration(durationKey);
 
         match.createdAt = {
@@ -28,10 +29,10 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         dateFormat = getMongodbDateFormat(durationKey);
     }
 
-    const [jobs] = await Job.aggregate([
+    const reports = await Report.aggregate([
         {
             $facet: {
-                "totalJobs": [
+                "totalReports": [
                     {
                         $group: {
                             _id: null,
@@ -41,7 +42,7 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
                         }
                     }
                 ],
-                "postedAt": [
+                "reportedAt": [
                     {
                         $match: match
                     },
@@ -69,10 +70,13 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
                         }
                     }
                 ],
-                "jobTypes": [
+                "reportedEvents": [
+                    {
+                        $match: match
+                    },
                     {
                         $group: {
-                            _id: "$priceType",
+                            _id: "$event",
                             count: {
                                 $sum: 1
                             }
@@ -88,27 +92,34 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         {
             $addFields: {
-                totalJobs: {
-                    $first: "$totalJobs.count"
+                totalReports: {
+                    $first: "$totalReports.count"
                 }
             }
         },
         {
             $addFields: {
-                jobTypes: {
+                totalDurationReports: {
+                    $sum: "$reportedAt.count"
+                }
+            }
+        },
+        {
+            $addFields: {
+                reportedEvents: {
                     $map: {
-                        input: "$jobTypes",
-                        as: "jobType",
+                        input: "$reportedEvents",
+                        as: "report",
                         in: {
-                            _id: "$$jobType._id",
-                            count: "$$jobType.count",
+                            _id: "$$report._id",
+                            count: "$$report.count",
                             percentage: {
                                 $cond: [
-                                    { $eq: ["totalJobs", 0] },
+                                    { $eq: ["$totalDurationReports", 0] },
                                     0,
                                     {
                                         $multiply: [
-                                            { $divide: ["$$jobType.count", "$totalJobs"] }
+                                            { $divide: ["$$report.count", "$totalDurationReports"] }
                                             ,
                                             100
                                         ]
@@ -122,12 +133,11 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     ]);
 
-
-    res.status(StatusCodes.OK).json(jobs);
+    res.status(StatusCodes.OK).json(reports);
 }
 
-const jobControllers = {
-    getJobsAnalysis
+const reportControllers = {
+    getReportAnalysis
 }
 
-export default jobControllers;
+export default reportControllers;

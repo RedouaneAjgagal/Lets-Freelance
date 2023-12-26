@@ -10,7 +10,7 @@ import getRating from "../utils/getRating";
 
 
 //@desc services analysis (createdAt, ratings)
-//@route GET /api/v1/services/analysis
+//@route GET /api/v1/services/analysis/service
 //@access authorization (admins & owners)
 const getServicesAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { created_service_duration } = req.query;

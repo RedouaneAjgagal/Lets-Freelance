@@ -1,17 +1,17 @@
 import { StatusCodes } from "http-status-codes";
-import User from "../auth.model";
+import { User } from "../../auth";
 import { CustomAuthRequest } from "../../../middlewares/authentication";
 import { RequestHandler } from "express";
 import mongoose from "mongoose";
-import { getValidDuration } from "./validations/getValidQueries";
-import getDuration from "./utils/getDuration";
+import { getValidDuration } from "../validators/getValidQueries";
+import getDuration from "../utils/getDuration";
 
 
 
 //@desc count users (createdAt, verifiedAt)
 //@route GET /api/v1/auth/users
 //@access authorization (admins & owners)
-const getCreatedAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
+const getUsersAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { created_accounts_duration, verified_accounts_duration } = req.query;
 
     const dateFormat = {
@@ -163,7 +163,8 @@ const getCreatedAccounts: RequestHandler = async (req: CustomAuthRequest, res) =
     res.status(StatusCodes.OK).json(accounts);
 }
 
-
-export {
-    getCreatedAccounts
+const authControllers = {
+    getUsersAnalysis
 }
+
+export default authControllers

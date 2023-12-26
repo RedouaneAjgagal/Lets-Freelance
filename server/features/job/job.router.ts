@@ -19,7 +19,7 @@ router.route("/:jobId")
     .delete(authentication, deleteJob);
 
 
-// authorized analysis
+// authorized analytics
 router.get("/analysis/job", authentication, authorization("admin"), jobControllers.getJobsAnalysis);
 
 

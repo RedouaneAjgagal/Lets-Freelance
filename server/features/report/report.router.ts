@@ -13,7 +13,7 @@ router.route("/")
     .get(authentication, authorization("admin"), getReports)
     .post(authentication, createReport);
 
-// authorized analysis
+// authorized analytics
 router.get("/analysis/report", authentication, authorization("admin"), reportControllers.getReportAnalysis);
 
 export default router;

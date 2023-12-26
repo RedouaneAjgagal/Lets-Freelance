@@ -46,7 +46,7 @@ router.route("/:serviceId/order")
     .get(authentication, setServiceAsPaid);
 
 
-// authorized analysis
+// authorized analytics
 router.get("/analysis/service", authentication, authorization("admin"), serviceControllers.getServicesAnalysis);
 
 

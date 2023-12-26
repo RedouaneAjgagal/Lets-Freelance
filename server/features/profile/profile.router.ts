@@ -16,7 +16,7 @@ import {
 } from "./profile.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
-import { getEmployersAnalysis, getFreelancersAnalysis } from "./dashboard/admin.controller";
+import profileControllers from "../dashboard/profiles/profiles.controller";
 
 
 const router = Router();
@@ -52,8 +52,8 @@ router.route("/:profileId")
     .delete(authentication, authorization("admin"), deleteSingleProfile);
 
 
-// analytics
-router.get("/analysis/freelancers", authentication, authorization("admin"), getFreelancersAnalysis);
-router.get("/analysis/employers", authentication, authorization("admin"), getEmployersAnalysis);
+// authorized analytics
+router.get("/analysis/freelancers", authentication, authorization("admin"), profileControllers.getFreelancersAnalysis);
+router.get("/analysis/employers", authentication, authorization("admin"), profileControllers.getEmployersAnalysis);
 
 export default router;

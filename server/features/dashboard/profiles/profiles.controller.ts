@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import Profile from "../profile.model";
+import { Profile } from "../../profile";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../../middlewares/authentication";
 
@@ -265,7 +265,9 @@ const getEmployersAnalysis: RequestHandler = async (req: CustomAuthRequest, res)
     res.status(StatusCodes.OK).json(profiles);
 }
 
-export {
+const profileControllers = {
     getFreelancersAnalysis,
     getEmployersAnalysis
 }
+
+export default profileControllers;

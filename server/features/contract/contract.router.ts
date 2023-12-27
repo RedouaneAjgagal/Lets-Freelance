@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getContracts, cancelContractRequest, cancelationRequests, completeServiceContract, completeJobContract, cancelContract, submitWorkedHours, payWorkedHours, setAsPaidHours, refundPaidAmount, createRefundRequest, getRefundRequests } from "./contract.controller";
 import authentication from "../../middlewares/authentication";
 import authorization from "../../middlewares/authorization";
+import contractController from "../dashboard/contract/contract.controller";
 
 const router = Router();
 
@@ -32,5 +33,9 @@ router.route("/:contractId/service")
 
 router.route("/:contractId/job")
     .patch(authentication, completeJobContract);
+
+
+// authorized analytics
+router.get("/analysis/contract", authentication, authorization("admin"), contractController.getConctractAnalysis);
 
 export default router;

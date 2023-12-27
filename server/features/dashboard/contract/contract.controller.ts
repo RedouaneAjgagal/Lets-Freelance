@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { proposalModel as Proposal } from "../../proposal";
+import { contractModel as Contract } from "../../contract";
 import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../../middlewares/authentication";
 import mongoose from "mongoose";
@@ -9,19 +9,18 @@ import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import aggregatePercentage from "../utils/aggregatePercentage";
 
 
-
-//@desc proposals analysis (createdAt, status, spent connects)
-//@route GET /api/v1/proposals/analysis/proposal
+//@desc contract analysis (createdAt, activity type, status, cancelation status)
+//@route GET /api/v1/contracts/analysis/contract
 //@access authorization (admins & owners)
-const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { created_proposal_duration } = req.query;
+const getConctractAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { created_contract_duration } = req.query;
 
     const match: mongoose.PipelineStage.Match["$match"] = {};
 
     let dateFormat = "%Y";
 
-    if (created_proposal_duration) {
-        const durationKey = getValidDuration(created_proposal_duration.toString());
+    if (created_contract_duration) {
+        const durationKey = getValidDuration(created_contract_duration.toString());
         const durationDate = getDuration(durationKey);
 
         match.createdAt = {
@@ -31,10 +30,27 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
         dateFormat = getMongodbDateFormat(durationKey);
     }
 
-    const [proposals] = await Proposal.aggregate([
+    const checkContractStatus = (status: "completed" | "canceled" | "inProgress") => {
+        const filters = {
+            completed: "$and",
+            canceled: "$and",
+            inProgress: "$or"
+        } as const;
+
+        const match: mongoose.PipelineStage.Match["$match"] = {
+            [filters[status]]: [
+                { $eq: ["$employer.status", status] },
+                { $eq: ["$freelancer.status", status] }
+            ]
+        }
+
+        return match;
+    }
+
+    const [contracts] = await Contract.aggregate([
         {
             $facet: {
-                "totalProposals": [
+                "totalContracts": [
                     {
                         $group: {
                             _id: null,
@@ -44,7 +60,7 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                         }
                     }
                 ],
-                "postedAt": [
+                "createdContractsAt": [
                     {
                         $match: match
                     },
@@ -72,13 +88,13 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                         }
                     }
                 ],
-                "proposalTypes": [
+                "contractTypes": [
                     {
                         $match: match
                     },
                     {
                         $group: {
-                            _id: "$priceType",
+                            _id: "$activityType",
                             count: {
                                 $sum: 1
                             }
@@ -90,9 +106,21 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                         }
                     }
                 ],
-                "status": [
+                "contractStatus": [
                     {
                         $match: match
+                    },
+                    {
+                        $addFields: {
+                            status: {
+                                $cond: [
+                                    checkContractStatus("canceled"), "canceled",
+                                    {
+                                        $cond: [checkContractStatus("completed"), "completed", "inProgress"]
+                                    }
+                                ]
+                            }
+                        }
                     },
                     {
                         $group: {
@@ -108,51 +136,23 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                         }
                     }
                 ],
-                "boosters": [
-                    {
-                        $match: match
-                    },
-                    {
-                        $addFields: {
-                            hasBoostedProposals: {
-                                $cond: [
-                                    {
-                                        $gte: ["$boostProposal.spentConnects", 1]
-                                    },
-                                    true,
-                                    false
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: "$hasBoostedProposals",
-                            count: {
-                                $sum: 1
-                            }
-                        }
-                    },
-                    {
-                        $sort: {
-                            count: -1
-                        }
-                    }
-                ],
-                "boostersTypes": [
+                "cancellations": [
                     {
                         $match: {
                             $and: [
                                 match,
                                 {
-                                    "boostProposal.spentConnects": { $gte: 1 }
+                                    $or: [
+                                        { "cancelRequest.freelancer.isCancelRequest": { $eq: true } },
+                                        { "cancelRequest.employer.isCancelRequest": { $eq: true } }
+                                    ]
                                 }
                             ]
                         }
                     },
                     {
                         $group: {
-                            _id: "$priceType",
+                            _id: "$cancelRequest.status",
                             count: {
                                 $sum: 1
                             }
@@ -161,26 +161,6 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
                     {
                         $sort: {
                             count: -1
-                        }
-                    }
-                ],
-                "topThreeBoosters": [
-                    {
-                        $match: match
-                    },
-                    {
-                        $sort: {
-                            "boostProposal.spentConnects": -1,
-                            createdAt: -1
-                        }
-                    },
-                    {
-                        $limit: 3
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            connects: "$boostProposal.spentConnects"
                         }
                     }
                 ]
@@ -188,64 +168,50 @@ const getProposalAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
         },
         {
             $addFields: {
-                totalProposals: {
-                    $first: "$totalProposals.count"
+                totalContracts: {
+                    $first: "$totalContracts.count"
                 }
             }
         },
         {
             $addFields: {
-                totalDurationProposals: {
-                    $sum: "$postedAt.count"
+                contractTypes: aggregatePercentage({
+                    input: "$contractTypes",
+                    total: "$totalContracts"
+                })
+            }
+        },
+        {
+            $addFields: {
+                contractStatus: aggregatePercentage({
+                    input: "$contractStatus",
+                    total: "$totalContracts"
+                })
+            }
+        },
+        {
+            $addFields: {
+                totalCancellations: {
+                    $sum: "$cancellations.count"
                 }
             }
         },
         {
             $addFields: {
-                proposalTypes: aggregatePercentage({
-                    input: "$proposalTypes",
-                    total: "$totalDurationProposals"
-                })
-            }
-        },
-        {
-            $addFields: {
-                status: aggregatePercentage({
-                    input: "$status",
-                    total: "$totalDurationProposals"
-                })
-            }
-        },
-        {
-            $addFields: {
-                boosters: aggregatePercentage({
-                    input: "$boosters",
-                    total: "$totalDurationProposals"
-                })
-            }
-        },
-        {
-            $addFields: {
-                totalDurationBoostedTypes: {
-                    $sum: "$boostersTypes.count"
-                }
-            }
-        },
-        {
-            $addFields: {
-                boostersTypes: aggregatePercentage({
-                    input: "$boostersTypes",
-                    total: "$totalDurationBoostedTypes"
+                cancellations: aggregatePercentage({
+                    input: "$cancellations",
+                    total: "$totalCancellations"
                 })
             }
         }
-    ]);
+    ])
 
-    res.status(StatusCodes.OK).json(proposals);
+
+    res.status(StatusCodes.OK).json(contracts);
 }
 
-const proposalControllers = {
-    getProposalAnalysis
+const contractController = {
+    getConctractAnalysis
 }
 
-export default proposalControllers;
+export default contractController;

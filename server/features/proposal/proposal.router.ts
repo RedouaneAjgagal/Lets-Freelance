@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getProposals, createProposal, actionProposal, setAsPaidFixedPriceJob, getFreelancerProposals } from "./proposal.controller";
 import authentication from "../../middlewares/authentication";
+import authorization from "../../middlewares/authorization";
+import proposalControllers from "../dashboard/proposal/proposal.controller";
 
 
 const router = Router();
@@ -17,5 +19,8 @@ router.route("/:proposalId")
 
 router.route("/:proposalId/fixed-job")
     .get(authentication, setAsPaidFixedPriceJob);
+
+// authorized analytics
+router.get("/analysis/proposal", authentication, authorization("admin"), proposalControllers.getProposalAnalysis);
 
 export default router;

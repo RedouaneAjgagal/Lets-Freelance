@@ -4,6 +4,8 @@ import { createAd, deleteAd, displayAds, updateAd } from "./advertisement.ads.co
 import { createCampaign, deleteCampaign, getCampaignDetails, getCampaigns, updateCampaign } from "./advertisement.campaigns.controller";
 import { createPaymentMethods, deletePaymentMethod, getPaymentMethods } from "./advertisement.payments.controller";
 import { trackAdClickAction, trackAdEngagement, trackAdOrderAction } from "./advertisement.performaces.controller";
+import authorization from "../../middlewares/authorization";
+import campaignControllers from "../dashboard/advertisements/campaign.controller";
 
 
 const router = Router();
@@ -41,6 +43,10 @@ router.route("/performace/actions/click")
 router.route("/performace/actions/order")
     .patch(authentication, trackAdOrderAction);
 
+
+
+// authorized analytics
+router.get("/campaigns/analysis/campaign", authentication, authorization("admin"), campaignControllers.getCampaignAnalysis);
 
 
 export default router;

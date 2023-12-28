@@ -175,9 +175,16 @@ const getConctractAnalysis: RequestHandler = async (req: CustomAuthRequest, res)
         },
         {
             $addFields: {
+                totalDurationContracts: {
+                    $sum: "$createdContractsAt.count"
+                }
+            }
+        },
+        {
+            $addFields: {
                 contractTypes: aggregatePercentage({
                     input: "$contractTypes",
-                    total: "$totalContracts"
+                    total: "$totalDurationContracts"
                 })
             }
         },
@@ -185,7 +192,7 @@ const getConctractAnalysis: RequestHandler = async (req: CustomAuthRequest, res)
             $addFields: {
                 contractStatus: aggregatePercentage({
                     input: "$contractStatus",
-                    total: "$totalContracts"
+                    total: "$totalDurationContracts"
                 })
             }
         },

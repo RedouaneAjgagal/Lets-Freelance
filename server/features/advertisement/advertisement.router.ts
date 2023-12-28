@@ -6,6 +6,7 @@ import { createPaymentMethods, deletePaymentMethod, getPaymentMethods } from "./
 import { trackAdClickAction, trackAdEngagement, trackAdOrderAction } from "./advertisement.performaces.controller";
 import authorization from "../../middlewares/authorization";
 import campaignControllers from "../dashboard/advertisements/campaign.controller";
+import adControllers from "../dashboard/advertisements/ads.controller";
 
 
 const router = Router();
@@ -47,6 +48,7 @@ router.route("/performace/actions/order")
 
 // authorized analytics
 router.get("/campaigns/analysis/campaign", authentication, authorization("admin"), campaignControllers.getCampaignAnalysis);
+router.get("/ads/analysis/ad", authentication, authorization("admin"), adControllers.getAdAnalysis);
 
 
 export default router;

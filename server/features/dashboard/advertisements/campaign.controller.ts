@@ -9,8 +9,8 @@ import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import aggregatePercentage from "../utils/aggregatePercentage";
 
 
-//@desc count users (createdAt, verifiedAt)
-//@route GET /api/v1/auth/users
+//@desc get campain analysis (createdAt, active/inactive, campaign budget types, contain ads)
+//@route GET /api/v1/campaigns/analysis/campaign
 //@access authorization (admins & owners)
 const getCampaignAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { created_campaign_duration } = req.query;
@@ -100,7 +100,7 @@ const getCampaignAnalysis: RequestHandler = async (req: CustomAuthRequest, res) 
         return match;
     }
 
-    const campaigns = await advertisementModels.Campaign.aggregate([
+    const [campaigns] = await advertisementModels.Campaign.aggregate([
         {
             $facet: {
                 "totalCampaigns": [

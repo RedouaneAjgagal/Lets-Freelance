@@ -413,11 +413,11 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                 amount: proposal.price,
                 employer: {
                     status: "paid",
-                    paidAt
+                    at: paidAt
                 },
                 freelancer: {
                     status: "pending",
-                    paidAt: undefined
+                    at: paidAt
                 },
                 sessionId: session.id,
                 chargeId

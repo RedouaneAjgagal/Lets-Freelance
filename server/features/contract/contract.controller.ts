@@ -327,7 +327,7 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
 
             payment.freelancer = {
                 status: "paid",
-                paidAt: new Date(Date.now())
+                at: new Date(Date.now())
             }
         }
 
@@ -484,7 +484,7 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             const payment = contract.payments[0];
             payment.freelancer = {
                 status: "paid",
-                paidAt: new Date(Date.now())
+                at: new Date(Date.now())
             }
 
         } else {
@@ -781,12 +781,12 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     // set payments to paid
     payment.employer = {
         status: "paid",
-        paidAt
+        at: paidAt
     }
 
     payment.freelancer = {
         status: "paid",
-        paidAt: new Date(Date.now())
+        at: new Date(Date.now())
     }
 
     // set payment charge id
@@ -901,7 +901,7 @@ const createRefundRequest: RequestHandler = async (req: CustomAuthRequest, res) 
     if (payment.freelancer?.status === "paid") {
         const isFiveDaysPassed = hasPeriodExpired({
             timeInMs: 5 * 24 * 60 * 60 * 1000, // 5 days
-            date: payment.freelancer!.paidAt!.toString()
+            date: payment.freelancer!.at.toString()
         });
 
         // check if the 5 days has been passed since the freelancer get paid
@@ -997,7 +997,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
     // check if the payment has't pass 7 days for hourly price job
     const isExpired = hasPeriodExpired({
         timeInMs: 7 * 24 * 60 * 60 * 1000, // 7 days
-        date: payment.employer.paidAt!.toString()
+        date: payment.employer.at.toString()
     });
 
     if (contract.activityType === "job" && contract.job?.priceType === "hourly" && isExpired) {
@@ -1039,6 +1039,8 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
         reason
     });
 
+
+
     // approve the refund request
     payment.employer.refundRequest = {
         ...payment.employer.refundRequest,
@@ -1047,8 +1049,16 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
 
     // set payment status to refunded if its succeed
     if (refund.status === "succeeded") {
+        const refundedAt = new Date(refund.created * 1000);
+        console.log({
+            stripeCreated: refund.created,
+            refundedAt
+        });
+        
         payment.employer.status = "refunded";
+        payment.employer.at = refundedAt;
         payment.freelancer!.status = "refunded";
+        payment.freelancer!.at = refundedAt;
 
         // check if the contract is a  service or a fixed price job to cancel
         if (contract.activityType === "service" || contract.job?.priceType === "fixed") {

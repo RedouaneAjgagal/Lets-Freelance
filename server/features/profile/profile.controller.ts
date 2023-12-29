@@ -716,7 +716,7 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
                             $filter: {
                                 input: "$paidPayments",
                                 as: "payment",
-                                cond: { $gte: [`$$payment.${profile.userAs}.paidAt`, (new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))] }
+                                cond: { $gte: [`$$payment.${profile.userAs}.at`, (new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))] }
                             },
                         },
                         initialValue: 0,
@@ -736,7 +736,7 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
                             $filter: {
                                 input: "$paidPayments",
                                 as: "payment",
-                                cond: { $gte: [`$$payment.${profile.userAs}.paidAt`, (new Date(Date.now() - 365 * 24 * 60 * 60 * 1000))] }
+                                cond: { $gte: [`$$payment.${profile.userAs}.at`, (new Date(Date.now() - 365 * 24 * 60 * 60 * 1000))] }
                             },
                         },
                         initialValue: 0,

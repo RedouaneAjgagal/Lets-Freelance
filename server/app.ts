@@ -39,6 +39,7 @@ import { favouriteRouter } from "./features/favourite";
 // middlewares
 import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
+import { statementRouter } from "./features/statement";
 
 
 cloudinary.config({
@@ -73,6 +74,7 @@ app.use("/api/v1/contracts", contractRouter);
 app.use("/api/v1/advertisements", advertisementRouter);
 app.use("/api/v1/reports", reportRouter);
 app.use("/api/v1/favourites", favouriteRouter);
+app.use("/api/v1/statements", statementRouter);
 
 
 // webhooks

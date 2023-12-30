@@ -12,6 +12,7 @@ import { contractModel as Contract } from "../contract";
 import sendProposalApprovedEmail from "./services/sendProposalApprovedEmail";
 import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
+import jobFeeTiers from "../job/utils/jobFeeTiers";
 
 
 //@desc get all proposals related to job
@@ -395,6 +396,14 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
         }
     }
 
+    // get freelancer net amount
+    const freelancerNetAmount = jobFeeTiers.getFixedJobFeeTier({
+        amount: proposal.price
+    });
+
+    console.log(paymentIntent.metadata);
+    
+
     const contractInfo = {
         ...refs,
         activityType: "job",
@@ -417,7 +426,8 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                 },
                 freelancer: {
                     status: "pending",
-                    at: paidAt
+                    at: paidAt,
+                    net: freelancerNetAmount
                 },
                 sessionId: session.id,
                 chargeId

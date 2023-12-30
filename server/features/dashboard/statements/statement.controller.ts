@@ -8,25 +8,26 @@ import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import Contract from "../../contract/contract.model";
 
 
-//@desc get service revenues
-//@route GET /api/v1/statements/services
-//@access authorization (owners only)
-const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { payment_duration } = req.query;
+const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "service" | "fixedJob", payment_duration: string | undefined }) => {
 
     const match: mongoose.PipelineStage.Match["$match"] = {
         $and: [
-            { activityType: "service" },
+            { activityType: contractType === "service" ? "service" : "job" },
             { payments: { $ne: [] } }
         ]
     };
+
+    if (contractType === "fixedJob") {
+        match.$and!.push({
+            "job.priceType": "fixed"
+        });
+    }
 
     const durationMatch: mongoose.PipelineStage.Match["$match"] = {
         $and: [{}]
     };
 
     let dateFormat = "%Y";
-
 
     if (payment_duration) {
         const durationKey = getValidDuration(payment_duration!.toString());
@@ -40,11 +41,10 @@ const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res)
         dateFormat = getMongodbDateFormat(durationKey);
     }
 
-
     const aggregateFacet: mongoose.PipelineStage.Facet["$facet"] = {};
 
-
     const status = ["pending", "paid", "refunded"] as const;
+
     status.forEach(status => {
         const facetName = `${status}Payments`;
         const facet: mongoose.PipelineStage.FacetPipelineStage[] = [
@@ -107,19 +107,55 @@ const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res)
         aggregateFacet[facetName] = facet;
     });
 
+    return aggregateFacet;
+}
 
-    const contracts = await Contract.aggregate([
+//@desc get service revenues
+//@route GET /api/v1/statements/services
+//@access authorization (owners only)
+const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { payment_duration } = req.query;
+
+    const facet = getRevenuesFacet({
+        contractType: "service",
+        payment_duration: payment_duration?.toString()
+    });
+
+    const [contracts] = await Contract.aggregate([
         {
-            $facet: aggregateFacet
+            $facet: facet
         }
     ]);
-
 
     res.status(StatusCodes.OK).json(contracts);
 }
 
+
+
+//@desc get job revenues
+//@route GET /api/v1/statements/jobs
+//@access authorization (owners only)
+const getJobStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { payment_duration } = req.query;
+
+    const facet = getRevenuesFacet({
+        contractType: "fixedJob",
+        payment_duration: payment_duration?.toString()
+    });
+
+    const [contracts] = await Contract.aggregate([
+        {
+            $facet: facet
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(contracts);
+}
+
+
 const statementControllers = {
-    getServiceStatements
+    getServiceStatements,
+    getJobStatements
 }
 
 export default statementControllers;

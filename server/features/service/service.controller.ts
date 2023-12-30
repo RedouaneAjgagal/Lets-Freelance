@@ -17,6 +17,7 @@ import sendOrderServiceEmail from "./services/sendOrderServiceEmail";
 import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import { ContractPayments } from "../contract/contract.model";
+import getServicePriceAfterFees from "./utils/getServicePriceAfterFees";
 
 
 
@@ -611,9 +612,12 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
         }
     }
 
-    
+
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const paidAt = new Date(paymentIntent.created * 1000);
+
+    const { freelancerReceiveAmount } = getServicePriceAfterFees({ servicePrice: session.amount_total! / 100 })
+
     const payment: ContractPayments = {
         amount: session.amount_total! / 100,
         employer: {
@@ -622,7 +626,8 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
         },
         freelancer: {
             status: "pending",
-            at: paidAt
+            at: paidAt,
+            net: freelancerReceiveAmount
         },
         sessionId: session.id,
         chargeId: paymentIntent.latest_charge?.toString()

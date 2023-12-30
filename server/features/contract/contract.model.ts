@@ -41,6 +41,10 @@ export type UserPayment = {
     at: Date;
 }
 
+export type FreelancerNet = {
+    net: number;
+}
+
 export type RefundRequest = {
     status: "pending" | "rejected" | "approved";
     subject: string;
@@ -53,7 +57,7 @@ export type ContractPayments = {
     workedHours?: number;
     amount?: number;
     employer?: UserPayment & { refundRequest?: RefundRequest };
-    freelancer?: UserPayment;
+    freelancer?: UserPayment & FreelancerNet;
     sessionId?: string;
     chargeId?: string;
 }
@@ -225,7 +229,11 @@ const contractSchema = new mongoose.Schema<ContractType>({
                         message: "{VALUE} is not supported"
                     }
                 },
-                at: Date
+                at: Date,
+                net: {
+                    type: Number,
+                    default: 0
+                }
             },
             sessionId: {
                 type: String

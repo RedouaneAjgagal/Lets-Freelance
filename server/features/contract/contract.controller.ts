@@ -325,10 +325,8 @@ const completeServiceContract: RequestHandler = async (req: CustomAuthRequest, r
                 }
             });
 
-            payment.freelancer = {
-                status: "paid",
-                at: new Date(Date.now())
-            }
+            payment.freelancer!.status = "paid";
+            payment.freelancer!.at = new Date(Date.now());
         }
 
         // send service contract completed email to the employer
@@ -484,7 +482,8 @@ const completeJobContract: RequestHandler = async (req: CustomAuthRequest, res) 
             const payment = contract.payments[0];
             payment.freelancer = {
                 status: "paid",
-                at: new Date(Date.now())
+                at: new Date(Date.now()),
+                net: freelancerNetAmount
             }
 
         } else {
@@ -778,6 +777,8 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const paidAt = new Date(paymentIntent.created * 1000);
 
+    const freelancerReceiveAmount = Number(session.metadata!.freelancerReceiveAmount) / 100;
+
     // set payments to paid
     payment.employer = {
         status: "paid",
@@ -786,7 +787,8 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     payment.freelancer = {
         status: "paid",
-        at: new Date(Date.now())
+        at: new Date(Date.now()),
+        net: freelancerReceiveAmount
     }
 
     // set payment charge id
@@ -798,7 +800,7 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         userAs: "freelancer",
         email: session.metadata!.freelancerEmail,
         amount: payment.amount!,
-        amountIncludingFees: Number(session.metadata!.freelancerReceiveAmount) / 100,
+        amountIncludingFees: freelancerReceiveAmount,
         feesAmount: undefined,
         feesType: undefined,
         workedHours: payment.workedHours!,
@@ -1054,7 +1056,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
             stripeCreated: refund.created,
             refundedAt
         });
-        
+
         payment.employer.status = "refunded";
         payment.employer.at = refundedAt;
         payment.freelancer!.status = "refunded";

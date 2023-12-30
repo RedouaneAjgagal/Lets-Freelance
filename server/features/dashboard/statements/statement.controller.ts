@@ -40,10 +40,10 @@ const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res)
         dateFormat = getMongodbDateFormat(durationKey);
     }
 
-    
+
     const aggregateFacet: mongoose.PipelineStage.Facet["$facet"] = {};
-    
-    
+
+
     const status = ["pending", "paid", "refunded"] as const;
     status.forEach(status => {
         const facetName = `${status}Payments`;
@@ -77,14 +77,29 @@ const getServiceStatements: RequestHandler = async (req: CustomAuthRequest, res)
                 }
             },
             {
+                $addFields: {
+                    netRevenue: {
+                        $subtract: ["$payment.amount", "$payment.freelancer.net"]
+                    }
+                }
+            },
+            {
                 $group: {
                     _id: "$at",
                     count: {
                         $sum: 1
                     },
-                    amount: {
+                    grossRevenue: {
                         $sum: "$payment.amount"
+                    },
+                    netRevenue: {
+                        $sum: "$netRevenue"
                     }
+                }
+            },
+            {
+                $sort: {
+                    _id: -1
                 }
             }
         ];

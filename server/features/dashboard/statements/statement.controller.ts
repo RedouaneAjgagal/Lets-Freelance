@@ -6,6 +6,7 @@ import { getValidDuration } from "../validators/getValidQueries";
 import getDuration from "../utils/getDuration";
 import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import Contract from "../../contract/contract.model";
+import { Profile } from "../../profile";
 
 
 const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "service" | "fixedJob", payment_duration: string | undefined }) => {
@@ -273,10 +274,115 @@ const getHourlyJobStatements: RequestHandler = async (req: CustomAuthRequest, re
     res.status(StatusCodes.OK).json(contracts);
 }
 
+
+//@desc get connects revenues
+//@route GET /api/v1/statements/connects
+//@access authorization (owners only)
+const getConnectStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { payment_duration } = req.query;
+
+    let dateFormat = "%Y";
+
+    let durationDate: Date | string = "";
+
+    if (payment_duration) {
+        const durationKey = getValidDuration(payment_duration!.toString());
+        durationDate = getDuration(durationKey);
+        dateFormat = getMongodbDateFormat(durationKey);
+    }
+
+    const connects = await Profile.aggregate([
+        {
+            $match: {
+                userAs: "freelancer",
+                "roles.freelancer.connects": {
+                    $ne: undefined
+                },
+                "roles.freelancer.connects.payments": {
+                    $ne: []
+                }
+            }
+        },
+        {
+            $addFields: {
+                paidConnects: {
+                    $filter: {
+                        input: "$roles.freelancer.connects.payments",
+                        as: "payment",
+                        cond: {
+                            $eq: ["$$payment.status", "paid"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $addFields: {
+                paidConnects: {
+                    $map: {
+                        input: {
+                            $filter: {
+                                input: "$paidConnects",
+                                as: "connect",
+                                cond: {
+                                    $gte: ["$$connect.paidAt", durationDate]
+                                }
+                            }
+                        },
+                        as: "connect",
+                        in: {
+                            connectionsCount: "$$connect.connectionsCount",
+                            amountPaid: "$$connect.amountPaid",
+                            at: {
+                                $dateToString: {
+                                    format: dateFormat,
+                                    date: "$$connect.paidAt"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $match: {
+                paidConnects: {
+                    $ne: []
+                }
+            }
+        },
+        {
+            $unwind: "$paidConnects"
+        },
+        {
+            $group: {
+                _id: "$paidConnects.at",
+                paymentsCount: {
+                    $sum: 1
+                },
+                connectionsCount: {
+                    $sum: "$paidConnects.connectionsCount"
+                },
+                netRevenue: {
+                    $sum: "$paidConnects.amountPaid"
+                }
+            }
+        },
+        {
+            $sort: {
+                _id: -1
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(connects);
+}
+
 const statementControllers = {
     getServiceStatements,
     getFixedJobStatements,
-    getHourlyJobStatements
+    getHourlyJobStatements,
+    getConnectStatements
 }
 
 export default statementControllers;

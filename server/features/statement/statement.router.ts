@@ -6,7 +6,8 @@ import authorization from "../../middlewares/authorization";
 const router = express.Router();
 
 router.get("/services", authentication, authorization("owner"), statementControllers.getServiceStatements);
-router.get("/jobs", authentication, authorization("owner"), statementControllers.getJobStatements);
+router.get("/jobs/fixed", authentication, authorization("owner"), statementControllers.getFixedJobStatements);
+router.get("/jobs/hourly", authentication, authorization("owner"), statementControllers.getHourlyJobStatements);
 
 
 export default router;

@@ -401,8 +401,8 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
         amount: proposal.price
     });
 
-    console.log(paymentIntent.metadata);
-    
+    const employerPaidAmount = paymentIntent.amount / 100;
+
 
     const contractInfo = {
         ...refs,
@@ -422,7 +422,8 @@ const setAsPaidFixedPriceJob: RequestHandler = async (req: CustomAuthRequest, re
                 amount: proposal.price,
                 employer: {
                     status: "paid",
-                    at: paidAt
+                    at: paidAt,
+                    net: employerPaidAmount
                 },
                 freelancer: {
                     status: "pending",

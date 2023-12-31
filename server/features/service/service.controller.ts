@@ -616,13 +616,16 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const paidAt = new Date(paymentIntent.created * 1000);
 
-    const { freelancerReceiveAmount } = getServicePriceAfterFees({ servicePrice: session.amount_total! / 100 })
+    const { freelancerReceiveAmount } = getServicePriceAfterFees({ servicePrice: session.amount_total! / 100 });
+
+    const employerPaidAmount = paymentIntent.amount / 100;
 
     const payment: ContractPayments = {
         amount: session.amount_total! / 100,
         employer: {
             status: "paid",
-            at: paidAt
+            at: paidAt,
+            net: employerPaidAmount
         },
         freelancer: {
             status: "pending",

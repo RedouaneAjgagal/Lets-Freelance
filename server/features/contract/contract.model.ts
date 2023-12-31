@@ -39,9 +39,6 @@ export type ContractJob = {
 export type UserPayment = {
     status: "pending" | "paid" | "refunded";
     at: Date;
-}
-
-export type FreelancerNet = {
     net: number;
 }
 
@@ -57,7 +54,7 @@ export type ContractPayments = {
     workedHours?: number;
     amount?: number;
     employer?: UserPayment & { refundRequest?: RefundRequest };
-    freelancer?: UserPayment & FreelancerNet;
+    freelancer?: UserPayment;
     sessionId?: string;
     chargeId?: string;
 }
@@ -208,6 +205,10 @@ const contractSchema = new mongoose.Schema<ContractType>({
                     }
                 },
                 at: Date,
+                net: {
+                    type: Number,
+                    default: 0
+                },
                 refundRequest: {
                     subject: String,
                     reason: String,

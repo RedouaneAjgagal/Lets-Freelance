@@ -585,9 +585,20 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
 
     // set worked hours for a new pending payment
     const amount = workedHours * contract.job!.price;
+    const now = new Date();
     contract.payments.push({
         workedHours,
-        amount
+        amount,
+        freelancer: {
+            status: "pending",
+            at: now,
+            net: 0 // initial net
+        },
+        employer: {
+            status: "pending",
+            at: now,
+            net: 0 // initial net
+        }
     });
 
     await contract.save();
@@ -669,11 +680,12 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const freelancerReceiveAmount = transferToStripeAmount(netAmount);
 
     // create new product on stripe
+    const unitAmount = Number(employerAmount.toFixed(0));
     const product = await stripe.products.create({
         name: `Hourly Job, worked hours: ${payment.workedHours}`,
         default_price_data: {
             currency: "usd",
-            unit_amount: employerAmount,
+            unit_amount: unitAmount,
         },
         metadata: {
             contractId,
@@ -692,7 +704,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         ],
         payment_intent_data: {
-            application_fee_amount: employerAmount - freelancerReceiveAmount,
+            application_fee_amount: unitAmount - freelancerReceiveAmount,
             transfer_data: {
                 // amount: freelancerReceiveAmount,
                 destination: contract.freelancer.user.stripe!.id!
@@ -777,12 +789,15 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent!.toString());
     const paidAt = new Date(paymentIntent.created * 1000);
 
+    const employerPaidAmount = paymentIntent.amount / 100;
+
     const freelancerReceiveAmount = Number(session.metadata!.freelancerReceiveAmount) / 100;
 
     // set payments to paid
     payment.employer = {
         status: "paid",
-        at: paidAt
+        at: paidAt,
+        net: employerPaidAmount
     }
 
     payment.freelancer = {

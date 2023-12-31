@@ -10,12 +10,6 @@ import Contract from "../../contract/contract.model";
 
 const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "service" | "fixedJob", payment_duration: string | undefined }) => {
 
-    const andMatch: mongoose.FilterQuery<any>[] = [
-        { activityType: contractType === "service" ? "service" : "job" },
-        { payments: { $ne: [] } }
-    ];
-
-
     const match: mongoose.PipelineStage.Match["$match"] = {
         $and: [
             { activityType: contractType === "service" ? "service" : "job" },
@@ -24,7 +18,7 @@ const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "s
     };
 
     if (contractType === "fixedJob") {
-        andMatch.push({
+        match.$and!.push({
             "job.priceType": "fixed"
         });
     }
@@ -85,7 +79,7 @@ const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "s
             {
                 $addFields: {
                     netRevenue: {
-                        $subtract: ["$payment.amount", "$payment.freelancer.net"]
+                        $subtract: ["$payment.employer.net", "$payment.freelancer.net"]
                     }
                 }
             },
@@ -96,7 +90,7 @@ const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "s
                         $sum: 1
                     },
                     grossRevenue: {
-                        $sum: "$payment.amount"
+                        $sum: "$payment.employer.net"
                     },
                     netRevenue: {
                         $sum: "$netRevenue"
@@ -267,7 +261,7 @@ const getHourlyJobStatements: RequestHandler = async (req: CustomAuthRequest, re
     });
 
 
-    const contracts = await Contract.aggregate([
+    const [contracts] = await Contract.aggregate([
         {
             $match: match
         },

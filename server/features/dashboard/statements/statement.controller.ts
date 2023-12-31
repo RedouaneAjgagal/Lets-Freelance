@@ -7,6 +7,7 @@ import getDuration from "../utils/getDuration";
 import getMongodbDateFormat from "../utils/getMongodbDateFormat";
 import Contract from "../../contract/contract.model";
 import { Profile } from "../../profile";
+import { advertisementModels } from "../../advertisement";
 
 
 const getRevenuesFacet = ({ contractType, payment_duration }: { contractType: "service" | "fixedJob", payment_duration: string | undefined }) => {
@@ -378,11 +379,118 @@ const getConnectStatements: RequestHandler = async (req: CustomAuthRequest, res)
     res.status(StatusCodes.OK).json(connects);
 }
 
+
+//@desc get advertisement revenues
+//@route GET /api/v1/statements/advertisements
+//@access authorization (owners only)
+const getAdvertisementStatements: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { payment_duration } = req.query;
+
+    let dateFormat = "%Y";
+
+    let durationDate: Date | string = "";
+
+    if (payment_duration) {
+        const durationKey = getValidDuration(payment_duration!.toString());
+        durationDate = getDuration(durationKey);
+        dateFormat = getMongodbDateFormat(durationKey);
+    }
+
+    const facetAggregate: mongoose.PipelineStage.Facet["$facet"] = {};
+    const status = ["unpaid", "paid", "failed"] as const;
+
+    status.forEach(status => {
+        const facetName = `${status}Amount`;
+
+        const facet: mongoose.PipelineStage.FacetPipelineStage[] = [
+            {
+                $addFields: {
+                    payments: {
+                        $filter: {
+                            input: "$payments",
+                            as: "payment",
+                            cond: {
+                                $eq: ["$$payment.status", status]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    payments: { $ne: [] }
+                }
+            },
+            {
+                $addFields: {
+                    payments: {
+                        $map: {
+                            input: {
+                                $filter: {
+                                    input: "$payments",
+                                    as: "payment",
+                                    cond: {
+                                        $gte: ["$$payment.at", durationDate]
+                                    }
+                                }
+                            },
+                            as: "payment",
+                            in: {
+                                amount: "$$payment.amount",
+                                at: {
+                                    $dateToString: {
+                                        format: dateFormat,
+                                        date: "$$payment.at"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $unwind: "$payments"
+            },
+            {
+                $group: {
+                    _id: "$payments.at",
+                    amount: {
+                        $sum: "$payments.amount"
+                    }
+                }
+            }
+        ];
+
+        facetAggregate[facetName] = facet;
+    });
+
+    const advertisements = await advertisementModels.Campaign.aggregate([
+        {
+            $match: {
+                $and: [
+                    {
+                        payments: { $ne: [] }
+                    },
+                    {
+                        payments: { $ne: undefined }
+                    }
+                ]
+            }
+        },
+        {
+            $facet: facetAggregate
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(advertisements);
+}
+
 const statementControllers = {
     getServiceStatements,
     getFixedJobStatements,
     getHourlyJobStatements,
-    getConnectStatements
+    getConnectStatements,
+    getAdvertisementStatements
 }
 
 export default statementControllers;

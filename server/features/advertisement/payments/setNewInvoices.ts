@@ -48,6 +48,7 @@ export const setNewInvoice = async (freelancerCampaigns: FreelancerCampaigns) =>
         paymentIds: freelancerCampaigns.campaigns.map(campaign => campaign.payment._id.toString()),
         userId: freelancerCampaigns.user._id.toString(),
         invoiceId: invoice.id,
+        at: new Date()
     });
 
     await stripe.invoices.pay(invoice.id);

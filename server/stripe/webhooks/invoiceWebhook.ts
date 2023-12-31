@@ -17,6 +17,7 @@ type UpdateCampaign = {
     userId: string;
     campaignIds: string[];
     paymentIds: string[];
+    at: Date
 }
 
 export const updateCampaign = (payload: UpdateCampaign) => {
@@ -42,7 +43,8 @@ export const updateCampaign = (payload: UpdateCampaign) => {
                 update: {
                     $set: {
                         "payments.$[element].status": status[payload.type],
-                        "payments.$[element].invoiceId": payload.invoiceId
+                        "payments.$[element].invoiceId": payload.invoiceId,
+                        "payments.$[element].at": payload.at
                     }
                 },
                 arrayFilters: [
@@ -98,7 +100,8 @@ const invoiceWebhook: RequestHandler = (req, res) => {
                 userId: invoicePaymentSucceeded.metadata!.freelancer_user_id,
                 invoiceId: invoicePaymentSucceeded.id,
                 campaignIds: invoicePaymentSucceeded.lines.data.map(data => data.metadata.campaign_id),
-                paymentIds: invoicePaymentSucceeded.lines.data.map(data => data.metadata.payment_id)
+                paymentIds: invoicePaymentSucceeded.lines.data.map(data => data.metadata.payment_id),
+                at: new Date(invoicePaymentSucceeded.created * 1000)
             });
 
             break;
@@ -110,7 +113,8 @@ const invoiceWebhook: RequestHandler = (req, res) => {
                 userId: invoicePaymentFailed.metadata!.freelancer_user_id,
                 invoiceId: invoicePaymentFailed.id,
                 campaignIds: invoicePaymentFailed.lines.data.map(data => data.metadata.campaign_id),
-                paymentIds: invoicePaymentFailed.lines.data.map(data => data.metadata.payment_id)
+                paymentIds: invoicePaymentFailed.lines.data.map(data => data.metadata.payment_id),
+                at: new Date(invoicePaymentFailed.created * 1000)
             });
 
             setUnpaidInvoiceToProfile({

@@ -9,6 +9,7 @@ router.get("/services", authentication, authorization("owner"), statementControl
 router.get("/jobs/fixed", authentication, authorization("owner"), statementControllers.getFixedJobStatements);
 router.get("/jobs/hourly", authentication, authorization("owner"), statementControllers.getHourlyJobStatements);
 router.get("/connects", authentication, authorization("owner"), statementControllers.getConnectStatements);
+router.get("/advertisements", authentication, authorization("owner"), statementControllers.getAdvertisementStatements);
 
 
 export default router;

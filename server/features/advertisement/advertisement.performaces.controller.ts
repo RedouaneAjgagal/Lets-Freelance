@@ -108,6 +108,7 @@ const trackAdEngagement: RequestHandler = async (req, res) => {
                 campaign!.payments.push({
                     amount: ad.bidAmount,
                     status: "unpaid",
+                    at: new Date(),
                     invoiceId: ""
                 });
             } else {
@@ -259,6 +260,7 @@ const trackAdClickAction: RequestHandler = async (req, res) => {
             campaign!.payments.push({
                 amount: ad.bidAmount,
                 status: "unpaid",
+                at: new Date(),
                 invoiceId: ""
             });
         } else {

@@ -61,7 +61,7 @@ const SingleProfileEmployer = () => {
             <aside>
                 <ContactSection contactType='employer' details={employerDetail} />
             </aside>
-            {/* <ProfileHistory historyType='contract' completedJobs={profile.completedJobs} inProgressJobs={[]} /> */}
+            <ProfileHistory historyType='contract' completedJobs={[]} inProgressJobs={[]} />
         </>
     )
 }

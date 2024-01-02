@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { AiFillStar } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import { ServiceType } from "../../features/profile/services/getSingleProfileInfo";
+import { TrendingServiceType } from "../../features/service/services/getTrendingServices";
 
 interface Props {
-    serviceInfo: ServiceType
+    serviceInfo: TrendingServiceType
 }
 
 const TrendingService = (props: React.PropsWithoutRef<Props>) => {
@@ -12,26 +12,24 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
     const onService = () => {
         navigate("/");
     }
-    console.log(props.serviceInfo);
-    
 
-    const reviews = props.serviceInfo.rating.numOfReviews === 1 ? `(${props.serviceInfo.rating.numOfReviews} Review)` : `(${props.serviceInfo.rating.numOfReviews} Reviews)`
+    const reviews = props.serviceInfo.service.rating.numOfReviews === 1 ? `(${props.serviceInfo.service.rating.numOfReviews} Review)` : `(${props.serviceInfo.service.rating.numOfReviews} Reviews)`;
 
     return (
         <div className="pb-10">
             <button onClick={onService} className="text-left border rounded">
                 <div>
-                    <img src={props.serviceInfo.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
+                    <img src={props.serviceInfo.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
                 </div>
                 <div className="px-3 py-4 flex flex-col gap-2">
-                    <Link to={"/category"} className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceInfo.category}</Link>
-                    <h3 className="text-black font-semibold text-lg">{props.serviceInfo.title}</h3>
+                    <Link to={"/category"} className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceInfo.service.category}</Link>
+                    <h3 className="text-black font-semibold text-lg">{props.serviceInfo.service.title}</h3>
                     <div className="flex items-center gap-2 text-sm">
                         {
-                            props.serviceInfo.rating.avgRate ?
+                            props.serviceInfo.service.rating.avgRate ?
                                 <>
                                     <AiFillStar className="text-yellow-500" />
-                                    <span className="font-semibold text-black">{props.serviceInfo.rating.avgRate || 0}</span>
+                                    <span className="font-semibold text-black">{props.serviceInfo.service.rating.avgRate || 0}</span>
                                     <span className="text-slate-500">{reviews}</span>
                                 </>
                                 :
@@ -46,7 +44,7 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
                             <span>{props.serviceInfo.profile.name}</span>
                         </Link>
                         <div className="text-sm text-slate-600">
-                            <p>Starting at: <span className="text-lg text-black font-medium">${props.serviceInfo.tier.starter.price}</span></p>
+                            <p>Starting at: <span className="text-lg text-black font-medium">${props.serviceInfo.service.tier.starter.price}</span></p>
                         </div>
                     </div>
                 </div>

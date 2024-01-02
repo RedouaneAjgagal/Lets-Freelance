@@ -63,7 +63,7 @@ const SingleProfileFreelancer = () => {
                 <ContactSection contactType="freelancer" details={freelancerDetail} />
                 <ProfileSkills skills={profile.roles.freelancer!.skills} />
             </aside>
-            {/* <ProfileHistory historyType='work' completedJobs={profile.completedJobs} inProgressJobs={profile.inProgressJobs} /> */}
+            <ProfileHistory historyType='work' completedJobs={[]} inProgressJobs={[]} />
         </>
     )
 }

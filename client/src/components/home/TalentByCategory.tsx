@@ -13,8 +13,6 @@ interface Props {
 const TalentByCategory = (props: React.PropsWithoutRef<Props>) => {
     const navigate = useNavigate();
 
-    const services = props.categoryInfo.services === 1 ? `${props.categoryInfo.services} Service` : `${props.categoryInfo.services} Services`
-
     const onCategory = () => {
         navigate("/");
     }
@@ -24,7 +22,6 @@ const TalentByCategory = (props: React.PropsWithoutRef<Props>) => {
             <button onClick={onCategory} className='border p-3 flex flex-col gap-8 rounded text-left w-full overflow-hidden'>
                 <CustomIcon iconSrc={props.categoryInfo.img} iconAlt={props.categoryInfo.category} iconSize={12} highlightPosition="br" />
                 <div className='w-full flex flex-col gap-2'>
-                    <span className='text-slate-600 text-sm'>{services}</span>
                     <h3 className='text-black font-semibold w-36 max-w-full'>{props.categoryInfo.category}</h3>
                 </div>
             </button>

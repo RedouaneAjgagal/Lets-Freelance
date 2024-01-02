@@ -3,8 +3,8 @@ import { BiArrowBack } from 'react-icons/bi'
 import { Link } from 'react-router-dom'
 import Slider from '../../../components/Slider'
 import { SwiperSlide } from 'swiper/react'
-import TrendingService from '../../../components/home/TrendingService'
 import { ServiceType } from '../services/getSingleProfileInfo'
+import Service from './Service'
 
 interface Props {
     services: ServiceType[];
@@ -22,7 +22,7 @@ const ProfileServices = (props: React.PropsWithoutRef<Props>) => {
                 {props.services.length ?
                     <Slider navigationClassName="services" slidesPerView={1} isPagination={false} isAutoPlay={false} >
                         {props.services.map(service => <SwiperSlide tag='li' key={service._id}>
-                            <TrendingService serviceInfo={service} />
+                            <Service serviceInfo={service} />
                         </SwiperSlide>)}
                     </Slider>
                     :

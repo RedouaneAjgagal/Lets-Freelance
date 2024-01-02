@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
-import { TrustedBy, TrendingServicesList, TalentByCategoryList, LatestJobsList, HighestRatedFreelancersList, WhyUsProofList } from "../components/home";
+import { TrustedBy, TrendingServicesList, TalentByCategoryList, HighestRatedFreelancersList, WhyUsProofList } from "../components/home";
 import { BiArrowBack } from "react-icons/bi";
 import { PrimaryLink } from "../layouts/brand";
 
 const Home = () => {
-
 
   return (
     <div className="flex flex-col gap-4">
@@ -35,13 +34,7 @@ const Home = () => {
           <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Categories<BiArrowBack className="rotate-180" /></Link>
           <TalentByCategoryList />
         </section>
-        <section className="bg-purple-100/30 px-4 py-8 flex flex-col gap-3">
-          <h2 className="text-2xl font-semibold text-slate-900">Latest Jobs</h2>
-          <p className="text-slate-500 text-sm leading-relaxed">Know your worth and find the job that qualify your life</p>
-          <Link to={"/"} className="text-black font-semibold flex items-center gap-2 self-start">All Jobs<BiArrowBack className="rotate-180" /></Link>
-          <LatestJobsList />
-        </section>
-        <article className="px-4 flex flex-col gap-3">
+        <article className="px-4 flex flex-col gap-3 bg-purple-100/30 py-6">
           <h2 className="text-2xl font-semibold text-slate-900">A whole world of talent freelancers ready to ship the best content</h2>
           <div>
             <WhyUsProofList />

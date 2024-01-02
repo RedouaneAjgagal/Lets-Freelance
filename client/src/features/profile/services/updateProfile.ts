@@ -32,8 +32,7 @@ export type UpdatedProfileData = {
 }
 
 const updateProfile = async (updatedProfileData: UpdatedProfileData): Promise<AxiosResponse<{ msg: string }>> => {
-    const response = await patchRequest("profile", updatedProfileData);
-    // const data = await response.data();
+    const response = await patchRequest("profiles", updatedProfileData);
     return response;
 }
 

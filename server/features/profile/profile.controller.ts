@@ -66,7 +66,7 @@ const singleProfile: RequestHandler = async (req, res) => {
     }
 
     if (profileData.userAs === "freelancer") {
-        const services = await Service.find({ user: profile.user._id, profile: profile._id }).select("_id featuredImage title category tier.starter.price").populate({ path: "profile", select: "_id name avatar" }).lean();
+        const services = await Service.find({ user: profile.user._id, profile: profile._id }).select("_id featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "_id name avatar" }).lean();
 
         const projectSuccess = await Contract.count({
             "freelancer.user": profile.user._id,

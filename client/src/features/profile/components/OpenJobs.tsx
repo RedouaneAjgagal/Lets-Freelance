@@ -1,24 +1,24 @@
 import JobItem from "../../../components/home/JobItem";
-import { OpenJob } from "./SingleProfileEmployer";
+import { OpenJobType } from "../services/getSingleProfileInfo";
 
 interface Props {
-    jobs: OpenJob[];
+    jobs: OpenJobType[];
 }
 
 const OpenJobs = (props: React.PropsWithoutRef<Props>) => {
     const jobs = props.jobs.map(job => {
         const jobInfo = {
             _id: job._id,
-            employer: job.employer,
+            employer: job.profile,
             title: job.title
         };
 
-        const price = typeof job.price === "number" ? `$${job.price} / fixed` : `$${job.price.start} - $${job.price.end} / hour`;
+        const price = job.priceType === "fixed" ? `$${job.price.max} / fixed` : `$${job.price.min} - $${job.price.max} / hour`;
         const tags = [
             price,
             job.category,
-            job.jobType,
-            job.location
+            job.priceType,
+            job.locationType
         ]
 
         return <JobItem jobInfo={jobInfo} tags={tags} key={job._id} />
@@ -26,9 +26,14 @@ const OpenJobs = (props: React.PropsWithoutRef<Props>) => {
     return (
         <article className='p-4'>
             <h2 className="font-medium text-2xl">Open Jobs</h2>
-            <ul className='mt-4 grid gap-5'>
-                {jobs}
-            </ul>
+            {
+                props.jobs.length ?
+                    <ul className='mt-4 grid gap-5'>
+                        {jobs}
+                    </ul>
+                    :
+                    <p className="mt-4 text-slate-500">Empty..</p>
+            }
         </article>
     )
 }

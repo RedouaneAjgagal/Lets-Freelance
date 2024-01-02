@@ -10,13 +10,13 @@ import ProfileSkills from './ProfileSkills'
 import ProfileHistory from './ProfileHistory'
 import { useQueryClient } from '@tanstack/react-query'
 import useProfileId from '../hooks/useProfileId'
-import { Freelancer, GeneralProfile } from '../services/getSingleProfileInfo'
+import { FreelancerGeneralProfile } from '../services/getSingleProfileInfo'
 import { useAppSelector } from '../../../hooks/redux'
 
 const SingleProfileFreelancer = () => {
     const queryCLient = useQueryClient();
     const profileId = useProfileId();
-    const profile = queryCLient.getQueryData(["singleProfile", profileId]) as (GeneralProfile & Freelancer);
+    const profile = queryCLient.getQueryData(["singleProfile", profileId]) as FreelancerGeneralProfile;
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     const freelancerDetail = {
@@ -33,10 +33,17 @@ const SingleProfileFreelancer = () => {
         name: profile.name,
         avatar: profile.avatar,
         jobTitle: profile.roles.freelancer!.jobTitle,
-        rating: profile.rating,
-        reviews: profile.completedJobs.length,
+        rating: profile.rating.avgRate,
+        reviews: profile.rating.numOfReviews,
         location: profile.country || "Unknown",
         dateOfBirth: profile.roles.freelancer!.dateOfBirth?.toString()
+    }
+
+    const serviceDetail = {
+        projectSuccess: profile.projectSuccess,
+        totalService: profile.totalService,
+        completedService: profile.completedService,
+        inQueueService: profile.inQueueService
     }
 
     const isCurrentUser = userInfo?.profileId === profile._id;
@@ -47,7 +54,7 @@ const SingleProfileFreelancer = () => {
                 <SingleProfileNav isCurrentUser={isCurrentUser} />
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
-            <ServiceDetail freelancerServiceDetail={profile.serviceDetail} />
+            <ServiceDetail freelancerServiceDetail={serviceDetail} />
             <AboutProfile profile='freelancer' content={profile.description || "Freelancer with no description"} />
             <ProfileEducation educations={profile.roles.freelancer!.education} />
             <ProfileExperience experiences={profile.roles.freelancer!.experience} />
@@ -56,7 +63,7 @@ const SingleProfileFreelancer = () => {
                 <ContactSection contactType="freelancer" details={freelancerDetail} />
                 <ProfileSkills skills={profile.roles.freelancer!.skills} />
             </aside>
-            <ProfileHistory historyType='work' completedJobs={profile.completedJobs} inProgressJobs={profile.inProgressJobs} />
+            {/* <ProfileHistory historyType='work' completedJobs={profile.completedJobs} inProgressJobs={profile.inProgressJobs} /> */}
         </>
     )
 }

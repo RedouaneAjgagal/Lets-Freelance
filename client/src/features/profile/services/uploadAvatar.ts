@@ -6,7 +6,7 @@ const uploadAvatar = async (avatar: File): Promise<AxiosResponse<{ avatarURL: st
 
     formData.append("avatar", avatar);
 
-    const response = await postRequest("profile", formData, true);
+    const response = await postRequest("profiles", formData, true);
     return response;
 }
 

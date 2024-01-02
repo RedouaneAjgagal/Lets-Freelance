@@ -8,7 +8,7 @@ interface Props {
         name: string;
         avatar: string;
         jobTitle?: string;
-        rating: number;
+        rating?: number;
         reviews: number;
         location: string;
         dateOfBirth?: string;
@@ -42,8 +42,15 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                         <div className="flex flex-wrap gap-y-2 gap-x-3">
                             <div className="flex items-center flex-wrap gap-2">
                                 <TbStar className="text-lg text-slate-700" />
-                                <span>{props.userInfo.rating.toFixed(1)}</span>
-                                <span>{`(${props.userInfo.reviews} Reviews)`}</span>
+                                {
+                                    props.userInfo.rating ?
+                                        <>
+                                            <span>{props.userInfo.rating}</span>
+                                            <span>{`(${props.userInfo.reviews} Reviews)`}</span>
+                                        </>
+                                        :
+                                        <p>no ratings yet</p>
+                                }
                             </div>
                             <div className="flex items-center flex-wrap gap-2">
                                 <TbLocation className="text-lg text-slate-700" />
@@ -61,7 +68,8 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                     </div>
                 </article>
                 {props.isCurrentUser ?
-                    null :
+                    null
+                    :
                     <div className="flex gap-3">
                         {props.profile === "freelancer" ?
                             <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Invite" onClick={inviteHandler} disabled={false} />

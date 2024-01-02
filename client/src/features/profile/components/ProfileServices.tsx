@@ -4,21 +4,10 @@ import { Link } from 'react-router-dom'
 import Slider from '../../../components/Slider'
 import { SwiperSlide } from 'swiper/react'
 import TrendingService from '../../../components/home/TrendingService'
+import { ServiceType } from '../services/getSingleProfileInfo'
 
 interface Props {
-    services: {
-        _id: string;
-        img: string;
-        category: string;
-        title: string;
-        rate: number;
-        reviews: number;
-        user: {
-            img: string;
-            name: string;
-        };
-        price: number;
-    }[]
+    services: ServiceType[];
 }
 
 const ProfileServices = (props: React.PropsWithoutRef<Props>) => {

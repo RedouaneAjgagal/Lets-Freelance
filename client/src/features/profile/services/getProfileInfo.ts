@@ -57,8 +57,7 @@ export type ProfileInfo = {
 }
 
 const getProfileInfo = async (): Promise<AxiosResponse<ProfileInfo>> => {
-    const response = await getRequest("profile");
-    // const data = await response.data();
+    const response = await getRequest("profiles");
     return response;
 }
 

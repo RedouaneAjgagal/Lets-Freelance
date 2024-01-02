@@ -1,10 +1,5 @@
 import { getRequest } from "../../../services/api";
 
-// type GeneralDummyDetails = {
-//     rating: number;
-//     completedJobs: { title: string; content: string; rate: number }[];
-// }
-
 export type Freelancer = {
     serviceDetail: {
         projectSuccess: number;
@@ -46,7 +41,7 @@ export type Employer = {
 }
 
 export interface IFreelancerRole {
-    dateOfBirth?: Date;
+    dateOfBirth?: string;
     hourlyRate: number;
     jobTitle?: string;
     portfolio?: string;
@@ -71,16 +66,37 @@ export interface IFreelancerRole {
 
 export interface IEmployerRole {
     employees: number;
+    totalJobPosted: number;
     companyName?: string;
     website?: string;
 }
 
+export type OpenJobType = {
+    _id: string;
+    profile: {
+        _id: string;
+        name: string;
+        country: string;
+    };
+    title: string;
+    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    priceType: "fixed" | "hourly";
+    price: {
+        min: number;
+        max: number;
+    };
+    locationType: "remote" | "onsite";
+    createdAt: string;
+}
+
+type RatingType = {
+    avgRate: number | undefined;
+    numOfReviews: number;
+}
+
 export type GeneralProfile = {
     _id: string;
-    user: {
-        _id: string;
-        role: "user" | "admin" | "owner";
-    };
+    user: string;
     name: string;
     avatar: string;
     showProfile: boolean;
@@ -93,20 +109,49 @@ export type GeneralProfile = {
         freelancer: IFreelancerRole | undefined;
         employer: IEmployerRole | undefined;
     };
-    rating: number;
-    completedJobs: {
-        title: string;
-        content: string;
-        rate: number;
-        startDate: string;
-        endDate: string
-    }[];
+    rating: RatingType;
+    createdAt: string;
 }
 
-export type SingleProfile = GeneralProfile & (Freelancer | Employer)
+export type ServiceType = {
+    _id: string;
+    profile: {
+        _id: string;
+        name: string;
+        avatar: string;
+    };
+    title: string;
+    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    featuredImage: string;
+    tier: {
+        starter: {
+            price: number;
+        }
+    }
+    rating: RatingType;
+};
+
+type FreelancerSigleProfile = {
+    services: ServiceType[];
+    projectSuccess: number;
+    totalService: number;
+    completedService: number;
+    inQueueService: number;
+}
+
+type EmployerSignleProfile = {
+    openJobs: OpenJobType[];
+}
+
+export type FreelancerGeneralProfile = GeneralProfile & { userAs: "freelancer"; roles: { freelancer: IFreelancerRole } } & FreelancerSigleProfile;
+
+export type EmployerGeneralProfile = GeneralProfile & { userAs: "employer"; roles: { employer: IEmployerRole } } & EmployerSignleProfile;
+
+export type SingleProfile = FreelancerGeneralProfile | EmployerGeneralProfile;
+
 
 const getSingleProfileInfo = async (profileId: string): Promise<SingleProfile> => {
-    const response = await getRequest(`profile/${profileId}`);
+    const response = await getRequest(`profiles/${profileId}`);
     const data = await response.data;
     return data;
 }

@@ -4,7 +4,7 @@ import AboutProfile from './AboutProfile'
 import OpenJobs from './OpenJobs';
 import ProfileHistory from './ProfileHistory';
 import ContactSection from './ContactSection';
-import { Employer, GeneralProfile } from '../services/getSingleProfileInfo';
+import { EmployerGeneralProfile } from '../services/getSingleProfileInfo';
 import useProfileId from '../hooks/useProfileId';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '../../../hooks/redux';
@@ -24,7 +24,7 @@ export type OpenJob = {
 const SingleProfileEmployer = () => {
     const queryCLient = useQueryClient();
     const profileId = useProfileId();
-    const profile = queryCLient.getQueryData(["singleProfile", profileId]) as (GeneralProfile & Employer);
+    const profile = queryCLient.getQueryData(["singleProfile", profileId]) as EmployerGeneralProfile
 
     const { userInfo } = useAppSelector(state => state.authReducer);
 
@@ -39,11 +39,11 @@ const SingleProfileEmployer = () => {
     const employerHeaderInfo = {
         name: profile.name,
         avatar: profile.avatar,
-        rating: profile.rating,
-        reviews: profile.completedJobs.length,
+        rating: profile.rating.avgRate,
+        reviews: profile.rating.numOfReviews,
         location: profile.country || "Unknown",
     }
-    
+
 
     const isCurrentUser = userInfo?.profileId === profile._id;
 
@@ -61,7 +61,7 @@ const SingleProfileEmployer = () => {
             <aside>
                 <ContactSection contactType='employer' details={employerDetail} />
             </aside>
-            <ProfileHistory historyType='contract' completedJobs={profile.completedJobs} inProgressJobs={[]} />
+            {/* <ProfileHistory historyType='contract' completedJobs={profile.completedJobs} inProgressJobs={[]} /> */}
         </>
     )
 }

@@ -3,7 +3,7 @@
 import useLoginMutation from "../hooks/useLoginMutation";
 
 interface Props {
-    value: "Owner Demo" | "Admin Demo" | "Employee Demo" | "Freelancer Demo"
+    value: "Owner Demo" | "Admin Demo" | "Employer Demo" | "Freelancer Demo"
 }
 
 const DemoButton = (props: React.PropsWithoutRef<Props>) => {

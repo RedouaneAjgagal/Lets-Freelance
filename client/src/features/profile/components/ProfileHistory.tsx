@@ -2,20 +2,12 @@ import HistoryTabList from "./HistoryTabList";
 import CompletedJob from "./CompletedJob";
 import InProgressJob from "./InProgressJob";
 import { useState } from "react";
+import { ProfileReviewsType } from "../services/getProfileReviews";
 
 
 interface Props {
-    completedJobs: {
-        title: string;
-        rate: number;
-        startDate: string;
-        endDate: string;
-        content: string;
-    }[];
-    inProgressJobs: {
-        title: string;
-        startDate: string;
-    }[];
+    completedJobs: ProfileReviewsType["completedReviews"];
+    inProgressJobs: ProfileReviewsType["inProgressReviews"];
     historyType: "work" | "contract";
 }
 
@@ -44,7 +36,7 @@ const ProfileHistory = (props: React.PropsWithoutRef<Props>) => {
                         {workHistoryTab === "completedJobs" && props.completedJobs?.length ?
                             props.completedJobs.map((job, index) => <CompletedJob key={index} jobDetail={job} />)
                             :
-                            props.inProgressJobs.map((job, index) => <InProgressJob key={index} jobDetail={job} isLastJob={props.inProgressJobs?.length === index + 1} />)
+                            props.inProgressJobs.map((review, index) => <InProgressJob key={index} jobDetail={review} activityType={review.job ? "job" : "service"} isLastJob={props.inProgressJobs?.length === index + 1} />)
                         }
                     </ul>
                 </div>

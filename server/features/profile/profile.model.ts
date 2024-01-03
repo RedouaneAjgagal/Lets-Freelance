@@ -188,7 +188,7 @@ const profileSchema = new mongoose.Schema<IProfile>({
             employees: {
                 type: Number,
                 min: 0,
-                default: 10
+                default: 0
             },
             totalJobPosted: {
                 type: Number,

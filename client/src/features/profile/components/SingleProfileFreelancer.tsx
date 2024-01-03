@@ -12,6 +12,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import useProfileId from '../hooks/useProfileId'
 import { FreelancerGeneralProfile } from '../services/getSingleProfileInfo'
 import { useAppSelector } from '../../../hooks/redux'
+import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery'
+import Loading from '../../../components/Loading'
 
 const SingleProfileFreelancer = () => {
     const queryCLient = useQueryClient();
@@ -48,6 +50,8 @@ const SingleProfileFreelancer = () => {
 
     const isCurrentUser = userInfo?.profileId === profile._id;
 
+    const profileHistory = useProfileReviewsQuery();
+
     return (
         <>
             <header>
@@ -63,7 +67,12 @@ const SingleProfileFreelancer = () => {
                 <ContactSection contactType="freelancer" details={freelancerDetail} />
                 <ProfileSkills skills={profile.roles.freelancer!.skills} />
             </aside>
-            <ProfileHistory historyType='work' completedJobs={[]} inProgressJobs={[]} />
+            {
+                profileHistory.isLoading ?
+                    <Loading />
+                    :
+                    <ProfileHistory historyType='work' completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+            }
         </>
     )
 }

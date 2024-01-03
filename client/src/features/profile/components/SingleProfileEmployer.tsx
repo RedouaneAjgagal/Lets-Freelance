@@ -8,6 +8,8 @@ import { EmployerGeneralProfile } from '../services/getSingleProfileInfo';
 import useProfileId from '../hooks/useProfileId';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '../../../hooks/redux';
+import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery';
+import Loading from '../../../components/Loading';
 
 export type OpenJob = {
     _id: string;
@@ -47,6 +49,8 @@ const SingleProfileEmployer = () => {
 
     const isCurrentUser = userInfo?.profileId === profile._id;
 
+    const profileHistory = useProfileReviewsQuery();
+
     return (
         <>
             <header>
@@ -61,7 +65,12 @@ const SingleProfileEmployer = () => {
             <aside>
                 <ContactSection contactType='employer' details={employerDetail} />
             </aside>
-            <ProfileHistory historyType='contract' completedJobs={[]} inProgressJobs={[]} />
+            {
+                profileHistory.isLoading ?
+                    <Loading />
+                    :
+                    <ProfileHistory historyType='contract' completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+            }
         </>
     )
 }

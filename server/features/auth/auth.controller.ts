@@ -379,7 +379,7 @@ const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Found no user");
     }
 
-    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate });
+    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate, userAs: profile.userAs });
 }
 
 

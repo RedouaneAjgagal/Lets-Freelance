@@ -36,6 +36,12 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         if (props.isMenuOpen) userMenuRef.current!.scroll({ top: 0 });
     }, [props.isMenuOpen]);
 
+
+    const dashboardNavigator = () => {
+        navigate("/profile/dashboard");
+        closeMenuHandler();
+    }
+
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
@@ -51,7 +57,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     </div>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
+                    <UserMenuLink onClick={dashboardNavigator} isActive={false}>
                         <TbSmartHome className="text-2xl" />Dashboard
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>

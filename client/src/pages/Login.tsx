@@ -5,7 +5,7 @@ import { useAppSelector } from "../hooks/redux";
 const Login = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
     return (
-        userInfo ? <Navigate to="/profile/settings" />
+        userInfo ? <Navigate to="/profile/dashboard" />
             :
             <main className="flex flex-col gap-8 px-2 pt-8 pb-20 bg-purple-100/50">
                 <article className="text-center flex flex-col gap-2">

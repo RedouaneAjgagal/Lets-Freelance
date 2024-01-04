@@ -7,6 +7,7 @@ export type User = {
     userName: string;
     avatar: string;
     expirationDate: number;
+    userAs: "freelancer" | "employer";
 }
 
 const getCurrentUserRequest = async (): Promise<AxiosResponse<User>> => {

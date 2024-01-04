@@ -13,7 +13,7 @@ const useLoginMutation = () => {
         onSuccess: ({ data }) => {
             toast.success(data.msg);
             currentUserMutation.mutate();
-            navigate("/");
+            navigate("/profile/dashboard");
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong!";

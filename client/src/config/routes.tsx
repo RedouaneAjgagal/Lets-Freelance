@@ -7,6 +7,7 @@ import ForgetPassword from "../pages/ForgetPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
 import { Settings, ResetEmail, SingleProfile, Dashboard } from "../pages/profile";
+import AuthenticatedRoute from "../components/AuthenticatedRoute";
 
 const router = createBrowserRouter([
     {
@@ -39,11 +40,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "profile/settings",
-                element: <Settings />
+                element: <AuthenticatedRoute element={Settings} />
             },
             {
                 path: "profile/settings/reset-email",
-                element: <ResetEmail />
+                element: <AuthenticatedRoute element={ResetEmail} />
             },
             {
                 path: "profiles/:profileId",
@@ -51,7 +52,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "profile/dashboard",
-                element: <Dashboard />
+                element: <AuthenticatedRoute element={Dashboard} />
             }
         ]
     }

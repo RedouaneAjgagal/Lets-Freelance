@@ -9,8 +9,8 @@ type DashboardCardType = {
 
 const DashboardCard = (props: React.PropsWithoutRef<DashboardCardType>) => {
     return (
-        <li className='flex items-center justify-between p-4 bg-white rounded shadow-sm'>
-            <div>
+        <li className='flex items-center justify-between gap-6 p-4 bg-white rounded shadow-sm'>
+            <div className='flex flex-col gap-1'>
                 <p className='font-medium text-slate-600'>{props.cardTitle}</p>
                 <span className='text-slate-800 text-lg font-bold'>{props.value}</span>
             </div>

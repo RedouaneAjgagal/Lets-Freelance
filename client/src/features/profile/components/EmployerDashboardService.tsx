@@ -1,5 +1,5 @@
 import { EmployerReportsType } from "../services/getEmployerReports"
-import DashboardCard from "./DashboardCard"
+import DashboardCardContainer from "./DashboardCardContainer";
 
 type EmployerDashboardServiceType = {
     serviceDetails: EmployerReportsType["service"];
@@ -25,12 +25,7 @@ const EmployerDashboardService = (props: React.PropsWithoutRef<EmployerDashboard
     ];
 
     return (
-        <article className="flex flex-col gap-2">
-            <h2 className="text-xl text-slate-800 font-semibold">Services</h2>
-            <ul className="flex flex-col flex-wrap gap-4">
-                {serviceDetails.map((service, index) => <DashboardCard cardTitle={service.title} value={service.value} iconUrl={service.iconUrl} key={index} />)}
-            </ul>
-        </article>
+        <DashboardCardContainer cardsDetails={serviceDetails} sectionTitle="Services" />
     )
 }
 

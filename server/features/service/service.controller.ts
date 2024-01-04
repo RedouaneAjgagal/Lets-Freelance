@@ -402,6 +402,11 @@ const getFreelancerServices: RequestHandler = async (req: CustomAuthRequest, res
             }
         },
         {
+            $sort: {
+                createdAt: -1
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 title: 1,

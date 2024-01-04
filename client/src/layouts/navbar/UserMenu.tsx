@@ -42,6 +42,11 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         closeMenuHandler();
     }
 
+    const freelancerServicesNavigator = () => {
+        navigate("/profile/services");
+        closeMenuHandler();
+    }
+
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
@@ -60,7 +65,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     <UserMenuLink onClick={dashboardNavigator} isActive={false}>
                         <TbSmartHome className="text-2xl" />Dashboard
                     </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
+                    <UserMenuLink onClick={freelancerServicesNavigator} isActive={false}>
                         <TbBriefcase className="text-2xl" />My Services
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>

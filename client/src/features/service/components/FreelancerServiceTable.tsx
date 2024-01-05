@@ -1,6 +1,6 @@
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { FreelancerServiceType } from "../services/getFreelancerServices"
-import { TbCategory, TbCalendar, TbEye } from 'react-icons/tb'
+import { TbCategory, TbCalendar } from 'react-icons/tb'
 
 type FreelancerServiceTableProps = {
     service: FreelancerServiceType;

@@ -8,6 +8,7 @@ import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
 import { Settings, ResetEmail, SingleProfile, Dashboard } from "../pages/profile";
 import { FreelancerServices } from "../pages/service";
+import { FreelancerProposals } from "../pages/proposal";
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 
 const router = createBrowserRouter([
@@ -56,8 +57,12 @@ const router = createBrowserRouter([
                 element: <AuthenticatedRoute element={Dashboard} />
             },
             {
-                path: "profile/services",
+                path: "profile/freelancer/services",
                 element: <AuthenticatedRoute element={FreelancerServices} accessBy="freelancer" />
+            },
+            {
+                path: "profile/freelancer/proposals",
+                element: <AuthenticatedRoute element={FreelancerProposals} accessBy="freelancer" />
             }
         ]
     }

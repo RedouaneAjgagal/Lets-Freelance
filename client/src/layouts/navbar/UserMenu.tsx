@@ -1,5 +1,5 @@
 import { User, useLogoutMutation } from "../../features/auth";
-import { TbSmartHome, TbFileDollar, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX } from "react-icons/tb";
+import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX } from "react-icons/tb";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Overlay from "../Overlay";
@@ -52,6 +52,11 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         closeMenuHandler();
     }
 
+    const statementsNavigator = () => {
+        navigate("/profile/statements");
+        closeMenuHandler();
+    }
+
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
@@ -74,15 +79,12 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                         <TbBriefcase className="text-2xl" />My Services
                     </UserMenuLink>
                     <UserMenuLink onClick={freelancerProposalsNavigator} isActive={false}>
-                        <TbFileDollar className="text-2xl" />Proposals
-                    </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
-                        <TbChecklist className="text-2xl" />Jobs Applied
+                        <TbChecklist className="text-2xl" />Proposals
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>
                         <TbMessage className="text-2xl" />Messages
                     </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
+                    <UserMenuLink onClick={statementsNavigator} isActive={false}>
                         <TbAppWindow className="text-2xl" />Statements
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>

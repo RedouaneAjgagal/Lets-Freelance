@@ -689,7 +689,7 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
         throw new UnauthenticatedError("Found no user");
     }
 
-    const aggregateStatements = await Contract.aggregate([
+    const [aggregateStatements] = await Contract.aggregate([
         {
             $match: {
                 [`${profile.userAs}.profile`]: profile._id // find only contracts related to this user
@@ -848,7 +848,9 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
         },
         {
             $project: {
-                allPayments: 0
+                allPayments: 0,
+                "payments.employer.refundRequest": 0,
+                "payments.freelancer.net": 0
             }
         }
     ]);

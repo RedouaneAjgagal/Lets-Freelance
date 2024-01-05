@@ -6,7 +6,7 @@ import Login from "../pages/Login";
 import ForgetPassword from "../pages/ForgetPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
-import { Settings, ResetEmail, SingleProfile, Dashboard } from "../pages/profile";
+import { Settings, ResetEmail, SingleProfile, Dashboard, Statements } from "../pages/profile";
 import { FreelancerServices } from "../pages/service";
 import { FreelancerProposals } from "../pages/proposal";
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
@@ -55,6 +55,10 @@ const router = createBrowserRouter([
             {
                 path: "profile/dashboard",
                 element: <AuthenticatedRoute element={Dashboard} />
+            },
+            {
+                path: "profile/statements",
+                element: <AuthenticatedRoute element={Statements} />
             },
             {
                 path: "profile/freelancer/services",

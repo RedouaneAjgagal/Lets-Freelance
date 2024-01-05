@@ -1,25 +1,22 @@
 import { FreelancerServicesType } from "../services/getFreelancerServices";
 import FreelancerServiceTable from "./FreelancerServiceTable";
+import TableHead from "../../../components/TableHead";
 
 type FreelancerServicesTableProps = {
   services: FreelancerServicesType;
 };
 
+
 const FreelancerServicesTable = (props: React.PropsWithoutRef<FreelancerServicesTableProps>) => {
+
+  const tableHeads = ["Title", "In Queue", "Total Revenue", "Actions"];
 
   return (
     <section className='bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-2'>
       {
         props.services.length ?
           <table className="text-left w-full">
-            <thead className="">
-              <tr className="">
-                <th className="min-w-[14rem] p-2 pb-4">Title</th>
-                <th className="min-w-[12rem] p-2 pb-4">In Queue</th>
-                <th className="min-w-[12rem] p-2 pb-4">Total Revenue</th>
-                <th className="min-w-[12rem] p-2 pb-4">Actions</th>
-              </tr>
-            </thead>
+            <TableHead tableHeads={tableHeads} />
             <tbody>
               {props.services.map(service => <FreelancerServiceTable service={service} key={service._id} />)}
             </tbody>

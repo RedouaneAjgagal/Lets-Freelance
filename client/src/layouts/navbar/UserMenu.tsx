@@ -43,7 +43,12 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
     }
 
     const freelancerServicesNavigator = () => {
-        navigate("/profile/services");
+        navigate("/profile/freelancer/services");
+        closeMenuHandler();
+    }
+
+    const freelancerProposalsNavigator = () => {
+        navigate("/profile/freelancer/proposals");
         closeMenuHandler();
     }
 
@@ -68,7 +73,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     <UserMenuLink onClick={freelancerServicesNavigator} isActive={false}>
                         <TbBriefcase className="text-2xl" />My Services
                     </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
+                    <UserMenuLink onClick={freelancerProposalsNavigator} isActive={false}>
                         <TbFileDollar className="text-2xl" />Proposals
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>

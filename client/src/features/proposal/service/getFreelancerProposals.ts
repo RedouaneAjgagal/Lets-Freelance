@@ -1,14 +1,14 @@
 import { getRequest } from "../../../services/api";
 import { Category } from "../../profile/helpers/getFormatedCategory";
 
-type FreelancerProposalJobType = {
+export type FreelancerProposalJobType = {
     _id: string;
     title: string;
     category: Category;
     locationType: "remote" | "onsite";
 }
 
-type FreelancerProposalType = {
+export type FreelancerProposalType = {
     _id: string;
     job: FreelancerProposalJobType;
     coverLetter: string;
@@ -21,7 +21,7 @@ type FreelancerProposalType = {
     createdAt: string;
 }
 
-type FreelancerProposalsType = FreelancerProposalType[];
+export type FreelancerProposalsType = FreelancerProposalType[];
 
 
 const getFreelancerProposals = async () => {

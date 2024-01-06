@@ -5,6 +5,8 @@ import profileSkillsReducer from "./redux/profileSkills";
 import ResetEmailForm from "./components/ResetEmailForm";
 import useProfileInfoQuery from "./hooks/useProfileInfoQuery";
 import useProfileStatementsQuery from "./hooks/useProfileStatementsQuery";
+import StatementsCards from "./components/StatementsCards";
+import StatementsPayments from "./components/StatementsPayments";
 
 export {
     PublicProfileForm,
@@ -13,5 +15,7 @@ export {
     profileSkillsReducer,
     ResetEmailForm,
     useProfileInfoQuery,
-    useProfileStatementsQuery
+    useProfileStatementsQuery,
+    StatementsCards,
+    StatementsPayments
 }

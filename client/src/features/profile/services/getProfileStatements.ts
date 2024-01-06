@@ -1,12 +1,11 @@
-import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api";
 
-type UserStatus = {
+export type UserStatus = {
     status: "paid" | "pending" | "refunded";
     at: string;
 }
 
-type ProfileStatementsPaymentType = {
+export type ProfileStatementsPaymentType = {
     _id: string;
     activityType: "service" | "job";
     projectType: "hourly" | "fixed";
@@ -15,10 +14,10 @@ type ProfileStatementsPaymentType = {
     freelancer: UserStatus;
 }
 
-type ProfileStatementsType = {
+export type ProfileStatementsType = {
     _id: string;
     oneMonthPayments: number;
-    oneYearPaymets: number;
+    oneYearPayments: number;
     total: number;
     pendingPayments: number;
     payments: ProfileStatementsPaymentType[];
@@ -26,7 +25,7 @@ type ProfileStatementsType = {
 
 const getProfileStatements = async () => {
     const response = await getRequest("profiles/statements");
-    const profileStatements: AxiosResponse<ProfileStatementsType> = await response.data;
+    const profileStatements = await response.data as ProfileStatementsType;
     return profileStatements;
 };
 

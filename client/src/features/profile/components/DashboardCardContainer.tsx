@@ -1,4 +1,4 @@
-import DashboardCard from "./DashboardCard";
+import Card from "./Card";
 
 type DashboardCardContainerProps = {
     sectionTitle: string;
@@ -14,7 +14,7 @@ const DashboardCardContainer = (props: React.PropsWithoutRef<DashboardCardContai
         <article className="flex flex-col gap-2">
             <h2 className="text-xl text-slate-800 font-semibold">{props.sectionTitle}</h2>
             <ul className="flex flex-col flex-wrap gap-4">
-                {props.cardsDetails.map((card, index) => <DashboardCard cardTitle={card.title} value={card.value} iconUrl={card.iconUrl} key={index} />)}
+                {props.cardsDetails.map((card, index) => <Card cardTitle={card.title} value={card.value} iconUrl={card.iconUrl} key={index} />)}
             </ul>
         </article>
     )

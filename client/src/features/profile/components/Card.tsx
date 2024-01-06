@@ -1,13 +1,13 @@
 import React from 'react'
 import CustomIcon from '../../../components/CustomIcon';
 
-type DashboardCardType = {
+type CardType = {
     cardTitle: string;
     value: number | string;
     iconUrl: string;
 }
 
-const DashboardCard = (props: React.PropsWithoutRef<DashboardCardType>) => {
+const Card = (props: React.PropsWithoutRef<CardType>) => {
     return (
         <li className='flex items-center justify-between gap-6 p-4 bg-white rounded shadow-sm'>
             <div className='flex flex-col gap-1'>
@@ -21,4 +21,4 @@ const DashboardCard = (props: React.PropsWithoutRef<DashboardCardType>) => {
     )
 }
 
-export default DashboardCard
+export default Card

@@ -730,7 +730,7 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
         {
             // get one year payments
             $addFields: {
-                oneYearPaymets: {
+                oneYearPayments: {
                     $reduce: {
                         input: {
                             $filter: {
@@ -821,8 +821,8 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
                 oneMonthPayments: {
                     $sum: "$oneMonthPayments"
                 },
-                oneYearPaymets: {
-                    $sum: "$oneYearPaymets"
+                oneYearPayments: {
+                    $sum: "$oneYearPayments"
                 },
                 total: {
                     $sum: "$total"
@@ -855,7 +855,17 @@ const getProfileStatements: RequestHandler = async (req: CustomAuthRequest, res)
         }
     ]);
 
-    res.status(StatusCodes.OK).json(aggregateStatements);
+    // if the user have no contracts yet then return default values
+    const noResults = {
+        _id: "",
+        oneMonthPayments: 0,
+        oneYearPayments: 0,
+        total: 0,
+        pendingPayments: 0,
+        payments: []
+    }
+
+    res.status(StatusCodes.OK).json(aggregateStatements || noResults);
 }
 
 

@@ -1,5 +1,4 @@
 import PaymentsStatus from "../../../components/PaymentsStatus";
-import Status from "../../../components/Status";
 import { useAppSelector } from "../../../hooks/redux";
 import { ProfileStatementsPaymentType } from "../services/getProfileStatements";
 

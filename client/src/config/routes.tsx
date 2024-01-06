@@ -9,6 +9,8 @@ import VerifyEmail from "../pages/VerifyEmail";
 import { Settings, ResetEmail, SingleProfile, Dashboard, Statements } from "../pages/profile";
 import { FreelancerServices } from "../pages/service";
 import { FreelancerProposals } from "../pages/proposal";
+import { Favorites } from "../pages/favorites";
+
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 
 const router = createBrowserRouter([
@@ -59,6 +61,10 @@ const router = createBrowserRouter([
             {
                 path: "profile/statements",
                 element: <AuthenticatedRoute element={Statements} />
+            },
+            {
+                path: "profile/favorites",
+                element: <AuthenticatedRoute element={Favorites} />
             },
             {
                 path: "profile/freelancer/services",

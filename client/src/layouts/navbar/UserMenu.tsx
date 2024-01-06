@@ -1,5 +1,5 @@
 import { User, useLogoutMutation } from "../../features/auth";
-import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX } from "react-icons/tb";
+import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart } from "react-icons/tb";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Overlay from "../Overlay";
@@ -57,6 +57,11 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         closeMenuHandler();
     }
 
+    const favouritesNavigator = () => {
+        navigate("/profile/favorites");
+        closeMenuHandler();
+    }
+
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
@@ -80,6 +85,9 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     </UserMenuLink>
                     <UserMenuLink onClick={freelancerProposalsNavigator} isActive={false}>
                         <TbChecklist className="text-2xl" />Proposals
+                    </UserMenuLink>
+                    <UserMenuLink onClick={favouritesNavigator} isActive={false}>
+                        <TbHeart className="text-2xl" />Favorites
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>
                         <TbMessage className="text-2xl" />Messages

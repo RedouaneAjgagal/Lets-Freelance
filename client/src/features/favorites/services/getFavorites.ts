@@ -19,6 +19,7 @@ export type FavoriteService = {
                 price: number;
             };
         };
+        rating: Rating;
     };
     serviceBy: {
         _id: string;

@@ -228,6 +228,7 @@ const getFavourites: RequestHandler = async (req: CustomAuthRequest, res) => {
                 "service.category": 1,
                 "service.featuredImage": 1,
                 "service.tier.starter.price": 1,
+                "service.rating": 1,
                 "serviceBy._id": 1,
                 "serviceBy.name": 1,
                 "serviceBy.avatar": 1,

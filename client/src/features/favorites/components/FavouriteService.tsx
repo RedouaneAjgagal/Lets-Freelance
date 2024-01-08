@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { FavoriteService } from "../services/getFavorites"
 import { AiFillStar, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import Badges from "../../../layouts/brand/Badges";
+import useFavoritesMutation from "../hooks/useFavoritesMutation";
 
 type FavoriteServiceType = {
   serviceDetails: FavoriteService;
@@ -11,6 +12,7 @@ type FavoriteServiceType = {
 };
 
 const FavouriteService = (props: React.PropsWithoutRef<FavoriteServiceType>) => {
+  const favoritesMutation = useFavoritesMutation();
 
   const serviceNavigator = () => {
     console.log({ to: props.serviceDetails.service._id });
@@ -18,7 +20,10 @@ const FavouriteService = (props: React.PropsWithoutRef<FavoriteServiceType>) => 
 
   const favoriteServiceToggle = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
-    console.log({ favorite: props.serviceDetails.service._id });
+    favoritesMutation.mutate({
+      event: "service",
+      target: props.serviceDetails.service._id
+    });
   }
 
   const [firstName, secondName] = props.serviceDetails.serviceBy.name.split(" ");

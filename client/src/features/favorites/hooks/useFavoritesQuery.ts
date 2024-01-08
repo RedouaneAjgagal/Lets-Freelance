@@ -6,7 +6,7 @@ const useFavoritesQuery = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     const favoritesQuery = useQuery({
-        queryKey: ["favorites", userInfo!.profileId],
+        queryKey: ["favorites", "services", userInfo!.profileId],
         queryFn: getFavorites,
         retry: false,
         refetchOnWindowFocus: false

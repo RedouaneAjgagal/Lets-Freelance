@@ -11,7 +11,7 @@ const Favorites = () => {
                 favorites.isLoading ?
                     <Loading />
                     :
-                    <FavoritesContainer />
+                    <FavoritesContainer favorites={favorites.data!} />
             }
         </main>
     )

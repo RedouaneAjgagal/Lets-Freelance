@@ -10,13 +10,12 @@ const useFavoritesMutation = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     const favoritesMutation = useMutation({
-        // mutationKey: ["setFavorite"],
         mutationFn: toggleFavorite,
         onSuccess: (data) => {
             toast.success(data.msg, {
                 id: "setFavoriteSuccess"
             });
-            queryClient.invalidateQueries({ queryKey: ["favorites", "services", userInfo!.profileId] });
+            queryClient.invalidateQueries({ queryKey: ["favorites", userInfo!.profileId] });
         },
         onError: (e: AxiosError<{ msg: string }>) => {
             toast.error(e.response!.data.msg, {

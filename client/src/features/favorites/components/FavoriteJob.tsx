@@ -3,12 +3,14 @@ import { FavoriteJobType } from "../services/getFavorites"
 import JobDetails from "./JobDetails";
 import formatPostedTime from "../../../utils/formatPostedTime";
 import FavoriteHeartButton from "../../../components/FavoriteHeartButton";
+import useFavoritesMutation from "../hooks/useFavoritesMutation";
 
 type FavoriteJobProps = {
   job: FavoriteJobType["job"];
 }
 
 const FavoriteJob = (props: React.PropsWithoutRef<FavoriteJobProps>) => {
+  const favoriteMutation = useFavoritesMutation();
 
   const jobDetail = {
     price: props.job.price,
@@ -29,8 +31,10 @@ const FavoriteJob = (props: React.PropsWithoutRef<FavoriteJobProps>) => {
   }
 
   const favoriteJobToggle = () => {
-    console.log({ favorite_job: props.job._id });
-
+    favoriteMutation.mutate({
+      event: "job",
+      target: props.job._id
+    });
   }
 
   return (

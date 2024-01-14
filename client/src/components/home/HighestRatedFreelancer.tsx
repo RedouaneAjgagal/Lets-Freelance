@@ -2,6 +2,7 @@ import { AiFillStar } from "react-icons/ai";
 import { BiArrowBack } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 import { HighRatedFreelancerType } from "../../features/profile/services/getHighRatedFreelancers";
+import Tag from "../Tag";
 
 interface Props {
     freelancerInfo: HighRatedFreelancerType;
@@ -43,7 +44,9 @@ const HighestRatedFreelancer = (props: React.PropsWithoutRef<Props>) => {
                         }
                     </div>
                     <div className="flex items-center justify-center gap-2 flex-wrap text-sm font-medium">
-                        {props.freelancerInfo.roles.freelancer.skills?.slice(0, 4).map((tag, index) => <button key={index} onClick={onHighestRatedFreelancer} className="bg-purple-100/60 py-1 px-3 rounded-full border">{tag}</button>)}
+                        {props.freelancerInfo.roles.freelancer.skills?.slice(0, 4).map((tag, index) =>
+                            <Tag key={index} onClick={onHighestRatedFreelancer} value={tag} />
+                        )}
                     </div>
                 </div>
                 <hr className="border-b-0 w-full" />

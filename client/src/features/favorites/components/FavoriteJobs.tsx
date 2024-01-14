@@ -1,8 +1,15 @@
-import React from 'react'
+import { FavoriteJobType } from "../services/getFavorites";
+import FavoriteJob from "./FavoriteJob";
 
-const FavoriteJobs = () => {
+type FavoriteJobsProps = {
+  jobs: FavoriteJobType[];
+}
+
+const FavoriteJobs = (props: React.PropsWithoutRef<FavoriteJobsProps>) => {
   return (
-    <div>FavoriteJobs</div>
+    <section>
+      {props.jobs.map(data => <FavoriteJob key={data.job._id} job={data.job} />)}
+    </section>
   )
 }
 

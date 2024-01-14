@@ -1,25 +1,25 @@
 import { Link } from "react-router-dom";
-import { FavoriteService } from "../services/getFavorites"
-import { AiFillStar, AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { FavoriteServiceType } from "../services/getFavorites"
+import { AiFillStar } from "react-icons/ai";
 import Badges from "../../../layouts/brand/Badges";
 import useFavoritesMutation from "../hooks/useFavoritesMutation";
+import FavoriteHeartButton from "../../../components/FavoriteHeartButton";
 
-type FavoriteServiceType = {
-  serviceDetails: FavoriteService;
+type FavoriteServiceTypeProps = {
+  serviceDetails: FavoriteServiceType;
   favorite: {
     isFavorite: boolean
   }
 };
 
-const FavouriteService = (props: React.PropsWithoutRef<FavoriteServiceType>) => {
+const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>) => {
   const favoritesMutation = useFavoritesMutation();
 
   const serviceNavigator = () => {
     console.log({ to: props.serviceDetails.service._id });
   }
 
-  const favoriteServiceToggle = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
+  const favoriteServiceToggle = () => {
     favoritesMutation.mutate({
       event: "service",
       target: props.serviceDetails.service._id
@@ -29,18 +29,13 @@ const FavouriteService = (props: React.PropsWithoutRef<FavoriteServiceType>) => 
   const [firstName, secondName] = props.serviceDetails.serviceBy.name.split(" ");
   const freelancerName = `${firstName.slice(0, 1).toUpperCase()}${firstName.slice(1)} ${secondName !== undefined ? `${secondName.slice(0, 1).toUpperCase()}.` : ""}`;
 
-  const favorites = {
-    "true": <AiFillHeart className="text-red-500 text-xl z-10" />,
-    "false": <AiOutlineHeart className="text-red-500 text-xl z-10" />
-  } as const;
-
   return (
     <li role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
 
       <div className="relative">
         <img src={props.serviceDetails.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
         {props.favorite ?
-          <button onClick={favoriteServiceToggle} className="absolute top-3 right-3 p-2 bg-white rounded-full border-2 border-slate-100 shadow-lg z-30">{favorites[props.favorite.isFavorite ? "true" : "false"]}</button>
+          <FavoriteHeartButton onClick={() => favoriteServiceToggle()} fillHeart={props.favorite.isFavorite} />
           :
           null
         }
@@ -101,4 +96,4 @@ const FavouriteService = (props: React.PropsWithoutRef<FavoriteServiceType>) => 
   )
 }
 
-export default FavouriteService
+export default FavoriteService

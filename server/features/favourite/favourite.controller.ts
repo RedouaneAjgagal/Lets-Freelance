@@ -247,6 +247,7 @@ const getFavourites: RequestHandler = async (req: CustomAuthRequest, res) => {
                 "job.experienceLevel": 1,
                 "job.tags": 1,
                 "job.createdAt": 1,
+                "job.weeklyHours": 1,
                 // profile
                 "profile._id": 1,
                 "profile.name": 1,

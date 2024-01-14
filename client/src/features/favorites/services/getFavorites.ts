@@ -6,7 +6,7 @@ type Rating = {
     numOfReviews: number;
 };
 
-export type FavoriteService = {
+export type FavoriteServiceType = {
     _id: string;
     event: "service";
     service: {
@@ -37,7 +37,7 @@ export type FavoriteService = {
     };
 };
 
-export type FavoriteJob = {
+export type FavoriteJobType = {
     _id: string;
     event: "job";
     job: {
@@ -49,9 +49,13 @@ export type FavoriteJob = {
             min: number;
             max: number;
         };
-        duration: {
+        duration?: {
             dateType: "hours" | "days" | "months";
             dateValue: number;
+        };
+        weeklyHours: {
+            min: number;
+            max: number;
         };
         experienceLevel: "expert" | "intermediate" | "entryLevel";
         tags: string[];
@@ -59,7 +63,7 @@ export type FavoriteJob = {
     };
 };
 
-export type FavoriteFreelancer = {
+export type FavoriteFreelancerType = {
     _id: string;
     event: "profile";
     profile: {
@@ -80,7 +84,7 @@ export type FavoriteFreelancer = {
     }
 }
 
-export type FavoriteEmployer = {
+export type FavoriteEmployerType = {
     _id: string;
     event: "profile";
     profile: {
@@ -101,10 +105,10 @@ export type FavoriteEmployer = {
 }
 
 export type FavoritesType = {
-    services: FavoriteService[];
-    jobs: FavoriteJob[];
-    freelancers: FavoriteFreelancer[];
-    employers: FavoriteEmployer[];
+    services: FavoriteServiceType[];
+    jobs: FavoriteJobType[];
+    freelancers: FavoriteFreelancerType[];
+    employers: FavoriteEmployerType[];
 }
 
 const getFavorites = async () => {

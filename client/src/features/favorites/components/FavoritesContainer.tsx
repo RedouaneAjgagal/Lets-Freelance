@@ -21,7 +21,7 @@ const FavoritesContainer = (props: React.PropsWithoutRef<FavoritesContainerType>
 
     const favoriteElems = {
         "Services": <FavoriteServices services={props.favorites.services} />,
-        "Jobs": <FavoriteJobs />,
+        "Jobs": <FavoriteJobs jobs={props.favorites.jobs} />,
         "Freelancers": <FavoriteFreelancers />,
         "Employers": <FavoriteEmployers />
     }
@@ -29,9 +29,11 @@ const FavoritesContainer = (props: React.PropsWithoutRef<FavoritesContainerType>
     const favoriteElem = favoriteElems[favouriteType];
 
     return (
-        <section className="p-4 bg-white rounded shadow-sm">
-            <div className="flex items-center gap-6 flex-wrap border-b pb-3 gap-y-3 mb-6">
-                {favourites.map((favourite, index) => <FavoriteButton key={index} value={favourite} isActive={favourite === favouriteType} onClick={favoriteNavigator} />)}
+        <section className="bg-white rounded shadow-sm">
+            <div className="p-4">
+                <div className="flex items-center gap-6 flex-wrap border-b pb-3 gap-y-3">
+                    {favourites.map((favourite, index) => <FavoriteButton key={index} value={favourite} isActive={favourite === favouriteType} onClick={favoriteNavigator} />)}
+                </div>
             </div>
             {favoriteElem}
         </section>

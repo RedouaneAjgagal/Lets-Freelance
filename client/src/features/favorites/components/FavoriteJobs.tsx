@@ -8,7 +8,11 @@ type FavoriteJobsProps = {
 const FavoriteJobs = (props: React.PropsWithoutRef<FavoriteJobsProps>) => {
   return (
     <section>
-      {props.jobs.map(data => <FavoriteJob key={data.job._id} job={data.job} />)}
+      {props.jobs.length ?
+        props.jobs.map(data => <FavoriteJob key={data.job._id} job={data.job} />)
+        :
+        <h2>You don't have any favorite jobs</h2>
+      }
     </section>
   )
 }

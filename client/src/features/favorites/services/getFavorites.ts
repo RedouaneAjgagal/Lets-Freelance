@@ -68,6 +68,7 @@ export type FavoriteFreelancerType = {
     event: "profile";
     profile: {
         _id: string;
+        name: string;
         avatar: string;
         userAs: "freelancer";
         roles: {

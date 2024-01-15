@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { FavoriteServiceType } from "../services/getFavorites"
 import { AiFillStar } from "react-icons/ai";
-import Badges from "../../../layouts/brand/Badges";
+import Badge from "../../../layouts/brand/Badge";
 import useFavoritesMutation from "../hooks/useFavoritesMutation";
 import FavoriteHeartButton from "../../../components/FavoriteHeartButton";
+import formatProfileName from "../../../utils/formatProfileName";
 
 type FavoriteServiceTypeProps = {
   serviceDetails: FavoriteServiceType;
@@ -26,8 +27,7 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
     });
   }
 
-  const [firstName, secondName] = props.serviceDetails.serviceBy.name.split(" ");
-  const freelancerName = `${firstName.slice(0, 1).toUpperCase()}${firstName.slice(1)} ${secondName !== undefined ? `${secondName.slice(0, 1).toUpperCase()}.` : ""}`;
+  const freelancerName = formatProfileName(props.serviceDetails.serviceBy.name);
 
   return (
     <li role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
@@ -85,7 +85,7 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
                 null
                 :
                 <div>
-                  <Badges badge={props.serviceDetails.serviceBy.roles.freelancer.badge} />
+                  <Badge badge={props.serviceDetails.serviceBy.roles.freelancer.badge} size="sm" />
                 </div>
               }
             </div>

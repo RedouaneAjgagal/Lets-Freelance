@@ -45,7 +45,7 @@ const HighestRatedFreelancer = (props: React.PropsWithoutRef<Props>) => {
                     </div>
                     <div className="flex items-center justify-center gap-2 flex-wrap text-sm font-medium">
                         {props.freelancerInfo.roles.freelancer.skills?.slice(0, 4).map((tag, index) =>
-                            <Tag key={index} onClick={onHighestRatedFreelancer} value={tag} />
+                            <Tag key={index} onClick={onHighestRatedFreelancer} value={tag} clickable />
                         )}
                     </div>
                 </div>

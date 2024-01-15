@@ -3,9 +3,10 @@ import { TbNorthStar, TbTopologyStar3, TbTopologyStarRing3 } from "react-icons/t
 type BadgesProps = {
     badge: "rising talent" | "top rated" | "top rated plus";
     minimized?: boolean;
+    size: "sm" | "md" | "lg" | "xl";
 }
 
-const Badges = (props: React.PropsWithoutRef<BadgesProps>) => {
+const Badge = (props: React.PropsWithoutRef<BadgesProps>) => {
 
     const badges = {
         "rising talent": {
@@ -27,10 +28,19 @@ const Badges = (props: React.PropsWithoutRef<BadgesProps>) => {
 
     const badge = badges[props.badge];
 
+    const sizes = {
+        "sm": 13,
+        "md": 15,
+        "lg": 17,
+        "xl": 20
+    } as const;
+
+    const size = sizes[props.size];
+
     return (
         <div className="flex items-center gap-1">
-            <span className={`${badge.color} flex justify-center items-center p-[.2rem] rounded-md text-white text-[.85rem]`}>
-                <badge.icon />
+            <span className={`${badge.color} flex justify-center items-center p-[.2rem] rounded-md text-white`}>
+                <badge.icon size={size} />
             </span>
             {props.minimized ?
                 null
@@ -41,4 +51,4 @@ const Badges = (props: React.PropsWithoutRef<BadgesProps>) => {
     )
 }
 
-export default Badges
+export default Badge

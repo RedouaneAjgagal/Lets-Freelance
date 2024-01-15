@@ -8,7 +8,7 @@ type Props = {
 const FavoriteHeartButton = (props: React.PropsWithoutRef<Props>) => {
     const favorites = {
         "true": <AiFillHeart className="text-red-500 text-xl z-10" />,
-        "false": <AiOutlineHeart className="text-red-500 text-xl z-10" />
+        "false": <AiOutlineHeart className="text-slate-500 text-xl z-10" />
     } as const;
 
     const clickHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -17,7 +17,7 @@ const FavoriteHeartButton = (props: React.PropsWithoutRef<Props>) => {
     }
 
     return (
-        <button onClick={clickHandler} className="absolute top-3 right-3 p-2 bg-white rounded-full border-2 border-slate-100 shadow-lg z-30">{favorites[props.fillHeart ? "true" : "false"]}</button>
+        <button onClick={clickHandler} className="absolute top-3 right-3 p-2 bg-white rounded-full border shadow-sm z-30">{favorites[props.fillHeart ? "true" : "false"]}</button>
     )
 }
 

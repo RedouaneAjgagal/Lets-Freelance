@@ -10,6 +10,8 @@ export type HighRatedFreelancerType = {
         freelancer: {
             hourlyRate: number;
             skills: [];
+            badge: "none" | "rising talent" | "top rated" | "top rated plus";
+            jobTitle: string | undefined;
         };
     };
     rating: {

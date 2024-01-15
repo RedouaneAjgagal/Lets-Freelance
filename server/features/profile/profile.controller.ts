@@ -442,6 +442,8 @@ const highRatedFrelancers: RequestHandler = async (req: CustomAuthRequest, res) 
                 isFavourite: 1,
                 "roles.freelancer.skills": 1,
                 "roles.freelancer.hourlyRate": 1,
+                "roles.freelancer.badge": 1,
+                "roles.freelancer.jobTitle": 1,
                 "rating.avgRate": 1,
                 "rating.numOfReviews": 1,
             }

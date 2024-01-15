@@ -10,7 +10,7 @@ type FavoriteJobProps = {
 }
 
 const FavoriteJob = (props: React.PropsWithoutRef<FavoriteJobProps>) => {
-  const favoriteMutation = useFavoritesMutation();
+  const favoriteMutation = useFavoritesMutation("job");
 
   const jobDetail = {
     price: props.job.price,

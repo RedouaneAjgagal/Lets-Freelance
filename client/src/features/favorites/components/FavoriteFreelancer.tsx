@@ -7,9 +7,9 @@ type FavoriteFreelancerProps = {
 
 const FavoriteFreelancer = (props: React.PropsWithoutRef<FavoriteFreelancerProps>) => {
     return (
-        <section>
+        <li>
             <FreelancerCard freelancerInfo={{ ...props.freelancer.profile, isFavourite: 1 }} />
-        </section>
+        </li>
     )
 }
 

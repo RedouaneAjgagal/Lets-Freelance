@@ -8,7 +8,12 @@ type FavoriteFreelancersProps = {
 const FavoriteFreelancers = (props: React.PropsWithoutRef<FavoriteFreelancersProps>) => {
   return (
     <ul className="flex flex-col gap-6 p-4">
-      {props.freelancers.map(freelancer => <FavoriteFreelancer  key={freelancer.profile._id} freelancer={freelancer} />)}
+      {props.freelancers.length ?
+        props.freelancers.map(freelancer => <FavoriteFreelancer key={freelancer.profile._id} freelancer={freelancer} />)
+        :
+        <h2>You don't have any favorite freelancers</h2>
+      }
+
     </ul>
   )
 }

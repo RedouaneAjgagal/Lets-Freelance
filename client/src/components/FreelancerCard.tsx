@@ -37,7 +37,7 @@ type FreelancerCardProps = {
 
 const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
     const navigate = useNavigate();
-    const favoritesMutation = useFavoritesMutation();
+    const favoritesMutation = useFavoritesMutation("profile");
 
     const hourlyRate = `$${props.freelancerInfo.roles.freelancer.hourlyRate} / hr`;
 

@@ -14,7 +14,7 @@ type FavoriteServiceTypeProps = {
 };
 
 const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>) => {
-  const favoritesMutation = useFavoritesMutation();
+  const favoritesMutation = useFavoritesMutation("service");
 
   const serviceNavigator = () => {
     console.log({ to: props.serviceDetails.service._id });

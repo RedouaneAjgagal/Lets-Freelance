@@ -23,7 +23,7 @@ const FavoritesContainer = (props: React.PropsWithoutRef<FavoritesContainerType>
         "Services": <FavoriteServices services={props.favorites.services} />,
         "Jobs": <FavoriteJobs jobs={props.favorites.jobs} />,
         "Freelancers": <FavoriteFreelancers freelancers={props.favorites.freelancers} />,
-        "Employers": <FavoriteEmployers />
+        "Employers": <FavoriteEmployers employers={props.favorites.employers} />
     }
 
     const favoriteElem = favoriteElems[favouriteType];

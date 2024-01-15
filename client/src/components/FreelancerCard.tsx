@@ -6,6 +6,7 @@ import formatProfileName from "../utils/formatProfileName";
 import FavoriteHeartButton from "./FavoriteHeartButton";
 import Badge from "../layouts/brand/Badge";
 import useFavoritesMutation from "../features/favorites/hooks/useFavoritesMutation";
+import NavigatorLink from "./NavigatorLink";
 
 type Category = "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
 
@@ -74,17 +75,15 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                     <p className="text-slate-500 text-sm">{props.freelancerInfo.roles.freelancer.jobTitle || props.freelancerInfo.category}</p>
                     {
                         props.freelancerInfo.rating?.avgRate ?
-                            <>
-                                <div className="flex  items-center gap-2">
-                                    <AiFillStar className="text-yellow-500" />
-                                    <p className="flex items-center gap-1 font-medium">
-                                        {props.freelancerInfo.rating.avgRate.toFixed(1)}
-                                        <span className="text-slate-500 font-normal text-sm">
-                                            ({props.freelancerInfo.rating.numOfReviews} Reviews)
-                                        </span>
-                                    </p>
-                                </div>
-                            </>
+                            <div className="flex  items-center gap-2">
+                                <AiFillStar className="text-yellow-500" />
+                                <p className="flex items-center gap-1 font-medium">
+                                    {props.freelancerInfo.rating.avgRate.toFixed(1)}
+                                    <span className="text-slate-500 font-normal text-sm">
+                                        ({props.freelancerInfo.rating.numOfReviews} Reviews)
+                                    </span>
+                                </p>
+                            </div>
                             :
                             null
                     }
@@ -107,10 +106,7 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                         <p className="text-sm">{hourlyRate}</p>
                     </div>
                 </div>
-                <Link to={`/profiles/${props.freelancerInfo._id}`} className="flex justify-center items-center gap-2 border border-slate-500 rounded py-3 font-medium">
-                    View Profile
-                    <BiArrowBack className="rotate-[135deg]" />
-                </Link>
+                <NavigatorLink to={`profiles/${props.freelancerInfo._id}`}>View Profile</NavigatorLink>
             </div>
         </article>
     )

@@ -1,8 +1,19 @@
-import React from 'react'
+import { FavoriteEmployerType } from "../services/getFavorites";
+import FavoriteEmployer from "./FavoriteEmployer";
 
-const FavoriteEmployers = () => {
+type FavoriteEmployersProps = {
+  employers: FavoriteEmployerType[];
+}
+
+const FavoriteEmployers = (props: React.PropsWithoutRef<FavoriteEmployersProps>) => {
   return (
-    <div>FavoriteEmployers</div>
+    <ul className="flex flex-col gap-6 p-4">
+      {props.employers.length ?
+        props.employers.map(employer => <FavoriteEmployer key={employer._id} employer={employer.profile} />)
+        :
+        <h2>You don't have any favorite freelancers</h2>
+      }
+    </ul>
   )
 }
 

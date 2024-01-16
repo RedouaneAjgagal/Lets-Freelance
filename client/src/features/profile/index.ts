@@ -7,6 +7,7 @@ import useProfileInfoQuery from "./hooks/useProfileInfoQuery";
 import useProfileStatementsQuery from "./hooks/useProfileStatementsQuery";
 import StatementsCards from "./components/StatementsCards";
 import StatementsPayments from "./components/StatementsPayments";
+import ConnectsContainer from "./components/ConnectsContainer";
 
 export {
     PublicProfileForm,
@@ -17,5 +18,6 @@ export {
     useProfileInfoQuery,
     useProfileStatementsQuery,
     StatementsCards,
-    StatementsPayments
+    StatementsPayments,
+    ConnectsContainer
 }

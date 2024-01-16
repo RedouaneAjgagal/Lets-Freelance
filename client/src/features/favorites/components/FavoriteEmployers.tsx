@@ -11,7 +11,7 @@ const FavoriteEmployers = (props: React.PropsWithoutRef<FavoriteEmployersProps>)
       {props.employers.length ?
         props.employers.map(employer => <FavoriteEmployer key={employer._id} employer={employer.profile} />)
         :
-        <h2>You don't have any favorite freelancers</h2>
+        <h2>You don't have any favorite employers</h2>
       }
     </ul>
   )

@@ -106,7 +106,7 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                         <p className="text-sm">{hourlyRate}</p>
                     </div>
                 </div>
-                <NavigatorLink to={`profiles/${props.freelancerInfo._id}`}>View Profile</NavigatorLink>
+                <NavigatorLink to={`/profiles/${props.freelancerInfo._id}`}>View Profile</NavigatorLink>
             </div>
         </article>
     )

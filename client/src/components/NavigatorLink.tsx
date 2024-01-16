@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom'
 
 type NavigatorLinkProps = {
     to: string;
-    children: string;
 }
 
-const NavigatorLink = (props: React.PropsWithoutRef<NavigatorLinkProps>) => {
+const NavigatorLink = (props: React.PropsWithChildren<NavigatorLinkProps>) => {
     return (
         <Link to={props.to} className="flex justify-center items-center gap-2 border border-slate-500 rounded py-3 font-medium">
             {props.children}

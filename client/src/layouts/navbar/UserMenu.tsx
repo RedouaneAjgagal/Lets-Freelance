@@ -1,5 +1,5 @@
 import { User, useLogoutMutation } from "../../features/auth";
-import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart } from "react-icons/tb";
+import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbMoneybag, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare } from "react-icons/tb";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Overlay from "../Overlay";
@@ -62,6 +62,11 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         closeMenuHandler();
     }
 
+    const connectsNavigator = () => {
+        navigate("/profile/freelancer/connects");
+        closeMenuHandler();
+    }
+
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
@@ -97,6 +102,9 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>
                         <TbMoneybag className="text-2xl" />Payouts
+                    </UserMenuLink>
+                    <UserMenuLink onClick={connectsNavigator} isActive={false}>
+                        <TbShare className="text-2xl" />Connects
                     </UserMenuLink>
                     <UserMenuLink onClick={settingsHandler} isActive={false}>
                         <TbSquareRoundedPlus className="text-2xl" />Submission Service

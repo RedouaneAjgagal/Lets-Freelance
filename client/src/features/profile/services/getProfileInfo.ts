@@ -1,6 +1,19 @@
 import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api";
 
+export type ConnectPaymentType = {
+    status: "pending" | "paid";
+    sessionId: string;
+    connectionsCount: number;
+    amountPaid?: number;
+    paidAt?: string;
+}
+
+export type ConnectsType = {
+    connectionsCount: number;
+    payments: ConnectPaymentType[];
+}
+
 export type FreelancerExperience = {
     title: string;
     company: string;
@@ -27,6 +40,7 @@ export type FreelancerInfo = {
     skills: string[];
     education: FreelancerEducation[];
     experience: FreelancerExperience[];
+    connects: ConnectsType;
 }
 
 export type ProfileInfo = {

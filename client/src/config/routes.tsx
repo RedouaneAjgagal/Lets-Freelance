@@ -12,6 +12,7 @@ import { FreelancerProposals } from "../pages/proposal";
 import { Favorites } from "../pages/favorites";
 
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
+import Connects from "../pages/profile/Connects";
 
 const router = createBrowserRouter([
     {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
             {
                 path: "profile/freelancer/proposals",
                 element: <AuthenticatedRoute element={FreelancerProposals} accessBy="freelancer" />
+            },
+            {
+                path: "profile/freelancer/connects",
+                element: <AuthenticatedRoute element={Connects} accessBy="freelancer" />
             }
         ]
     }

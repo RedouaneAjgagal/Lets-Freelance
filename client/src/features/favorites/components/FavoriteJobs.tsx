@@ -11,7 +11,7 @@ const FavoriteJobs = (props: React.PropsWithoutRef<FavoriteJobsProps>) => {
       {props.jobs.length ?
         props.jobs.map(data => <FavoriteJob key={data.job._id} job={data.job} />)
         :
-        <h2>You don't have any favorite jobs</h2>
+        <h2 className="p-4">You don't have any favorite jobs</h2>
       }
     </section>
   )

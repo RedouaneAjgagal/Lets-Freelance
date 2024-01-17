@@ -13,6 +13,7 @@ import { Favorites } from "../pages/favorites";
 
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
+import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 
 const router = createBrowserRouter([
     {
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
             {
                 path: "profile/freelancer/connects",
                 element: <AuthenticatedRoute element={Connects} accessBy="freelancer" />
+            },
+            {
+                path: "profile/freelancer/connects/buy",
+                element: <AuthenticatedRoute element={SetAsPaidConnects} accessBy="freelancer" />
             }
         ]
     }

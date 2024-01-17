@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Overlay from '../../../layouts/Overlay'
 import { PrimaryButton } from '../../../layouts/brand';
 import { createPortal } from 'react-dom';
+import useBuyConnectsMutation from '../hooks/useBuyConnectsMutation';
 
 type BuyConnectsModalProps = {
     connects: number;
@@ -9,6 +10,7 @@ type BuyConnectsModalProps = {
 }
 
 const BuyConnectsModal = (props: React.PropsWithoutRef<BuyConnectsModalProps>) => {
+    const buyConnectsMutation = useBuyConnectsMutation();
     const [connectsOption, setConnectsOption] = useState<number>(10);
 
     const connectPrice = 0.34;
@@ -30,6 +32,9 @@ const BuyConnectsModal = (props: React.PropsWithoutRef<BuyConnectsModalProps>) =
 
     const buyConnectsHandler = () => {
         console.log({ connects: connectsOption });
+        buyConnectsMutation.mutate({
+            connects: connectsOption
+        });
     }
 
     return (
@@ -61,7 +66,7 @@ const BuyConnectsModal = (props: React.PropsWithoutRef<BuyConnectsModalProps>) =
                     </div>
                     <div className='flex justify-end gap-4'>
                         <button className="text-purple-800 font-medium" onClick={props.onClose}>Cancel</button>
-                        <PrimaryButton disabled={false} fullWith={false} justifyConent='center' style='solid' type='button' x='lg' y='lg' onClick={buyConnectsHandler}>Buy Connects</PrimaryButton>
+                        <PrimaryButton disabled={buyConnectsMutation.isLoading} fullWith={false} justifyConent='center' style='solid' type='button' x='lg' y='lg' onClick={buyConnectsHandler}>Buy Connects</PrimaryButton>
                     </div>
                 </section>
             </>

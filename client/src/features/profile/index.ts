@@ -8,6 +8,8 @@ import useProfileStatementsQuery from "./hooks/useProfileStatementsQuery";
 import StatementsCards from "./components/StatementsCards";
 import StatementsPayments from "./components/StatementsPayments";
 import ConnectsContainer from "./components/ConnectsContainer";
+import useSetConnectsAsPaidQuery from "./hooks/useSetConnectsAsPaidQuery";
+import SetAsPaidConnectsContainer from "./components/SetAsPaidConnectsContainer";
 
 export {
     PublicProfileForm,
@@ -19,5 +21,7 @@ export {
     useProfileStatementsQuery,
     StatementsCards,
     StatementsPayments,
-    ConnectsContainer
+    ConnectsContainer,
+    useSetConnectsAsPaidQuery,
+    SetAsPaidConnectsContainer
 }

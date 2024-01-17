@@ -260,7 +260,7 @@ const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
                 quantity: connects
             }
         ],
-        success_url: `http://localhost:5000/api/v1/profiles/connects?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `http://localhost:5173/profile/freelancer/connects/buy?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: "http://localhost:5173",
         customer_email: profile.user.email,
         metadata: {
@@ -279,7 +279,7 @@ const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     await profile.save();
 
-    res.redirect(session.url!);
+    res.status(StatusCodes.OK).json({ url: session.url });
 }
 
 

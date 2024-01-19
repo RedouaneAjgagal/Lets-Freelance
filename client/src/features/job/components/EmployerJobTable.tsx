@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { EmployerJobType } from "../service/getEmployerJobs";
-import { TbStars, TbCalendar, TbEye } from "react-icons/tb";
+import { TbStars, TbCalendar } from "react-icons/tb";
 
 type EmployerJobTableProps = {
   job: EmployerJobType;
@@ -42,7 +42,7 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
   const status = statusTypes[props.job.status];
 
 
-  
+
   const viewJobHanlder = () => {
     console.log({ view_job: props.job._id });
   }

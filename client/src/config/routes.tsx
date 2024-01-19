@@ -7,7 +7,7 @@ import ForgetPassword from "../pages/ForgetPassword";
 import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
 import { Settings, ResetEmail, SingleProfile, Dashboard, Statements } from "../pages/profile";
-import { FreelancerServices } from "../pages/service";
+import { EmployerBoughtServices, FreelancerServices } from "../pages/service";
 import { FreelancerProposals } from "../pages/proposal";
 import { Favorites } from "../pages/favorites";
 
@@ -88,6 +88,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/employer/jobs",
                 element: <AuthenticatedRoute element={EmployerJobs} accessBy="employer" />
+            },
+            {
+                path: "/profile/employer/bought-services",
+                element: <AuthenticatedRoute element={EmployerBoughtServices} accessBy="employer" />
             }
         ]
     }

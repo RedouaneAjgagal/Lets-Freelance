@@ -4,6 +4,7 @@ import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Overlay from "../Overlay";
 import { useEffect, useRef } from "react";
+import { IconType } from "react-icons";
 
 interface Props {
     userInfo: User;
@@ -25,47 +26,90 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         props.onCloseMenu();
     }
 
-    const settingsHandler = () => {
-        navigate("/profile/settings");
-        closeMenuHandler();
-    }
-
     const location = useLocation();
 
     useEffect(() => {
         if (props.isMenuOpen) userMenuRef.current!.scroll({ top: 0 });
     }, [props.isMenuOpen]);
 
-
-    const dashboardNavigator = () => {
-        navigate("/profile/dashboard");
+    const navigator = (url: string) => {
+        navigate(url);
         closeMenuHandler();
     }
 
-    const freelancerServicesNavigator = () => {
-        navigate("/profile/freelancer/services");
-        closeMenuHandler();
-    }
+    const generalMenus: { to: string; value: string; icon: IconType, sort: number }[] = [
+        {
+            value: "Dashboard",
+            icon: TbSmartHome,
+            to: "/profile/dashboard",
+            sort: 1
+        },
+        {
+            value: "Favorites",
+            icon: TbHeart,
+            to: "/profile/favorites",
+            sort: 4
+        },
+        {
+            value: "Messages",
+            icon: TbMessage,
+            to: "/profile/messages",
+            sort: 6
+        },
+        {
+            value: "Statements",
+            icon: TbAppWindow,
+            to: "/profile/statements",
+            sort: 8
+        },
+        {
+            value: "Settings",
+            icon: TbSettings,
+            to: "/profile/settings",
+            sort: 9
+        },
+    ];
 
-    const freelancerProposalsNavigator = () => {
-        navigate("/profile/freelancer/proposals");
-        closeMenuHandler();
-    }
+    const freelancerMenus: { to: string; value: string; icon: IconType, sort: number }[] = [
+        {
+            value: "My Services",
+            icon: TbBriefcase,
+            to: "/profile/freelancer/services",
+            sort: 2
+        },
+        {
+            value: "My Proposals",
+            icon: TbChecklist,
+            to: "/profile/freelancer/proposals",
+            sort: 3
+        },
+        {
+            value: "Connects",
+            icon: TbShare,
+            to: "/profile/freelancer/connects",
+            sort: 5
+        },
+        {
+            value: "Submission Service",
+            icon: TbSquareRoundedPlus,
+            to: "/profile/freelancer/service",
+            sort: 7
+        },
+    ];
 
-    const statementsNavigator = () => {
-        navigate("/profile/statements");
-        closeMenuHandler();
-    }
+    const employerMenus: { to: string; value: string; icon: IconType; sort: number }[] = [
+        {
+            value: "My Jobs",
+            icon: TbBriefcase,
+            to: "/profile/employer/jobs",
+            sort: 2
+        },
+    ];
 
-    const favouritesNavigator = () => {
-        navigate("/profile/favorites");
-        closeMenuHandler();
-    }
+    const selectedMenu = props.userInfo.userAs === "freelancer" ? freelancerMenus : employerMenus;
+    const userMenu = [...selectedMenu, ...generalMenus];
 
-    const connectsNavigator = () => {
-        navigate("/profile/freelancer/connects");
-        closeMenuHandler();
-    }
+    userMenu.sort((a, b) => a.sort - b.sort)
 
     return (
         <>
@@ -82,36 +126,13 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     </div>
                 </div>
                 <div className="flex flex-col gap-3">
-                    <UserMenuLink onClick={dashboardNavigator} isActive={false}>
-                        <TbSmartHome className="text-2xl" />Dashboard
-                    </UserMenuLink>
-                    <UserMenuLink onClick={freelancerServicesNavigator} isActive={false}>
-                        <TbBriefcase className="text-2xl" />My Services
-                    </UserMenuLink>
-                    <UserMenuLink onClick={freelancerProposalsNavigator} isActive={false}>
-                        <TbChecklist className="text-2xl" />Proposals
-                    </UserMenuLink>
-                    <UserMenuLink onClick={favouritesNavigator} isActive={false}>
-                        <TbHeart className="text-2xl" />Favorites
-                    </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
-                        <TbMessage className="text-2xl" />Messages
-                    </UserMenuLink>
-                    <UserMenuLink onClick={statementsNavigator} isActive={false}>
-                        <TbAppWindow className="text-2xl" />Statements
-                    </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
-                        <TbMoneybag className="text-2xl" />Payouts
-                    </UserMenuLink>
-                    <UserMenuLink onClick={connectsNavigator} isActive={false}>
-                        <TbShare className="text-2xl" />Connects
-                    </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={false}>
-                        <TbSquareRoundedPlus className="text-2xl" />Submission Service
-                    </UserMenuLink>
-                    <UserMenuLink onClick={settingsHandler} isActive={location.pathname === "/profile/settings"}>
-                        <TbSettings className="text-2xl" />Settings
-                    </UserMenuLink>
+                    {
+                        userMenu.map(menu => (
+                            <UserMenuLink key={menu.value} onClick={() => navigator(menu.to)} isActive={location.pathname === menu.to}>
+                                <menu.icon className="text-2xl" />{menu.value}
+                            </UserMenuLink>
+                        ))
+                    }
                 </div>
                 <div className="text-red-600 border-t pt-2">
                     <UserMenuLink onClick={logoutHandler} isActive={false}>

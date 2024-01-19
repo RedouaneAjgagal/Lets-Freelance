@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "../features/auth";
 import { profileSkillsReducer } from "../features/profile";
+import { filterByStatusReducer } from "../features/service";
 
 const store = configureStore({
     reducer: {
         authReducer,
-        profileSkillsReducer
+        profileSkillsReducer,
+        filterByStatusReducer
     }
 });
 

@@ -26,11 +26,11 @@ export type BoughtServiceType = {
 
 type BoughtServicesType = BoughtServiceType[];
 
-const getEmployerBoughtServices = async (status: BoughtServicesStatusType) => {
+const getEmployerBoughtServices = async (status: "inprogress" | "completed" | "canceled" | "all") => {
     let query = "";
 
-    if (status) {
-        query = `?status=${query}`;
+    if (status && status !== "all") {
+        query = `?status=${status}`;
     }
 
     const response = await getRequest(`services/profile/bought-services${query}`);

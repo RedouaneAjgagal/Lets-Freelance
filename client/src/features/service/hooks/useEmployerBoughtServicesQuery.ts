@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAppSelector } from '../../../hooks/redux'
 import getEmployerBoughtServices, { BoughtServicesStatusType } from '../services/getEmployerBoughtServices';
 
-const useEmployerBoughtServicesQuery = (status: BoughtServicesStatusType) => {
+const useEmployerBoughtServicesQuery = (status: "inprogress" | "completed" | "canceled" | "all") => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     const employerBoughtServices = useQuery({

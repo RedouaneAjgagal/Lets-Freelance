@@ -10,7 +10,7 @@ interface Props {
 const TrendingService = (props: React.PropsWithoutRef<Props>) => {
     const navigate = useNavigate();
     const onService = () => {
-        navigate("/");
+        navigate(`/services/${props.serviceInfo.service._id}`);
     }
 
     const reviews = props.serviceInfo.service.rating.numOfReviews === 1 ? `(${props.serviceInfo.service.rating.numOfReviews} Review)` : `(${props.serviceInfo.service.rating.numOfReviews} Reviews)`;

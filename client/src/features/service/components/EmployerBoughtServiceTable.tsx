@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import formatProfileName from "../../../utils/formatProfileName";
 import { BoughtServiceType } from "../services/getEmployerBoughtServices"
 import { TbCalendar, TbLocation } from 'react-icons/tb'
@@ -10,7 +10,7 @@ type EmployerBoughtServiceTableProps = {
 }
 
 const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtServiceTableProps>) => {
-
+    const navigate = useNavigate();
     const freelancerName = formatProfileName(props.service.freelancer.profile.name);
 
     const createdAt = new Date(props.service.freelancer.profile.createdAt).toLocaleDateString("en-US", {
@@ -22,7 +22,7 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
     const orderPrice = `$${props.service.payments[0].amount.toFixed(2)}`;
 
     const viewServiceHanlder = () => {
-        console.log({ service_id: props.service.service.serviceInfo });
+        navigate(`/services/${props.service.service.serviceInfo}`);
     }
 
     const boughtAt = new Date(props.service.createdAt).toLocaleDateString("en-US", {

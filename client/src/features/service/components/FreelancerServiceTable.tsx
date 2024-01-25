@@ -1,15 +1,16 @@
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { FreelancerServiceType } from "../services/getFreelancerServices"
 import { TbCategory, TbCalendar } from 'react-icons/tb'
+import { useNavigate } from "react-router-dom";
 
 type FreelancerServiceTableProps = {
     service: FreelancerServiceType;
 }
 
 const FreelancerServiceTable = (props: React.PropsWithoutRef<FreelancerServiceTableProps>) => {
-
+    const navigate = useNavigate();
     const viewServiceHander = () => {
-        console.log({ viewService: props.service._id });
+        navigate(`/services/${props.service._id}`);
     }
 
     const editServicehandler = () => {

@@ -4,6 +4,7 @@ import FreelancerServicesTable from "./components/FreelancerServicesTable";
 import useEmployerBoughtServicesQuery from "./hooks/useEmployerBoughtServicesQuery";
 import EmployerBoughtServicesContainer from "./components/EmployerBoughtServicesContainer";
 import filterByStatusReducer from "./redux/service";
+import useSingleServiceQuery from "./hooks/useSingleServiceQuery";
 
 export {
     useTrendingServicesQuery,
@@ -11,5 +12,6 @@ export {
     FreelancerServicesTable,
     useEmployerBoughtServicesQuery,
     EmployerBoughtServicesContainer,
-    filterByStatusReducer
+    filterByStatusReducer,
+    useSingleServiceQuery
 }

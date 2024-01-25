@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FavoriteServiceType } from "../services/getFavorites"
 import { AiFillStar } from "react-icons/ai";
 import Badge from "../../../layouts/brand/Badge";
@@ -15,9 +15,10 @@ type FavoriteServiceTypeProps = {
 
 const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>) => {
   const favoritesMutation = useFavoritesMutation("service");
+  const navigate = useNavigate();
 
   const serviceNavigator = () => {
-    console.log({ to: props.serviceDetails.service._id });
+    navigate(`/services/${props.serviceDetails.service._id}`);
   }
 
   const favoriteServiceToggle = () => {

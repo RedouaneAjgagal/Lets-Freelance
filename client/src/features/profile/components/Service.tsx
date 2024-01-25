@@ -10,7 +10,7 @@ const Service = (props: React.PropsWithoutRef<Service>) => {
     {
         const navigate = useNavigate();
         const onService = () => {
-            navigate("/");
+            navigate(`/services/${props.serviceInfo._id}`);
         }
 
         const reviews = props.serviceInfo.rating.numOfReviews === 1 ? `(${props.serviceInfo.rating.numOfReviews} Review)` : `(${props.serviceInfo.rating.numOfReviews} Reviews)`;

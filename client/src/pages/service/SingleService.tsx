@@ -1,15 +1,16 @@
 import Loading from "../../components/Loading";
 import { useSingleServiceQuery } from "../../features/service";
+import { SingleServiceContainer } from "../../features/service";
 
 
 const SingleService = () => {
-    const singleQueryService = useSingleServiceQuery();
+    const singleServiceQuery = useSingleServiceQuery();
 
     return (
-        singleQueryService.isLoading ?
+        singleServiceQuery.isLoading ?
             <Loading />
             :
-            <h1>{singleQueryService.data?.title}</h1>
+            <SingleServiceContainer serviceInfo={singleServiceQuery.data!} />
     )
 }
 

@@ -33,6 +33,11 @@ export type SingleServiceType = {
         avatar: string;
         userAs: "freelancer";
         rating: Rating;
+        roles: {
+            freelancer: {
+                badge: "none" | "rising talent" | "top rated" | "top rated plus";
+            };
+        };
     };
     title: string;
     description: string;

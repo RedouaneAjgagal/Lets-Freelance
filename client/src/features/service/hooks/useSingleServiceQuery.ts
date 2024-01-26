@@ -5,9 +5,6 @@ import { useParams } from "react-router-dom"
 const useSingleServiceQuery = () => {
     const { serviceId } = useParams();
 
-    console.log(serviceId);
-
-
     const singleServiceQuery = useQuery({
         queryKey: ["services", serviceId!],
         queryFn: () => getSingleService(serviceId!),

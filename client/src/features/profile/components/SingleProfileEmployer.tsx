@@ -1,4 +1,3 @@
-import SingleProfileNav from './SingleProfileNav'
 import ProfileHeader from './ProfileHeader'
 import AboutProfile from './AboutProfile'
 import OpenJobs from './OpenJobs';
@@ -10,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '../../../hooks/redux';
 import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery';
 import Loading from '../../../components/Loading';
+import SingleActivityNavbar from '../../../components/SingleActivityNavbar';
 
 export type OpenJob = {
     _id: string;
@@ -54,7 +54,7 @@ const SingleProfileEmployer = () => {
     return (
         <>
             <header>
-                <SingleProfileNav isCurrentUser={isCurrentUser} />
+                <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
                 <ProfileHeader profile='employer' userInfo={employerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <AboutProfile profile='employer' content={profile.description || "Employer with no description"} />

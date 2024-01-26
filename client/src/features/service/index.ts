@@ -5,6 +5,7 @@ import useEmployerBoughtServicesQuery from "./hooks/useEmployerBoughtServicesQue
 import EmployerBoughtServicesContainer from "./components/EmployerBoughtServicesContainer";
 import filterByStatusReducer from "./redux/service";
 import useSingleServiceQuery from "./hooks/useSingleServiceQuery";
+import SingleServiceContainer from "./components/SingleServiceContainer";
 
 export {
     useTrendingServicesQuery,
@@ -13,5 +14,6 @@ export {
     useEmployerBoughtServicesQuery,
     EmployerBoughtServicesContainer,
     filterByStatusReducer,
-    useSingleServiceQuery
+    useSingleServiceQuery,
+    SingleServiceContainer
 }

@@ -2,11 +2,11 @@ import { IconType } from 'react-icons';
 import { TbShare } from 'react-icons/tb';
 import { Link } from 'react-router-dom';
 
-interface Props {
+interface SocialShareProps {
     socialPlatforms: { icon: IconType, href: string }[]
 }
 
-const SocialShare = (props: React.PropsWithoutRef<Props>) => {
+const SocialShare = (props: React.PropsWithoutRef<SocialShareProps>) => {
     return (
         <div className="relative group">
             <button className="flex items-center gap-2 font-medium group-hover:text-purple-600 duration-200">

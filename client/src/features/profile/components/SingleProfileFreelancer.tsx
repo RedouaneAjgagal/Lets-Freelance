@@ -1,4 +1,3 @@
-import SingleProfileNav from './SingleProfileNav'
 import ProfileHeader from './ProfileHeader'
 import ServiceDetail from './ServiceDetail'
 import AboutProfile from './AboutProfile'
@@ -14,6 +13,7 @@ import { FreelancerGeneralProfile } from '../services/getSingleProfileInfo'
 import { useAppSelector } from '../../../hooks/redux'
 import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery'
 import Loading from '../../../components/Loading'
+import SingleActivityNavbar from '../../../components/SingleActivityNavbar'
 
 const SingleProfileFreelancer = () => {
     const queryCLient = useQueryClient();
@@ -55,7 +55,7 @@ const SingleProfileFreelancer = () => {
     return (
         <>
             <header>
-                <SingleProfileNav isCurrentUser={isCurrentUser} />
+                <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <ServiceDetail freelancerServiceDetail={serviceDetail} />

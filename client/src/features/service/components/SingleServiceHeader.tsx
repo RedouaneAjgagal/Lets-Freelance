@@ -20,7 +20,7 @@ const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderPro
     const freelancerName = formatProfileName(props.profile.name);
 
     return (
-        <article className="bg-purple-100/30 px-4 py-6 flex flex-col gap-4">
+        <article className="flex flex-col gap-4">
             <h1 className="text-3xl font-semibold">{props.title}</h1>
             <section className="flex justify-between items-center gap-2">
                 <div className="flex items-center gap-2">

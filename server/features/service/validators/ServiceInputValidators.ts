@@ -127,7 +127,7 @@ const isInvalidTier = (tier: ServiceWithoutRefs["tier"] | undefined) => {
                 return false;
             }
 
-            if (!includedIn.result || includedIn.result.toString().trim() === "") {
+            if (includedIn.result === undefined || includedIn.result.toString().trim() === "") {
                 return false;
             }
 

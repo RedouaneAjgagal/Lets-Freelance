@@ -17,7 +17,7 @@ const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarP
     ];
 
     return (
-        <nav className="p-4 inline-flex items-center justify-between w-full">
+        <nav className="inline-flex items-center justify-between w-full">
             <div className="flex items-center gap-6">
                 <SocialShare socialPlatforms={socialPlatforms} />
                 {props.hideSave ? null : <SaveActivity activity={props.activity} />}

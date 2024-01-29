@@ -131,15 +131,38 @@ const profileReviews: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         },
         {
+            $lookup: {
+                from: "profiles",
+                localField: `contract.${submittedBy}.profile`,
+                foreignField: "_id",
+                as: "submittedByProfile"
+            }
+        },
+        {
+            $addFields: {
+                submittedByProfile: {
+                    $first: "$submittedByProfile"
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 activityTitle: 1,
                 description: 1,
                 rating: 1,
                 "contract.createdAt": 1,
-                "contract.completedAt": 1
+                "contract.completedAt": 1,
+                "submittedByProfile._id": 1,
+                "submittedByProfile.name": 1,
+                "submittedByProfile.avatar": 1,
             }
         },
+        {
+            $sort: {
+                completedAt: -1
+            }
+        }
     ]);
 
     // get in progress jobs

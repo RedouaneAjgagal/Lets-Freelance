@@ -5,7 +5,7 @@ import { RequestHandler } from "express";
 import { CustomAuthRequest } from "../../middlewares/authentication";
 import { Profile } from "../profile";
 import createReviewValidator from "./validators/createReviewValidator";
-import { isValidObjectId, model } from "mongoose";
+import mongoose, { isValidObjectId, model } from "mongoose";
 import getUpdatedReviewInfo from "./validators/getUpdatedReviewInfo";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import { User } from "../auth";
@@ -24,8 +24,48 @@ const getServiceReviews: RequestHandler = async (req, res) => {
         throw new BadRequestError("Invalid id");
     }
 
-    // find the activity
-    const activityReviews = await Review.find({ service: service_id, submittedBy: "employer", activityType: "service" }).select("_id activityTitle description rating createdAt updatedAt").lean();
+    const activityReviews = await Review.aggregate([
+        {
+            $match: {
+                service: new mongoose.Types.ObjectId(service_id!.toString()),
+                submittedBy: "employer",
+                activityType: "service"
+            }
+        },
+        {
+            $lookup: {
+                from: "profiles",
+                foreignField: "user",
+                localField: "employer",
+                as: "employer"
+            }
+        },
+        {
+            $addFields: {
+                employer: {
+                    $first: "$employer"
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                activityTitle: 1,
+                description: 1,
+                rating: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "employer._id": 1,
+                "employer.name": 1,
+                "employer.avatar": 1
+            }
+        },
+        {
+            $sort: {
+                createdAt: -1
+            }
+        }
+    ]);
 
     res.status(StatusCodes.OK).json(activityReviews);
 }
@@ -191,7 +231,7 @@ const createReview: RequestHandler = async (req: CustomAuthRequest, res) => {
     if (review.activityType === "service" && review.submittedBy === "employer") {
         await review.serviceAvgRating();
     }
-    
+
     res.status(StatusCodes.CREATED).json(reviewData);
 }
 

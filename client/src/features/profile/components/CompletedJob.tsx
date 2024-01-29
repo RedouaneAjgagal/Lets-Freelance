@@ -1,5 +1,5 @@
 import formatDate from "../../../utils/formatDate";
-import { CompletedReviewsType } from "../services/getProfileReviews";
+import { CompletedReviewsType } from "../../reviews/services/getProfileReviews";
 import Ratings from "./Ratings";
 
 interface Props {

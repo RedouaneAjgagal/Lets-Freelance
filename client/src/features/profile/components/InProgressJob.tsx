@@ -1,5 +1,5 @@
 import formatDate from "../../../utils/formatDate";
-import { InProgressReviewsType } from "../services/getProfileReviews";
+import { InProgressReviewsType } from "../../reviews/services/getProfileReviews";
 
 interface Props {
     jobDetail: InProgressReviewsType;

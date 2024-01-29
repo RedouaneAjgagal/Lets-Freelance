@@ -28,6 +28,11 @@ export type CompletedReviewsType = {
     activityTitle: string;
     description: string;
     rating: number;
+    submittedByProfile: {
+        _id: string;
+        name: string;
+        avatar: string;
+    };
 };
 
 export type ProfileReviewsType = {

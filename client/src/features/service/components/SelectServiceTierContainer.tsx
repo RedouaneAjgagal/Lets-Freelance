@@ -44,7 +44,7 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
             </fieldset>
             <hr />
             <SelectedPackage deliveryTime={selectedPackage.deliveryTime} includedIn={selectedPackage.includedIn} />
-            <div className="flex gap-3 fixed bottom-0 bg-white w-full left-1/2 -translate-x-1/2 p-4 border-t z-10">
+            <div className="flex gap-3 fixed bottom-0 bg-white w-full left-1/2 -translate-x-1/2 p-4 border-t z-20">
                 <div className="w-full order-1">
                     <PrimaryButton disabled={false} fullWith justifyConent="center" style="solid" type="button" x="md" y="lg" onClick={orderServiceHandler}>{`Continue ($${selectedPackage.price.toFixed(0)})`}</PrimaryButton>
                 </div>

@@ -11,13 +11,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import useProfileId from '../hooks/useProfileId'
 import { FreelancerGeneralProfile } from '../services/getSingleProfileInfo'
 import { useAppSelector } from '../../../hooks/redux'
-import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery'
+import { useProfileReviewsQuery } from '../../reviews'
 import Loading from '../../../components/Loading'
 import SingleActivityNavbar from '../../../components/SingleActivityNavbar'
+import { useParams } from 'react-router-dom'
 
 const SingleProfileFreelancer = () => {
     const queryCLient = useQueryClient();
-    const profileId = useProfileId();
+    const profileId = useProfileId()!;
     const profile = queryCLient.getQueryData(["singleProfile", profileId]) as FreelancerGeneralProfile;
     const { userInfo } = useAppSelector(state => state.authReducer);
 
@@ -50,12 +51,16 @@ const SingleProfileFreelancer = () => {
 
     const isCurrentUser = userInfo?.profileId === profile._id;
 
-    const profileHistory = useProfileReviewsQuery();
+    const profileHistory = useProfileReviewsQuery({
+        profileId
+    });
 
     return (
         <>
             <header>
-                <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                <div className="p-4">
+                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                </div>
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <ServiceDetail freelancerServiceDetail={serviceDetail} />

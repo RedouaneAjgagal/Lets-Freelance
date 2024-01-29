@@ -7,7 +7,7 @@ import { EmployerGeneralProfile } from '../services/getSingleProfileInfo';
 import useProfileId from '../hooks/useProfileId';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppSelector } from '../../../hooks/redux';
-import useProfileReviewsQuery from '../hooks/useProfileReviewsQuery';
+import { useProfileReviewsQuery } from '../../reviews';
 import Loading from '../../../components/Loading';
 import SingleActivityNavbar from '../../../components/SingleActivityNavbar';
 
@@ -25,7 +25,7 @@ export type OpenJob = {
 
 const SingleProfileEmployer = () => {
     const queryCLient = useQueryClient();
-    const profileId = useProfileId();
+    const profileId = useProfileId()!;
     const profile = queryCLient.getQueryData(["singleProfile", profileId]) as EmployerGeneralProfile
 
     const { userInfo } = useAppSelector(state => state.authReducer);
@@ -49,7 +49,9 @@ const SingleProfileEmployer = () => {
 
     const isCurrentUser = userInfo?.profileId === profile._id;
 
-    const profileHistory = useProfileReviewsQuery();
+    const profileHistory = useProfileReviewsQuery({
+        profileId
+    });
 
     return (
         <>

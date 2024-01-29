@@ -2,7 +2,7 @@ import HistoryTabList from "./HistoryTabList";
 import CompletedJob from "./CompletedJob";
 import InProgressJob from "./InProgressJob";
 import { useState } from "react";
-import { ProfileReviewsType } from "../services/getProfileReviews";
+import { ProfileReviewsType } from "../../reviews/services/getProfileReviews";
 
 
 interface Props {

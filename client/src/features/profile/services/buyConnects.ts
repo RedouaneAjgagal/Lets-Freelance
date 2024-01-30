@@ -1,6 +1,6 @@
 import { postRequest } from "../../../services/api"
 
-type buyConnects = {
+type BuyConnects = {
     url: string;
 }
 
@@ -9,7 +9,7 @@ const buyConnects = async ({ connects }: { connects: number }) => {
         connects
     });
 
-    const data = await reponse.data as buyConnects;
+    const data = await reponse.data as BuyConnects;
     return data;
 }
 

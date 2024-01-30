@@ -18,6 +18,7 @@ import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import { ContractPayments } from "../contract/contract.model";
 import getServicePriceAfterFees from "./utils/getServicePriceAfterFees";
+import origin from "../../config/origin";
 
 
 
@@ -504,7 +505,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         ],
         customer_email: profile.user.email,
         client_reference_id: profile.user._id.toString(),
-        success_url: `http://localhost:5000/api/v1/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}${isValidTrackId ? `&track_id=${trackId}` : ""}`,
+        success_url: `${origin}/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}${isValidTrackId ? `&track_id=${trackId}` : ""}`,
         cancel_url: "http://localhost:5173",
         metadata: {
             productId: serviceProduct.id,
@@ -513,8 +514,6 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
             selectedTier
         }
     });
-
-    console.log(session.url);
 
     // set orders data to help cheking if got paid or not
     service.orders.push({
@@ -526,7 +525,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     await service.save();
 
-    return res.redirect(session.url!);
+    return res.status(StatusCodes.OK).json({ url: session.url! });
 }
 
 
@@ -569,6 +568,11 @@ const setServiceAsPaid: RequestHandler = async (req: CustomAuthRequest, res) => 
     const order = (service.orders as (Order & { _id: mongoose.Types.ObjectId })[]).find(order => order.sessionId === session_id.toString());
     if (!order) {
         throw new BadRequestError(`Found no order session with ID ${session_id}`);
+    }
+
+    // check if order has already been paid
+    if (order.status === "paid") {
+        return res.status(StatusCodes.OK).json({ msg: "Service has already been paid" });
     }
 
     // check if the order belongs to the current employer or the user is a powerful role

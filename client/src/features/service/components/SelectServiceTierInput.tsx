@@ -12,10 +12,12 @@ const SelectServiceTierInput = (props: React.PropsWithoutRef<SelectServiceTierIn
 
     const isChecked = props.selectedTier === props.tier;
 
+    const tier = `${props.tier.slice(0, 1).toUpperCase()}${props.tier.slice(1).toLocaleLowerCase()}`
+
     return (
         <label htmlFor={props.tier} className="flex flex-col items-center">
             <input type="radio" name="tier" id={props.tier} value={props.tier} onChange={fieldSetChangeHandler} checked={isChecked} className="accent-purple-600" />
-            <span className={`${isChecked ? "font-medium" : "text-slate-700"}`}>Starter</span>
+            <span className={`${isChecked ? "font-medium" : "text-slate-700"}`}>{tier}</span>
             <span className={`${isChecked ? "font-medium" : "text-slate-700"}`}> ${props.price.toFixed(0)}</span>
         </label>
     )

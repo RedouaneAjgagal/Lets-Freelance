@@ -20,9 +20,6 @@ const RatingTable = (props: React.PropsWithoutRef<RatingTableProps>) => {
         rates[getRate]++;
     });
 
-    console.log(rates);
-
-
     return (
         <section className="flex flex-col gap-1">
             {

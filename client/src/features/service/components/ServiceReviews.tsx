@@ -4,6 +4,9 @@ import ReviewTabs from "../../../components/ReviewTabs";
 import { TbStarFilled } from "react-icons/tb";
 import ThisProjectReviews from "./ThisProjectReviews";
 import AllProjectsReviews from "./AllProjectsReviews";
+import RatingTable from "./RatingTable";
+import { useServiceReviewsQuery } from "../../reviews";
+import Loading from "../../../components/Loading";
 
 type ServiceReviewsProps = {
   rating: SingleServiceType["rating"];
@@ -27,8 +30,10 @@ const ServiceReviews = (props: ServiceReviewsProps) => {
     setServiceReviewTab(tab);
   }
 
+  const serviceReviewsQuery = useServiceReviewsQuery();
+
   const tabContents = {
-    [firstTab]: <ThisProjectReviews />,
+    [firstTab]: <ThisProjectReviews reviews={serviceReviewsQuery.data!} />,
     [secondTab]: <AllProjectsReviews profileId={props.profileId} />
   };
 
@@ -42,8 +47,19 @@ const ServiceReviews = (props: ServiceReviewsProps) => {
         <span>-</span>
         <span>{numOfReviews}</span>
       </div>
+      {
+        serviceReviewsQuery.isLoading ?
+          <Loading />
+          :
+          <RatingTable ratings={serviceReviewsQuery.data!.map(review => ({ rating: review.rating }))} />
+      }
       <ReviewTabs tabs={tabs} currentTabOn={serviceReviewTab} onClick={clickTabHandler} />
-      {content}
+      {
+        serviceReviewsQuery.isLoading ?
+          <Loading />
+          :
+          content
+      }
     </section>
   )
 }

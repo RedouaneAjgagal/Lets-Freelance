@@ -14,7 +14,6 @@ import { useAppSelector } from '../../../hooks/redux'
 import { useProfileReviewsQuery } from '../../reviews'
 import Loading from '../../../components/Loading'
 import SingleActivityNavbar from '../../../components/SingleActivityNavbar'
-import { useParams } from 'react-router-dom'
 
 const SingleProfileFreelancer = () => {
     const queryCLient = useQueryClient();

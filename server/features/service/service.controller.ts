@@ -86,7 +86,7 @@ const getAllservices: RequestHandler = async (req, res) => {
     const end = currentPage * 12;
 
 
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge rating" }).lean();
+    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge" }).lean();
 
     services = services.filter(service => service.profile.userAs === "freelancer");
 
@@ -107,7 +107,7 @@ const getAllservices: RequestHandler = async (req, res) => {
     // search by rating
     const isValidRating = rating && /^\d+(\.\d+)?$/.test(rating.toString()) && (Number(rating.toString()) >= 1 || Number(rating.toString()) <= 5);
     if (isValidRating) {
-        services = services.filter(service => service.profile.rating?.avgRate && service.profile.rating?.avgRate >= Number(rating.toString()))
+        services = services.filter(service => service.rating.avgRate && service.rating.avgRate >= Number(rating.toString()))
     }
 
     // search by profile badges

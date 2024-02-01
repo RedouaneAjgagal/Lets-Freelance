@@ -11,15 +11,15 @@ export type SearchServiceType = {
             price: number;
         };
     };
+    rating: {
+        avgRate?: number;
+        numOfReviews: number;
+    };
     profile: {
         _id: string;
         name: string;
         avatar: string;
         userAs: "freelancer";
-        rating: {
-            avgRate?: number;
-            numOfReviews: number;
-        };
         roles: {
             freelancer: {
                 englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";

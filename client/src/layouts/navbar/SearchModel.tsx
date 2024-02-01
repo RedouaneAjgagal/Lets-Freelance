@@ -8,7 +8,7 @@ interface Props {
 }
 
 const SearchModel = (props: React.PropsWithoutRef<Props>) => {
-    const [searchBy, setSearchBy] = useState("talent");
+    const [searchBy, setSearchBy] = useState<"talent" | "services" | "jobs">("talent");
     const [search, setSearch] = useState("");
     const searchHandler = (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,12 +21,12 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
         setSearch(e.currentTarget.value);
     }
 
-    const searchByhandler = (value: string) => {
+    const searchByhandler = (value: "talent" | "services" | "jobs") => {
         setSearchBy(value);
     }
 
     return (
-        <div className={`bg-white min-h-screen fixed top-0 w-full duration-150 z-50 ${props.isShown ? "right-0" : "-right-full"}`}>
+        <div className={`bg-white min-h-screen fixed top-0 w-full duration-150 ${props.isShown ? "right-0 z-[100]" : "-right-full"}`}>
             <div className="px-4 py-3 flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                     <button onClick={props.closeModel} className="text-2xl">
@@ -43,7 +43,7 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
                 </div>
                 <div className="flex items-start gap-6 border-b text-slate-400 font-medium">
                     <SearchBy searchByHandler={searchByhandler} value="Talent" currentTarget={searchBy} />
-                    <SearchBy searchByHandler={searchByhandler} value="Projects" currentTarget={searchBy} />
+                    <SearchBy searchByHandler={searchByhandler} value="Services" currentTarget={searchBy} />
                     <SearchBy searchByHandler={searchByhandler} value="Jobs" currentTarget={searchBy} />
                 </div>
             </div>

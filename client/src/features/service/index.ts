@@ -8,6 +8,7 @@ import useSingleServiceQuery from "./hooks/useSingleServiceQuery";
 import SingleServiceContainer from "./components/SingleServiceContainer";
 import useSetServiceAsPaidQuery from "./hooks/useSetServiceAsPaidQuery";
 import SetServiceAsPaidContainer from "./components/SetServiceAsPaidContainer";
+import useSearchServicesQuery from "./hooks/useSearchServicesQuery";
 
 export {
     useTrendingServicesQuery,
@@ -19,5 +20,6 @@ export {
     useSingleServiceQuery,
     SingleServiceContainer,
     useSetServiceAsPaidQuery,
-    SetServiceAsPaidContainer
+    SetServiceAsPaidContainer,
+    useSearchServicesQuery
 }

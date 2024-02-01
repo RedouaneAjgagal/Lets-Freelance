@@ -2,10 +2,12 @@ import FreelancerServices from "./FreelancerServices";
 import EmployerBoughtServices from "./EmployerBoughtServices";
 import SingleService from "./SingleService";
 import SetAsPaidService from "./SetAsPaidService";
+import AllServices from "./AllServices";
 
 export {
     FreelancerServices,
     EmployerBoughtServices,
     SingleService,
-    SetAsPaidService
+    SetAsPaidService,
+    AllServices
 }

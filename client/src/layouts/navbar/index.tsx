@@ -24,6 +24,11 @@ const Navbar = () => {
 
   useOverflow(isMenuOpen);
 
+  const onRegisterHandler = () => {
+    setIsMenuOpen(false);
+    setIsSearchOpen(false);
+  }
+
   return (
     <div className="bg-white">
       <nav className="flex items-center justify-between py-3 px-2 border-b h-16">
@@ -60,9 +65,12 @@ const Navbar = () => {
         </div>
       </nav>
       <MenuModel isShown={isMenuOpen} onClick={menuHandler} />
-      <SearchModel isShown={isSearchOpen} closeModel={searchHandler} />
-      <div className={`fixed bottom-0 z-50 w-full bg-white duration-150 ${isMenuOpen ? "left-0" : "-left-full"}`}>
-        <Link onClick={menuHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
+      {isMenuOpen ?
+        <SearchModel isShown={isSearchOpen} closeModel={searchHandler} />
+        :
+        null}
+      <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0 z-[100]" : "-left-full"}`}>
+        <Link onClick={onRegisterHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
       </div>
     </div>
   )

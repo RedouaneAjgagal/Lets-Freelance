@@ -9,6 +9,8 @@ import SingleServiceContainer from "./components/SingleServiceContainer";
 import useSetServiceAsPaidQuery from "./hooks/useSetServiceAsPaidQuery";
 import SetServiceAsPaidContainer from "./components/SetServiceAsPaidContainer";
 import useSearchServicesQuery from "./hooks/useSearchServicesQuery";
+import ServicesContainer from "./components/ServicesContainer";
+import filterSearchedServicesReducer from "./redux/filterSearchedServices";
 
 export {
     useTrendingServicesQuery,
@@ -21,5 +23,7 @@ export {
     SingleServiceContainer,
     useSetServiceAsPaidQuery,
     SetServiceAsPaidContainer,
-    useSearchServicesQuery
+    useSearchServicesQuery,
+    ServicesContainer,
+    filterSearchedServicesReducer
 }

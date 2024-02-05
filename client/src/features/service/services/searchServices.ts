@@ -36,7 +36,7 @@ export type SearchServicesType = {
 };
 
 export type SearchServicesQuery = {
-    category?: "digital-marketing" | "design-creative" | "programming-tech" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
+    category?: "all-categories" | "digital-marketing" | "design-creative" | "programming-tech" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
     delivery_time?: number;
     english_level?: "basic" | "conversational" | "fluent" | "native" | "professional";
     country?: string;

@@ -1,20 +1,26 @@
+import { useEffect } from "react";
 import Loading from "../../components/Loading";
-import { useSearchServicesQuery } from "../../features/service"
+import { ServicesContainer, useSearchServicesQuery } from "../../features/service"
+import { useAppSelector } from "../../hooks/redux";
 
 const AllServices = () => {
+    const filterSearchedServices = useAppSelector(state => state.filterSearchedServicesReducer);
 
-    const searchedServicesQuery = useSearchServicesQuery({
-        category: "programming-tech",
-        search: "react",
-        page: 1
-    });
-    
-    
+    const searchedServicesQuery = useSearchServicesQuery(filterSearchedServices);
+
+    useEffect(() => {
+        searchedServicesQuery.refetch();
+    }, [filterSearchedServices])
+
     return (
-        searchedServicesQuery.isLoading ?
-        <Loading />
-        :
-        <h1>Pages Exist: {searchedServicesQuery.data!.numOfPages}</h1>
+        <main className="p-4 flex flex-col gap-6">
+            {
+                searchedServicesQuery.isLoading ?
+                    <Loading />
+                    :
+                    <ServicesContainer />
+            }
+        </main>
     )
 }
 

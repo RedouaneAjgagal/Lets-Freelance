@@ -3,6 +3,7 @@ import Overlay from "../../../layouts/Overlay";
 import CategoryFilter from "../components/CategoryFilter";
 import { PrimaryButton } from "../../../layouts/brand";
 import DeliveryTimeFilter from "../components/DeliveryTimeFilter";
+import BudgetFilter from "../components/BudgetFilter";
 
 type FilterServicesModalProps = {
     isModalOpen: boolean;
@@ -38,6 +39,7 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                 <form onSubmit={filterServicesHandler} className="flex flex-col gap-8">
                     <CategoryFilter SIZE={5} />
                     <DeliveryTimeFilter />
+                    <BudgetFilter from={5} to={1000} step={5} />
                     <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
                         Filter Services
                         <BiArrowBack className="rotate-[135deg]" />

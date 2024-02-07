@@ -4,6 +4,7 @@ type FilterSearchedServicesInitialState = {
     search?: string;
     category?: "all-categories" | "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
     delivery_time?: number;
+    price_range?: string;
 }
 
 const initialState: FilterSearchedServicesInitialState = {};
@@ -21,6 +22,7 @@ const filterSearchedServicesSlice = createSlice({
             state.category = action.payload;
             return state;
         },
+
         filterBySearch(state, action: { payload: FilterSearchedServicesInitialState["search"]; type: string }) {
             if (action.payload === "") {
                 delete state.search;
@@ -30,14 +32,24 @@ const filterSearchedServicesSlice = createSlice({
             state.search = action.payload;
             return state;
         },
+
         filterByDeliveryTime(state, action: { payload: FilterSearchedServicesInitialState["delivery_time"]; type: string }) {
             if (action.payload! <= 0) {
-                console.log(action.payload);
                 delete state.delivery_time;
                 return state;
             };
 
             state.delivery_time = action.payload;
+            return state;
+        },
+
+        filterByPriceRange(state, action: { payload: FilterSearchedServicesInitialState["price_range"], type: string }) {
+            if (action.payload === "") {
+                delete state.price_range;
+                return state;
+            };
+
+            state.price_range = action.payload;
             return state;
         }
     }

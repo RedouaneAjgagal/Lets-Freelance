@@ -4,6 +4,7 @@ import CategoryFilter from "../components/CategoryFilter";
 import { PrimaryButton } from "../../../layouts/brand";
 import DeliveryTimeFilter from "../components/DeliveryTimeFilter";
 import BudgetFilter from "../components/BudgetFilter";
+import RatingFilter from "../components/RatingFilter";
 
 type FilterServicesModalProps = {
     isModalOpen: boolean;
@@ -40,6 +41,7 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                     <CategoryFilter SIZE={5} />
                     <DeliveryTimeFilter />
                     <BudgetFilter from={5} to={1000} step={5} />
+                    <RatingFilter rates={[4.5, 4, 3]} />
                     <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
                         Filter Services
                         <BiArrowBack className="rotate-[135deg]" />

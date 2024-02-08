@@ -5,6 +5,7 @@ type FilterSearchedServicesInitialState = {
     category?: "all-categories" | "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
     delivery_time?: number;
     price_range?: string;
+    rating?: number;
 }
 
 const initialState: FilterSearchedServicesInitialState = {};
@@ -50,6 +51,16 @@ const filterSearchedServicesSlice = createSlice({
             };
 
             state.price_range = action.payload;
+            return state;
+        },
+
+        filterByRating(state, action: { payload: FilterSearchedServicesInitialState["rating"]; type: string }) {
+            if (action.payload === 0) {
+                delete state.rating;
+                return state;
+            }
+
+            state.rating = action.payload;
             return state;
         }
     }

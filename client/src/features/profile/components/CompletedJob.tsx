@@ -1,6 +1,6 @@
+import Ratings from "../../../components/Ratings";
 import formatDate from "../../../utils/formatDate";
 import { CompletedReviewsType } from "../../reviews/services/getProfileReviews";
-import Ratings from "./Ratings";
 
 interface Props {
     jobDetail: CompletedReviewsType;
@@ -19,7 +19,7 @@ const CompletedJob = (props: React.PropsWithoutRef<Props>) => {
             <li className="pb-5 border-b last:pb-0 last:border-b-0">
                 <h4 className="text-lg font-medium">{props.jobDetail.activityTitle}</h4>
                 <div className="flex items-center flex-wrap gap-x-1">
-                    <Ratings maxStars={5} rate={props.jobDetail.rating} />
+                    <Ratings maxStars={5} rate={props.jobDetail.rating} size="text-sm" />
                     <strong className="flex font-medium">
                         {props.jobDetail.rating.toFixed(2)}
                     </strong>

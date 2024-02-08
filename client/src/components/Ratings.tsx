@@ -4,6 +4,7 @@ import { TbStarFilled } from 'react-icons/tb';
 interface Props {
     maxStars: number;
     rate: number;
+    size: "text-sm" | "text-base" | "text-lg" | "text-xl";
 }
 
 const Ratings = (props: React.PropsWithoutRef<Props>) => {
@@ -14,18 +15,18 @@ const Ratings = (props: React.PropsWithoutRef<Props>) => {
     const stars = Array.from({ length: props.maxStars }, (_, index) => {
         if (index < wholeRating) {
             // Completely filled star
-            return <TbStarFilled key={index} className="text-purple-600 text-sm w-full" />;
+            return <TbStarFilled key={index} className={`${props.size} text-purple-600 w-full`} />;
         } else if (index === wholeRating) {
             // Partially filled star
             return (
                 <div key={index} className="relative w-full">
-                    <TbStarFilled className="text-purple-600 text-sm" style={{ clipPath: `inset(0 ${100 - fractionRating * 100}% 0 0)` }} />
-                    <TbStarFilled className="absolute -z-10 top-0 left-0 text-slate-200 text-sm w-full" />
+                    <TbStarFilled className={`${props.size} text-purple-600`} style={{ clipPath: `inset(0 ${100 - fractionRating * 100}% 0 0)` }} />
+                    <TbStarFilled className={`${props.size} absolute -z-10 top-0 left-0 text-slate-200 w-full`} />
                 </div>
             );
         } else {
             // Empty star
-            return <TbStarFilled key={index} className="text-slate-200 text-sm w-full" />;
+            return <TbStarFilled key={index} className={`${props.size} text-slate-200 w-full`} />;
         }
     });
 

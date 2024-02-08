@@ -7,6 +7,7 @@ type FilterSearchedServicesInitialState = {
     price_range?: string;
     rating?: number;
     english_level?: "Any level" | "professional" | "native" | "fluent" | "conversational" | "basic";
+    badge?: "any-talent" | "top-rated-plus" | "top-rated" | "rising-talent";
 }
 
 const initialState: FilterSearchedServicesInitialState = {};
@@ -72,6 +73,16 @@ const filterSearchedServicesSlice = createSlice({
             }
 
             state.english_level = action.payload;
+            return state;
+        },
+
+        filterByBadge(state, action: { payload: FilterSearchedServicesInitialState["badge"]; type: string }) {
+            if (action.payload === "any-talent") {
+                delete state.badge;
+                return state;
+            };
+
+            state.badge = action.payload;
             return state;
         }
     }

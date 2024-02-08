@@ -6,6 +6,7 @@ import DeliveryTimeFilter from "../components/DeliveryTimeFilter";
 import BudgetFilter from "../components/BudgetFilter";
 import RatingFilter from "../components/RatingFilter";
 import EnglishLevelFilter from "../components/EnglishLevelFilter";
+import BadgeFilter from "../components/BadgeFilter";
 
 type FilterServicesModalProps = {
     isModalOpen: boolean;
@@ -43,8 +44,9 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                     <DeliveryTimeFilter />
                     <BudgetFilter from={5} to={1000} step={5} />
                     <RatingFilter rates={[4.5, 4, 3]} />
-                    <h3 className="text-black text-2xl -mb-4">Talent Details</h3>
+                    <h3 className="text-black text-2xl -mb-3">Talent Details</h3>
                     <EnglishLevelFilter SIZE={4} />
+                    <BadgeFilter />
                     <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
                         Filter Services
                         <BiArrowBack className="rotate-[135deg]" />

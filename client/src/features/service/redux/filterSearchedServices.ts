@@ -8,6 +8,7 @@ type FilterSearchedServicesInitialState = {
     rating?: number;
     english_level?: "Any level" | "professional" | "native" | "fluent" | "conversational" | "basic";
     badge?: "any-talent" | "top-rated-plus" | "top-rated" | "rising-talent";
+    country?: string;
 }
 
 const initialState: FilterSearchedServicesInitialState = {};
@@ -83,6 +84,16 @@ const filterSearchedServicesSlice = createSlice({
             };
 
             state.badge = action.payload;
+            return state;
+        },
+
+        filterByCountry(state, action: { payload: FilterSearchedServicesInitialState["country"]; type: string }) {
+            if (action.payload === "") {
+                delete state.country;
+                return state;
+            };
+
+            state.country = action.payload;
             return state;
         }
     }

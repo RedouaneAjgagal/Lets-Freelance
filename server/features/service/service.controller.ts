@@ -100,7 +100,7 @@ const getAllservices: RequestHandler = async (req, res) => {
 
     // search by location
     if (country && country.toString().trim() !== "") {
-        services = services.filter(service => service.profile!.country!.toLowerCase() === country.toString().toLowerCase());
+        services = services.filter(service => service.profile!.country?.toLowerCase() === country.toString().toLowerCase());
     }
 
 

@@ -6,6 +6,7 @@ type FilterSearchedServicesInitialState = {
     delivery_time?: number;
     price_range?: string;
     rating?: number;
+    english_level?: "Any level" | "professional" | "native" | "fluent" | "conversational" | "basic";
 }
 
 const initialState: FilterSearchedServicesInitialState = {};
@@ -61,6 +62,16 @@ const filterSearchedServicesSlice = createSlice({
             }
 
             state.rating = action.payload;
+            return state;
+        },
+
+        filterByEnglishLevel(state, action: { payload: FilterSearchedServicesInitialState["english_level"]; type: string }) {
+            if (action.payload === "Any level") {
+                delete state.english_level;
+                return state;
+            }
+
+            state.english_level = action.payload;
             return state;
         }
     }

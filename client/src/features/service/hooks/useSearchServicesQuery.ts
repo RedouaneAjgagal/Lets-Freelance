@@ -1,12 +1,22 @@
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import searchServices, { SearchServicesQuery } from '../services/searchServices'
 
 const useSearchServicesQuery = (searchQuery: SearchServicesQuery) => {
-    const searchServicesQuery = useQuery({
+
+    const searchedServices = searchServices(searchQuery);
+
+    const searchServicesQuery = useInfiniteQuery({
         queryKey: ["searchServices"],
-        queryFn: () => searchServices(searchQuery),
+        queryFn: searchedServices,
         retry: false,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        getNextPageParam: (lastPage, pages) => {
+            if (pages.length >= lastPage.numOfPages) {
+                return undefined;
+            }
+
+            return pages.length + 1;
+        }
     });
 
     return searchServicesQuery;

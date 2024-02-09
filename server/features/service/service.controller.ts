@@ -81,9 +81,9 @@ const getAllservices: RequestHandler = async (req, res) => {
 
     // search by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
-    const limit = 12;
+    const limit = 1;
     const start = (currentPage - 1) * limit;
-    const end = currentPage * 12;
+    const end = currentPage * limit;
 
 
     let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge" }).lean();

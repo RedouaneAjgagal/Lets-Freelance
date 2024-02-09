@@ -114,7 +114,7 @@ const filterSearchedServicesSlice = createSlice({
             } else {
                 state = {};
             }
-            
+
             return state;
         }
     }

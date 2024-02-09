@@ -12,13 +12,16 @@ const AllServices = () => {
         searchedServicesQuery.refetch();
     }, [filterSearchedServices]);
 
+    console.log(searchedServicesQuery.hasNextPage);
+
+
     return (
         <main className="p-4 flex flex-col gap-6">
             {
                 searchedServicesQuery.isLoading ?
                     <Loading />
                     :
-                    <ServicesContainer searchedServices={searchedServicesQuery.data!} />
+                    <ServicesContainer pages={searchedServicesQuery.data!.pages} onLoadMore={searchedServicesQuery.fetchNextPage} isFetchingNextPage={searchedServicesQuery.isFetchingNextPage} hasNextPage={searchedServicesQuery.hasNextPage} />
             }
         </main>
     )

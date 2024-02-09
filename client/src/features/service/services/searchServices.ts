@@ -42,13 +42,13 @@ export type SearchServicesQuery = {
     country?: string;
     price_range?: string;
     search?: string;
-    page?: number
+    page?: number;
     rating?: number;
     badge?: "any-talent" | "rising-talent" | "top-rated" | "top-rated-plus";
 }
 
-const searchServices = async (query: SearchServicesQuery) => {
-    const searchQuery = formatSearchQueries(query);
+const searchServices = (query: SearchServicesQuery) => async ({ pageParam = 1 }) => {
+    const searchQuery = formatSearchQueries({ ...query, page: pageParam });
 
     const response = await getRequest(`services${searchQuery}`);
     const services = await response.data as SearchServicesType;

@@ -1,19 +1,61 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FavoriteServiceType } from "../services/getFavorites"
 import { AiFillStar } from "react-icons/ai";
-import Badge from "../../../layouts/brand/Badge";
-import useFavoritesMutation from "../hooks/useFavoritesMutation";
-import FavoriteHeartButton from "../../../components/FavoriteHeartButton";
-import formatProfileName from "../../../utils/formatProfileName";
+import Badge from "../layouts/brand/Badge";
+import { useFavoritesMutation } from "../features/favorites";
+import FavoriteHeartButton from "./FavoriteHeartButton";
+import formatProfileName from "../utils/formatProfileName";
 
-type FavoriteServiceTypeProps = {
-  serviceDetails: FavoriteServiceType;
+type Rating = {
+  avgRate?: number;
+  numOfReviews: number;
+};
+
+export type ServiceCardType = {
+  service: {
+    _id: string;
+    title: string;
+    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    featuredImage: string;
+    tier: {
+      starter: {
+        price: number;
+      };
+    };
+    rating: Rating
+  };
+
+  serviceBy: {
+    _id: string;
+    name: string;
+    avatar: string;
+    userAs?: "freelancer",
+    roles: {
+      freelancer: {
+        badge: "none" | "rising talent" | "top rated" | "top rated plus";
+        englishLevel?: "basic" | "conversational" | "fluent" | "native" | "professional";
+      };
+    };
+    rating?: Rating;
+    country?: string;
+  }
+}
+
+type ServiceCardWithoutFavorite = {
+  serviceDetails: ServiceCardType;
+  hideFavorite: true;
+};
+
+type ServiceCardWithFavorite = {
+  serviceDetails: ServiceCardType;
+  hideFavorite?: false;
   favorite: {
     isFavorite: boolean
   }
 };
 
-const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>) => {
+type ServiceCardProps = ServiceCardWithoutFavorite | ServiceCardWithFavorite;
+
+const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
   const favoritesMutation = useFavoritesMutation("service");
   const navigate = useNavigate();
 
@@ -22,10 +64,12 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
   }
 
   const favoriteServiceToggle = () => {
-    favoritesMutation.mutate({
-      event: "service",
-      target: props.serviceDetails.service._id
-    });
+    if (!props.hideFavorite) {
+      favoritesMutation.mutate({
+        event: "service",
+        target: props.serviceDetails.service._id
+      });
+    }
   }
 
   const freelancerName = formatProfileName(props.serviceDetails.serviceBy.name);
@@ -35,7 +79,7 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
 
       <div className="relative">
         <img src={props.serviceDetails.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
-        {props.favorite ?
+        {!props.hideFavorite && props.favorite ?
           <FavoriteHeartButton onClick={() => favoriteServiceToggle()} fillHeart={props.favorite.isFavorite} />
           :
           null
@@ -72,7 +116,7 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
                   {freelancerName}
                 </Link>
                 {
-                  props.serviceDetails.serviceBy.rating.avgRate ?
+                  props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ?
                     <div className="flex items-center gap-1 flex-wrap">
                       <AiFillStar className="text-yellow-500 text-lg" />
                       <span className="font-semibold text-black text-[1.05rem]">{props.serviceDetails.serviceBy.rating.avgRate || 0}</span>
@@ -97,4 +141,4 @@ const FavoriteService = (props: React.PropsWithoutRef<FavoriteServiceTypeProps>)
   )
 }
 
-export default FavoriteService
+export default ServiceCard;

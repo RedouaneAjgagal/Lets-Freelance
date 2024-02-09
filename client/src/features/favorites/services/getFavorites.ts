@@ -2,7 +2,7 @@ import { getRequest } from "../../../services/api"
 import { Category } from "../../profile/helpers/getFormatedCategory";
 
 type Rating = {
-    avgRate: number | undefined;
+    avgRate?: number;
     numOfReviews: number;
 };
 

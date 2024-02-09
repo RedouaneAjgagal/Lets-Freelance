@@ -38,13 +38,13 @@ export type SearchServicesType = {
 export type SearchServicesQuery = {
     category?: "all-categories" | "digital-marketing" | "design-creative" | "programming-tech" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
     delivery_time?: number;
-    english_level?: "basic" | "conversational" | "fluent" | "native" | "professional";
+    english_level?: "Any level" | "basic" | "conversational" | "fluent" | "native" | "professional";
     country?: string;
     price_range?: string;
     search?: string;
     page?: number
     rating?: number;
-    badge?: "rising-talent" | "top-rated" | "top-rated-plus";
+    badge?: "any-talent" | "rising-talent" | "top-rated" | "top-rated-plus";
 }
 
 const searchServices = async (query: SearchServicesQuery) => {

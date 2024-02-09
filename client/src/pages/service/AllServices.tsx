@@ -10,7 +10,7 @@ const AllServices = () => {
 
     useEffect(() => {
         searchedServicesQuery.refetch();
-    }, [filterSearchedServices])
+    }, [filterSearchedServices]);
 
     return (
         <main className="p-4 flex flex-col gap-6">
@@ -18,7 +18,7 @@ const AllServices = () => {
                 searchedServicesQuery.isLoading ?
                     <Loading />
                     :
-                    <ServicesContainer />
+                    <ServicesContainer searchedServices={searchedServicesQuery.data!} />
             }
         </main>
     )

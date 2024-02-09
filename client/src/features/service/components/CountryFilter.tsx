@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
 
@@ -21,6 +21,12 @@ const CountryFilter = () => {
 
         dispatch(filterSearchedServicesAction.filterByCountry(countryValue.trim()));
     }
+
+    useEffect(() => {
+        if (!country && countryValue !== "") {
+            setCountryValue("");
+        }
+    }, [country]);
 
     return (
         <div className="flex flex-col gap-3">

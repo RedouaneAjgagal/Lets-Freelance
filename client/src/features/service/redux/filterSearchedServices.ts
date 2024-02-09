@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-type FilterSearchedServicesInitialState = {
+export type FilterSearchedServicesInitialState = {
     search?: string;
     category?: "all-categories" | "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
     delivery_time?: number;
@@ -94,6 +94,27 @@ const filterSearchedServicesSlice = createSlice({
             };
 
             state.country = action.payload;
+            return state;
+        },
+
+        removeQuery(state, action: { payload: keyof FilterSearchedServicesInitialState; type: string }) {
+            if (!state[action.payload]) {
+                console.log("NOthing");
+
+                return;
+            }
+
+            delete state[action.payload];
+            return state;
+        },
+
+        clearAll(state) {
+            if (state.search) {
+                state = { search: state.search };
+            } else {
+                state = {};
+            }
+            
             return state;
         }
     }

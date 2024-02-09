@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { useAppDispatch } from "../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
 import convertBudgetToPriceRange from "../../../utils/covertBudgetToPriceRange";
+
 
 type BudgetFilterProps = {
     from: number;
@@ -10,6 +11,9 @@ type BudgetFilterProps = {
 }
 
 const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
+    const { price_range } = useAppSelector(state => state.filterSearchedServicesReducer);
+
+
     const dispatch = useAppDispatch();
     const fromRef = useRef<HTMLInputElement>(null);
 
@@ -64,6 +68,15 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
             return () => clearTimeout(filterByPriceRange);
         }
     }, [priceRange]);
+
+
+    useEffect(() => {
+        if (!price_range) {
+            setFromBudget(props.from);
+            setToBudget(props.to);
+            setIsFilter(false);
+        }
+    }, [price_range])
 
     const colors = {
         sliderColor: "#eee",

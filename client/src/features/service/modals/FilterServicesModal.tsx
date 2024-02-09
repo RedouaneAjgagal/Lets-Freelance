@@ -8,6 +8,7 @@ import RatingFilter from "../components/RatingFilter";
 import EnglishLevelFilter from "../components/EnglishLevelFilter";
 import BadgeFilter from "../components/BadgeFilter";
 import CountryFilter from "../components/CountryFilter";
+import { useEffect, useRef } from "react";
 
 type FilterServicesModalProps = {
     isModalOpen: boolean;
@@ -15,25 +16,30 @@ type FilterServicesModalProps = {
 }
 
 const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalProps>) => {
+    const modalRef = useRef<HTMLDivElement>(null);
 
     const filterServicesHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formadata = new FormData(e.currentTarget);
-        const categoryValue = formadata.get("category");
-        console.log({
-            category: categoryValue
-        });
+        window.scroll({ top: 0 });
+
+        // close modal because filters work automatically onClick
+        props.onCloseModal();
     }
 
+    useEffect(() => {
+        if (props.isModalOpen) {
+            modalRef.current!.scrollTop = 0;
+        }
+    }, [props.isModalOpen])
 
     return (
-        <section>
+        <section className="relative">
             {props.isModalOpen ?
                 <Overlay onClose={props.onCloseModal} />
                 :
                 null
             }
-            <div className={`bg-white  h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium bottom-0 z-[90] overflow-y-scroll ${props.isModalOpen ? "left-0" : "-left-full"}`}>
+            <div className={`bg-white  h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll bottom-0 ${props.isModalOpen ? "left-0" : "-left-full"}`} ref={modalRef}>
                 <div className="flex items-center justify-between text-slate-700 pb-4 border-b">
                     <h3>All Filters</h3>
                     <button onClick={props.onCloseModal} className="bg-purple-100/70 rounded p-1">

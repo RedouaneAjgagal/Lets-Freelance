@@ -77,7 +77,7 @@ const SelectedFilters = () => {
     });
 
     const clearAllFiltersHandler = () => {
-        dispatch(filterSearchedServicesAction.clearAll());
+        dispatch(filterSearchedServicesAction.clearAll({ keepSearch: true }));
     }
 
     return (

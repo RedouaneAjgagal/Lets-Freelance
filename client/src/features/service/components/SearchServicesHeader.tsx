@@ -11,16 +11,16 @@ const SearchServicesHeader = () => {
     const filterServicesQueries = useAppSelector(state => state.filterSearchedServicesReducer);
     const dispatch = useAppDispatch();
 
-    const [searchValue, setSearchValue] = useState<string>("");
     const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
 
     const searchHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        dispatch(filterSearchedServicesAction.filterBySearch(searchValue));
-    }
+        const formData = new FormData(e.currentTarget);
+        const searchValue = formData.get("search")?.toString();
 
-    const searchOnChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchValue(e.currentTarget.value);
+        if (!searchValue && searchValue !== "") return;
+
+        dispatch(filterSearchedServicesAction.filterBySearch(searchValue));
     }
 
     const openFilterModalHandler = () => {
@@ -31,11 +31,11 @@ const SearchServicesHeader = () => {
         setIsFilterModalOpen(false);
     }
 
-    useOverflow(isFilterModalOpen)
+    useOverflow(isFilterModalOpen);
 
     return (
         <header className="flex flex-col gap-5">
-            <SearchInput onSubmit={searchHandler} onChange={searchOnChangeHandler} searchValue={searchValue} />
+            <SearchInput onSubmit={searchHandler} searchValue={filterServicesQueries.search || ""} />
             <h1 className="text-[1.7rem] leading-9 font-semibold text-slate-900">
                 {filterServicesQueries.search ?
                     `Results for "${filterServicesQueries.search}"`

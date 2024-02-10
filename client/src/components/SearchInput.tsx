@@ -2,7 +2,6 @@ import { BiSearch } from "react-icons/bi";
 
 type SearchInputProps = {
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     searchValue: string;
 }
 
@@ -13,7 +12,7 @@ const SearchInput = (props: React.PropsWithoutRef<SearchInputProps>) => {
                 <button type="submit" className="h-full px-2 text-lg">
                     <BiSearch className="-mb-[0.1rem]" />
                 </button>
-                <input onChange={props.onChange} value={props.searchValue} type="search" placeholder="Search" name="search" className="rounded bg-transparent outline-none w-full h-full placeholder:font-medium placeholder:text-slate-500" />
+                <input type="search" placeholder="Search" name="search" className="rounded bg-transparent outline-none w-full h-full placeholder:font-medium placeholder:text-slate-500" defaultValue={props.searchValue} />
             </div>
         </form>
     )

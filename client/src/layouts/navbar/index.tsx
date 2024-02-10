@@ -24,7 +24,7 @@ const Navbar = () => {
 
   useOverflow(isMenuOpen);
 
-  const onRegisterHandler = () => {
+  const closeNavbarHandler = () => {
     setIsMenuOpen(false);
     setIsSearchOpen(false);
   }
@@ -66,11 +66,11 @@ const Navbar = () => {
       </nav>
       <MenuModel isShown={isMenuOpen} onClick={menuHandler} />
       {isMenuOpen ?
-        <SearchModel isShown={isSearchOpen} closeModel={searchHandler} />
+        <SearchModel isShown={isSearchOpen} closeSearchModal={searchHandler} closeNavbar={closeNavbarHandler} />
         :
         null}
       <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0 z-[100]" : "-left-full"}`}>
-        <Link onClick={onRegisterHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
+        <Link onClick={closeNavbarHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
       </div>
     </div>
   )

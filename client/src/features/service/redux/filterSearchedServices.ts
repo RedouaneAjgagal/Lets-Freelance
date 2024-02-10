@@ -108,8 +108,8 @@ const filterSearchedServicesSlice = createSlice({
             return state;
         },
 
-        clearAll(state) {
-            if (state.search) {
+        clearAll(state, action: { payload: { keepSearch: boolean }; type: string }) {
+            if (state.search && action.payload.keepSearch) {
                 state = { search: state.search };
             } else {
                 state = {};

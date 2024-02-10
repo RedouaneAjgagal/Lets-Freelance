@@ -1,18 +1,38 @@
 import { BiArrowBack, BiSearch } from "react-icons/bi";
 import { useState } from "react";
 import SearchBy from "./SearchBy";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { filterSearchedServicesAction } from "../../features/service/redux/filterSearchedServices";
 
 interface Props {
     isShown: boolean;
-    closeModel: () => void;
+    closeSearchModal: () => void;
+    closeNavbar: () => void
 }
 
 const SearchModel = (props: React.PropsWithoutRef<Props>) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [searchBy, setSearchBy] = useState<"talent" | "services" | "jobs">("talent");
     const [search, setSearch] = useState("");
     const searchHandler = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(search);
+        props.closeNavbar();
+
+        switch (searchBy) {
+            case "services":
+                navigate("/services?nav_search=true");
+                dispatch(filterSearchedServicesAction.filterBySearch(search));
+                break;
+
+            default:
+                console.log(search);
+                break;
+        }
+
+
         console.log(searchBy);
         console.log("Searching..");
     }
@@ -29,7 +49,7 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
         <div className={`bg-white min-h-screen fixed top-0 w-full duration-150 ${props.isShown ? "right-0 z-[100]" : "-right-full"}`}>
             <div className="px-4 py-3 flex flex-col gap-3">
                 <div className="flex items-center gap-3">
-                    <button onClick={props.closeModel} className="text-2xl">
+                    <button onClick={props.closeSearchModal} className="text-2xl">
                         <BiArrowBack />
                     </button>
                     <form onSubmit={searchHandler} className="w-full">

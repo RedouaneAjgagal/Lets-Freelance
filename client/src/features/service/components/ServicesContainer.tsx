@@ -1,8 +1,7 @@
-import { FetchNextPageOptions, InfiniteQueryObserverResult, useQueryClient } from "@tanstack/react-query";
+import { FetchNextPageOptions, InfiniteQueryObserverResult } from "@tanstack/react-query";
 import { SearchServicesType } from "../services/searchServices"
 import SearchServicesHeader from "./SearchServicesHeader"
 import SearchedServices from "./SearchedServices"
-import Loading from "../../../components/Loading";
 import LoadMoreServices from "./LoadMoreServices";
 import React from "react";
 

@@ -92,7 +92,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         {
             value: "Submission Service",
             icon: TbSquareRoundedPlus,
-            to: "/profile/freelancer/service",
+            to: "/profile/freelancer/service/create",
             sort: 7
         },
     ];

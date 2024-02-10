@@ -2,7 +2,6 @@ import { useState } from "react";
 import { SingleServiceType } from "../services/getSingleService"
 import SelectServiceTierInput from "./SelectServiceTierInput";
 import SelectedPackage from "./SelectedPackage";
-import { PrimaryButton } from "../../../layouts/brand";
 import formatProfileName from "../../../utils/formatProfileName";
 import CtaOrderService from "./CtaOrderService";
 

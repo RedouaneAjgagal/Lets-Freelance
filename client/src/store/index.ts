@@ -1,14 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "../features/auth";
 import { profileSkillsReducer } from "../features/profile";
-import { filterByStatusReducer, filterSearchedServicesReducer } from "../features/service";
+import { filterByStatusReducer, filterSearchedServicesReducer, createServiceReducer } from "../features/service";
 
 const store = configureStore({
     reducer: {
         authReducer,
         profileSkillsReducer,
         filterByStatusReducer,
-        filterSearchedServicesReducer
+        filterSearchedServicesReducer,
+        createServiceReducer
     }
 });
 

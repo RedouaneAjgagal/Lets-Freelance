@@ -16,7 +16,7 @@ const ServicesContainer = (props: React.PropsWithoutRef<ServicesContainerProps>)
 
     return (
         <div className="flex flex-col gap-4">
-            <SearchServicesHeader />
+            <SearchServicesHeader numOfServices={props.pages[0].numOfServices} />
             {
                 props.pages.map((page, index) => (
                     page.services.length ?

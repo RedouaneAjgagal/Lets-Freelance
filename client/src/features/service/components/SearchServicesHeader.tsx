@@ -7,7 +7,11 @@ import { useAppSelector, useAppDispatch } from '../../../hooks/redux';
 import { filterSearchedServicesAction } from '../redux/filterSearchedServices';
 import SelectedFilters from './SelectedFilters';
 
-const SearchServicesHeader = () => {
+type SearchServicesHeaderProps = {
+    numOfServices: number;
+}
+
+const SearchServicesHeader = (props: React.PropsWithoutRef<SearchServicesHeaderProps>) => {
     const filterServicesQueries = useAppSelector(state => state.filterSearchedServicesReducer);
     const dispatch = useAppDispatch();
 
@@ -50,7 +54,12 @@ const SearchServicesHeader = () => {
                     null
             }
             <div className="flex items-center justify-between gap-2 flex-wrap">
-                <p className="text-slate-600 font-medium">Up to 36 services available</p>
+                <p className="text-slate-500 font-medium text-[.95rem]">
+                    {props.numOfServices !== 0 && props.numOfServices !== 1 ?
+                        `Up to ${props.numOfServices} services available`
+                        : `${props.numOfServices} service available`
+                    }
+                </p>
                 <button onClick={openFilterModalHandler} className="flex items-center gap-1 text-slate-700 font-medium bg-purple-100 border py-2 px-3 rounded justify-center">
                     Filter
                     <TbSortDescending size={24} />

@@ -32,6 +32,7 @@ export type SearchServiceType = {
 
 export type SearchServicesType = {
     numOfPages: number;
+    numOfServices: number;
     services: SearchServiceType[];
 };
 

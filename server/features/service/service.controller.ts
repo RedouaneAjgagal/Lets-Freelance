@@ -81,7 +81,7 @@ const getAllservices: RequestHandler = async (req, res) => {
 
     // search by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
-    const limit = 1;
+    const limit = 8;
     const start = (currentPage - 1) * limit;
     const end = currentPage * limit;
 
@@ -124,7 +124,7 @@ const getAllservices: RequestHandler = async (req, res) => {
     // get number of pages for pagination
     const numOfPages = Math.ceil(services.length / limit);
 
-    res.status(StatusCodes.OK).json({ numOfPages, services: services.slice(start, end) });
+    res.status(StatusCodes.OK).json({ numOfPages, numOfServices: services.length, services: services.slice(start, end) });
 }
 
 

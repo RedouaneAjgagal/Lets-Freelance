@@ -1,9 +1,12 @@
+import CreateServiceStepOne from "./CreateServiceStepOne"
 
 
 const CreateServiceContainer = () => {
-  return (
-    <div>CreateServiceContainer</div>
-  )
+    return (
+        <div>
+            <CreateServiceStepOne />
+        </div>
+    )
 }
 
 export default CreateServiceContainer

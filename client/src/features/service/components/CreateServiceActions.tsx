@@ -2,6 +2,7 @@ import React from 'react'
 import { BiArrowBack } from 'react-icons/bi';
 import { useDispatch } from 'react-redux';
 import { createServiceAction } from '../redux/createService';
+import { useAppSelector } from '../../../hooks/redux';
 
 type CreateServiceActionsProps = {
     currentStep: number;
@@ -9,15 +10,42 @@ type CreateServiceActionsProps = {
 }
 
 const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsProps>) => {
+    const createServiceInfo = useAppSelector(state => state.createServiceReducer);
     const dispatch = useDispatch();
 
     const backHandler = () => {
         dispatch(createServiceAction.onStep("prev"));
     }
 
+    const stepsRequirements = [
+        {
+            step: 1,
+            requirements: {
+                title: createServiceInfo.title.error,
+                category: createServiceInfo.category.error,
+                featuredImage: createServiceInfo.featuredImage.error
+            }
+        }
+    ]
+
     const nextHandler = () => {
+        dispatch(createServiceAction.submitStep({ currentStep: props.currentStep }));
+
         if (props.currentStep === props.numOfSteps) {
             console.log("Open preview service modal");
+            return;
+        }
+
+        for (let i = 0; i < stepsRequirements.length; i++) {
+            const stepRequirements = stepsRequirements[i];
+            if (stepRequirements.step === props.currentStep) {
+                const hasErrors = Object.values(stepRequirements.requirements).some(error => error.isError);
+
+                if (hasErrors) return;
+            }
+        }
+
+        if (createServiceInfo.title.error.isError || createServiceInfo.category.error.isError || createServiceInfo.featuredImage.error.isError) {
             return;
         }
 

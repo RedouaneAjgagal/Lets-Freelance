@@ -4,7 +4,7 @@ type StepRequirements = {
     step: number;
     requirements: {
         [key: string]: {
-            value: string | string[];
+            value: string | {}[] | string[];
             error: {
                 isError: boolean;
                 msg: string;
@@ -59,7 +59,7 @@ type CreateServiceInitialState = {
         error: Error;
     };
     keywords: {
-        value: string[];
+        value: { id: string; keyword: string }[];
         error: Error;
     };
     tier: ServiceTiersTypes;
@@ -163,10 +163,19 @@ const createServiceSlice = createSlice({
                 featuredImage: state.featuredImage,
             };
 
+            const secondStepRequirements: SecondStepRequirementsType = {
+                description: state.description,
+                keywords: state.keywords
+            };
+
             const stepsRequirements: StepRequirements = [
                 {
                     step: 1,
                     requirements: firstStepRequirements
+                },
+                {
+                    step: 2,
+                    requirements: secondStepRequirements
                 }
             ];
 
@@ -175,7 +184,7 @@ const createServiceSlice = createSlice({
 
                 if (action.payload.currentStep === step) {
                     Object.entries(requirements).map(([key, value]) => {
-                        if (value.value === "") {
+                        if (value.value === "" || !value.value.length) {
                             state[key as keyof StepRequirementsType].error = {
                                 isError: true,
                                 msg: "Required, can't be empty"
@@ -282,6 +291,84 @@ const createServiceSlice = createSlice({
                 default:
                     return state;
             }
+        },
+
+        setDescription(state, action: { payload: { value: string; plainText: string }; type: string }) {
+            if (!action.payload.plainText || action.payload.plainText.trim() === "") {
+                state.description = {
+                    value: "",
+                    error: {
+                        isError: true,
+                        msg: "Required, can't be empty"
+                    }
+                };
+
+                return state;
+            }
+
+            const MAX_LENGTH = 6000;
+            if (action.payload.value.length > MAX_LENGTH) {
+                state.description.error = {
+                    isError: true,
+                    msg: `You have reached the limit`
+                };
+
+                return state;
+            }
+
+            state.description = {
+                value: action.payload.value,
+                error: {
+                    isError: false,
+                    msg: ""
+                }
+            }
+            return state;
+        },
+
+        setKeywords(state, action: { payload: { keyword: { id: string; keyword: string } }; type: string }) {
+            const MIN_KEYWORDS = 3;
+            const MAX_KEYWORDS = 5;
+
+            if (state.keywords.value.length >= MAX_KEYWORDS) {
+                state.keywords.error = {
+                    isError: false,
+                    msg: `${MAX_KEYWORDS} keywords is the maximum`
+                };
+
+                return state;
+            }
+
+            const newKeywords = [...state.keywords.value, action.payload.keyword];
+            state.keywords = {
+                value: newKeywords,
+                error: {
+                    isError: newKeywords.length >= MIN_KEYWORDS ? false : true,
+                    msg: newKeywords.length >= MIN_KEYWORDS ? "" : `${MIN_KEYWORDS} keywords is the minimum`
+                }
+            };
+
+            return state;
+        },
+
+        removeKeyword(state, action: { payload: { keywordId: string }; type: string }) {
+            const MIN_KEYWORDS = 3;
+
+            state.keywords.value = state.keywords.value.filter(({ id }) => id !== action.payload.keywordId);
+
+            if (state.keywords.value.length < MIN_KEYWORDS) {
+                state.keywords.error = {
+                    isError: true,
+                    msg: `${MIN_KEYWORDS} keywords is the minimum`
+                }
+            } else {
+                state.keywords.error = {
+                    isError: false,
+                    msg: ""
+                }
+            }
+
+            return state;
         }
     }
 });

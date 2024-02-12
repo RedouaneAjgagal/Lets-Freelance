@@ -25,6 +25,13 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
                 category: createServiceInfo.category.error,
                 featuredImage: createServiceInfo.featuredImage.error
             }
+        },
+        {
+            step: 2,
+            requirements: {
+                description: createServiceInfo.description.error,
+                keywords: createServiceInfo.keywords.error
+            }
         }
     ]
 
@@ -40,6 +47,8 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
             const stepRequirements = stepsRequirements[i];
             if (stepRequirements.step === props.currentStep) {
                 const hasErrors = Object.values(stepRequirements.requirements).some(error => error.isError);
+
+                
 
                 if (hasErrors) return;
             }

@@ -10,6 +10,7 @@ type SelectServiceTierContainerProps = {
     serviceId: SingleServiceType["_id"];
     profileName: string;
     tier: SingleServiceType["tier"];
+    isPreview?: boolean;
 }
 
 const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTierContainerProps>) => {
@@ -35,7 +36,11 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
             </fieldset>
             <hr />
             <SelectedPackage deliveryTime={selectedPackage.deliveryTime} includedIn={selectedPackage.includedIn} />
-            <CtaOrderService profileId={props.profileId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
+            {
+                !props.isPreview ?
+                    <CtaOrderService profileId={props.profileId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
+                    : null
+            }
         </aside>
     )
 }

@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BiArrowBack } from 'react-icons/bi';
 import { useDispatch } from 'react-redux';
 import { createServiceAction } from '../redux/createService';
 import { useAppSelector } from '../../../hooks/redux';
+import CreateServicePreviewModal from './CreateServicePreviewModal';
+import useOverflow from '../../../hooks/useOverflow';
 
 type CreateServiceActionsProps = {
     currentStep: number;
@@ -10,6 +12,12 @@ type CreateServiceActionsProps = {
 }
 
 const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsProps>) => {
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+
+    const closePreviewModal = () => {
+        setIsPreviewModalOpen(false);
+    }
+
     const createServiceInfo = useAppSelector(state => state.createServiceReducer);
     const dispatch = useDispatch();
 
@@ -70,7 +78,7 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
                 return;
             }
 
-            console.log("Open preview service modal");
+            setIsPreviewModalOpen(true);
             return;
         }
 
@@ -94,8 +102,15 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
         dispatch(createServiceAction.onStep("next"));
     }
 
+    useOverflow(isPreviewModalOpen);
+
     return (
         <footer className="relative py-5">
+            {isPreviewModalOpen ?
+                <CreateServicePreviewModal onCloseModal={closePreviewModal} />
+                : null
+            }
+
             {props.currentStep !== 1 ?
                 <button onClick={backHandler} className="absolute left-0 bottom-0 flex items-center gap-2 text-slate-600 pr-3 py-1 font-semibold tracking-wide border-2 border-transparent">
                     <BiArrowBack />

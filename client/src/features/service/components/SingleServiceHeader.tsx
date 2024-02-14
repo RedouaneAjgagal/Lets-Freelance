@@ -13,6 +13,7 @@ type SingleServiceHeaderProps = {
         rating: SingleServiceType["profile"]["rating"];
         badge: SingleServiceType["profile"]["roles"]["freelancer"]["badge"];
     };
+    isPreview?: boolean;
 }
 
 const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderProps>) => {
@@ -27,7 +28,10 @@ const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderPro
                     <div>
                         <img src={props.profile.avatar} alt="freelancer's avatar" className="w-9 h-9 object-cover rounded-full" />
                     </div>
-                    <Link to={`/profiles/${props.profile._id}`} className="">{freelancerName}</Link>
+                    {props.isPreview ?
+                        <span>{freelancerName}</span>
+                        : <Link to={`/profiles/${props.profile._id}`}>{freelancerName}</Link>
+                    }
                     {props.profile.badge === "none" ?
                         null
                         :

@@ -38,7 +38,7 @@ const FeaturedImage = () => {
     }
 
     return (
-        <InputContainer label="Featured image" error={featuredImage.error.msg}>
+        <InputContainer label="Featured image" error={featuredImage.error.msg} id="featuredImage">
             {featuredImage.value ?
                 <div className="mb-1 max-w-[12rem] relative">
                     <img src={featuredImage.value} alt="Featured service image" className="rounded object-contain " />
@@ -48,7 +48,7 @@ const FeaturedImage = () => {
                 </div>
                 : null
             }
-            <input type="file" id="Featured image" name="Featured image" accept="image/png, image/jpeg" className="sr-only" onChange={uploadFeaturedImageHandler} disabled={uploadFeaturedImgMutation.isLoading} />
+            <input type="file" id="featuredImage" name="Featured image" accept="image/png, image/jpeg" className="sr-only" onChange={uploadFeaturedImageHandler} disabled={uploadFeaturedImgMutation.isLoading} />
             <span role="button" className="self-start border-2 rounded border-dashed border-purple-300 bg-purple-100/70 font-medium text-slate-700 h-20 w-28 flex justify-center items-center">
                 {uploadFeaturedImgMutation.isLoading ?
                     <TbLoader2 className="animate-spin" size={28} />

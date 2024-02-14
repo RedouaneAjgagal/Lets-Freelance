@@ -1,4 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
+import isValidGeneralTierInput from "../validators/isValidGeneralTierInput";
+import IncludedInValidator from "../validators/IncludedInValidator";
+
+type addIncludedInType = {
+    type: "add";
+    tier: keyof ServiceTiersTypes;
+};
+
+type removeIncludedInType = {
+    type: "remove";
+    tier: keyof ServiceTiersTypes;
+    id: string;
+}
+
+type GeneralTierDeliveryTimeType = {
+    type: "deliveryTime";
+    tier: keyof ServiceTiersTypes;
+    value: string;
+};
+
+type GeneralTierPriceType = {
+    type: "price";
+    tier: keyof ServiceTiersTypes;
+    value: string;
+}
 
 type StepRequirements = {
     step: number;
@@ -13,18 +38,34 @@ type StepRequirements = {
     }
 }[];
 
-type ServiceIncludedInTier = {
-    description: string;
-    result: string | number | boolean;
+export type ServiceIncludedInTier = {
+    id: string;
+    description: {
+        value: string;
+        error: Error;
+    };
+    result: {
+        value: string | number | boolean;
+        error: Error;
+    };
 }
 
-type ServiceTier = {
-    deliveryTime: number;
-    price: number;
-    includedIn: ServiceIncludedInTier[];
+export type ServiceTier = {
+    deliveryTime: {
+        value: number,
+        error: Error
+    };
+    price: {
+        value: number,
+        error: Error
+    };
+    includedIn: {
+        value: ServiceIncludedInTier[];
+        error: Error;
+    };
 }
 
-type ServiceTiersTypes = {
+export type ServiceTiersTypes = {
     starter: ServiceTier;
     standard: ServiceTier;
     advanced: ServiceTier;
@@ -79,9 +120,27 @@ type SecondStepRequirementsType = {
 type StepRequirementsType = FirstStepRequirementsType & SecondStepRequirementsType;
 
 const initialTierValue = {
-    deliveryTime: 0,
-    price: 0,
-    includedIn: []
+    deliveryTime: {
+        value: 0,
+        error: {
+            isError: true,
+            msg: ""
+        }
+    },
+    price: {
+        value: 0,
+        error: {
+            isError: true,
+            msg: ""
+        }
+    },
+    includedIn: {
+        value: [],
+        error: {
+            isError: false,
+            msg: ""
+        }
+    }
 }
 
 const initialState: CreateServiceInitialState = {
@@ -156,45 +215,77 @@ const createServiceSlice = createSlice({
             return state;
         },
 
-        submitStep(state, action: { payload: { currentStep: number; }; type: string }) {
-            const firstStepRequirements: FirstStepRequirementsType = {
-                title: state.title,
-                category: state.category,
-                featuredImage: state.featuredImage,
-            };
+        submitStep(state, action: { payload: { currentStep: number; isTierStep: boolean }; type: string }) {
+            if (action.payload.isTierStep) {
+                const ERROR_MSG = "Required, can't be empty";
 
-            const secondStepRequirements: SecondStepRequirementsType = {
-                description: state.description,
-                keywords: state.keywords
-            };
+                const tiers = ["starter", "standard", "advanced"] as const;
 
-            const stepsRequirements: StepRequirements = [
-                {
-                    step: 1,
-                    requirements: firstStepRequirements
-                },
-                {
-                    step: 2,
-                    requirements: secondStepRequirements
-                }
-            ];
+                for (const tier of tiers) {
+                    const generatTierRequired = ["deliveryTime", "price"] as const;
+                    for (const key of generatTierRequired) {
+                        const tierInput = state.tier[tier][key];
+                        if (tierInput.error.isError && tierInput.error.msg === "") {
+                            tierInput.error.msg = ERROR_MSG;
+                        }
+                    }
 
-            for (let i = 0; i < stepsRequirements.length; i++) {
-                const { step, requirements } = stepsRequirements[i];
-
-                if (action.payload.currentStep === step) {
-                    Object.entries(requirements).map(([key, value]) => {
-                        if (value.value === "" || !value.value.length) {
-                            state[key as keyof StepRequirementsType].error = {
-                                isError: true,
-                                msg: "Required, can't be empty"
+                    state.tier[tier].includedIn.value.forEach(includedIn => {
+                        const includedInRequired = ["description", "result"] as const;
+                        for (const key of includedInRequired) {
+                            const tierInput = includedIn[key];
+                            if (tierInput.error.isError && tierInput.error.msg === "") {
+                                tierInput.error.msg = ERROR_MSG;
                             }
                         }
-                    });
+                    })
                 }
-            }
 
-            return state;
+                if (state.tier.starter.deliveryTime.error.isError && state.tier.starter.deliveryTime.error.msg === "") {
+                    state.tier.starter.deliveryTime.error.msg = "Required, can't be empty";
+                }
+
+                return state;
+            } else {
+                const firstStepRequirements: FirstStepRequirementsType = {
+                    title: state.title,
+                    category: state.category,
+                    featuredImage: state.featuredImage,
+                };
+
+                const secondStepRequirements: SecondStepRequirementsType = {
+                    description: state.description,
+                    keywords: state.keywords
+                };
+
+                const stepsRequirements: StepRequirements = [
+                    {
+                        step: 1,
+                        requirements: firstStepRequirements
+                    },
+                    {
+                        step: 2,
+                        requirements: secondStepRequirements
+                    }
+                ];
+
+                for (let i = 0; i < stepsRequirements.length; i++) {
+                    const { step, requirements } = stepsRequirements[i];
+
+                    if (action.payload.currentStep === step) {
+                        Object.entries(requirements).map(([key, value]) => {
+                            if (value.value === "" || !value.value.length) {
+                                state[key as keyof StepRequirementsType].error = {
+                                    isError: true,
+                                    msg: "Required, can't be empty"
+                                }
+                            }
+                        });
+                    }
+                }
+
+                return state;
+            }
         },
 
         setTitle(state, action: { payload: CreateServiceInitialState["title"]["value"], type: string }) {
@@ -368,6 +459,109 @@ const createServiceSlice = createSlice({
                 }
             }
 
+            return state;
+        },
+
+
+        includedInAcions(state, action: { payload: addIncludedInType | removeIncludedInType; type: string }) {
+
+            switch (action.payload.type) {
+                case "add":
+
+                    // throw error to the invalid existing includedIn
+                    const validates = ["description", "result"] as const;
+                    state.tier[action.payload.tier].includedIn.value = state.tier[action.payload.tier].includedIn.value.map(includedIn => {
+
+                        const includedInResponse: {
+                            description: ServiceIncludedInTier["description"];
+                            result: ServiceIncludedInTier["result"];
+                        } = {
+                            description: includedIn.description,
+                            result: includedIn.result
+                        };
+
+                        for (const validate of validates) {
+                            const target = includedIn[validate];
+
+                            const errorResult = IncludedInValidator({
+                                type: validate,
+                                value: target.value.toString()
+                            });
+
+                            includedInResponse[validate].error = errorResult;
+                        }
+
+                        return { ...includedIn, ...includedInResponse }
+                    });
+
+
+                    // create new includedIn
+                    const initialState = {
+                        value: "",
+                        error: {
+                            isError: true,
+                            msg: ""
+                        }
+                    };
+
+                    const newId = `${action.payload.tier}_${crypto.randomUUID()}`;
+                    state.tier[action.payload.tier].includedIn.value.push({
+                        id: newId,
+                        description: initialState,
+                        result: initialState
+                    });
+                    break;
+
+                case "remove":
+                    const id = action.payload.id;
+                    state.tier[action.payload.tier].includedIn.value = state.tier[action.payload.tier].includedIn.value.filter(includedIn => includedIn.id !== id);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return state;
+        },
+
+        setGeneralTierInfo(state, action: { payload: GeneralTierDeliveryTimeType | GeneralTierPriceType; type: string }) {
+
+            const result = isValidGeneralTierInput(action.payload.value);
+            state.tier[action.payload.tier][action.payload.type] = {
+                value: +action.payload.value,
+                error: result
+            }
+
+            return state;
+        },
+
+        setIncludedIn(state, action: { payload: { tier: keyof ServiceTiersTypes, type: "description" | "result"; id: string; value: string }; type: string }) {
+
+            const target = state.tier[action.payload.tier].includedIn.value.find(includedIn => includedIn.id === action.payload.id);
+
+            if (!target) {
+                return;
+            }
+
+            const result = IncludedInValidator({
+                type: action.payload.type,
+                value: action.payload.value
+            });
+
+            let value: string | number | boolean = action.payload.value;
+
+            if (!result.isError && action.payload.type === "result") {
+                const isNumber = !Number.isNaN(Number(value));
+                if (isNumber) {
+                    value = parseFloat(value);
+                } else {
+                    value = value === "true";
+                }
+            }
+
+            const includedIn = target[action.payload.type];
+            includedIn.error = result;
+            includedIn.value = value;
             return state;
         }
     }

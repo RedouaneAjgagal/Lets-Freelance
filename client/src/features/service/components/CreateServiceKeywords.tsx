@@ -48,7 +48,7 @@ const CreateServiceKeywords = (props: React.PropsWithoutRef<CreateServiceKeyword
     return (
         <div>
             <div className="relative pb-6 flex flex-col gap-1">
-                <label htmlFor="Keywords" className="text-lg font-medium flex flex-col gap-1">
+                <label htmlFor="keywords" className="text-lg font-medium flex flex-col gap-1">
                     Keywords
                 </label>
                 <div className={`border-2 rounded p-1 bg-white flex justify-start flex-wrap gap-x-4 gap-y-2 ${props.error ? "border-red-300" : "border-slate-300"}`}>
@@ -63,10 +63,7 @@ const CreateServiceKeywords = (props: React.PropsWithoutRef<CreateServiceKeyword
                         </div>
                         : null
                     }
-                    {props.keywords.length !== MAX_KEYWORDS ?
-                        <input id="Keywords" type="text" placeholder={`${placeholderContent[props.keywords.length] || "Add more"}`} className="outline-none min-w-[10rem] font-medium px-1" onChange={setTagHanlder} onKeyDown={handleKeyDown} value={keywordValue} />
-                        : null
-                    }
+                    <input id="keywords" type="text" placeholder={`${placeholderContent[props.keywords.length] || "Add more"}`} className={`outline-none min-w-[10rem] font-medium px-1 ${props.keywords.length === MAX_KEYWORDS ? "hidden" : ""}`} onChange={setTagHanlder} onKeyDown={handleKeyDown} value={keywordValue} disabled={props.keywords.length === MAX_KEYWORDS} />
                 </div>
                 {props.error ?
                     <span className="absolute right-0 bottom-1 text-red-600 text-sm">{props.error}</span>

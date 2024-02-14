@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAppSelector } from "../../../hooks/redux"
 import CreateServiceStepOne from "./CreateServiceStepOne"
 import CreateServiceStepTwo from "./CreateServiceStepTwo";
+import CreateServiceStepThree from "./CreateServiceStepThree";
 
 
 const CreateServiceContainer = () => {
@@ -9,7 +10,8 @@ const CreateServiceContainer = () => {
 
     const steps: { [key: number]: React.JSX.Element } = {
         1: <CreateServiceStepOne />,
-        2: <CreateServiceStepTwo />
+        2: <CreateServiceStepTwo />,
+        3: <CreateServiceStepThree />
     } as const;
 
     const currentStepComponent = steps[currentStep];

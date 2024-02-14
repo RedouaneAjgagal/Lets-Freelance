@@ -21,11 +21,11 @@ const CreateServiceStepOne = () => {
 
     return (
         <CreateServiceWrapper title="General">
-            <InputContainer label="Title" error={title.error.msg}>
-                <input name="Title" onChange={setTitleHandler} type="text" id="Title" value={title.value} className={`border-2 rounded outline-slate-400 px-2 py-1 ${title.error.msg ? "border-red-300 outline-red-300" : "border-slate-300"}`} />
+            <InputContainer label="Title" error={title.error.msg} id="title">
+                <input name="title" onChange={setTitleHandler} type="text" id="title" value={title.value} className={`border-2 rounded outline-slate-400 px-2 py-1 ${title.error.msg ? "border-red-300 outline-red-300" : "border-slate-300"}`} />
             </InputContainer>
-            <InputContainer label="Category" error={category.error.msg}>
-                <select onChange={setCategoryHandler} name="Category" id="Category" className="border-2 rounded border-slate-300 outline-slate-400 p-1" value={category.value}>
+            <InputContainer label="Category" error={category.error.msg} id="category" >
+                <select onChange={setCategoryHandler} name="Category" id="category" className="border-2 rounded border-slate-300 outline-slate-400 p-1" value={category.value}>
                     {categories.map(category => (
                         <option key={category} value={category} >{category}</option>
                     ))}

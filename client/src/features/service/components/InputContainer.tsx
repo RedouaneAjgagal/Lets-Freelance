@@ -2,13 +2,14 @@ import React from 'react'
 
 type InputContainerProps = {
     error: string;
+    id: string;
     label: string;
 }
 
 const InputContainer = (props: React.PropsWithChildren<InputContainerProps>) => {
     return (
         <div className="relative pb-6">
-            <label htmlFor={props.label} className="text-lg font-medium flex flex-col gap-1">
+            <label htmlFor={props.id} className="text-lg font-medium flex flex-col gap-1">
                 {props.label}
                 {props.children}
             </label>

@@ -36,20 +36,53 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
     ]
 
     const nextHandler = () => {
-        dispatch(createServiceAction.submitStep({ currentStep: props.currentStep }));
-
         if (props.currentStep === props.numOfSteps) {
+            dispatch(createServiceAction.submitStep({
+                currentStep: props.currentStep,
+                isTierStep: true
+            }));
+
+            let isError = false;
+
+            const tiers = ["starter", "standard", "advanced"] as const;
+
+            for (const tier of tiers) {
+                const generatTierRequired = ["deliveryTime", "price"] as const;
+                for (const key of generatTierRequired) {
+                    const tierInput = createServiceInfo.tier[tier][key];
+                    if (tierInput.error.isError) {
+                        isError = true;
+                    }
+                }
+
+                createServiceInfo.tier[tier].includedIn.value.forEach(includedIn => {
+                    const includedInRequired = ["description", "result"] as const;
+                    for (const key of includedInRequired) {
+                        const tierInput = includedIn[key];
+                        if (tierInput.error.isError) {
+                            isError = true;
+                        }
+                    }
+                })
+            }
+
+            if (isError) {
+                return;
+            }
+
             console.log("Open preview service modal");
             return;
         }
+
+        dispatch(createServiceAction.submitStep({
+            currentStep: props.currentStep,
+            isTierStep: false
+        }));
 
         for (let i = 0; i < stepsRequirements.length; i++) {
             const stepRequirements = stepsRequirements[i];
             if (stepRequirements.step === props.currentStep) {
                 const hasErrors = Object.values(stepRequirements.requirements).some(error => error.isError);
-
-                
-
                 if (hasErrors) return;
             }
         }

@@ -10,7 +10,7 @@ type SelectedPackageProps = {
 const SelectedPackage = (props: React.PropsWithoutRef<SelectedPackageProps>) => {
     const deliveryTime: ServiceIncludedInTier = {
         _id: crypto.randomUUID(),
-        description: "Delivery Time",
+        description: "Delivery time",
         result: `${props.deliveryTime} Day${props.deliveryTime === 1 ? "" : "s"}`
     }
 
@@ -24,7 +24,7 @@ const SelectedPackage = (props: React.PropsWithoutRef<SelectedPackageProps>) => 
 
     return (
         <div className="flex flex-col gap-2">
-            {includedIn.map(included => <IncludedIn key={included._id} description={included.description} result={included.result} />)}
+            {includedIn.map(included => <IncludedIn key={crypto.randomUUID()} description={included.description} result={included.result} />)}
             <div className="flex gap-1 items-start mt-4">
                 <div className="pt-1"><TbClock /></div>
                 <div className="flex flex-col">

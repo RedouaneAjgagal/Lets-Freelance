@@ -1,8 +1,15 @@
+import { useEffect } from "react";
 import { CreateServiceContainer, CreateServiceActions, CreateServiceSteps } from "../../features/service";
-import { useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { createServiceAction } from "../../features/service/redux/createService";
 
 const CreateService = () => {
+    const dispatch = useAppDispatch();
     const { currentStep, numOfSteps } = useAppSelector(state => state.createServiceReducer);
+
+    useEffect(() => {
+        dispatch(createServiceAction.resetState());
+    }, [])
 
     return (
         <main className="p-4 bg-purple-100/30 flex flex-col gap-4">

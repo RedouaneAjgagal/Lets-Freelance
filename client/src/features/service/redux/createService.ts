@@ -563,6 +563,10 @@ const createServiceSlice = createSlice({
             includedIn.error = result;
             includedIn.value = value;
             return state;
+        },
+
+        resetState() {
+            return initialState;
         }
     }
 });

@@ -5,6 +5,11 @@ import { SingleServiceType } from "../services/getSingleService";
 import { useAppSelector } from "../../../hooks/redux";
 import { PrimaryButton } from "../../../layouts/brand";
 import { BiArrowBack } from "react-icons/bi";
+import useCreateServiceMutation from "../hooks/useCreateServiceMutation";
+import { TierType } from "../services/createService";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useOverflow from "../../../hooks/useOverflow";
 
 type CreateServicePreviewModalProps = {
     onCloseModal: () => void;
@@ -14,13 +19,13 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
     const userInfo = useAppSelector(state => state.authReducer).userInfo!;
     const createServiceInfo = useAppSelector(state => state.createServiceReducer);
 
+    const createServiceMutation = useCreateServiceMutation();
+
+    const navigate = useNavigate();
+
     const category = createServiceInfo.category.value.toLowerCase() as "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
 
-    const tiers: {
-        starter: SingleServiceType["tier"]["starter"]
-        standard: SingleServiceType["tier"]["standard"]
-        advanced: SingleServiceType["tier"]["advanced"]
-    } = {
+    const initialTierValues = {
         starter: {
             deliveryTime: 0,
             price: 0,
@@ -36,17 +41,36 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
             price: 0,
             includedIn: []
         }
-    };
+    }
+
+    const previewTiers: {
+        starter: SingleServiceType["tier"]["starter"]
+        standard: SingleServiceType["tier"]["standard"]
+        advanced: SingleServiceType["tier"]["advanced"]
+    } = initialTierValues;
+
+    const createServiceTiers: {
+        starter: TierType;
+        standard: TierType;
+        advanced: TierType;
+    } = initialTierValues;
 
     Object.entries(createServiceInfo.tier).map(([key, tier]) => {
         const tierName = key as "starter" | "standard" | "advanced";
 
-        tier.deliveryTime
-        tiers[tierName] = {
+        previewTiers[tierName] = {
             deliveryTime: tier.deliveryTime.value,
             price: tier.price.value,
             includedIn: tier.includedIn.value.map(includedIn => {
                 return { _id: includedIn.id, description: includedIn.description.value, result: includedIn.result.value }
+            })
+        }
+
+        createServiceTiers[tierName] = {
+            deliveryTime: tier.deliveryTime.value,
+            price: tier.price.value,
+            includedIn: tier.includedIn.value.map(includedIn => {
+                return { description: includedIn.description.value, result: includedIn.result.value }
             })
         }
     })
@@ -71,15 +95,35 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
         rating: {
             numOfReviews: 0
         },
-        tier: tiers,
+        tier: previewTiers,
         title: createServiceInfo.title.value,
         updatedAt: new Date().toLocaleDateString(),
         user: userInfo.userId
     };
 
     const createServiceHandler = () => {
-        console.log("Create service");
+        if (createServiceMutation.isLoading) {
+            return;
+        }
+
+        createServiceMutation.mutate({
+            title: serviceInfo.title,
+            description: serviceInfo.description,
+            category: serviceInfo.category,
+            featuredImage: serviceInfo.featuredImage,
+            gallery: serviceInfo.gallery,
+            tier: createServiceTiers,
+            keywords: createServiceInfo.keywords.value.map(value => value.keyword)
+        });
     }
+
+    useEffect(() => {
+        if (createServiceMutation.isSuccess) {
+            navigate("/profile/freelancer/services");
+        }
+    }, [createServiceMutation.isSuccess])
+
+    useOverflow(!createServiceMutation.isSuccess);
 
     return (
         createPortal(
@@ -93,7 +137,7 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
                         <BiArrowBack size={16} />
                         Back
                     </button>
-                    <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>Submit</PrimaryButton>
+                    <PrimaryButton disabled={createServiceMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>Submit</PrimaryButton>
                 </div>
             </div>
             , document.getElementById("overlay")!

@@ -565,6 +565,25 @@ const createServiceSlice = createSlice({
             return state;
         },
 
+        duplicateIncludedIn(state, action: { payload: { tierName: keyof ServiceTiersTypes }; type: string }) {
+            const tierName = action.payload.tierName;
+
+            if (tierName === "starter") {
+                return state;
+            }
+
+            const target = state.tier[tierName === "standard" ? "starter" : "standard"].includedIn;
+            state.tier[tierName].includedIn = {
+                error: target.error,
+                value: target.value.map(({ description, result }) => {
+                    const id = crypto.randomUUID();
+                    return { id, description, result }
+                })
+            };
+
+            return state;
+        },
+
         resetState() {
             return initialState;
         }

@@ -2,7 +2,7 @@ import { BsArrowDown, BsPlus } from "react-icons/bs"
 import InputContainer from "./InputContainer"
 import { ServiceTier, ServiceIncludedInTier, ServiceTiersTypes, createServiceAction } from "../redux/createService";
 import CreateServiceIncludedIn from "./CreateServiceIncludedIn";
-import { useAppDispatch } from "../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 
 type TierContainerProps = {
     tierName: keyof ServiceTiersTypes;
@@ -15,6 +15,7 @@ type TierContainerProps = {
 }
 
 const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
+    const { tier } = useAppSelector(state => state.createServiceReducer);
     const dispatch = useAppDispatch();
 
     const openTierHandler = () => {
@@ -55,6 +56,12 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
         }));
     }
 
+    const copyIncludedInHandler = () => {
+        dispatch(createServiceAction.duplicateIncludedIn({
+            tierName: props.tierName
+        }))
+    }
+
     return (
         <div className="flex flex-col bg-white">
             <button onClick={openTierHandler} className={`${props.isTierOpen ? "rounded-t" : "rounded"} ${props.isError && !props.isTierOpen ? "border-red-300" : "border-slate-300"} flex items-center justify-between w-full border-2 px-2 py-3 font-semibold text-purple-700 text-lg tracking-wide`}>
@@ -77,6 +84,10 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
                             <div>
                                 {props.includedIn.map(includedIn => <CreateServiceIncludedIn key={includedIn.id} includedIn={includedIn} onRemoveIncludedIn={removeIncludedInHandler} tierName={props.tierName} />)}
                             </div>
+                            : null
+                        }
+                        {props.tierName !== "starter" && !tier[props.tierName].includedIn.value.length && tier[props.tierName === "standard" ? "starter" : "standard"].includedIn.value.length ?
+                            <button onClick={copyIncludedInHandler} className="self-end text-sm p-1 underline text-purple-500">Copy the previous</button>
                             : null
                         }
                         <button onClick={addMoreInludedInHandler} className="bg-purple-200/30 border-purple-300 p-2 rounded border flex justify-center items-center text-slate-900">

@@ -1,3 +1,4 @@
+import toUpperCase from "../../../utils/toUpperCase";
 import { ServiceIncludedInTier } from "../services/getSingleService"
 import { TbCheck, TbX } from "react-icons/tb";
 
@@ -7,10 +8,14 @@ type IncludedInProps = {
 }
 
 const IncludedIn = (props: React.PropsWithoutRef<IncludedInProps>) => {
+    const description = toUpperCase({
+        value: props.description,
+        everyWord: true
+    });
 
     return (
         <div className="flex items-end justify-between gap-2 text-[.95rem]">
-            <span className="">{props.description}</span>
+            <span className="">{description}</span>
             <span className="font-medium">
                 {typeof props.result === "boolean" ?
                     (props.result ? <TbCheck className="text-xl text-green-600" /> : <TbX className="text-xl text-red-600" />)

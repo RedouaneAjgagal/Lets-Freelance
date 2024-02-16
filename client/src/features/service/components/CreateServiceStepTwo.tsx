@@ -1,24 +1,27 @@
 import CreateServiceWrapper from "./CreateServiceWrapper"
 import "react-quill/dist/quill.snow.css";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { createServiceAction } from "../redux/createService";
+import { serviceFormAction } from "../redux/serviceForm";
 import DescriptionRichTextEditor from "./DescriptionRichTextEditor";
 import CreateServiceKeywords from "./CreateServiceKeywords";
 
+type CreateServiceStepTwoProps = {
+  formType: "create" | "update";
+}
 
-const CreateServiceStepTwo = () => {
-  const { description, keywords } = useAppSelector(state => state.createServiceReducer);
+const CreateServiceStepTwo = (props: React.PropsWithoutRef<CreateServiceStepTwoProps>) => {
+  const { description, keywords } = useAppSelector(state => state.serviceFormReducer);
   const dispatch = useAppDispatch();
 
   const setDescriptionHandler = (value: string, plainText: string) => {
-    dispatch(createServiceAction.setDescription({
+    dispatch(serviceFormAction.setDescription({
       value,
       plainText
     }));
   }
 
   const setKeywordHandler = ({ id, keyword }: { id: string; keyword: string }) => {
-    dispatch(createServiceAction.setKeywords({
+    dispatch(serviceFormAction.setKeywords({
       keyword: {
         id,
         keyword
@@ -27,7 +30,7 @@ const CreateServiceStepTwo = () => {
   }
 
   const removeKeywordHandler = (keywordId: string) => {
-    dispatch(createServiceAction.removeKeyword({
+    dispatch(serviceFormAction.removeKeyword({
       keywordId
     }));
   }
@@ -35,7 +38,10 @@ const CreateServiceStepTwo = () => {
   return (
     <CreateServiceWrapper title="Details">
       <DescriptionRichTextEditor error={description.error.msg} onChange={setDescriptionHandler} textValue={description.value} />
-      <CreateServiceKeywords error={keywords.error.msg} keywords={keywords.value} setKeyword={setKeywordHandler} onRemoveKeyword={removeKeywordHandler} />
+      {props.formType === "create" ?
+        <CreateServiceKeywords error={keywords.error.msg} keywords={keywords.value} setKeyword={setKeywordHandler} onRemoveKeyword={removeKeywordHandler} />
+        : null
+      }
     </CreateServiceWrapper>
   )
 }

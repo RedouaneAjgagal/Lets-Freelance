@@ -1,11 +1,11 @@
 import CreateServiceWrapper from "./CreateServiceWrapper"
 import { useAppSelector } from "../../../hooks/redux"
 import TierContainer from "./TierContainer";
-import { ServiceTiersTypes } from "../redux/createService";
+import { ServiceTiersTypes } from "../redux/serviceForm";
 import { useState } from "react";
 
 const CreateServiceStepThree = () => {
-  const { tier } = useAppSelector(state => state.createServiceReducer);
+  const { tier } = useAppSelector(state => state.serviceFormReducer);
 
   const [isTierOpen, setIsTierOpen] = useState({
     starter: true,

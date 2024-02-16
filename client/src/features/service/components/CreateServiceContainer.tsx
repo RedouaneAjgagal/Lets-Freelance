@@ -4,13 +4,16 @@ import CreateServiceStepOne from "./CreateServiceStepOne"
 import CreateServiceStepTwo from "./CreateServiceStepTwo";
 import CreateServiceStepThree from "./CreateServiceStepThree";
 
+type CreateServiceContainerProps = {
+    formType: "create" | "update";
+}
 
-const CreateServiceContainer = () => {
-    const { currentStep } = useAppSelector(state => state.createServiceReducer);
+const CreateServiceContainer = (props: React.PropsWithoutRef<CreateServiceContainerProps>) => {
+    const { currentStep } = useAppSelector(state => state.serviceFormReducer);
 
     const steps: { [key: number]: React.JSX.Element } = {
         1: <CreateServiceStepOne />,
-        2: <CreateServiceStepTwo />,
+        2: <CreateServiceStepTwo formType={props.formType} />,
         3: <CreateServiceStepThree />
     } as const;
 

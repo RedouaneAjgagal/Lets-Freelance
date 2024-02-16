@@ -3,7 +3,7 @@ import uploadFeaturedImage from "../services/uploadFeaturedImage";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { useAppDispatch } from "../../../hooks/redux";
-import { createServiceAction } from "../redux/createService";
+import { serviceFormAction } from "../redux/serviceForm";
 
 const useUploadFeaturedImgMutation = () => {
     const dispatch = useAppDispatch();
@@ -11,7 +11,7 @@ const useUploadFeaturedImgMutation = () => {
     const uploadFeaturedImgMutation = useMutation({
         mutationFn: uploadFeaturedImage,
         onSuccess: (data) => {
-            dispatch(createServiceAction.setFeaturedImage({
+            dispatch(serviceFormAction.setFeaturedImage({
                 featuredImgURL: data.featuredImgURL
             }));
         },

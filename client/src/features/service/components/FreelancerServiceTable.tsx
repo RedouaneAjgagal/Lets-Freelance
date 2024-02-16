@@ -14,6 +14,7 @@ const FreelancerServiceTable = (props: React.PropsWithoutRef<FreelancerServiceTa
     }
 
     const editServicehandler = () => {
+        navigate(`${props.service._id}/edit`);
         console.log({ editService: props.service._id });
     }
 

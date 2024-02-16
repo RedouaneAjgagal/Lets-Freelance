@@ -1,6 +1,6 @@
 import { BsArrowDown, BsPlus } from "react-icons/bs"
 import InputContainer from "./InputContainer"
-import { ServiceTier, ServiceIncludedInTier, ServiceTiersTypes, createServiceAction } from "../redux/createService";
+import { ServiceTier, ServiceIncludedInTier, ServiceTiersTypes, serviceFormAction } from "../redux/serviceForm";
 import CreateServiceIncludedIn from "./CreateServiceIncludedIn";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 
@@ -15,7 +15,7 @@ type TierContainerProps = {
 }
 
 const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
-    const { tier } = useAppSelector(state => state.createServiceReducer);
+    const { tier } = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useAppDispatch();
 
     const openTierHandler = () => {
@@ -26,14 +26,14 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
 
 
     const addMoreInludedInHandler = () => {
-        dispatch(createServiceAction.includedInAcions({
+        dispatch(serviceFormAction.includedInAcions({
             type: "add",
             tier: props.tierName
         }));
     }
 
     const removeIncludedInHandler = (id: string) => {
-        dispatch(createServiceAction.includedInAcions({
+        dispatch(serviceFormAction.includedInAcions({
             type: "remove",
             tier: props.tierName,
             id
@@ -41,7 +41,7 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
     }
 
     const deliveryTimeChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(createServiceAction.setGeneralTierInfo({
+        dispatch(serviceFormAction.setGeneralTierInfo({
             type: "deliveryTime",
             tier: props.tierName,
             value: e.currentTarget.value
@@ -49,7 +49,7 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
     }
 
     const priceChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(createServiceAction.setGeneralTierInfo({
+        dispatch(serviceFormAction.setGeneralTierInfo({
             type: "price",
             tier: props.tierName,
             value: e.currentTarget.value
@@ -57,7 +57,7 @@ const TierContainer = (props: React.PropsWithoutRef<TierContainerProps>) => {
     }
 
     const copyIncludedInHandler = () => {
-        dispatch(createServiceAction.duplicateIncludedIn({
+        dispatch(serviceFormAction.duplicateIncludedIn({
             tierName: props.tierName
         }))
     }

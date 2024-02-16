@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { BiArrowBack } from 'react-icons/bi';
 import { useDispatch } from 'react-redux';
-import { createServiceAction } from '../redux/createService';
+import { serviceFormAction } from '../redux/serviceForm';
 import { useAppSelector } from '../../../hooks/redux';
 import CreateServicePreviewModal from './CreateServicePreviewModal';
 import useOverflow from '../../../hooks/useOverflow';
@@ -9,6 +9,7 @@ import useOverflow from '../../../hooks/useOverflow';
 type CreateServiceActionsProps = {
     currentStep: number;
     numOfSteps: number;
+    formType: "create" | "update";
 }
 
 const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsProps>) => {
@@ -18,11 +19,11 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
         setIsPreviewModalOpen(false);
     }
 
-    const createServiceInfo = useAppSelector(state => state.createServiceReducer);
+    const createServiceInfo = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useDispatch();
 
     const backHandler = () => {
-        dispatch(createServiceAction.onStep("prev"));
+        dispatch(serviceFormAction.onStep("prev"));
     }
 
     const stepsRequirements = [
@@ -38,14 +39,17 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
             step: 2,
             requirements: {
                 description: createServiceInfo.description.error,
-                keywords: createServiceInfo.keywords.error
+                keywords: props.formType === "create" ? createServiceInfo.keywords.error : {
+                    isError: false,
+                    msg: ""
+                }
             }
         }
     ]
 
     const nextHandler = () => {
         if (props.currentStep === props.numOfSteps) {
-            dispatch(createServiceAction.submitStep({
+            dispatch(serviceFormAction.submitStep({
                 currentStep: props.currentStep,
                 isTierStep: true
             }));
@@ -82,7 +86,7 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
             return;
         }
 
-        dispatch(createServiceAction.submitStep({
+        dispatch(serviceFormAction.submitStep({
             currentStep: props.currentStep,
             isTierStep: false
         }));
@@ -99,7 +103,7 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
             return;
         }
 
-        dispatch(createServiceAction.onStep("next"));
+        dispatch(serviceFormAction.onStep("next"));
     }
 
     useOverflow(isPreviewModalOpen);
@@ -107,7 +111,7 @@ const CreateServiceActions = (props: React.PropsWithoutRef<CreateServiceActionsP
     return (
         <footer className="relative py-5">
             {isPreviewModalOpen ?
-                <CreateServicePreviewModal onCloseModal={closePreviewModal} />
+                <CreateServicePreviewModal onCloseModal={closePreviewModal} formType={props.formType} />
                 : null
             }
 

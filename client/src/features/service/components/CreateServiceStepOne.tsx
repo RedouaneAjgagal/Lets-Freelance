@@ -1,22 +1,22 @@
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { createServiceAction } from "../redux/createService";
+import { serviceFormAction } from "../redux/serviceForm";
 import InputContainer from "./InputContainer";
 import FeaturedImage from "./FeaturedImage";
 import Gallery from "./Gallery";
 import CreateServiceWrapper from "./CreateServiceWrapper";
 
 const CreateServiceStepOne = () => {
-    const { title, category } = useAppSelector(state => state.createServiceReducer);
+    const { title, category } = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useAppDispatch();
 
     const categories = ["Digital Marketing", "Design & Creative", "Programming & Tech", "Writing & Translation", "Video & Animation", "Finance & Accounting", "Music & Audio"] as const;
 
     const setTitleHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(createServiceAction.setTitle(e.currentTarget.value));
+        dispatch(serviceFormAction.setTitle(e.currentTarget.value));
     }
 
     const setCategoryHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        dispatch(createServiceAction.setCategory(e.currentTarget.value as typeof categories[number]));
+        dispatch(serviceFormAction.setCategory(e.currentTarget.value as typeof categories[number]));
     }
 
     return (

@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "../features/auth";
 import { profileSkillsReducer } from "../features/profile";
-import { filterByStatusReducer, filterSearchedServicesReducer, createServiceReducer } from "../features/service";
+import { filterByStatusReducer, filterSearchedServicesReducer, serviceFormReducer } from "../features/service";
 
 const store = configureStore({
     reducer: {
@@ -9,7 +9,7 @@ const store = configureStore({
         profileSkillsReducer,
         filterByStatusReducer,
         filterSearchedServicesReducer,
-        createServiceReducer
+        serviceFormReducer
     }
 });
 

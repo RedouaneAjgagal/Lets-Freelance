@@ -1,14 +1,14 @@
 import React from 'react'
 import InputContainer from './InputContainer'
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux'
-import { createServiceAction } from '../redux/createService';
+import { serviceFormAction } from '../redux/serviceForm';
 import useUploadFeaturedImgMutation from '../hooks/useUploadFeaturedImgMutation';
 import { TbTrash } from 'react-icons/tb';
 import uploadImageValidator from '../validators/uploadImageValidator';
 import { TbLoader2 } from "react-icons/tb";
 
 const FeaturedImage = () => {
-    const { featuredImage } = useAppSelector(state => state.createServiceReducer);
+    const { featuredImage } = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useAppDispatch();
 
     const uploadFeaturedImgMutation = useUploadFeaturedImgMutation();
@@ -21,7 +21,7 @@ const FeaturedImage = () => {
         const results = uploadImageValidator(imgFile);
 
         if (results.isError) {
-            dispatch(createServiceAction.setImageError({
+            dispatch(serviceFormAction.setImageError({
                 type: "featuredImage",
                 msg: results.error
             }));
@@ -34,7 +34,7 @@ const FeaturedImage = () => {
 
     const removeFeaturedImgHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
-        dispatch(createServiceAction.setFeaturedImage({ featuredImgURL: "" }));
+        dispatch(serviceFormAction.setFeaturedImage({ featuredImgURL: "" }));
     }
 
     return (

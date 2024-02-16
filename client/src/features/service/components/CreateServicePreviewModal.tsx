@@ -8,20 +8,24 @@ import { BiArrowBack } from "react-icons/bi";
 import useCreateServiceMutation from "../hooks/useCreateServiceMutation";
 import { TierType } from "../services/createService";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useOverflow from "../../../hooks/useOverflow";
+import useUpdateServiceMutation from "../hooks/useUpdateServiceMutation";
 
 type CreateServicePreviewModalProps = {
     onCloseModal: () => void;
+    formType: "create" | "update";
 }
 
 const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePreviewModalProps>) => {
     const userInfo = useAppSelector(state => state.authReducer).userInfo!;
-    const createServiceInfo = useAppSelector(state => state.createServiceReducer);
+    const createServiceInfo = useAppSelector(state => state.serviceFormReducer);
 
     const createServiceMutation = useCreateServiceMutation();
+    const updateServiceMutation = useUpdateServiceMutation();
 
     const navigate = useNavigate();
+    const params = useParams();
 
     const category = createServiceInfo.category.value.toLowerCase() as "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
 
@@ -106,24 +110,39 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
             return;
         }
 
-        createServiceMutation.mutate({
-            title: serviceInfo.title,
-            description: serviceInfo.description,
-            category: serviceInfo.category,
-            featuredImage: serviceInfo.featuredImage,
-            gallery: serviceInfo.gallery,
-            tier: createServiceTiers,
-            keywords: createServiceInfo.keywords.value.map(value => value.keyword)
-        });
+        if (props.formType === "create") {
+            createServiceMutation.mutate({
+                title: serviceInfo.title,
+                description: serviceInfo.description,
+                category: serviceInfo.category,
+                featuredImage: serviceInfo.featuredImage,
+                gallery: serviceInfo.gallery,
+                tier: createServiceTiers,
+                keywords: createServiceInfo.keywords.value.map(value => value.keyword)
+            });
+        } else {
+            const serviceId = params.serviceId!;
+            updateServiceMutation.mutate({
+                serviceId,
+                service: {
+                    title: serviceInfo.title,
+                    description: serviceInfo.description,
+                    category: serviceInfo.category,
+                    featuredImage: serviceInfo.featuredImage,
+                    gallery: serviceInfo.gallery,
+                    tier: createServiceTiers
+                }
+            })
+        }
     }
 
     useEffect(() => {
-        if (createServiceMutation.isSuccess) {
+        if (createServiceMutation.isSuccess || updateServiceMutation.isSuccess) {
             navigate("/profile/freelancer/services");
         }
-    }, [createServiceMutation.isSuccess])
+    }, [createServiceMutation.isSuccess, updateServiceMutation.isSuccess]);
 
-    useOverflow(!createServiceMutation.isSuccess);
+    useOverflow(!updateServiceMutation.isSuccess);
 
     return (
         createPortal(
@@ -137,7 +156,12 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
                         <BiArrowBack size={16} />
                         Back
                     </button>
-                    <PrimaryButton disabled={createServiceMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>Submit</PrimaryButton>
+                    <PrimaryButton disabled={createServiceMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>
+                        {props.formType === "create" ?
+                            "Submit"
+                            : "Update"
+                        }
+                    </PrimaryButton>
                 </div>
             </div>
             , document.getElementById("overlay")!

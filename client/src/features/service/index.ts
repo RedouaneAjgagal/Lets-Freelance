@@ -14,7 +14,8 @@ import filterSearchedServicesReducer from "./redux/filterSearchedServices";
 import CreateServiceContainer from "./components/CreateServiceContainer";
 import CreateServiceSteps from "./components/CreateServiceSteps";
 import CreateServiceActions from "./components/CreateServiceActions";
-import createServiceReducer from "./redux/createService";
+import serviceFormReducer from "./redux/serviceForm";
+import ServiceForm from "./components/ServiceForm";
 
 export {
     useTrendingServicesQuery,
@@ -33,5 +34,6 @@ export {
     CreateServiceContainer,
     CreateServiceSteps,
     CreateServiceActions,
-    createServiceReducer
+    serviceFormReducer,
+    ServiceForm
 }

@@ -1,12 +1,12 @@
 import { TbLoader2, TbTrash } from 'react-icons/tb';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { createServiceAction } from '../redux/createService';
+import { serviceFormAction } from '../redux/serviceForm';
 import uploadImageValidator from '../validators/uploadImageValidator';
 import InputContainer from './InputContainer';
 import useUploadGalleryMutation from '../hooks/useUploadGalleryMutation';
 
 const Gallery = () => {
-    const { gallery } = useAppSelector(state => state.createServiceReducer);
+    const { gallery } = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useAppDispatch();
 
     const uploadGalleryMutation = useUploadGalleryMutation();
@@ -16,7 +16,7 @@ const Gallery = () => {
 
         const MAX = 5;
         if (gallery.value.length >= MAX) {
-            dispatch(createServiceAction.setImageError({
+            dispatch(serviceFormAction.setImageError({
                 type: "gallery",
                 msg: `${MAX} is the maximum`,
             }));
@@ -29,7 +29,7 @@ const Gallery = () => {
         const results = uploadImageValidator(imgFile);
 
         if (results.isError) {
-            dispatch(createServiceAction.setImageError({
+            dispatch(serviceFormAction.setImageError({
                 type: "gallery",
                 msg: results.error
             }));
@@ -43,7 +43,7 @@ const Gallery = () => {
     const removeGalleryImgHandler = ({ event, img }: { event: React.MouseEvent<HTMLButtonElement, MouseEvent>; img: string }) => {
         event.preventDefault();
 
-        dispatch(createServiceAction.setGalleryImage({
+        dispatch(serviceFormAction.setGalleryImage({
             type: "delete",
             galleryURL: img
         }));

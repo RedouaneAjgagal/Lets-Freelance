@@ -1,5 +1,5 @@
 import { BsArrowDown, BsCheck, BsX } from 'react-icons/bs';
-import { ServiceIncludedInTier, ServiceTiersTypes, createServiceAction } from '../redux/createService';
+import { ServiceIncludedInTier, ServiceTiersTypes, serviceFormAction } from '../redux/serviceForm';
 import { useState } from 'react';
 import { TbTrash } from 'react-icons/tb';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
@@ -11,7 +11,7 @@ type CreateServiceIncludedInProps = {
 }
 
 const CreateServiceIncludedIn = (props: React.PropsWithoutRef<CreateServiceIncludedInProps>) => {
-    const { tier } = useAppSelector(state => state.createServiceReducer);
+    const { tier } = useAppSelector(state => state.serviceFormReducer);
     const dispatch = useAppDispatch();
     const [isSelectOpen, setIsSelectOpen] = useState(false);
 
@@ -26,7 +26,7 @@ const CreateServiceIncludedIn = (props: React.PropsWithoutRef<CreateServiceInclu
     }
 
     const setDescriptionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        dispatch(createServiceAction.setIncludedIn({
+        dispatch(serviceFormAction.setIncludedIn({
             type: "description",
             id: props.includedIn.id,
             tier: props.tierName,
@@ -39,7 +39,7 @@ const CreateServiceIncludedIn = (props: React.PropsWithoutRef<CreateServiceInclu
     }
 
     const setResultHandler = (value: string) => {
-        dispatch(createServiceAction.setIncludedIn({
+        dispatch(serviceFormAction.setIncludedIn({
             type: "result",
             id: props.includedIn.id,
             tier: props.tierName,

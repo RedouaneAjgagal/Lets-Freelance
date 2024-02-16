@@ -3,9 +3,9 @@ const toUpperCaseWord = (word: string) => {
 };
 
 
-const toUpperCase = ({ value, everyWord }: { value: string; everyWord?: boolean }) => {
+const toUpperCase = ({ value, everyWord, splitBy }: { value: string; everyWord?: boolean; splitBy?: string }) => {
     if (everyWord) {
-        return value.split(" ").map(word => toUpperCaseWord(word)).join(" ");
+        return value.split(splitBy ? ` ${splitBy} ` : " ").map(word => toUpperCaseWord(word)).join(splitBy ? ` ${splitBy} ` : " ");
     }
 
     return toUpperCaseWord(value);

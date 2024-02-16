@@ -4,6 +4,8 @@ import SingleService from "./SingleService";
 import SetAsPaidService from "./SetAsPaidService";
 import AllServices from "./AllServices";
 import CreateService from "./CreateService";
+import UpdateService from "./UpdateService";
+
 
 export {
     FreelancerServices,
@@ -11,5 +13,6 @@ export {
     SingleService,
     SetAsPaidService,
     AllServices,
-    CreateService
+    CreateService,
+    UpdateService
 }

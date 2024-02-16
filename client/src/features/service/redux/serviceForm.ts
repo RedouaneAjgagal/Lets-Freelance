@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import isValidGeneralTierInput from "../validators/isValidGeneralTierInput";
 import IncludedInValidator from "../validators/IncludedInValidator";
+import { SingleServiceType } from "../services/getSingleService";
+import toUpperCase from "../../../utils/toUpperCase";
 
 type addIncludedInType = {
     type: "add";
@@ -76,7 +78,7 @@ type Error = {
     msg: string;
 };
 
-type CreateServiceInitialState = {
+type ServiceFormInitialState = {
     numOfSteps: number;
     currentStep: number;
     title: {
@@ -107,14 +109,14 @@ type CreateServiceInitialState = {
 }
 
 type FirstStepRequirementsType = {
-    title: CreateServiceInitialState["title"];
-    category: CreateServiceInitialState["category"];
-    featuredImage: CreateServiceInitialState["featuredImage"];
+    title: ServiceFormInitialState["title"];
+    category: ServiceFormInitialState["category"];
+    featuredImage: ServiceFormInitialState["featuredImage"];
 };
 
 type SecondStepRequirementsType = {
-    description: CreateServiceInitialState["description"];
-    keywords: CreateServiceInitialState["keywords"];
+    description: ServiceFormInitialState["description"];
+    keywords: ServiceFormInitialState["keywords"];
 };
 
 type StepRequirementsType = FirstStepRequirementsType & SecondStepRequirementsType;
@@ -143,7 +145,7 @@ const initialTierValue = {
     }
 }
 
-const initialState: CreateServiceInitialState = {
+const initialState: ServiceFormInitialState = {
     numOfSteps: 3,
     currentStep: 1,
     title: {
@@ -195,8 +197,8 @@ const initialState: CreateServiceInitialState = {
     }
 };
 
-const createServiceSlice = createSlice({
-    name: "createService",
+const serviceFormSlice = createSlice({
+    name: "serviceForm",
     initialState,
     reducers: {
         onStep(state, action: { payload: "prev" | "next", type: string }) {
@@ -288,7 +290,7 @@ const createServiceSlice = createSlice({
             }
         },
 
-        setTitle(state, action: { payload: CreateServiceInitialState["title"]["value"], type: string }) {
+        setTitle(state, action: { payload: ServiceFormInitialState["title"]["value"], type: string }) {
             if (!action.payload || action.payload === "" || action.payload.trim() === "") {
                 state.title.error = {
                     isError: true,
@@ -316,7 +318,7 @@ const createServiceSlice = createSlice({
             return state;
         },
 
-        setCategory(state, action: { payload: CreateServiceInitialState["category"]["value"]; type: string }) {
+        setCategory(state, action: { payload: ServiceFormInitialState["category"]["value"]; type: string }) {
             const categories = ["Digital Marketing", "Design & Creative", "Programming & Tech", "Writing & Translation", "Video & Animation", "Finance & Accounting", "Music & Audio"];
 
             if (!categories.includes(action.payload)) {
@@ -586,9 +588,109 @@ const createServiceSlice = createSlice({
 
         resetState() {
             return initialState;
+        },
+
+        setInitialData(_, action: { payload: SingleServiceType; type: string }) {
+            const initialError = {
+                isError: false,
+                msg: ""
+            };
+
+            const serviceInfo = action.payload;
+
+            const initialEditState: ServiceFormInitialState = {
+                ...initialState,
+                keywords: {
+                    error: {
+                        isError: false,
+                        msg: ""
+                    },
+                    value: []
+                },
+                tier: {
+                    starter: initialTierValue,
+                    standard: initialTierValue,
+                    advanced: initialTierValue
+                }
+            };
+
+            const inputs = ["title", "category", "featuredImage", "gallery", "description"] as const;
+            inputs.map(input => {
+
+                if (input === "category") {
+                    let convertedCategory: ServiceFormInitialState["category"]["value"];
+
+                    const category = serviceInfo[input];
+                    if (category === "digital marketing") {
+                        convertedCategory = toUpperCase({
+                            value: category,
+                            everyWord: true
+                        }) as ServiceFormInitialState["category"]["value"];
+                    } else {
+                        convertedCategory = toUpperCase({
+                            value: category,
+                            everyWord: true,
+                            splitBy: "&"
+                        }) as ServiceFormInitialState["category"]["value"];
+                    };
+
+                    initialEditState.category = {
+                        error: initialError,
+                        value: convertedCategory
+                    }
+
+                } else if (input === "gallery") {
+                    initialEditState.gallery = {
+                        value: serviceInfo.gallery,
+                        error: initialError
+                    }
+                } else {
+
+                    initialEditState[input] = {
+                        value: serviceInfo[input],
+                        error: initialError
+                    }
+                }
+            });
+
+
+            const tierList = ["starter", "standard", "advanced"] as const;
+            tierList.map(tier => {
+                const includedInValues = serviceInfo.tier[tier].includedIn.map(includedIn => {
+                    return {
+                        id: includedIn._id,
+                        description: {
+                            error: initialError,
+                            value: includedIn.description
+                        },
+                        result: {
+                            error: initialError,
+                            value: includedIn.result
+                        }
+                    }
+                });
+
+                initialEditState.tier[tier] = {
+                    deliveryTime: {
+                        error: initialError,
+                        value: serviceInfo.tier[tier].deliveryTime
+                    },
+                    price: {
+                        error: initialError,
+                        value: serviceInfo.tier[tier].price
+                    },
+                    includedIn: {
+                        error: initialError,
+                        value: includedInValues
+                    }
+                }
+            });
+
+
+            return initialEditState
         }
     }
 });
 
-export const createServiceAction = createServiceSlice.actions;
-export default createServiceSlice.reducer;
+export const serviceFormAction = serviceFormSlice.actions;
+export default serviceFormSlice.reducer;

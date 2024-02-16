@@ -4,7 +4,7 @@ import { SingleServiceContainer } from "../../features/service";
 
 
 const SingleService = () => {
-    const singleServiceQuery = useSingleServiceQuery();
+    const singleServiceQuery = useSingleServiceQuery({ isForm: false })!;
 
     return (
         singleServiceQuery.isLoading ?

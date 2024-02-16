@@ -13,8 +13,6 @@ type ServiceFormProps = {
 }
 
 const ServiceForm = (props: React.PropsWithoutRef<ServiceFormProps>) => {
-    console.log(props.formType);
-
     const signleServiceQuery = useSingleServiceQuery({
         isForm: true,
         formType: props.formType
@@ -31,7 +29,6 @@ const ServiceForm = (props: React.PropsWithoutRef<ServiceFormProps>) => {
             const serviceInfo = signleServiceQuery!.data;
 
             if (userInfo?.userId !== serviceInfo.user || userInfo.profileId !== serviceInfo.profile._id) {
-                console.log("Unauthorized");
                 throw new Error("Unauthorized action");
             }
 

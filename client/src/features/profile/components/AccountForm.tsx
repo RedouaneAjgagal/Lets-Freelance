@@ -3,7 +3,7 @@ import { PrimaryButton } from "../../../layouts/brand";
 import SelectInputContainer from "./SelectInputContainer";
 import { useState } from "react";
 import useOverflow from "../../../hooks/useOverflow";
-import Model from "../../../layouts/Model";
+import ActionModal from "../../../layouts/ActionModal";
 import EditSection from "./EditSection";
 import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
 import useSwitchProfileMutation from "../hooks/useSwitchProfileMutation";
@@ -62,7 +62,7 @@ const AccountForm = (props: React.PropsWithoutRef<Props>) => {
                 </div>
             </EditSection>
             {isDeleteModel ?
-                <Model onConfirm={deleteAccountHandler} onClose={closeDeleteModel} disabled={deleteAccountMutation.isLoading} title="Account deletion" desc="Are you sure you want to delete your account?" confirmBtnContent="Delete Account" cancelBtnContent="Cancel" color="red" />
+                <ActionModal onConfirm={deleteAccountHandler} onClose={closeDeleteModel} disabled={deleteAccountMutation.isLoading} title="Account deletion" desc="Are you sure you want to delete your account?" confirmBtnContent="Delete Account" cancelBtnContent="Cancel" color="red" isLoading={deleteAccountMutation.isLoading} />
                 :
                 null
             }

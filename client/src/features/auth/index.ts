@@ -5,6 +5,7 @@ import authReducer from "./redux/auth";
 import useLogoutMutation from "./hooks/useLogoutMutation";
 import { User } from "./services/getCurrentUser";
 import useCurrentUserQuery from "./hooks/useCurrentUserQuery";
+import useUserBankAccountsQuery from "./hooks/useUserBankAccountsQuery";
 
 export {
     RegisterForm,
@@ -12,7 +13,8 @@ export {
     useVerifyEmailQuery,
     authReducer,
     useLogoutMutation,
-    useCurrentUserQuery
+    useCurrentUserQuery,
+    useUserBankAccountsQuery
 };
 
 export type { User };

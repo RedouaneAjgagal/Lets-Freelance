@@ -4,6 +4,7 @@ import { useAppSelector } from "../../../hooks/redux";
 
 const useFreelancerServicesQuery = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
+    
     const freelancerServicesQuery = useQuery({
         queryKey: ["freelancerServices", userInfo!.profileId],
         queryFn: getFreelancerServices,

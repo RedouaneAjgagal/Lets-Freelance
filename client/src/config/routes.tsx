@@ -14,7 +14,7 @@ import { Favorites } from "../pages/favorites";
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
-import { EmployerJobs } from "../pages/job";
+import { AllJobs, EmployerJobs } from "../pages/job";
 
 const router = createBrowserRouter([
     {
@@ -112,6 +112,10 @@ const router = createBrowserRouter([
             {
                 path: "/services/:serviceId/order",
                 element: <AuthenticatedRoute element={SetAsPaidService} accessBy="employer" />
+            },
+            {
+                path: "/jobs",
+                element: <AllJobs />
             }
         ]
     }

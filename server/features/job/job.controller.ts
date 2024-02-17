@@ -156,13 +156,12 @@ const getAllJobs: RequestHandler = async (req, res) => {
     const start = (currentPage - 1) * limit;
 
     // find jobs
-    const jobs = await Job.find(searchQuery).populate({ path: "profile", select: "userAs" }).select("title description priceType price experienceLevel createdAt tags duration connects").sort("-createdAt");
+    const jobs = await Job.find(searchQuery).select("title description priceType price experienceLevel createdAt tags duration weeklyHours").sort("-createdAt");
 
     // filter for only employers
-    const allJobs = jobs.filter(job => job.profile.userAs === "employer");
-    const numOfPages = Math.ceil(allJobs.length / limit);
+    const numOfPages = Math.ceil(jobs.length / limit);
 
-    res.status(StatusCodes.OK).json({ numOfPages, jobs: allJobs.slice(start, end) });
+    res.status(StatusCodes.OK).json({ numOfPages, jobs: jobs.slice(start, end) });
 }
 
 

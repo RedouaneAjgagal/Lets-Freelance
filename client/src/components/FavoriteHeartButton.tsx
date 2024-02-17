@@ -17,7 +17,7 @@ const FavoriteHeartButton = (props: React.PropsWithoutRef<Props>) => {
     }
 
     return (
-        <button onClick={clickHandler} className="absolute top-3 right-3 p-2 bg-white rounded-full border shadow-sm z-30">{favorites[props.fillHeart ? "true" : "false"]}</button>
+        <button onClick={clickHandler} className="absolute top-[.35rem] right-2 p-2 bg-white rounded-full border shadow-sm z-30">{favorites[props.fillHeart ? "true" : "false"]}</button>
     )
 }
 

@@ -1,12 +1,12 @@
-import { FavoriteJobType } from "../services/getFavorites";
+import { JobType } from "../service/getJobs";
 
 type JobDetailsProps = {
     jobDetail: {
-        price: FavoriteJobType["job"]["price"];
-        priceType: FavoriteJobType["job"]["priceType"];
-        experienceLevel: FavoriteJobType["job"]["experienceLevel"];
-        duration: FavoriteJobType["job"]["duration"];
-        weeklyHours: FavoriteJobType["job"]["weeklyHours"];
+        price: JobType["price"];
+        priceType: JobType["priceType"];
+        experienceLevel: JobType["experienceLevel"];
+        duration: JobType["duration"];
+        weeklyHours: JobType["weeklyHours"];
 
     }
 }

@@ -49,7 +49,7 @@ export type FavoriteJobType = {
             min: number;
             max: number;
         };
-        duration?: {
+        duration: {
             dateType: "hours" | "days" | "months";
             dateValue: number;
         };

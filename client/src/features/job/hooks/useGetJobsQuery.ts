@@ -1,10 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import getJobs, { GetJobsPayload } from "../service/getJobs";
+import getJobs from "../service/getJobs";
+import { useSearchParams } from "react-router-dom";
+import getJobSerchedQuries from "../utils/getJobSerchedQuries";
+import getValidJobSearchedQueries from "../validators/getValidJobSearchedQueries";
 
-const useGetJobsQuery = (payload: GetJobsPayload) => {
+const useGetJobsQuery = () => {
+    const [URLSearchParams] = useSearchParams();
+
+    const jobSearchedQueries = getJobSerchedQuries(URLSearchParams);
+
+    const searchedQueries = getValidJobSearchedQueries(jobSearchedQueries);
+
     const getJobsQuery = useQuery({
         queryKey: ["jobs"],
-        queryFn: () => getJobs(payload),
+        queryFn: () => getJobs(searchedQueries),
         retry: false,
         refetchOnWindowFocus: false
     })

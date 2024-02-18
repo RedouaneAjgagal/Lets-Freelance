@@ -9,5 +9,5 @@ export {
     EmployerJobsContainer,
     JobsContainer,
     useGetJobsQuery,
-    JobCard
+    JobCard,
 }

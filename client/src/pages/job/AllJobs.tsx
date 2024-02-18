@@ -3,7 +3,7 @@ import { JobsContainer, useGetJobsQuery } from "../../features/job";
 
 
 const AllJobs = () => {
-    const getJobsQuery = useGetJobsQuery({});
+    const getJobsQuery = useGetJobsQuery();
 
     return (
         <main className=" flex flex-col">

@@ -1,5 +1,5 @@
 import { GetJobsPayload } from "../service/getJobs";
-import { JobSearchedQueriesType } from "../utils/getJobSerchedQuries";
+import { JobSearchedQueriesType } from "../utils/getAllJobSerchedQuries";
 
 const getValidJobSearchedQueries = (searchedQueries: JobSearchedQueriesType) => {
     const validSearchedQueries: GetJobsPayload = {};

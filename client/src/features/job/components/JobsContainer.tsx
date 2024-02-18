@@ -1,5 +1,5 @@
-import { JobType } from "../service/getJobs"
-import JobCard from "./JobCard";
+import { JobType } from "../service/getJobs";
+import SearchedJobs from "./SearchedJobs";
 
 type JobsContainerProps = {
     jobs: JobType[];
@@ -7,9 +7,9 @@ type JobsContainerProps = {
 
 const JobsContainer = (props: React.PropsWithoutRef<JobsContainerProps>) => {
     return (
-        <section>
-            {props.jobs.map(job => <JobCard key={job._id} job={job} hideFavoriteButton />)}
-        </section>
+        <div>
+            <SearchedJobs jobs={props.jobs} />
+        </div>
     )
 }
 

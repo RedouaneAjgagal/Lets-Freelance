@@ -10,7 +10,7 @@ export type JobSearchedQueriesType = {
     page?: string;
 }
 
-const getJobSerchedQuries = (searchParams: URLSearchParams) => {
+const getAllJobSerchedQuries = (searchParams: URLSearchParams) => {
     const search = searchParams.get("search")?.toString();
     const project_price = searchParams.get("project_price")?.toString();
     const project_type = searchParams.get("project_type")?.toString();
@@ -36,4 +36,4 @@ const getJobSerchedQuries = (searchParams: URLSearchParams) => {
     return jobSearchedQueries
 }
 
-export default getJobSerchedQuries;
+export default getAllJobSerchedQuries;

@@ -3,6 +3,8 @@ import Overlay from "../../../layouts/Overlay";
 import { BsX } from "react-icons/bs";
 import FilterByCategory from "./FilterByCategory";
 import SelectedFilters from "./SelectedFilters";
+import FilterByProjectType from "./FilterByProjectType";
+import FilterByProjectPrice from "./FilterByProjectPrice";
 
 type FilterJobsMenuProps = {
     onCloseMenu: () => void;
@@ -25,6 +27,8 @@ const FilterJobsMenu = (props: React.PropsWithoutRef<FilterJobsMenuProps>) => {
                 </div>
                 <SelectedFilters />
                 <FilterByCategory />
+                <FilterByProjectType />
+                <FilterByProjectPrice />
             </div>
         </section>
     )

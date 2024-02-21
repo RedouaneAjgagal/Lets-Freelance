@@ -49,6 +49,13 @@ const JobsHeader = () => {
     delete filters.search;
     delete filters.page;
 
+    if (filters.project_price) {
+        const [min, max] = filters.project_price!.split("-");
+        if ((+min > +max) || (+min === 0 && +max === 0)) {
+            delete filters.project_price;
+        }
+    }
+
     return (
         <header className="px-4 pt-7 flex flex-col gap-4">
             <div className="flex items-center gap-2">

@@ -45,7 +45,7 @@ const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
                 <TbArrowDown />
             </button>
             {isSelectOptionsOpen ?
-                <div className={`w-full absolute z-10 top-10 left-0 border-2 border-slate-400 rounded bg-slate-100/80 shadow-lg`}>
+                <div className={`w-full absolute z-10 top-10 left-0 border-2 border-slate-400 rounded bg-slate-50 shadow-lg`}>
                     {options}
                 </div>
                 : null

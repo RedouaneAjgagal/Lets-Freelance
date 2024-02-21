@@ -16,6 +16,13 @@ const SelectedFilters = () => {
     delete searchedQueries.search;
     delete searchedQueries.page;
 
+    if (searchedQueries.project_price) {
+        const [min, max] = searchedQueries.project_price!.split("-");
+        if ((+min > +max) || (+min === 0 && +max === 0)) {
+            delete searchedQueries.project_price;
+        }
+    }
+
     const queries = Object.entries(searchedQueries).map(([key, value]) => {
         return { key, value };
     });
@@ -24,18 +31,19 @@ const SelectedFilters = () => {
         let value = query.value;
 
         if (query.key === "category") {
-            let formatCategoryValue: string;
             if (query.value === "digital-marketing") {
-                formatCategoryValue = "digital marketing";
+                value = "digital marketing";
             } else {
-                formatCategoryValue = value.split("-").join(" & ");
+                value = value.split("-").join(" & ");
             }
-
-            value = toUpperCase({
-                value: formatCategoryValue,
-                everyWord: true
-            });
+        } else if (query.key === "project_price") {
+            value = value.split("-").map(number => `$${number}`).join(" - ");
         }
+
+        value = toUpperCase({
+            value,
+            everyWord: true
+        });
 
         const removeFilterHandler = () => {
             customSearchParams.setSearchParams({

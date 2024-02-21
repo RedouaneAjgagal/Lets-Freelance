@@ -55,7 +55,7 @@ const FilterByCategory = () => {
 
     return (
         <div className="flex flex-col gap-3">
-            <span className="text-black text-xl">Category</span>
+            <h4 className="text-black text-xl">Category</h4>
             <SelectOptions selectTitle={selectedCategory.name || "Select categories"} options={options} onSelect={selectCategoryHandler} upperCaseEveryWord />
         </div>
     )

@@ -52,6 +52,17 @@ const SelectedFilters = () => {
 
                 break;
 
+            case "hours_per_week":
+                if (value === "1-30") {
+                    value = "Less than 30 hrs/week";
+                } else if (value === "30-168") {
+                    value = "More than 30 hrs/week";
+                } else {
+                    const [min_hoursPerWeek, max_hoursPerWeek] = value.split("-");
+                    value = `Between ${min_hoursPerWeek} & ${max_hoursPerWeek} hrs/week`;
+                }
+                break;
+
             default:
                 break;
         }

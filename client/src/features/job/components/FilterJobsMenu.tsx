@@ -6,6 +6,7 @@ import SelectedFilters from "./SelectedFilters";
 import FilterByProjectType from "./FilterByProjectType";
 import FilterByProjectPrice from "./FilterByProjectPrice";
 import FilterByProjectLength from "./FilterByProjectLength";
+import FilterByHoursPerWeek from "./FilterByHoursPerWeek";
 
 type FilterJobsMenuProps = {
     onCloseMenu: () => void;
@@ -31,6 +32,7 @@ const FilterJobsMenu = (props: React.PropsWithoutRef<FilterJobsMenuProps>) => {
                 <FilterByProjectType />
                 <FilterByProjectPrice />
                 <FilterByProjectLength />
+                <FilterByHoursPerWeek />
             </div>
         </section>
     )

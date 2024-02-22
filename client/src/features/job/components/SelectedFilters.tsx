@@ -30,14 +30,30 @@ const SelectedFilters = () => {
     const filters = queries.map(query => {
         let value = query.value;
 
-        if (query.key === "category") {
-            if (query.value === "digital-marketing") {
-                value = "digital marketing";
-            } else {
-                value = value.split("-").join(" & ");
-            }
-        } else if (query.key === "project_price") {
-            value = value.split("-").map(number => `$${number}`).join(" - ");
+        switch (query.key) {
+            case "category":
+                if (query.value === "digital-marketing") {
+                    value = "digital marketing";
+                } else {
+                    value = value.split("-").join(" & ");
+                }
+                break;
+
+            case "project_price":
+                value = value.split("-").map(number => `$${number}`).join(" - ");
+                break;
+
+            case "project_length":
+                const comparison = value.includes(">") ? ">" : "<";
+                const [duration, projectLengthValue] = value.split(comparison);
+                const projectLengthValuePluralize = Number(projectLengthValue) === 1 ? "" : "s";
+
+                value = `${comparison === "<" ? "Less" : "More"} than ${projectLengthValue} ${duration.slice(0, -1)}${projectLengthValuePluralize}`;
+
+                break;
+
+            default:
+                break;
         }
 
         value = toUpperCase({

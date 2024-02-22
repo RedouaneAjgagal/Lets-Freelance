@@ -6,7 +6,7 @@ import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { useQueryClient } from "@tanstack/react-query";
 
 const SelectedFilters = () => {
-    const [URLSearchParams] = useSearchParams();
+    const [URLSearchParams, SetURLSearchParams] = useSearchParams();
 
     const queryClient = useQueryClient();
     const customSearchParams = useCustomSearchParams();
@@ -63,6 +63,10 @@ const SelectedFilters = () => {
                 }
                 break;
 
+            case "experience_level":
+                value = value.split("-").join(" ");
+                break;
+
             default:
                 break;
         }
@@ -89,10 +93,21 @@ const SelectedFilters = () => {
         )
     });
 
+    const clearAllHandler = () => {
+        SetURLSearchParams("");
+        queryClient.removeQueries({ queryKey: ["jobs"] });
+    }
+
     return (
         queries.length ?
-            <div className="flex items-center gap-2 flex-wrap">
-                {filters}
+            <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                    {filters}
+                    {queries.length > 1 ?
+                        <button onClick={clearAllHandler} className="text-red-600 font-semibold text-sm py-1 ml-2">Clear all</button>
+                        : null
+                    }
+                </div>
             </div>
             : null
     )

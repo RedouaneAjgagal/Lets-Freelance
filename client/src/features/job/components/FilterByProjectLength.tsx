@@ -121,10 +121,10 @@ const FilterByProjectLength = () => {
     return (
         <div className="flex flex-col gap-3">
             <h4 className="text-black text-xl">Project Length</h4>
-            <SelectOptions options={comparisonOptions} onSelect={selectComparisonOptionsHandler} selectTitle={projectLength.comparison || "less - or - more"} />
+            <SelectOptions options={comparisonOptions} onSelect={selectComparisonOptionsHandler} selectTitle={projectLength.comparison || "less - or - more"} upperCaseEveryWord />
             <div className="flex items-center gap-2">
                 <input type="number" className="border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full border-slate-300 outline-slate-400" placeholder="Duration value" onChange={durationValueHandler} value={projectLength.value || ""} min={1} />
-                <SelectOptions options={durationOptions} onSelect={selectDurationOptionsHandler} selectTitle={projectLength.duration || "Durations"} />
+                <SelectOptions options={durationOptions} onSelect={selectDurationOptionsHandler} selectTitle={projectLength.duration || "Durations"} upperCaseEveryWord />
             </div>
         </div>
     )

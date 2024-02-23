@@ -14,7 +14,7 @@ import { Favorites } from "../pages/favorites";
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
-import { AllJobs, EmployerJobs } from "../pages/job";
+import { AllJobs, EmployerJobs, SingleJob } from "../pages/job";
 
 const router = createBrowserRouter([
     {
@@ -116,7 +116,11 @@ const router = createBrowserRouter([
             {
                 path: "/jobs",
                 element: <AllJobs />
-            }
+            },
+            {
+                path: "/jobs/:jobId",
+                element: <SingleJob />
+            },
         ]
     }
 ]);

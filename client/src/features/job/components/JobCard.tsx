@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import FavoriteHeartButton from "../../../components/FavoriteHeartButton";
 import Tag from "../../../components/Tag";
 import formatPostedTime from "../../../utils/formatPostedTime";
@@ -19,6 +20,8 @@ type JobCardProps = {
 } & (JobCardWithFavorite | JobCardWithoutFavorite);
 
 const JobCard = (props: React.PropsWithoutRef<JobCardProps>) => {
+    const navigate = useNavigate();
+
     const jobDetail = {
         price: props.job.price,
         priceType: props.job.priceType,
@@ -34,7 +37,7 @@ const JobCard = (props: React.PropsWithoutRef<JobCardProps>) => {
     const postedAt = `Posted ${diff} ${unit}${pluralize} ago`;
 
     const jobNavigator = () => {
-        console.log({ job_id: props.job._id });
+        navigate(`/jobs/${props.job._id}`);
     }
 
     return (

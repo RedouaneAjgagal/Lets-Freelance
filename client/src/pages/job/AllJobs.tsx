@@ -1,5 +1,5 @@
 import Loading from "../../components/Loading";
-import { JobsContainer, useGetJobsQuery, JobsHeader } from "../../features/job";
+import { JobsContainer, useGetJobsQuery, JobsHeader, SearchedJobsPagination } from "../../features/job";
 
 const AllJobs = () => {
     const getJobsQuery = useGetJobsQuery();
@@ -9,7 +9,11 @@ const AllJobs = () => {
             <JobsHeader />
             {getJobsQuery.isLoading ?
                 <Loading />
-                : <JobsContainer jobs={getJobsQuery.data!.jobs} />
+                :
+                <>
+                    <JobsContainer jobs={getJobsQuery.data!.jobs} />
+                    <SearchedJobsPagination numbOfPages={getJobsQuery.data!.numOfPages} />
+                </>
             }
         </main>
     )

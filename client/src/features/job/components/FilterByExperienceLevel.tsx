@@ -31,7 +31,7 @@ const FilterByExperienceLevel = () => {
         }
     ];
 
-    const selectExperienceLevelHandler = ({ name, value }: { name: string; value: string }) => {
+    const selectExperienceLevelHandler = ({ value }: { name: string; value: string }) => {
         customSearchParams.setSearchParams({
             key: "experience_level",
             value

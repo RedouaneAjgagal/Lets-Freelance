@@ -151,7 +151,7 @@ const getAllJobs: RequestHandler = async (req, res) => {
 
     // add skip and limit
     const currentPage = page && page.toString() !== "" && /^\d+$/.test(page.toString()) && Number(page.toString()) > 0 ? Number(page.toString()) : 1;
-    const limit = 12;
+    const limit = 8;
     const end = currentPage * limit;
     const start = (currentPage - 1) * limit;
 

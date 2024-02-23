@@ -161,6 +161,10 @@ const getAllJobs: RequestHandler = async (req, res) => {
     // filter for only employers
     const numOfPages = Math.ceil(jobs.length / limit);
 
+    if (currentPage > numOfPages) {
+        throw new NotFoundError("Couldn't find any results in this page");
+    }
+
     res.status(StatusCodes.OK).json({ numOfPages, jobs: jobs.slice(start, end) });
 }
 

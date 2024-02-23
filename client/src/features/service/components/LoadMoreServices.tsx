@@ -15,19 +15,19 @@ const LoadMoreServices = (props: React.PropsWithoutRef<LoadMoreServicesProps>) =
     }
 
     return (
-        <div>
-            <PrimaryButton disabled={!props.hasNextPage || props.isFetchingNextPage} fullWith justifyConent="center" style="outline" type="button" x="md" y="md" onClick={loadMoreServicesHandler} >
-                {props.isFetchingNextPage ?
-                    "Loading more..."
-                    : props.hasNextPage
-                        ? <>
+        props.hasNextPage ?
+            <div>
+                <PrimaryButton disabled={!props.hasNextPage || props.isFetchingNextPage} fullWith justifyConent="center" style="outline" type="button" x="md" y="md" onClick={loadMoreServicesHandler} >
+                    {props.isFetchingNextPage ?
+                        "Loading more..."
+                        : <>
                             Load more
                             <BiArrowBack className="rotate-[-90deg]" />
                         </>
-                        : "Found no more services.."
-                }
-            </PrimaryButton>
-        </div>
+                    }
+                </PrimaryButton>
+            </div>
+            : null
     )
 }
 

@@ -4,6 +4,7 @@ import SearchBy from "./SearchBy";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { filterSearchedServicesAction } from "../../features/service/redux/filterSearchedServices";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
     isShown: boolean;
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const SearchModel = (props: React.PropsWithoutRef<Props>) => {
+    const queryClient = useQueryClient();
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -25,6 +28,11 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
             case "services":
                 navigate("/services?nav_search=true");
                 dispatch(filterSearchedServicesAction.filterBySearch(search));
+                break;
+
+            case "jobs":
+                queryClient.removeQueries({ queryKey: ["jobs"] });
+                navigate(`jobs?search=${search}`);
                 break;
 
             default:

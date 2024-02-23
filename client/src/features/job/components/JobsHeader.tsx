@@ -9,6 +9,8 @@ import getOnlyValidJobSearchedQueries from "../utils/getOnlyValidJobSearchedQuer
 import { useSearchParams } from "react-router-dom";
 
 const JobsHeader = () => {
+    const [URLSearchParams] = useSearchParams();
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const customSearchParams = useCustomSearchParams();
@@ -20,10 +22,11 @@ const JobsHeader = () => {
 
         const formData = new FormData(e.currentTarget);
         const searchValue = formData.get("search")?.toString();
-
+        
         customSearchParams.setSearchParams({
             key: "search",
-            value: searchValue?.trim() || ""
+            value: searchValue?.trim() || "",
+            removePrev: true
         });
 
         queryClient.removeQueries({ queryKey: ["jobs"] });
@@ -43,7 +46,6 @@ const JobsHeader = () => {
 
     useOverflow(isFilterOpen);
 
-    const [URLSearchParams] = useSearchParams();
     const filters = getOnlyValidJobSearchedQueries(URLSearchParams);
 
     delete filters.search;

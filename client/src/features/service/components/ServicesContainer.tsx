@@ -4,6 +4,7 @@ import SearchServicesHeader from "./SearchServicesHeader"
 import SearchedServices from "./SearchedServices"
 import LoadMoreServices from "./LoadMoreServices";
 import React from "react";
+import NoMatchErrorMessage from "../../../components/NoMatchErrorMessage";
 
 type ServicesContainerProps = {
     pages: SearchServicesType[]
@@ -21,8 +22,7 @@ const ServicesContainer = (props: React.PropsWithoutRef<ServicesContainerProps>)
                 props.pages.map((page, index) => (
                     page.services.length ?
                         <SearchedServices key={index} services={page.services} />
-                        :
-                        <h3 key={index} className="text-slate-700">Found no service</h3>
+                        : <NoMatchErrorMessage key={index} />
                 ))
             }
             <LoadMoreServices onLoadMore={props.onLoadMore} isFetchingNextPage={props.isFetchingNextPage} hasNextPage={props.hasNextPage} />

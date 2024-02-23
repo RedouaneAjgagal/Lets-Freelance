@@ -1,5 +1,6 @@
 import Loading from "../../components/Loading";
 import { JobsContainer, useGetJobsQuery, JobsHeader, SearchedJobsPagination } from "../../features/job";
+import NoMatchErrorMessage from "../../components/NoMatchErrorMessage";
 
 const AllJobs = () => {
     const getJobsQuery = useGetJobsQuery();
@@ -10,10 +11,12 @@ const AllJobs = () => {
             {getJobsQuery.isLoading ?
                 <Loading />
                 :
-                <>
-                    <JobsContainer jobs={getJobsQuery.data!.jobs} />
-                    <SearchedJobsPagination numbOfPages={getJobsQuery.data!.numOfPages} />
-                </>
+                getJobsQuery.isSuccess ?
+                    <>
+                        <JobsContainer jobs={getJobsQuery.data.jobs} />
+                        <SearchedJobsPagination numbOfPages={getJobsQuery.data.numOfPages} />
+                    </>
+                    : <NoMatchErrorMessage />
             }
         </main>
     )

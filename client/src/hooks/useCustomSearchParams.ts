@@ -4,13 +4,15 @@ const useCustomSearchParams = () => {
     const [URLSearchParams, SetURLSearchParams] = useSearchParams();
 
     return {
-        setSearchParams: ({ key, value }: { key: string; value: string }) => {
+        setSearchParams: ({ key, value, removePrev }: { key: string; value: string; removePrev?: boolean }) => {
             SetURLSearchParams((prev) => {
                 const searchedQueries: { [key: string]: string } = {};
 
-                prev.forEach((prevValue, prevKey) => {
-                    searchedQueries[prevKey] = prevValue;
-                });
+                if (!removePrev) {
+                    prev.forEach((prevValue, prevKey) => {
+                        searchedQueries[prevKey] = prevValue;
+                    });
+                }
 
                 searchedQueries[key] = value;
 

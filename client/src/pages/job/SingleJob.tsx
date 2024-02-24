@@ -1,15 +1,14 @@
 import Loading from "../../components/Loading";
-import { useGetSingleJobQuery } from "../../features/job"
+import { SingleJobContainer, useGetSingleJobQuery } from "../../features/job"
 
 const SingleJob = () => {
-
     const singleJobQuery = useGetSingleJobQuery();
 
     return (
-        <main>
+        <main className="p-4">
             {singleJobQuery.isLoading ?
                 <Loading />
-                : <h1>{singleJobQuery.data!.title}</h1>
+                : <SingleJobContainer jobDetails={singleJobQuery.data!} />
             }
         </main>
     )

@@ -6,6 +6,7 @@ import JobCard from "./components/JobCard";
 import JobsHeader from "./components/JobsHeader";
 import SearchedJobsPagination from "./components/SearchedJobsPagination";
 import useGetSingleJobQuery from "./hooks/useGetSingleJobQuery";
+import SingleJobContainer from "./components/SingleJobContainer";
 
 export {
     useEmployerJobsQuery,
@@ -15,5 +16,6 @@ export {
     JobCard,
     JobsHeader,
     SearchedJobsPagination,
-    useGetSingleJobQuery
+    useGetSingleJobQuery,
+    SingleJobContainer
 }

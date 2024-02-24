@@ -9,9 +9,10 @@ type SingleJobProfileType = {
     totalJobPosted: number;
     totalSpentOnJobs: number;
     avgHourlyRatePaid: number;
+    createdAt: string;
 }
 
-type SingleJobType = {
+export type SingleJobType = {
     _id: string;
     user: string;
     profile: SingleJobProfileType;
@@ -35,6 +36,7 @@ type SingleJobType = {
     experienceLevel: "expert" | "intermediate" | "entryLevel";
     connects: number;
     status: "open" | "closed";
+    tags: string[];
     createdAt: string;
     updatedAt: string;
     activity: {

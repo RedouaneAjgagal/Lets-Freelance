@@ -179,7 +179,7 @@ const singleJob: RequestHandler = async (req, res) => {
     }
 
     // find the job
-    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees roles.employer.totalJobPosted" }).select("-tags").lean();
+    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees roles.employer.totalJobPosted createdAt" }).lean();
     if (!job) {
         throw new NotFoundError(`Found no job with id ${jobId}`);
     }

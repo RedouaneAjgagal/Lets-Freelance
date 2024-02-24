@@ -25,7 +25,7 @@ const Tag = (props: React.PropsWithoutRef<TagProps>) => {
         props.clickable ?
             <button onClick={onClickHandler} className="bg-purple-100/60 py-1 px-3 rounded-full border cursor-pointer">{props.value}</button>
             :
-            <span className="bg-purple-100/60 py-1 px-3 rounded-full border cursor-pointer">{props.value}</span>
+            <span className="bg-purple-100/60 py-1 px-3 rounded-full border">{props.value}</span>
 
     )
 }

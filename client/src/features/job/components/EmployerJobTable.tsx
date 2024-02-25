@@ -2,12 +2,16 @@ import { Link, useNavigate } from "react-router-dom";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { EmployerJobType } from "../service/getEmployerJobs";
 import { TbStars, TbCalendar } from "react-icons/tb";
+import { useState } from "react";
+import DeleteJobModal from "../modals/DeleteJobModal";
 
 type EmployerJobTableProps = {
   job: EmployerJobType;
+  sectionRef: React.RefObject<HTMLSelectElement>;
 }
 
 const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const proposalPluralize = props.job.proposals === 1 ? "" : "s";
@@ -42,61 +46,66 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
 
   const status = statusTypes[props.job.status];
 
-
-
   const viewJobHanlder = () => {
     navigate(`/jobs/${props.job._id}`);
   }
 
   const updateJobHanlder = () => {
     console.log({ update_job: props.job._id });
+
   }
 
   const deleteJobHanlder = () => {
-    console.log({ delete_job: props.job._id });
+    setIsDeleteModalOpen(true);
   }
 
   return (
-    <tr className="border-t">
-      <td className="p-2 py-4">
-        <div className="flex flex-col gap-2">
-          <h3 className="font-medium text-[1.1rem]">{props.job.title}</h3>
-          <div>
-            <Link to={`/profile/employer/proposals/${props.job._id}`} className="text-sm  text-slate-600 underline">{`${props.job.proposals} Proposal${proposalPluralize}`}</Link>
+    <>
+      {isDeleteModalOpen ?
+        <DeleteJobModal sectionRef={props.sectionRef} closeModalhandler={() => setIsDeleteModalOpen(false)} jobId={props.job._id} />
+        : null
+      }
+      <tr className="border-t">
+        <td className="p-2 py-4">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-medium text-[1.1rem]">{props.job.title}</h3>
+            <div>
+              <Link to={`/profile/employer/proposals/${props.job._id}`} className="text-sm  text-slate-600 underline">{`${props.job.proposals} Proposal${proposalPluralize}`}</Link>
+            </div>
+            <span className="text-sm text-slate-600 flex items-center gap-1">
+              <TbStars size={18} />
+              {experienceLevel}
+            </span>
+            <span className="text-sm text-slate-600 flex items-center gap-1">
+              <TbCalendar size={18} />
+              {postedAt}
+            </span>
           </div>
-          <span className="text-sm text-slate-600 flex items-center gap-1">
-            <TbStars size={18} />
-            {experienceLevel}
-          </span>
-          <span className="text-sm text-slate-600 flex items-center gap-1">
-            <TbCalendar size={18} />
-            {postedAt}
-          </span>
-        </div>
-      </td>
-      <td className="p-2 py-4">
-        <div className="flex items-start gap-1 flex-wrap">
-          <span className="font-medium text-lg">
-            {price}
-          </span>
-          <span className="text-slate-600 text-sm">
-            {priceType}
-          </span>
-        </div>
-      </td>
-      <td className="p-2 py-4">
-        <div className={`${status.stype} p-2 rounded inline-flex`}>
-          <span>{status.value}</span>
-        </div>
-      </td>
-      <td className="p-2 py-4">
-        <div className="flex gap-2">
-          <ActionButton type="view" onClick={viewJobHanlder} minimized />
-          <ActionButton type="edit" onClick={updateJobHanlder} minimized />
-          <ActionButton type="delete" onClick={deleteJobHanlder} minimized />
-        </div>
-      </td>
-    </tr>
+        </td>
+        <td className="p-2 py-4">
+          <div className="flex items-start gap-1 flex-wrap">
+            <span className="font-medium text-lg">
+              {price}
+            </span>
+            <span className="text-slate-600 text-sm">
+              {priceType}
+            </span>
+          </div>
+        </td>
+        <td className="p-2 py-4">
+          <div className={`${status.stype} p-2 rounded inline-flex`}>
+            <span>{status.value}</span>
+          </div>
+        </td>
+        <td className="p-2 py-4">
+          <div className="flex gap-2">
+            <ActionButton type="view" onClick={viewJobHanlder} minimized />
+            <ActionButton type="edit" onClick={updateJobHanlder} minimized />
+            <ActionButton type="delete" onClick={deleteJobHanlder} minimized />
+          </div>
+        </td>
+      </tr>
+    </>
   )
 }
 

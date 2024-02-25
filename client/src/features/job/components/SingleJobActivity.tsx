@@ -38,13 +38,14 @@ const SingleJobActivity = (props: React.PropsWithoutRef<SingleJobActivityProps>)
         {
             proposal: "50+",
             value: {
-                min: 50
+                min: 50,
+                max: 200
             }
         }
     ];
 
     const [getProposals] = totalProposalValidValues.filter(({ value }) => {
-        if (12 >= value.min && 12 < (value.max || 12 + 1)) {
+        if (props.jobActivity.totalProposals >= value.min && props.jobActivity.totalProposals < (value.max || props.jobActivity.totalProposals + 1)) {
             return true;
         }
     });

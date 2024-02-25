@@ -1,4 +1,6 @@
+import { Link } from "react-router-dom";
 import formatDate from "../../../utils/formatDate";
+import formatProfileName from "../../../utils/formatProfileName";
 import toUpperCase from "../../../utils/toUpperCase";
 import { SingleJobType } from "../service/getSingleJob"
 
@@ -28,18 +30,28 @@ const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientP
 
     if (!aboutClient.country) delete aboutClient.country;
 
+    const employerName = formatProfileName(props.clientInfo.name);
+
     return (
-        <section className="flex flex-col gap-1">
-            <h3 className="text-xl font-medium text-slate-800">About the client</h3>
-            <small>{createdAt}</small>
-            <ul className="flex flex-col gap-3 py-2">
-                {Object.entries(aboutClient).map(([key, value]) => (
-                    <li key={key}>
-                        <strong className="font-medium">{value}</strong>
-                    </li>
-                ))}
-            </ul>
-        </section>
+        <>
+            <section className="flex flex-col gap-1">
+                <h3 className="text-xl font-medium text-slate-800">About the client</h3>
+                <small>{createdAt}</small>
+                <ul className="flex flex-col gap-3 py-2">
+                    {Object.entries(aboutClient).map(([key, value]) => (
+                        <li key={key}>
+                            <strong className="font-medium">{value}</strong>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+            <footer className="flex items-center gap-2 -mt-2">
+                <span>View client profile:</span>
+                <Link to={`/profiles/${props.clientInfo._id}`} className="font-semibold flex items-center gap-1 relative text-purple-700 underline">
+                    {employerName}
+                </Link>
+            </footer>
+        </>
     )
 }
 

@@ -56,7 +56,9 @@ const SingleProfileEmployer = () => {
     return (
         <>
             <header>
-                <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                <div className="p-4">
+                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                </div>
                 <ProfileHeader profile='employer' userInfo={employerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <AboutProfile profile='employer' content={profile.description || "Employer with no description"} />
@@ -70,8 +72,9 @@ const SingleProfileEmployer = () => {
             {
                 profileHistory.isLoading ?
                     <Loading />
-                    :
-                    <ProfileHistory historyType='contract' completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+                    : <div className="px-4">
+                        <ProfileHistory completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+                    </div>
             }
         </>
     )

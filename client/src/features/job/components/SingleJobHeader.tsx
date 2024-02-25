@@ -23,7 +23,7 @@ const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => 
 
     return (
         <header className="flex flex-col gap-4">
-            <span className={`${props.status === "open" ? "bg-green-300/30 text-green-500" : "bg-stone-300/30 text-stone-500"} self-start py-1 px-3 rounded text-center font-medium`}>{status}</span>
+            <span className={`${props.status === "open" ? "bg-blue-300/30 text-blue-500" : "bg-stone-300/30 text-stone-500"} self-start py-1 px-3 rounded text-center font-medium`}>{status}</span>
             <h1 className="text-2xl font-semibold">{props.title}</h1>
             <div className="flex flex-col gap-2">
                 <span className="flex items-center gap-1 text-slate-700 font-medium">

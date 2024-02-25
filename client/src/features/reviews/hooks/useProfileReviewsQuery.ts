@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import getProfileReviews from "../services/getProfileReviews"
 import { useQuery } from "@tanstack/react-query"
 

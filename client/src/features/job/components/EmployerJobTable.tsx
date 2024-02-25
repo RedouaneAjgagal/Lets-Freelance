@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { EmployerJobType } from "../service/getEmployerJobs";
 import { TbStars, TbCalendar } from "react-icons/tb";
@@ -8,6 +8,7 @@ type EmployerJobTableProps = {
 }
 
 const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) => {
+  const navigate = useNavigate();
 
   const proposalPluralize = props.job.proposals === 1 ? "" : "s";
 
@@ -44,7 +45,7 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
 
 
   const viewJobHanlder = () => {
-    console.log({ view_job: props.job._id });
+    navigate(`/jobs/${props.job._id}`);
   }
 
   const updateJobHanlder = () => {

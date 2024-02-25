@@ -10,6 +10,7 @@ import StatementsPayments from "./components/StatementsPayments";
 import ConnectsContainer from "./components/ConnectsContainer";
 import useSetConnectsAsPaidQuery from "./hooks/useSetConnectsAsPaidQuery";
 import SetAsPaidConnectsContainer from "./components/SetAsPaidConnectsContainer";
+import ProfileHistory from "./components/ProfileHistory";
 
 export {
     PublicProfileForm,
@@ -23,5 +24,6 @@ export {
     StatementsPayments,
     ConnectsContainer,
     useSetConnectsAsPaidQuery,
-    SetAsPaidConnectsContainer
+    SetAsPaidConnectsContainer,
+    ProfileHistory
 }

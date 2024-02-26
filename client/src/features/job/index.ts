@@ -8,6 +8,7 @@ import SearchedJobsPagination from "./components/SearchedJobsPagination";
 import useGetSingleJobQuery from "./hooks/useGetSingleJobQuery";
 import SingleJobContainer from "./components/SingleJobContainer";
 import SingleJobProfileHistory from "./components/SingleJobProfileHistory";
+import JobForm from "./components/JobForm";
 
 export {
     useEmployerJobsQuery,
@@ -19,5 +20,6 @@ export {
     SearchedJobsPagination,
     useGetSingleJobQuery,
     SingleJobContainer,
-    SingleJobProfileHistory
+    SingleJobProfileHistory,
+    JobForm
 }

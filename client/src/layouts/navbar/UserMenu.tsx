@@ -110,6 +110,12 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
             to: "/profile/employer/bought-services",
             sort: 3
         },
+        {
+            value: "Submission Job",
+            icon: TbSquareRoundedPlus,
+            to: "/profile/employer/jobs/create",
+            sort: 7
+        },
     ];
 
     const selectedMenu = props.userInfo.userAs === "freelancer" ? freelancerMenus : employerMenus;

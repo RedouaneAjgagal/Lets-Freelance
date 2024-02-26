@@ -14,7 +14,6 @@ type SelectOptionsProps = {
 const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
     const [isSelectOptionsOpen, setIsSelectOptionsOpen] = useState(false);
 
-
     const options = props.options.map(option => {
         const optionName = toUpperCase({
             value: option.name,
@@ -29,7 +28,7 @@ const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
         const isSelected = props.selectTitle.toLowerCase() === option.name.toLowerCase();
 
         return (
-            <button onClick={selectOptionHandler} key={option.name} value={option.value} className={`w-full flex pl-4 pr-2 py-2 text-slate-800 ${isSelected ? "bg-slate-400 text-white" : ""}`}>{`- ${optionName}`}</button>
+            <button type="button" onClick={selectOptionHandler} key={option.name} value={option.value} className={`w-full flex pl-4 pr-2 py-2 text-slate-800 ${isSelected ? "bg-slate-400 text-white" : ""}`}>{`- ${optionName}`}</button>
         )
     });
 
@@ -40,7 +39,7 @@ const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
 
     return (
         <div className="w-full relative">
-            <button onClick={() => setIsSelectOptionsOpen(prev => !prev)} className={`border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full ${isSelectOptionsOpen ? "border-slate-400" : "border-slate-300"}`}>
+            <button type="button" onClick={() => setIsSelectOptionsOpen(prev => !prev)} className={`bg-white border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full ${isSelectOptionsOpen ? "border-slate-400" : "border-slate-300"}`}>
                 {selectedTitle}
                 <TbArrowDown />
             </button>

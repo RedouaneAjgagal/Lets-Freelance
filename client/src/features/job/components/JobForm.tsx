@@ -1,4 +1,5 @@
 import { PrimaryButton } from "../../../layouts/brand";
+import JobFormStepFour from "./JobFormStepFour";
 import JobFormStepOne from "./JobFormStepOne";
 import JobFormStepThree from "./JobFormStepThree";
 import JobFormStepTwo from "./JobFormStepTwo";
@@ -24,7 +25,11 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         const minPrice = form.get("job_price_min");
         const maxPrice = form.get("job_price_max");
         const budget = form.get("job_price_budget");
-        
+        const minWeeklyHours = form.get("job_weeklyHours_min");
+        const maxWeeklyHours = form.get("job_weeklyHours_max");
+        const durationType = form.get("job_duration_type");
+        const durationValue = form.get("job_duration_value");
+
 
         console.log({
             title,
@@ -37,7 +42,11 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
             priceType,
             minPrice,
             maxPrice,
-            budget
+            budget,
+            minWeeklyHours,
+            maxWeeklyHours,
+            durationType,
+            durationValue
         });
     }
 
@@ -47,7 +56,8 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         <form onSubmit={createJobHandler}>
             {/* <JobFormStepOne /> */}
             {/* <JobFormStepTwo /> */}
-            <JobFormStepThree />
+            {/* <JobFormStepThree /> */}
+            <JobFormStepFour />
             <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{submitFormButtonContent}</PrimaryButton>
         </form>
     )

@@ -213,17 +213,12 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
 
     }
 
-    const submitFormButtonContent = props.formType === "create" ? "Create job" : "Update";
-
-    const isSubmit = currentStep === 4;
-    const primaryButtonContent = isSubmit ? submitFormButtonContent : "Next";
-
 
     const steps: { [key: number]: JSX.Element } = {
-        1: <JobFormStepOne errors={stepOneErros} />,
-        2: <JobFormStepTwo errors={stepTwoErrors} />,
-        3: <JobFormStepThree errors={stepThreeErrors} />,
-        4: <JobFormStepFour errors={stepFourErrors} />
+        1: <JobFormStepOne key={1} errors={stepOneErros} isCurrentStep={currentStep === 1} />,
+        2: <JobFormStepTwo key={2} errors={stepTwoErrors} isCurrentStep={currentStep === 2} />,
+        3: <JobFormStepThree key={3} errors={stepThreeErrors} isCurrentStep={currentStep === 3} />,
+        4: <JobFormStepFour key={4} errors={stepFourErrors} isCurrentStep={currentStep === 4} />
     }
 
     const getPrevStepHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -233,11 +228,30 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         setCurrentStep(prev => prev - 1);
     }
 
+    const stepContents: { [key: number]: string } = {
+        1: "Title",
+        2: "Description",
+        3: "Budget",
+        4: "Work time"
+    }
+
+    const submitFormButtonContent = props.formType === "create" ? "Create job" : "Update";
+
+    const isSubmit = currentStep === 4;
+    const primaryButtonContent = isSubmit ? submitFormButtonContent : `Next: ${stepContents[currentStep + 1]}`;
+
     return (
         <form onSubmit={createJobHandler}>
-            {steps[currentStep]}
+            <div className="flex items-center gap-2 mb-2">
+                <small>{currentStep} / 4</small>
+                <span className="text-slate-600">{stepContents[currentStep]}</span>
+            </div>
+            {Object.values(steps).map(step => step)}
             <div className="flex justify-end gap-2">
-                <button type="button" onClick={getPrevStepHandler} className="border rounded border-slate-300 px-2">Back</button>
+                {currentStep > 1 ?
+                    <button type="button" onClick={getPrevStepHandler} className="border rounded border-slate-300 px-2">Back</button>
+                    : null
+                }
                 <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>
             </div>
         </form>

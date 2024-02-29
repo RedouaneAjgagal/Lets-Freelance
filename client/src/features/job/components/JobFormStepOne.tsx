@@ -4,6 +4,7 @@ import SelectOptions from "../../../components/SelectOptions"
 import toUpperCase from "../../../utils/toUpperCase";
 
 type JobFormStepOneProps = {
+    isCurrentStep: boolean;
     errors: {
         title: boolean;
         category: boolean;
@@ -43,7 +44,7 @@ const JobFormStepOne = (props: React.PropsWithoutRef<JobFormStepOneProps>) => {
     });
 
     return (
-        <section>
+        <section className={`${props.isCurrentStep ? "flex flex-col not-sr-only" : "hidden sr-only"}`}>
             <Input name="job_title" type="text" id="job_title" errorMsg="" isError={props.errors.title} includeLabel={true} labelContent="Job post title" />
             <div className="relative pb-6 flex flex-col gap-1">
                 <label htmlFor="job_category" className="text-lg font-medium">Job category</label>

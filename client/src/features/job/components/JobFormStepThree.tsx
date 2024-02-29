@@ -2,8 +2,14 @@ import { useState } from "react"
 import JobFormPriceType from "./JobFormPriceType"
 import JobFormPrice from "./JobFormPrice";
 
+type JobFormStepThreeProps = {
+    errors: {
+        priceType: boolean;
+        price: boolean;
+    }
+}
 
-const JobFormStepThree = () => {
+const JobFormStepThree = (props: React.PropsWithoutRef<JobFormStepThreeProps>) => {
     const [priceType, setPriceType] = useState<"hourly" | "fixed">("hourly");
 
     const onSetPriceType = (priceType: "hourly" | "fixed") => {
@@ -12,8 +18,8 @@ const JobFormStepThree = () => {
 
     return (
         <section className="flex flex-col gap-2">
-            <JobFormPriceType setPriceType={onSetPriceType} priceType={priceType} />
-            <JobFormPrice priceType={priceType} />
+            <JobFormPriceType setPriceType={onSetPriceType} priceType={priceType} isError={props.errors.priceType} />
+            <JobFormPrice priceType={priceType} isError={props.errors.price} />
         </section>
     )
 }

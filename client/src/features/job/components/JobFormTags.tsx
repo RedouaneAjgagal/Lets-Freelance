@@ -2,7 +2,13 @@ import { useState } from 'react'
 import Input from '../../../components/Input';
 import { TbX } from 'react-icons/tb';
 
-const JobFormTags = () => {
+type JobFormTagsProps = {
+    isError: boolean;
+}
+
+
+const JobFormTags = (props: React.PropsWithoutRef<JobFormTagsProps>) => {
+
     const [{ tagValue, tags }, setTag] = useState<{
         tagValue: string;
         tags: { _id: string; value: string }[];
@@ -16,6 +22,8 @@ const JobFormTags = () => {
     }
 
     const addTagHandler = () => {
+        if (tags.length >= 10) return;
+
         const keywordId = crypto.randomUUID();
         if (!tagValue || tagValue.trim() === "") return;
 
@@ -48,8 +56,11 @@ const JobFormTags = () => {
     return (
         <div className="relative pb-6 flex flex-col gap-1">
             <div className="flex items-center gap-2">
-                <Input errorMsg="" isError={false} id="job_tag_input" name="job_tag_input" includeLabel={true} labelContent="Add job tags" type="text" placeHolder="e.g. Web development" onChange={setTagValueHandler} onKeyDown={addTagHandlerByKeyDown} value={tagValue} />
-                <button onClick={addTagHandler} type="button" className="bg-slate-200 py-[.4rem] rounded px-4 font-medium -mb-2">Add</button>
+                <Input errorMsg="" isError={props.isError} id="job_tag_input" name="job_tag_input" includeLabel={true} labelContent="Add job tags" type="text" placeHolder="e.g. Web development" onChange={setTagValueHandler} onKeyDown={addTagHandlerByKeyDown} value={tagValue} />
+                {tags.length < 10 ?
+                    <button onClick={addTagHandler} type="button" className="bg-slate-200 py-[.4rem] rounded px-4 font-medium -mb-2">Add</button>
+                    : null
+                }
                 <input type="text" name="job_tag" id="job_tag" value={getTagValues} readOnly className="sr-only" hidden />
             </div>
             <div className="flex items-center gap-2 flex-wrap">

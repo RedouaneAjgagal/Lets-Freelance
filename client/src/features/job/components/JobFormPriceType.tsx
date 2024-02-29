@@ -3,6 +3,7 @@ import { TbClock, TbTicket } from "react-icons/tb";
 type JobFormPriceTypeProps = {
     setPriceType: (priceType: "hourly" | "fixed") => void;
     priceType: "hourly" | "fixed";
+    isError: boolean;
 }
 
 const JobFormPriceType = (props: React.PropsWithoutRef<JobFormPriceTypeProps>) => {

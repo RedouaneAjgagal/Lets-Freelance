@@ -8,7 +8,7 @@ type SelectOptionsProps = {
     options: { name: string; value: string }[];
     onSelect: ({ name, value }: { name: string; value: string }) => void;
     upperCaseEveryWord?: boolean;
-
+    isError?: boolean;
 }
 
 const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
@@ -39,7 +39,7 @@ const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
 
     return (
         <div className="w-full relative">
-            <button type="button" onClick={() => setIsSelectOptionsOpen(prev => !prev)} className={`bg-white border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full ${isSelectOptionsOpen ? "border-slate-400" : "border-slate-300"}`}>
+            <button type="button" onClick={() => setIsSelectOptionsOpen(prev => !prev)} className={`bg-white border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full ${isSelectOptionsOpen ? "border-slate-400" : `${props.isError ? "border-red-300" : "border-slate-300"}`}`}>
                 {selectedTitle}
                 <TbArrowDown />
             </button>

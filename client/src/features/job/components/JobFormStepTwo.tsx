@@ -2,13 +2,21 @@ import JobFormTags from "./JobFormTags";
 import JobFormDescription from "./JobFormDescription";
 import JobFormLocationType from "./JobFormLocationType";
 
-const JobFormStepTwo = () => {
+type JobFormStepTwoProps = {
+    errors: {
+        description: boolean;
+        locationType: boolean;
+        tags: boolean;
+    };
+};
+
+const JobFormStepTwo = (props: React.PropsWithoutRef<JobFormStepTwoProps>) => {
 
     return (
         <section>
-            <JobFormDescription />
-            <JobFormLocationType />
-            <JobFormTags />
+            <JobFormDescription isError={props.errors.description} />
+            <JobFormLocationType isError={props.errors.locationType} />
+            <JobFormTags isError={props.errors.tags} />
         </section>
     )
 }

@@ -2,8 +2,11 @@ import { useState } from "react";
 import Input from "../../../components/Input"
 import SelectOptions from "../../../components/SelectOptions"
 
+type JobFormDurationProps = {
+    isError: boolean;
+}
 
-const JobFormDuration = () => {
+const JobFormDuration = (props: React.PropsWithoutRef<JobFormDurationProps>) => {
     const [durationValue, setDurationValue] = useState("days");
 
     const selectOptions = [
@@ -27,9 +30,9 @@ const JobFormDuration = () => {
 
     return (
         <div className="flex items-center gap-2">
-            <Input errorMsg="" id={`job_duration_value`} name={`job_duration_value`} includeLabel labelContent="Job duration" isError={false} type="number" />
+            <Input errorMsg="" id={`job_duration_value`} name={`job_duration_value`} includeLabel labelContent="Job duration" isError={props.isError} type="number" />
             <div className="w-full max-w-[7rem] -mb-2">
-                <SelectOptions options={selectOptions} selectTitle={durationValue} onSelect={selectDurationTypeHandler} />
+                <SelectOptions options={selectOptions} selectTitle={durationValue} onSelect={selectDurationTypeHandler} isError={props.isError} />
                 <input type="text" className="sr-only" hidden readOnly value={durationValue} name="job_duration_type" />
             </div>
         </div>

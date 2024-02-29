@@ -1,6 +1,10 @@
 import toUpperCase from "../../../utils/toUpperCase";
 
-const JobFormLocationType = () => {
+type JobFormLocationTypeProps = {
+    isError: boolean;
+}
+
+const JobFormLocationType = (props: React.PropsWithoutRef<JobFormLocationTypeProps>) => {
     const locationTypes = ["remote", "onsite"] as const;
 
     const locationInputs = locationTypes.map(locationType => {

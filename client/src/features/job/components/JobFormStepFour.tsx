@@ -1,12 +1,18 @@
 import JobFormDuration from "./JobFormDuration"
 import JobFormWeeklyHours from "./JobFormWeeklyHours"
 
+type JobFormStepFourProps = {
+    errors: {
+        weeklyHours: boolean;
+        duration: boolean;
+    };
+};
 
-const JobFormStepFour = () => {
+const JobFormStepFour = (props: React.PropsWithoutRef<JobFormStepFourProps>) => {
     return (
         <section>
-            <JobFormWeeklyHours />
-            <JobFormDuration />
+            <JobFormWeeklyHours isError={props.errors.weeklyHours} />
+            <JobFormDuration isError={props.errors.duration} />
         </section>
     )
 }

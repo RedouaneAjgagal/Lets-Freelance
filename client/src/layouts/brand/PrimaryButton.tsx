@@ -1,5 +1,5 @@
 interface Props {
-    onClick?: () => void;
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
     style: "outline" | "solid";
     type: "button" | "submit" | "reset";
     fullWith: boolean;

@@ -7,6 +7,7 @@ import JobFormStepTwo from "./JobFormStepTwo";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { jobFormAction } from "../redux/jobForm";
+import JobFormReview from "./JobFormReview";
 
 type JobFormProps = {
     formType: "create" | "update";
@@ -15,7 +16,9 @@ type JobFormProps = {
 const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     const [isFormTouch, setIsFormTouch] = useState<boolean | "">("");
 
-    const { jobFormReducer } = useAppSelector(state => state);
+    const [isReviewMode, setIsReviewMode] = useState(false);
+
+    const jobFormReducer = useAppSelector(state => state.jobFormReducer);
     const dispatch = useAppDispatch();
 
     const [currentStep, setCurrentStep] = useState<number>(1);
@@ -127,6 +130,8 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
 
         if (currentStep < 4) {
             setCurrentStep(prev => prev + 1);
+        } else {
+            setIsReviewMode(true);
         }
     }, [isFormTouch]);
 
@@ -141,6 +146,12 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         e.preventDefault();
         if (currentStep === 1) return;
 
+        if (isReviewMode) {
+            setCurrentStep(4);
+            setIsReviewMode(false);
+            return;
+        }
+
         setCurrentStep(prev => prev - 1);
     }
 
@@ -151,24 +162,34 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         4: "Work time"
     }
 
-    const submitFormButtonContent = props.formType === "create" ? "Create job" : "Update";
+    const submitFormButtonContent = props.formType === "create" ? "Create Job Post" : "Update Job Post";
 
     const isSubmit = currentStep === 4;
-    const primaryButtonContent = isSubmit ? submitFormButtonContent : `Next: ${stepContents[currentStep + 1]}`;
+    const primaryButtonContent = isReviewMode ? submitFormButtonContent
+        : isSubmit ? "Review Job Post"
+            : `Next: ${stepContents[currentStep + 1]}`;
 
-    console.log("Happned");
-    
+
+    const changeStepHandler = (step: number) => {
+        setCurrentStep(step);
+        setIsReviewMode(false);
+    }
 
     return (
-        <form onSubmit={createJobHandler}>
-            <div className="flex items-center gap-2 mb-2">
-                <small>{currentStep} / 4</small>
-                <span className="text-slate-600">{stepContents[currentStep]}</span>
-            </div>
-            {steps[currentStep]}
-            <div className="flex justify-end gap-2">
+        <form onSubmit={createJobHandler} className="flex flex-col gap-6">
+            {!isReviewMode ?
+                <div className="flex items-center gap-2 mb-2">
+                    <small>{currentStep} / 4</small>
+                    <span className="text-slate-600">{stepContents[currentStep]}</span>
+                </div>
+                : null}
+            {isReviewMode ?
+                <JobFormReview onChangeStep={changeStepHandler} />
+                : steps[currentStep]
+            }
+            <div className="flex justify-end gap-4">
                 {currentStep > 1 ?
-                    <button type="button" onClick={getPrevStepHandler} className="border rounded border-slate-300 px-2">Back</button>
+                    <button type="button" onClick={getPrevStepHandler} className="border rounded border-purple-600 px-2 font-medium text-purple-600">Back</button>
                     : null
                 }
                 <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>

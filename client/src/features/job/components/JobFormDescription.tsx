@@ -7,7 +7,6 @@ type JobFormDescriptionProps = {
 }
 
 const JobFormDescription = (props: React.PropsWithoutRef<JobFormDescriptionProps>) => {
-    // Quill.
     const [descriptionValue, setDescriptionValue] = useState({ value: props.defaultValue, plainValue: props.defaultValue });
 
     return (

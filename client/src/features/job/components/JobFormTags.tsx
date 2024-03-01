@@ -4,15 +4,21 @@ import { TbX } from 'react-icons/tb';
 
 type JobFormTagsProps = {
     isError: boolean;
+    defaultValue: string[];
 }
 
 
 const JobFormTags = (props: React.PropsWithoutRef<JobFormTagsProps>) => {
 
+    const initialTags = props.defaultValue.map(tag => {
+        const id = crypto.randomUUID();
+        return { _id: id, value: tag }
+    });
+
     const [{ tagValue, tags }, setTag] = useState<{
         tagValue: string;
         tags: { _id: string; value: string }[];
-    }>({ tagValue: "", tags: [] });
+    }>({ tagValue: "", tags: initialTags });
 
     const setTagValueHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const tagValue = e.currentTarget.value;

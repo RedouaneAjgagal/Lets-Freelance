@@ -9,6 +9,7 @@ import useGetSingleJobQuery from "./hooks/useGetSingleJobQuery";
 import SingleJobContainer from "./components/SingleJobContainer";
 import SingleJobProfileHistory from "./components/SingleJobProfileHistory";
 import JobForm from "./components/JobForm";
+import jobFormReducer from "./redux/jobForm";
 
 export {
     useEmployerJobsQuery,
@@ -21,5 +22,6 @@ export {
     useGetSingleJobQuery,
     SingleJobContainer,
     SingleJobProfileHistory,
-    JobForm
+    JobForm,
+    jobFormReducer
 }

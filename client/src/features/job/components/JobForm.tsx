@@ -1,38 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PrimaryButton } from "../../../layouts/brand";
 import JobFormStepFour from "./JobFormStepFour";
 import JobFormStepOne from "./JobFormStepOne";
 import JobFormStepThree from "./JobFormStepThree";
 import JobFormStepTwo from "./JobFormStepTwo";
-import { createJobValidationStepFour, createJobValidationStepOne, createJobValidationStepThree, createJobValidationStepTwo } from "../validators/createJobValidation";
 import toast from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { jobFormAction } from "../redux/jobForm";
 
 type JobFormProps = {
     formType: "create" | "update";
 }
 
 const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
+    const [isFormTouch, setIsFormTouch] = useState<boolean | "">("");
 
-    const [stepOneErros, setStepOneErrors] = useState({
-        title: false,
-        category: false,
-        experienceLevel: false
-    });
-
-    const initialStepTwoErrors = { description: false, locationType: false, tags: false };
-    const [stepTwoErrors, setStepTwoErrors] = useState(initialStepTwoErrors);
-
-    const initialStepThreeError = { priceType: false, price: false };
-    const [stepThreeErrors, setStepThreeErrors] = useState(initialStepThreeError);
-
-    const initialStepFourError = { weeklyHours: false, duration: false };
-    const [stepFourErrors, setStepFourErrors] = useState(initialStepFourError);
+    const { jobFormReducer } = useAppSelector(state => state);
+    const dispatch = useAppDispatch();
 
     const [currentStep, setCurrentStep] = useState<number>(1);
 
     const createJobHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         const form = new FormData(e.currentTarget);
 
         const stepsData = {
@@ -69,156 +58,83 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         switch (currentStep) {
             case 1:
                 const stepOneInputs = stepsData[1];
-                const invalidStepOne = createJobValidationStepOne(stepOneInputs);
-                const stepOneHasError = Object.entries(invalidStepOne).filter(([_, value]) => {
-                    if (value !== "") return true;
-                });
-
-                if (stepOneHasError.length) {
-                    const errors = {
-                        title: false,
-                        category: false,
-                        experienceLevel: false
-                    };
-
-                    stepOneHasError.forEach(value => {
-                        const [key] = value;
-                        errors[key as keyof typeof errors] = true;
-                    });
-
-                    setStepOneErrors(prev => {
-                        return { ...prev, ...errors }
-                    });
-
-                    const [_, value] = stepOneHasError[0];
-                    toast.error(value, {
-                        id: "error_createJob_stepOne"
-                    });
-
-                    return;
-                }
-
-                setStepOneErrors({ title: false, category: false, experienceLevel: false });
-                setCurrentStep(prev => prev + 1);
+                dispatch(jobFormAction.setStepOneData(stepOneInputs));
                 break;
 
             case 2:
                 const stepTwoInputs = stepsData[2];
-                const invalidStepTwo = createJobValidationStepTwo(stepTwoInputs);
-
-                const stepTwoHasError = Object.entries(invalidStepTwo).filter(([_, value]) => {
-                    if (value !== "") return true;
-                });
-
-                if (stepTwoHasError.length) {
-                    const errors = initialStepTwoErrors;
-
-                    stepTwoHasError.forEach(value => {
-                        const [key] = value;
-                        errors[key as keyof typeof errors] = true;
-                    });
-
-                    setStepTwoErrors(prev => {
-                        return { ...prev, ...errors }
-                    });
-
-                    const [_, value] = stepTwoHasError[0];
-                    toast.error(value, {
-                        id: "error_createJob_stepTwo"
-                    });
-
-                    return;
-                }
-
-                setStepTwoErrors(initialStepTwoErrors);
-                setCurrentStep(prev => prev + 1);
+                dispatch(jobFormAction.setStepTwoData(stepTwoInputs));
                 break;
 
             case 3:
                 const stepThreeInputs = stepsData[3];
-                const invalidStepThree = createJobValidationStepThree({
-                    priceType: stepThreeInputs.priceType,
-                    price: stepThreeInputs.price
-                });
-
-                const stepThreeHasError = Object.entries(invalidStepThree).filter(([_, value]) => {
-                    if (value !== "") return true;
-                });
-
-                if (stepThreeHasError.length) {
-                    const errors = initialStepThreeError;
-
-                    stepThreeHasError.forEach(value => {
-                        const [key] = value;
-                        errors[key as keyof typeof errors] = true;
-                    });
-
-                    setStepThreeErrors(prev => {
-                        return { ...prev, ...errors }
-                    });
-
-                    const [_, value] = stepThreeHasError[0];
-                    toast.error(value, {
-                        id: "error_createJob_stepThree"
-                    });
-
-                    return;
-                }
-
-                setStepThreeErrors(initialStepThreeError);
-                setCurrentStep(prev => prev + 1);
+                dispatch(jobFormAction.setStepThreeData(stepThreeInputs));
                 break;
 
             case 4:
                 const stepFourInputs = stepsData[4];
-                const invalidStepFour = createJobValidationStepFour({
-                    weeklyHours: stepFourInputs.weeklyHours,
-                    duration: stepFourInputs.duration
-                });
-
-                const stepFourHasError = Object.entries(invalidStepFour).filter(([_, value]) => {
-                    if (value !== "") return true;
-                });
-
-                if (stepFourHasError.length) {
-                    const errors = initialStepFourError;
-
-                    stepFourHasError.forEach(value => {
-                        const [key] = value;
-                        errors[key as keyof typeof errors] = true;
-                    });
-
-                    setStepFourErrors(prev => {
-                        return { ...prev, ...errors }
-                    });
-
-                    const [_, value] = stepFourHasError[0];
-                    toast.error(value, {
-                        id: "error_createJob_stepFour"
-                    });
-
-                    return;
-                }
-
-                setStepFourErrors(initialStepFourError);
-
-                const createJobValues = Object.assign({}, ...Object.values(stepsData));
-                delete createJobValues.plainDescription;
-                console.log(createJobValues);
-
+                dispatch(jobFormAction.setStepFourData(stepFourInputs));
                 break;
+
             default:
                 break;
         }
 
+        setIsFormTouch(prev => !prev);
     }
 
+    useEffect(() => {
+        if (isFormTouch === "") return;
+
+        const stepOneData = {
+            title: jobFormReducer.title,
+            category: jobFormReducer.category,
+            experienceLevel: jobFormReducer.experienceLevel
+        };
+
+        const stepTwoData = {
+            description: jobFormReducer.description,
+            locationType: jobFormReducer.locationType,
+            tags: jobFormReducer.tags
+        };
+
+        const stepThreeData = {
+            priceType: jobFormReducer.priceType,
+            price: jobFormReducer.price,
+        }
+
+        const stepFourData = {
+            weeklyHours: jobFormReducer.weeklyHours,
+            duration: jobFormReducer.duration
+        }
+
+        const jobFormStepsData: { [key: number]: { [key: string]: { value: string | [] | {}; error: { isError: boolean; message: string } } } } = {
+            1: stepOneData,
+            2: stepTwoData,
+            3: stepThreeData,
+            4: stepFourData
+        };
+
+        const currentStepData = jobFormStepsData[currentStep];
+        const hasErrors = Object.values(currentStepData).filter((value) => (value.error.isError));
+
+        if (hasErrors.length) {
+            toast.error(hasErrors[0].error.message, {
+                id: `formJob_step_${currentStep}`
+            });
+            return;
+        }
+
+        if (currentStep < 4) {
+            setCurrentStep(prev => prev + 1);
+        }
+    }, [isFormTouch]);
 
     const steps: { [key: number]: JSX.Element } = {
-        1: <JobFormStepOne key={1} errors={stepOneErros} isCurrentStep={currentStep === 1} />,
-        2: <JobFormStepTwo key={2} errors={stepTwoErrors} isCurrentStep={currentStep === 2} />,
-        3: <JobFormStepThree key={3} errors={stepThreeErrors} isCurrentStep={currentStep === 3} />,
-        4: <JobFormStepFour key={4} errors={stepFourErrors} isCurrentStep={currentStep === 4} />
+        1: <JobFormStepOne />,
+        2: <JobFormStepTwo />,
+        3: <JobFormStepThree />,
+        4: <JobFormStepFour />
     }
 
     const getPrevStepHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -240,13 +156,16 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     const isSubmit = currentStep === 4;
     const primaryButtonContent = isSubmit ? submitFormButtonContent : `Next: ${stepContents[currentStep + 1]}`;
 
+    console.log("Happned");
+    
+
     return (
         <form onSubmit={createJobHandler}>
             <div className="flex items-center gap-2 mb-2">
                 <small>{currentStep} / 4</small>
                 <span className="text-slate-600">{stepContents[currentStep]}</span>
             </div>
-            {Object.values(steps).map(step => step)}
+            {steps[currentStep]}
             <div className="flex justify-end gap-2">
                 {currentStep > 1 ?
                     <button type="button" onClick={getPrevStepHandler} className="border rounded border-slate-300 px-2">Back</button>

@@ -1,19 +1,14 @@
+import { useAppSelector } from "../../../hooks/redux"
 import JobFormDuration from "./JobFormDuration"
 import JobFormWeeklyHours from "./JobFormWeeklyHours"
 
-type JobFormStepFourProps = {
-    isCurrentStep: boolean;
-    errors: {
-        weeklyHours: boolean;
-        duration: boolean;
-    };
-};
+const JobFormStepFour = () => {
+    const jobFormReducer = useAppSelector(state => state.jobFormReducer);
 
-const JobFormStepFour = (props: React.PropsWithoutRef<JobFormStepFourProps>) => {
     return (
-        <section className={`${props.isCurrentStep ? "flex flex-col not-sr-only" : "hidden sr-only"}`}>
-            <JobFormWeeklyHours isError={props.errors.weeklyHours} />
-            <JobFormDuration isError={props.errors.duration} />
+        <section>
+            <JobFormWeeklyHours isError={jobFormReducer.weeklyHours.error.message !== ""} defaultValue={jobFormReducer.weeklyHours.value} />
+            <JobFormDuration isError={jobFormReducer.duration.error.message !== ""} defaultValue={jobFormReducer.duration.value} />
         </section>
     )
 }

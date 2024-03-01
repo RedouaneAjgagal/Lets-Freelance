@@ -1,23 +1,16 @@
 import JobFormTags from "./JobFormTags";
 import JobFormDescription from "./JobFormDescription";
 import JobFormLocationType from "./JobFormLocationType";
+import { useAppSelector } from "../../../hooks/redux";
 
-type JobFormStepTwoProps = {
-    isCurrentStep: boolean;
-    errors: {
-        description: boolean;
-        locationType: boolean;
-        tags: boolean;
-    };
-};
-
-const JobFormStepTwo = (props: React.PropsWithoutRef<JobFormStepTwoProps>) => {
+const JobFormStepTwo = () => {
+    const jobFormReducer = useAppSelector(state => state.jobFormReducer);
 
     return (
-        <section className={`${props.isCurrentStep ? "flex flex-col not-sr-only" : "hidden sr-only"}`}>
-            <JobFormDescription isError={props.errors.description} />
-            <JobFormLocationType isError={props.errors.locationType} />
-            <JobFormTags isError={props.errors.tags} />
+        <section>
+            <JobFormDescription isError={jobFormReducer.description.error.message !== ""} defaultValue={jobFormReducer.description.value} />
+            <JobFormLocationType isError={jobFormReducer.locationType.error.message !== ""} defaultValue={jobFormReducer.locationType.value} />
+            <JobFormTags isError={jobFormReducer.tags.error.message !== ""} defaultValue={jobFormReducer.tags.value} />
         </section>
     )
 }

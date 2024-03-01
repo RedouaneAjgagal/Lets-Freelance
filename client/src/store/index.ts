@@ -3,13 +3,16 @@ import { authReducer } from "../features/auth";
 import { profileSkillsReducer } from "../features/profile";
 import { filterByStatusReducer, filterSearchedServicesReducer, serviceFormReducer } from "../features/service";
 
+import { jobFormReducer } from "../features/job";
+
 const store = configureStore({
     reducer: {
         authReducer,
         profileSkillsReducer,
         filterByStatusReducer,
         filterSearchedServicesReducer,
-        serviceFormReducer
+        serviceFormReducer,
+        jobFormReducer
     }
 });
 

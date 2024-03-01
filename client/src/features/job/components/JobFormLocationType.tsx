@@ -2,6 +2,7 @@ import toUpperCase from "../../../utils/toUpperCase";
 
 type JobFormLocationTypeProps = {
     isError: boolean;
+    defaultValue: "remote" | "onsite";
 }
 
 const JobFormLocationType = (props: React.PropsWithoutRef<JobFormLocationTypeProps>) => {
@@ -12,7 +13,7 @@ const JobFormLocationType = (props: React.PropsWithoutRef<JobFormLocationTypePro
 
         return (
             <div className="flex gap-2" key={locationType}>
-                <input className="accent-purple-600" type="radio" name="job_locationType" id={`job_locationType_${locationType}`} value={locationType} defaultChecked={locationType === "remote"} />
+                <input className="accent-purple-600" type="radio" name="job_locationType" id={`job_locationType_${locationType}`} value={locationType} defaultChecked={props.defaultValue === locationType} />
                 <label className="font-medium" htmlFor={`job_locationType_${locationType}`}>{labelContent}</label>
             </div>
         )

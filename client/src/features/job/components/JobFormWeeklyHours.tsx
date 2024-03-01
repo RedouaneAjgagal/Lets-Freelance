@@ -2,6 +2,10 @@ import Input from "../../../components/Input";
 
 type JobFormWeeklyHoursProps = {
     isError: boolean;
+    defaultValue: {
+        min: string;
+        max: string;
+    };
 }
 
 const JobFormWeeklyHours = (props: React.PropsWithoutRef<JobFormWeeklyHoursProps>) => {
@@ -9,7 +13,7 @@ const JobFormWeeklyHours = (props: React.PropsWithoutRef<JobFormWeeklyHoursProps
 
     const weeklyHoursInputs = weeklyHoursOptions.map(value => {
         return (
-            <Input key={value} errorMsg="" id={`job_weeklyHours_${value}`} includeLabel={false} isError={props.isError} name={`job_weeklyHours_${value}`} type="number" defaultValue="" placeHolder={value} />
+            <Input key={value} errorMsg="" id={`job_weeklyHours_${value}`} includeLabel={false} isError={props.isError} name={`job_weeklyHours_${value}`} type="number" defaultValue={props.defaultValue[value]} placeHolder={value} />
         )
     });
 

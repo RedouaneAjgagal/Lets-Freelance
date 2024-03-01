@@ -1,26 +1,21 @@
 import { useState } from "react"
 import JobFormPriceType from "./JobFormPriceType"
 import JobFormPrice from "./JobFormPrice";
+import { useAppSelector } from "../../../hooks/redux";
 
-type JobFormStepThreeProps = {
-    isCurrentStep: boolean;
-    errors: {
-        priceType: boolean;
-        price: boolean;
-    }
-}
+const JobFormStepThree = () => {
+    const jobFormReducer = useAppSelector(state => state.jobFormReducer);
 
-const JobFormStepThree = (props: React.PropsWithoutRef<JobFormStepThreeProps>) => {
-    const [priceType, setPriceType] = useState<"hourly" | "fixed">("hourly");
+    const [priceType, setPriceType] = useState(jobFormReducer.priceType.value);
 
     const onSetPriceType = (priceType: "hourly" | "fixed") => {
         setPriceType(priceType);
     }
 
     return (
-        <section className={`${props.isCurrentStep ? "flex flex-col gap-2 not-sr-only" : "hidden sr-only"}`}>
-            <JobFormPriceType setPriceType={onSetPriceType} priceType={priceType} isError={props.errors.priceType} />
-            <JobFormPrice priceType={priceType} isError={props.errors.price} />
+        <section className="flex flex-col gap-2">
+            <JobFormPriceType setPriceType={onSetPriceType} priceType={priceType} isError={jobFormReducer.priceType.error.message !== ""} />
+            <JobFormPrice priceType={priceType} isError={jobFormReducer.price.error.message !== ""} defaultValue={jobFormReducer.price.value} />
         </section>
     )
 }

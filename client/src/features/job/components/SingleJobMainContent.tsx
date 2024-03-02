@@ -60,8 +60,7 @@ const SingleJobMainContent = (props: React.PropsWithoutRef<SingleJobMainContentP
 
     return (
         <article className="flex flex-col gap-4">
-            <h2 className="text-2xl font-medium text-slate-800">Description</h2>
-            <p className="text-slate-800">{props.jobMainDetails.description}</p>
+            <div className="ql-editor [&_ul]:pl-0 [&_ol]:pl-0 [&_blockquote]:pl-2 [&_blockquote]:border-l-4 [&_blockquote]:mb-3 p-0 text-slate-800 mt-3" dangerouslySetInnerHTML={{ __html: props.jobMainDetails.description }}></div>
             <section className="py-6">
                 <ul className="flex flex-col gap-6">
                     {features.map((feature, index) => (

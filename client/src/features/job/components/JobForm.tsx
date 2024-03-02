@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PrimaryButton } from "../../../layouts/brand";
 import JobFormStepFour from "./JobFormStepFour";
 import JobFormStepOne from "./JobFormStepOne";
@@ -108,7 +108,6 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         setIsFormTouch(prev => !prev);
     }
 
-
     useEffect(() => {
         if (isFormTouch === "") return;
 
@@ -156,6 +155,8 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         } else {
             setIsReviewMode(true);
         }
+
+        window.scrollTo({ top: 0, behavior: "instant" });
     }, [isFormTouch]);
 
 
@@ -170,6 +171,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         e.preventDefault();
         if (currentStep === 1) return;
 
+        window.scrollTo({ top: 0, behavior: "instant" });
         if (isReviewMode) {
             setCurrentStep(4);
             setIsReviewMode(false);
@@ -197,6 +199,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     const changeStepHandler = (step: number) => {
         setCurrentStep(step);
         setIsReviewMode(false);
+        window.scrollTo({ top: 0, behavior: "instant" });
     }
 
     useEffect(() => {

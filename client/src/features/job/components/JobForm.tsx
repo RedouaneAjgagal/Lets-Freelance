@@ -8,12 +8,18 @@ import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { jobFormAction } from "../redux/jobForm";
 import JobFormReview from "./JobFormReview";
+import useCreateJobMutation from "../hooks/useCreateJobMutation";
+import { useNavigate } from 'react-router-dom';
 
 type JobFormProps = {
     formType: "create" | "update";
 }
 
 const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
+    const createJobMutation = useCreateJobMutation();
+
+    const navigate = useNavigate();
+
     const [isFormTouch, setIsFormTouch] = useState<boolean | "">("");
 
     const [isReviewMode, setIsReviewMode] = useState(false);
@@ -25,6 +31,9 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
 
     const createJobHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (createJobMutation.isLoading) return;
+
         const form = new FormData(e.currentTarget);
 
         const stepsData = {
@@ -42,20 +51,33 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
             3: {
                 priceType: form.get("job_priceType")?.toString(),
                 price: {
-                    min: form.get(form.get("job_priceType")?.toString() === "hourly" ? "job_price_min" : "job_price_budget")?.toString(),
-                    max: form.get(form.get("job_priceType")?.toString() === "hourly" ? "job_price_max" : "job_price_budget")?.toString(),
+                    min: Number(form.get(form.get("job_priceType")?.toString() === "hourly" ? "job_price_min"
+                        : "job_price_budget")?.toString()),
+                    max: Number(form.get(form.get("job_priceType")?.toString() === "hourly" ? "job_price_max"
+                        : "job_price_budget")?.toString())
                 },
             },
             4: {
                 weeklyHours: {
-                    min: form.get("job_weeklyHours_min")?.toString(),
-                    max: form.get("job_weeklyHours_max")?.toString(),
+                    min: Number(form.get("job_weeklyHours_min")?.toString()),
+                    max: Number(form.get("job_weeklyHours_max")?.toString())
                 },
                 duration: {
                     dateType: form.get("job_duration_type")?.toString(),
-                    dateValue: form.get("job_duration_value")?.toString(),
+                    dateValue: Number(form.get("job_duration_value")?.toString())
                 }
             }
+        };
+
+        if (isReviewMode) {
+            const jobData = Object.entries(jobFormReducer).map(([key, value]) => {
+                return { [key]: value.value }
+            });
+
+            const createJobData = Object.assign({}, ...jobData);
+
+            createJobMutation.mutate(createJobData);
+            return;
         };
 
         switch (currentStep) {
@@ -85,6 +107,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
 
         setIsFormTouch(prev => !prev);
     }
+
 
     useEffect(() => {
         if (isFormTouch === "") return;
@@ -135,6 +158,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         }
     }, [isFormTouch]);
 
+
     const steps: { [key: number]: JSX.Element } = {
         1: <JobFormStepOne />,
         2: <JobFormStepTwo />,
@@ -175,8 +199,15 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         setIsReviewMode(false);
     }
 
+    useEffect(() => {
+        if (createJobMutation.isSuccess) {
+            navigate("/profile/employer/jobs");
+            dispatch(jobFormAction.setInitialValues());
+        }
+    }, [createJobMutation.isSuccess]);
+
     return (
-        <form onSubmit={createJobHandler} className="flex flex-col gap-6">
+        <form onSubmit={createJobHandler} className="flex flex-col gap-6" noValidate>
             {!isReviewMode ?
                 <div className="flex items-center gap-2 mb-2">
                     <small>{currentStep} / 4</small>
@@ -192,7 +223,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
                     <button type="button" onClick={getPrevStepHandler} className="border rounded border-purple-600 px-2 font-medium text-purple-600">Back</button>
                     : null
                 }
-                <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>
+                <PrimaryButton isLoading={createJobMutation.isLoading} disabled={createJobMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>
             </div>
         </form>
     )

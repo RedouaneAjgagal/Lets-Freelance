@@ -96,7 +96,7 @@ const isInvalidPriceType = (priceType: string | undefined) => {
     return "";
 }
 
-const isInvalidPrice = ({ price, priceType }: { price: { min: string | undefined; max: string | undefined }; priceType: "hourly" | "fixed" }) => {
+const isInvalidPrice = ({ price, priceType }: { price: { min: number | undefined; max: number | undefined }; priceType: "hourly" | "fixed" }) => {
     const min = Number(price.min);
     const max = Number(price.max);
 
@@ -124,7 +124,7 @@ const isInvalidPrice = ({ price, priceType }: { price: { min: string | undefined
     return "";
 }
 
-const isInvalidWeeklyHours = (weeklyHours: { min: string | undefined; max: string | undefined }) => {
+const isInvalidWeeklyHours = (weeklyHours: { min: number | undefined; max: number | undefined }) => {
     const min = Number(weeklyHours.min);
     const max = Number(weeklyHours.max);
 
@@ -150,7 +150,7 @@ const isInvalidWeeklyHours = (weeklyHours: { min: string | undefined; max: strin
     return "";
 }
 
-const isInvalidDuration = (duration: { dateType: string | undefined; dateValue: string | undefined }) => {
+const isInvalidDuration = (duration: { dateType: string | undefined; dateValue: number | undefined }) => {
     if (duration.dateValue === undefined) {
         return "Job duration is required";
     }
@@ -213,7 +213,7 @@ const createJobValidationStepTwo = ({ description, plainDescription, locationTyp
 
 const createJobValidationStepThree = ({ priceType, price }: {
     priceType: string | undefined;
-    price: { min: string | undefined; max: string | undefined }
+    price: { min: number | undefined; max: number | undefined }
 }) => {
     const invalidPriceType = isInvalidPriceType(priceType);
     const invalidPrice = isInvalidPrice({
@@ -229,12 +229,12 @@ const createJobValidationStepThree = ({ priceType, price }: {
 
 const createJobValidationStepFour = ({ weeklyHours, duration }: {
     weeklyHours: {
-        min: string | undefined;
-        max: string | undefined
+        min: number | undefined;
+        max: number | undefined
     };
     duration: {
         dateType: string | undefined;
-        dateValue: string | undefined
+        dateValue: number | undefined
     }
 }) => {
     const invalidWeeklyHours = isInvalidWeeklyHours(weeklyHours);

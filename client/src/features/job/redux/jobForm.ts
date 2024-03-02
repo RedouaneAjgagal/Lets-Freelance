@@ -17,19 +17,19 @@ type StepTwoPayload = {
 type StepThreePayload = {
     priceType: string | undefined;
     price: {
-        min: string | undefined;
-        max: string | undefined;
+        min: number | undefined;
+        max: number | undefined;
     };
 }
 
 type StepFourPayload = {
     weeklyHours: {
-        min: string | undefined;
-        max: string | undefined;
+        min: number | undefined;
+        max: number | undefined;
     };
     duration: {
         dateType: string | undefined;
-        dateValue: string | undefined;
+        dateValue: number | undefined;
     };
 }
 
@@ -60,7 +60,7 @@ type InitialJobFormStateType = {
         error: Error;
     };
     tags: {
-        value: [];
+        value: string[];
         error: Error;
     };
     priceType: {
@@ -69,22 +69,22 @@ type InitialJobFormStateType = {
     }
     price: {
         value: {
-            min: string;
-            max: string;
+            min: number;
+            max: number;
         }
         error: Error;
     };
     weeklyHours: {
         value: {
-            min: string;
-            max: string;
+            min: number;
+            max: number;
         }
         error: Error;
     };
     duration: {
         value: {
             dateType: "hours" | "days" | "months";
-            dateValue: string;
+            dateValue: number;
         }
         error: Error;
     };
@@ -128,22 +128,22 @@ const initialJobFormState: InitialJobFormStateType = {
     },
     price: {
         value: {
-            min: "",
-            max: ""
+            min: 0,
+            max: 0
         },
         error: initialError
     },
     weeklyHours: {
         value: {
-            min: "",
-            max: ""
+            min: 0,
+            max: 0
         },
         error: initialError
     },
     duration: {
         value: {
             dateType: "days",
-            dateValue: ""
+            dateValue: 0
         },
         error: initialError
     }
@@ -238,6 +238,11 @@ const jobFormSlice = createSlice({
             state.weeklyHours.value = action.payload.weeklyHours! as InitialJobFormStateType["weeklyHours"]["value"];
             state.duration.value = action.payload.duration! as InitialJobFormStateType["duration"]["value"];
 
+            return state;
+        },
+
+        setInitialValues(state) {
+            state = initialJobFormState;
             return state;
         }
     }

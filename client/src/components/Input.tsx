@@ -8,7 +8,7 @@ type InputProps = {
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     value?: string;
-    defaultValue?: string;
+    defaultValue?: string | number;
 }
 
 type InputWithLabelProps = {

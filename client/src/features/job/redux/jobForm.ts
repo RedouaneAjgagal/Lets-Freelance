@@ -38,7 +38,7 @@ type Error = {
     message: string;
 };
 
-type InitialJobFormStateType = {
+export type InitialJobFormStateType = {
     title: {
         value: string;
         error: Error;
@@ -241,8 +241,14 @@ const jobFormSlice = createSlice({
             return state;
         },
 
-        setInitialValues(state) {
-            state = initialJobFormState;
+        setInitialValues(state, action: { payload: InitialJobFormStateType | undefined; type: string }) {
+            if (action.payload && Object.keys(action.payload).length) {
+                state = action.payload;
+                return state;
+            } else {
+                state = initialJobFormState;
+            }
+
             return state;
         }
     }

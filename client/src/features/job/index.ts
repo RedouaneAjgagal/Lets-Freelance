@@ -10,6 +10,7 @@ import SingleJobContainer from "./components/SingleJobContainer";
 import SingleJobProfileHistory from "./components/SingleJobProfileHistory";
 import JobForm from "./components/JobForm";
 import jobFormReducer from "./redux/jobForm";
+import UpdateJobContainer from "./components/UpdateJobContainer";
 
 export {
     useEmployerJobsQuery,
@@ -23,5 +24,6 @@ export {
     SingleJobContainer,
     SingleJobProfileHistory,
     JobForm,
-    jobFormReducer
+    jobFormReducer,
+    UpdateJobContainer
 }

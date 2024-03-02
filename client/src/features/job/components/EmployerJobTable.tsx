@@ -51,8 +51,7 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
   }
 
   const updateJobHanlder = () => {
-    console.log({ update_job: props.job._id });
-
+    navigate(`/profile/employer/jobs/${props.job._id}/edit`);
   }
 
   const deleteJobHanlder = () => {

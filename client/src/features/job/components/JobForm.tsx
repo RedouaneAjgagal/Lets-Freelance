@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { PrimaryButton } from "../../../layouts/brand";
 import JobFormStepFour from "./JobFormStepFour";
 import JobFormStepOne from "./JobFormStepOne";
@@ -9,7 +9,8 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { jobFormAction } from "../redux/jobForm";
 import JobFormReview from "./JobFormReview";
 import useCreateJobMutation from "../hooks/useCreateJobMutation";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import useUpdateJobMutation from "../hooks/useUpdateJobMutation";
 
 type JobFormProps = {
     formType: "create" | "update";
@@ -17,6 +18,9 @@ type JobFormProps = {
 
 const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     const createJobMutation = useCreateJobMutation();
+    const updateJobMutation = useUpdateJobMutation();
+
+    const { jobId } = useParams();
 
     const navigate = useNavigate();
 
@@ -29,7 +33,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
 
     const [currentStep, setCurrentStep] = useState<number>(1);
 
-    const createJobHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    const jobHandlerAction = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (createJobMutation.isLoading) return;
@@ -70,13 +74,20 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
         };
 
         if (isReviewMode) {
-            const jobData = Object.entries(jobFormReducer).map(([key, value]) => {
+            const jobDataList = Object.entries(jobFormReducer).map(([key, value]) => {
                 return { [key]: value.value }
             });
 
-            const createJobData = Object.assign({}, ...jobData);
+            const jobData = Object.assign({}, ...jobDataList);
 
-            createJobMutation.mutate(createJobData);
+            if (props.formType === "update") {
+                updateJobMutation.mutate({
+                    jobId: jobId!,
+                    payload: jobData
+                });
+            } else {
+                createJobMutation.mutate(jobData);
+            }
             return;
         };
 
@@ -203,14 +214,14 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     }
 
     useEffect(() => {
-        if (createJobMutation.isSuccess) {
+        if (createJobMutation.isSuccess || updateJobMutation.isSuccess) {
             navigate("/profile/employer/jobs");
             dispatch(jobFormAction.setInitialValues());
         }
-    }, [createJobMutation.isSuccess]);
+    }, [createJobMutation.isSuccess, updateJobMutation.isSuccess]);
 
     return (
-        <form onSubmit={createJobHandler} className="flex flex-col gap-6" noValidate>
+        <form onSubmit={jobHandlerAction} className="flex flex-col gap-6" noValidate>
             {!isReviewMode ?
                 <div className="flex items-center gap-2 mb-2">
                     <small>{currentStep} / 4</small>
@@ -226,7 +237,7 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
                     <button type="button" onClick={getPrevStepHandler} className="border rounded border-purple-600 px-2 font-medium text-purple-600">Back</button>
                     : null
                 }
-                <PrimaryButton isLoading={createJobMutation.isLoading} disabled={createJobMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>
+                <PrimaryButton isLoading={createJobMutation.isLoading || updateJobMutation.isLoading} disabled={createJobMutation.isLoading || updateJobMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>
             </div>
         </form>
     )

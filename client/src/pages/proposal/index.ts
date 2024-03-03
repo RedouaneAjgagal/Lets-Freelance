@@ -1,5 +1,7 @@
 import FreelancerProposals from "./FreelancerProposals";
+import SubmitProposal from "./SubmitProposal";
 
 export {
-    FreelancerProposals
+    FreelancerProposals,
+    SubmitProposal
 }

@@ -1,14 +1,21 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import formatDate from "../../../utils/formatDate";
 import formatProfileName from "../../../utils/formatProfileName";
 import toUpperCase from "../../../utils/toUpperCase";
 import { SingleJobType } from "../service/getSingleJob"
+import ApplyJobContainer from "./ApplyJobContainer";
+import { useAppSelector } from "../../../hooks/redux";
 
 type SingleJobAboutClientProps = {
     clientInfo: SingleJobType["profile"];
+    connects: number;
+    jobId: string;
+    jobStatus: "open" | "closed";
 }
 
 const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientProps>) => {
+    const { userInfo } = useAppSelector(state => state.authReducer);
+
     const createdAt = `Member since ${formatDate(props.clientInfo.createdAt)}`;
 
     const postedJobsPluralize = props.clientInfo.totalJobPosted === 1 ? "" : "s";
@@ -34,6 +41,18 @@ const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientP
 
     return (
         <>
+            {userInfo ?
+                (userInfo.userAs === "freelancer" && props.jobStatus === "open") ?
+                    <header className="fixed bg-slate-50 bottom-0 left-0 w-full px-4 h-20 items-center z-10 flex gap-4 border-t">
+                        <ApplyJobContainer connects={props.connects} jobId={props.jobId} />
+                    </header>
+                    : null
+                :
+                <header className="fixed bg-slate-50 bottom-0 left-0 w-full px-4 h-20 items-center z-10 flex gap-4 border-t">
+                    <NavLink className="w-full flex justify-center border-2 border-purple-600 rounded font-semibold text-purple-600 py-2" to={"/auth/login"}>Log in</NavLink>
+                    <NavLink className="w-full flex justify-center border-2 border-purple-700 rounded font-semibold text-white bg-purple-700 py-2" to={"/auth/register"}>Sign up</NavLink>
+                </header>
+            }
             <section className="flex flex-col gap-1">
                 <h3 className="text-xl font-medium text-slate-800">About the client</h3>
                 <small>{createdAt}</small>

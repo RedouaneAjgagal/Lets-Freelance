@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { EmployerJobType } from "../service/getEmployerJobs";
-import { TbStars, TbCalendar } from "react-icons/tb";
+import { TbStars, TbCalendar, TbCheckbox } from "react-icons/tb";
 import { useState } from "react";
 import DeleteJobModal from "../modals/DeleteJobModal";
+import CloseJobModal from "../modals/CloseJobModal";
+import useOverflow from "../../../hooks/useOverflow";
 
 type EmployerJobTableProps = {
   job: EmployerJobType;
@@ -12,6 +14,8 @@ type EmployerJobTableProps = {
 
 const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCloseJobModalOpen, setIsCloseJobModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const proposalPluralize = props.job.proposals === 1 ? "" : "s";
@@ -40,7 +44,7 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
     },
     closed: {
       value: "Closed",
-      stype: "bg-red-200/80 text-red-600"
+      stype: "bg-stone-300/30 text-stone-500"
     }
   } as const;
 
@@ -58,10 +62,23 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
     setIsDeleteModalOpen(true);
   }
 
+  const markJobAsCloseHandler = () => {
+    if (props.job.status !== "open") return;
+
+    setIsCloseJobModalOpen(true);
+  }
+
+  useOverflow(isDeleteModalOpen);
+  useOverflow(isCloseJobModalOpen);
+
   return (
     <>
       {isDeleteModalOpen ?
         <DeleteJobModal sectionRef={props.sectionRef} closeModalhandler={() => setIsDeleteModalOpen(false)} jobId={props.job._id} />
+        : null
+      }
+      {isCloseJobModalOpen ?
+        <CloseJobModal sectionRef={props.sectionRef} jobId={props.job._id} onClose={() => setIsCloseJobModalOpen(false)} />
         : null
       }
       <tr className="border-t">
@@ -98,9 +115,13 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
         </td>
         <td className="p-2 py-4">
           <div className="flex gap-2">
-            <ActionButton type="view" onClick={viewJobHanlder} minimized />
-            <ActionButton type="edit" onClick={updateJobHanlder} minimized />
-            <ActionButton type="delete" onClick={deleteJobHanlder} minimized />
+            <ActionButton type="view" onClick={viewJobHanlder} />
+            <ActionButton type="edit" onClick={updateJobHanlder} />
+            <ActionButton type="delete" onClick={deleteJobHanlder} />
+            {props.job.status === "open" ?
+              <ActionButton type="customized" onClick={markJobAsCloseHandler} bgColor="bg-stone-500" icon={TbCheckbox} value="Close job" minimized />
+              : null
+            }
           </div>
         </td>
       </tr>

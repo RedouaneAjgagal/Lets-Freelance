@@ -1,3 +1,4 @@
+import { IconType } from "react-icons";
 import { TbEye, TbEdit, TbTrash } from "react-icons/tb";
 
 type ActionButtonProps = {
@@ -6,7 +7,17 @@ type ActionButtonProps = {
     minimized?: boolean;
 }
 
-const ActionButton = (props: React.PropsWithoutRef<ActionButtonProps>) => {
+type ActionCustomizedButtonProps = {
+    type: "customized";
+    value: string;
+    bgColor: string;
+    icon: IconType;
+    onClick: () => void;
+    minimized?: boolean;
+}
+
+
+const ActionButton = (props: React.PropsWithoutRef<ActionButtonProps | ActionCustomizedButtonProps>) => {
     const typeContent = {
         view: {
             value: "View",
@@ -26,11 +37,18 @@ const ActionButton = (props: React.PropsWithoutRef<ActionButtonProps>) => {
     } as const;
 
 
-    const content = typeContent[props.type];
+
+
+    const content = props.type === "customized" ? {
+        color: props.bgColor,
+        value: props.value,
+        icon: <props.icon />
+    } : typeContent[props.type];
+
     const getContent = props.minimized ? content.icon :
         <>
             {content.icon}
-            {content.value}
+            <span className="text-sm">{content.value}</span>
         </>;
 
 

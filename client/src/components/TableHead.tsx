@@ -1,6 +1,6 @@
 type TableHeadProps = {
     tableHeads: string[];
-    width?: "tight" | "relaxed" | "wide" | "wider";
+    width?: "tight" | "relaxed" | "wide" | "wider" | "widest";
 }
 
 const TableHead = (props: React.PropsWithoutRef<TableHeadProps>) => {
@@ -9,7 +9,8 @@ const TableHead = (props: React.PropsWithoutRef<TableHeadProps>) => {
         tight: "min-w-[8rem]",
         relaxed: "min-w-[12rem]",
         wide: "min-w-[14rem]",
-        wider: "min-w-[18rem]"
+        wider: "min-w-[15rem]",
+        widest: "min-w-[18rem]"
     }
 
     const width = props.width ? widthTypes[props.width] : widthTypes.relaxed;

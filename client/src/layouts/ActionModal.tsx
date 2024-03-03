@@ -10,7 +10,7 @@ interface Props {
     desc: string;
     cancelBtnContent: string;
     confirmBtnContent: string;
-    color: "blue" | "red" | "purple" | "green" | "black";
+    color: "blue" | "red" | "purple" | "green" | "black" | "stone";
     isLoading?: boolean;
 }
 
@@ -22,6 +22,7 @@ const ActionModal = (props: React.PropsWithoutRef<Props>) => {
         purple: 'bg-purple-600 border-purple-600 hover:bg-purple-500',
         green: 'bg-green-600 border-green-600 hover:bg-green-500',
         black: 'bg-slate-900 border-black-600 hover:bg-slate-800',
+        stone: 'bg-stone-600 border-stone-600 hover:bg-stone-500'
     }
 
     return (
@@ -31,14 +32,18 @@ const ActionModal = (props: React.PropsWithoutRef<Props>) => {
                 <h3 className="text-2xl font-medium">{props.title}</h3>
                 <p className=" text-slate-600">{props.desc}</p>
                 <div className="flex items-center gap-3 ">
-                    <button onClick={props.onConfirm} disabled={props.disabled} className={`${colorVariants[props.color]} text-white rounded h-10 min-w-[9rem] px-2 font-medium border border-white flex justify-center items-center`}>
+                    <button onClick={props.onConfirm} disabled={props.disabled} className={`${colorVariants[props.color]} duration-200 text-white rounded h-10 px-4 font-medium border border-white flex justify-center min-w-[8rem] items-center relative`}>
                         {props.isLoading ?
-                            <TbLoader2 className="animate-spin" size={20} />
-                            :
-                            props.confirmBtnContent
+                            <>
+                                <span className="invisible">
+                                    {props.confirmBtnContent}
+                                </span>
+                                <TbLoader2 className="animate-spin absolute" size={20} />
+                            </>
+                            : props.confirmBtnContent
                         }
                     </button>
-                    <button onClick={props.onClose} disabled={props.disabled} className={`bg-transparent rounded h-10 min-w-[6rem] px-2 font-medium border border-slate-500`}>
+                    <button onClick={props.onClose} disabled={props.disabled} className={`bg-transparent rounded h-10 px-2 font-medium border border-slate-500`}>
                         {props.cancelBtnContent}
                     </button>
                 </div>

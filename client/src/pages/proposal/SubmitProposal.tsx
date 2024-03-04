@@ -12,7 +12,7 @@ const SubmitProposal = () => {
     return (
         getSingleJobQuery.isLoading ?
             <Loading />
-            : <main className="p-4">
+            : <main className="p-4 flex flex-col gap-4 bg-slate-50/70">
                 <h1 className="font-semibold text-2xl text-slate-900">Submit a proposal</h1>
                 <SubmitProposalContainer jobDetails={getSingleJobQuery.data!} />
             </main>

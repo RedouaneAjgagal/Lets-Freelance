@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch } from "../../../hooks/redux";
 import { InitialJobFormStateType, jobFormAction } from "../redux/jobForm";
 import { SingleJobType } from "../service/getSingleJob";

@@ -9,6 +9,7 @@ type SelectOptionsProps = {
     onSelect: ({ name, value }: { name: string; value: string }) => void;
     upperCaseEveryWord?: boolean;
     isError?: boolean;
+    withoutDash?: boolean
 }
 
 const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
@@ -28,7 +29,7 @@ const SelectOptions = (props: React.PropsWithoutRef<SelectOptionsProps>) => {
         const isSelected = props.selectTitle.toLowerCase() === option.name.toLowerCase();
 
         return (
-            <button type="button" onClick={selectOptionHandler} key={option.name} value={option.value} className={`w-full flex pl-4 pr-2 py-2 text-slate-800 ${isSelected ? "bg-slate-400 text-white" : ""}`}>{`- ${optionName}`}</button>
+            <button type="button" onClick={selectOptionHandler} key={option.name} value={option.value} className={`w-full flex pl-4 pr-2 py-2 text-slate-800 ${isSelected ? "bg-slate-400 text-white" : ""}`}>{`${props.withoutDash ? "" : "- "}${optionName}`}</button>
         )
     });
 

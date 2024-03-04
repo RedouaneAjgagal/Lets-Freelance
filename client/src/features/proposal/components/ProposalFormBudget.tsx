@@ -2,7 +2,8 @@ import { SingleJobType } from "../../job";
 
 type ProposalFormBudgetProps = {
     priceType: SingleJobType["priceType"];
-    price: SingleJobType["price"]
+    price: SingleJobType["price"];
+    errorMsg: string
 }
 
 const ProposalFormBudget = (props: React.PropsWithoutRef<ProposalFormBudgetProps>) => {
@@ -19,7 +20,7 @@ const ProposalFormBudget = (props: React.PropsWithoutRef<ProposalFormBudgetProps
             <div className="p-3 rounded bg-slate-100 grid grid-cols-6 items-center gap-3 text-slate-600">
                 <span className="text-[.95rem] col-span-4">{suggestByJobPostPrice}</span>
                 <div className="relative col-span-2">
-                    <input placeholder="Price" type="number" name="submitProposal_price" id="submitProposal_price" className="border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full border-slate-300 outline-slate-400 pl-7" />
+                    <input placeholder="Price" type="number" name="submitProposal_price" id="submitProposal_price" className={`${props.errorMsg === "" ? "border-slate-300" : "border-red-300"} border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full outline-slate-400 pl-7`} />
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold pointer-events-none">$</span>
                 </div>
             </div>

@@ -6,6 +6,10 @@ import Input from "../../../components/Input";
 
 type ProposalFormEstimatedDurationProps = {
     duration: SingleJobType["duration"];
+    errorMsg: {
+        durationType: string;
+        durationValue: string;
+    };
 }
 
 
@@ -42,9 +46,9 @@ const ProposalFormEstimatedDuration = (props: React.PropsWithoutRef<ProposalForm
             <div className="p-3 rounded bg-slate-100 grid grid-cols-9 items-center gap-3 text-slate-600 w-full">
                 <span className="text-[.95rem] col-span-5">{suggestByJobPostDuration}</span>
                 <div className="col-span-4 flex flex-col gap-2">
-                    <SelectOptions options={estimatedDurationOptions} selectTitle={durationType} isError={false} onSelect={selectEstimatedDurationHandler} withoutDash />
+                    <SelectOptions options={estimatedDurationOptions} selectTitle={durationType} isError={props.errorMsg.durationType !== ""} onSelect={selectEstimatedDurationHandler} withoutDash />
                     <input type="text" name="submitProposal_durationType" id="submitProposal_durationType" hidden className="sr-only" readOnly value={durationType} />
-                    <Input placeHolder="Duration" errorMsg="" id="submitProposal_estimatedTime" isError={false} includeLabel={false} name="submitProposal_estimatedTime" type="number" />
+                    <Input placeHolder="Duration" errorMsg="" id="submitProposal_estimatedTime" isError={props.errorMsg.durationValue !== ""} includeLabel={false} name="submitProposal_estimatedTime" type="number" />
                 </div>
             </div>
         </div>

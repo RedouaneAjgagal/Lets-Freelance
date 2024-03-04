@@ -1,10 +1,11 @@
-import { TbCategory, TbLocation, TbCalendar } from "react-icons/tb";
+import { TbCategory, TbLocation, TbCalendar, TbNavigation, } from "react-icons/tb";
 import { FreelancerProposalType } from "../service/getFreelancerProposals"
 import Status from "../../../components/Status";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { useState } from "react";
 import CoverLetterModal from "../modals/CoverLetterModal";
 import useOverflow from "../../../hooks/useOverflow";
+import { Link } from "react-router-dom";
 
 type FreelancerProposalsTableProps = {
     proposal: FreelancerProposalType;
@@ -34,9 +35,9 @@ const FreelancerProposalTable = (props: React.PropsWithoutRef<FreelancerProposal
         <tr className="border-t">
             <td className="p-2 py-4">
                 <div className="flex flex-col gap-2">
-                    <h3 className="font-medium text-[1.1rem]">
+                    <Link to={`/jobs/${props.proposal.job._id}`} className="font-medium text-[1.1rem] underline">
                         {props.proposal.job.title}
-                    </h3>
+                    </Link>
                     <span className="text-sm text-slate-600 flex items-center gap-1">
                         <TbCategory size={18} />
                         {props.proposal.job.category}

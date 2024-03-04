@@ -8,6 +8,8 @@ import ProposalFormBoostProposal from "./ProposalFormBoostProposal";
 import { useState } from "react";
 import createProposalValidator from "../validators/createProposalValidator";
 import toast from "react-hot-toast";
+import useSubmitProposalMutation from "../hooks/useSubmitProposalMutation";
+import { SubmitProposalPayload } from "../service/submitProposal";
 
 type SubmitProposalFormProps = {
     jobId: string;
@@ -17,7 +19,7 @@ type SubmitProposalFormProps = {
 }
 
 const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps>) => {
-
+    const submitProposalMutation = useSubmitProposalMutation();
 
     const initialErrorFormState = {
         price: "",
@@ -30,25 +32,20 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
 
     const createProposalHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (submitProposalMutation.isLoading) return;
+
         const formData = new FormData(e.currentTarget);
 
         const proposalData = {
             coverLetter: formData.get("submitProposal_coverLetter")?.toString(),
-            estimatedTime: {
-                timeType: formData.get("submitProposal_durationType")?.toString(),
-                timeValue: formData.get("submitProposal_estimatedTime")?.toString()
-            },
+            timeType: formData.get("submitProposal_durationType")?.toString(),
+            timeValue: formData.get("submitProposal_estimatedTime")?.toString(),
             price: formData.get("submitProposal_price")?.toString(),
             spentConnects: formData.get("submitProposal_boostProposal")?.toString()
-        }
+        }        
 
-        const getErrorFormStates = createProposalValidator({
-            coverLetter: proposalData.coverLetter,
-            price: proposalData.price,
-            spentConnects: proposalData.spentConnects,
-            timeType: proposalData.estimatedTime.timeType,
-            timeValue: proposalData.estimatedTime.timeValue,
-        });
+        const getErrorFormStates = createProposalValidator(proposalData);
 
         const hasErrors = Object.values(getErrorFormStates).filter(errorMsg => errorMsg !== "");
         if (hasErrors.length) {
@@ -62,7 +59,18 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
             setErrorFormState(initialErrorFormState);
         }
 
-        console.log(proposalData);
+        const proposal: SubmitProposalPayload = {
+            jobId: props.jobId,
+            coverLetter: proposalData.coverLetter!,
+            estimatedTime: {
+                timeType: proposalData.timeType! as SubmitProposalPayload["estimatedTime"]["timeType"],
+                timeValue: Number(proposalData.timeValue)
+            },
+            price: Number(proposalData.price),
+            spentConnects: !proposalData.spentConnects ? 0 : Number(proposalData.spentConnects)
+        };
+
+        submitProposalMutation.mutate(proposal);
     }
 
     return (
@@ -77,7 +85,7 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
                 <ProposalFormCoverLetter errorMsg={errorFormState.coverLetter} />
                 <ProposalFormBoostProposal errorMsg={errorFormState.spentConnects} />
                 <div className="flex items-center gap-4 absolute bottom-0 left-0">
-                    <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">Submit proposal</PrimaryButton>
+                    <PrimaryButton disabled={submitProposalMutation.isLoading} isLoading={submitProposalMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">Submit proposal</PrimaryButton>
                     <Link to={`/jobs`} className="font-semibold text-purple-700 p-2">Cancel</Link>
                 </div>
             </form>

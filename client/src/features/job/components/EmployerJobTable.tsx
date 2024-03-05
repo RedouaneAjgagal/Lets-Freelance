@@ -86,7 +86,7 @@ const EmployerJobTable = (props: React.PropsWithoutRef<EmployerJobTableProps>) =
           <div className="flex flex-col gap-2">
             <h3 className="font-medium text-[1.1rem]">{props.job.title}</h3>
             <div>
-              <Link to={`/profile/employer/proposals/${props.job._id}`} className="text-sm  text-slate-600 underline">{`${props.job.proposals} Proposal${proposalPluralize}`}</Link>
+              <Link to={`/profile/employer/proposals/job/${props.job._id}`} className="text-sm  text-slate-600 underline">{`${props.job.proposals} Proposal${proposalPluralize}`}</Link>
             </div>
             <span className="text-sm text-slate-600 flex items-center gap-1">
               <TbStars size={18} />

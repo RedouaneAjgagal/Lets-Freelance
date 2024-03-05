@@ -8,7 +8,7 @@ import ResetPassword from "../pages/ResetPassword";
 import VerifyEmail from "../pages/VerifyEmail";
 import { Settings, ResetEmail, SingleProfile, Dashboard, Statements } from "../pages/profile";
 import { AllServices, CreateService, EmployerBoughtServices, FreelancerServices, SetAsPaidService, SingleService, UpdateService } from "../pages/service";
-import { FreelancerProposals, SubmitProposal } from "../pages/proposal";
+import { EmployerJobProposals, FreelancerProposals, SubmitProposal } from "../pages/proposal";
 import { Favorites } from "../pages/favorites";
 
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
@@ -132,6 +132,10 @@ const router = createBrowserRouter([
             {
                 path: "/proposals/job/:jobId/submit",
                 element: <AuthenticatedRoute element={SubmitProposal} accessBy="freelancer" />
+            },
+            {
+                path: "/profile/employer/proposals/job/:jobId",
+                element: <AuthenticatedRoute element={EmployerJobProposals} accessBy="employer" />
             }
         ]
     }

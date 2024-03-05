@@ -1,4 +1,4 @@
-import { TbCategory, TbLocation, TbCalendar, TbNavigation, } from "react-icons/tb";
+import { TbCategory, TbLocation, TbCalendar } from "react-icons/tb";
 import { FreelancerProposalType } from "../service/getFreelancerProposals"
 import Status from "../../../components/Status";
 import ActionButton from "../../../layouts/brand/ActionButton";

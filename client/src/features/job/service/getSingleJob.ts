@@ -37,6 +37,7 @@ export type SingleJobType = {
     connects: number;
     status: "open" | "closed";
     tags: string[];
+    hasSubmitted: boolean;
     createdAt: string;
     updatedAt: string;
     activity: {

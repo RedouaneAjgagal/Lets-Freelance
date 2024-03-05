@@ -12,7 +12,8 @@ const useLogoutMutation = (successMsg: string) => {
         mutationFn: logoutRequest,
         onSuccess: () => {
             dispatch(authAction.setUser(null));
-            queryClient.removeQueries(["profileInfo"])
+            queryClient.removeQueries(["profileInfo"]);
+            queryClient.removeQueries(["jobs"]);
             toast.success(successMsg);
         },
         onError: (error: AxiosError<{ msg: string }>) => {

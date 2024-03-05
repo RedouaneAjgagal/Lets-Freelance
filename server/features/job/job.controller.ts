@@ -15,6 +15,8 @@ import generateJobConnects from "./utils/generateJobConnects";
 import { contractModel as Contract } from "../contract";
 import { Profile } from "../profile";
 import { proposalModel as Proposal } from "../proposal";
+import getUserPayload from "../../utils/getUserPayload";
+import mongoose from "mongoose";
 
 type JobAggregateData = {
     proposals: {
@@ -32,6 +34,10 @@ type JobAggregateData = {
     rejected: {
         _id: null;
         total: number;
+    }[];
+    hasSubmitted: {
+        _id: null;
+        count: number;
     }[];
 }
 
@@ -250,6 +256,12 @@ const singleJob: RequestHandler = async (req, res) => {
         }
     ]);
 
+    // is freelancer logged in to return if has submitted proposal to this job or not
+    const { accessToken } = req.signedCookies;
+    const user = getUserPayload({
+        accessToken: accessToken || ""
+    });
+
     // get activity on this job
     const [jobActivity]: JobAggregateData[] = await Proposal.aggregate([
         {
@@ -321,6 +333,21 @@ const singleJob: RequestHandler = async (req, res) => {
                             }
                         }
                     }
+                ],
+                hasSubmitted: [
+                    {
+                        $match: {
+                            user: new mongoose.Types.ObjectId(user?.userId)
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    }
                 ]
             }
         }
@@ -329,6 +356,7 @@ const singleJob: RequestHandler = async (req, res) => {
     // get all job details
     const jobDetails = {
         ...job,
+        hasSubmitted: jobActivity.hasSubmitted.length ? true : false,
         profile: {
             ...job.profile,
             roles: undefined,

@@ -1,4 +1,5 @@
 import { SingleJobType } from "../service/getSingleJob"
+import JobDetails from "./JobDetails";
 import SingleJobAboutClient from "./SingleJobAboutClient";
 import SingleJobActivity from "./SingleJobActivity";
 import SingleJobHeader from "./SingleJobHeader";
@@ -28,7 +29,7 @@ const SingleJobContainer = (props: React.PropsWithoutRef<SingleJobContainerProps
                 <SingleJobActivity jobActivity={props.jobDetails.activity} />
             </div>
             <aside className="flex flex-col gap-6">
-                <SingleJobAboutClient jobStatus={props.jobDetails.status} clientInfo={props.jobDetails.profile} connects={props.jobDetails.connects} jobId={props.jobDetails._id} />
+                <SingleJobAboutClient jobStatus={props.jobDetails.status} clientInfo={props.jobDetails.profile} connects={props.jobDetails.connects} jobId={props.jobDetails._id} hasSubmitted={props.jobDetails.hasSubmitted} />
             </aside>
         </div>
     )

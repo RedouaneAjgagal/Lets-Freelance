@@ -5,8 +5,11 @@ import { SubmitProposalContainer } from "../../features/proposal";
 const SubmitProposal = () => {
     const getSingleJobQuery = useGetSingleJobQuery();
 
-    if (getSingleJobQuery.isSuccess && getSingleJobQuery.data.status !== "open") {
-        throw new Error("Unauthorized action, job is now closed");
+    if (getSingleJobQuery.isSuccess && (
+        getSingleJobQuery.data.status !== "open"
+        || getSingleJobQuery.data.hasSubmitted
+    )) {
+        throw new Error("Unauthorized action");
     }
 
     return (

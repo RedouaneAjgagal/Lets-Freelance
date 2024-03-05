@@ -1,5 +1,4 @@
 import { SingleJobType } from "../service/getSingleJob"
-import JobDetails from "./JobDetails";
 import SingleJobAboutClient from "./SingleJobAboutClient";
 import SingleJobActivity from "./SingleJobActivity";
 import SingleJobHeader from "./SingleJobHeader";

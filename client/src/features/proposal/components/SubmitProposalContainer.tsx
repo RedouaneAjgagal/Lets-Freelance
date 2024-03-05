@@ -9,9 +9,9 @@ type SubmitProposalContainerProps = {
 
 const SubmitProposalContainer = (props: React.PropsWithoutRef<SubmitProposalContainerProps>) => {
     return (
-        <div className="flex flex-col gap-6 relative pb-16">
+        <div className="flex flex-col gap-6 relative pb-52">
             <SubmitProposalJobDetails jobDetails={props.jobDetails} />
-            <SubmitProposalForm jobId={props.jobDetails._id} price={props.jobDetails.price} priceType={props.jobDetails.priceType} duration={props.jobDetails.duration} />
+            <SubmitProposalForm jobId={props.jobDetails._id} price={props.jobDetails.price} priceType={props.jobDetails.priceType} duration={props.jobDetails.duration} jobConnects={props.jobDetails.connects} />
         </div>
     )
 }

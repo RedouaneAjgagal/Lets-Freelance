@@ -10,16 +10,48 @@ import createProposalValidator from "../validators/createProposalValidator";
 import toast from "react-hot-toast";
 import useSubmitProposalMutation from "../hooks/useSubmitProposalMutation";
 import { SubmitProposalPayload } from "../service/submitProposal";
+import ProposalFormConnectsAmounts from "./ProposalFormConnectsAmounts";
+import { useProfileInfoQuery } from "../../profile";
 
 type SubmitProposalFormProps = {
     jobId: string;
     priceType: SingleJobType["priceType"];
     price: SingleJobType["price"];
     duration: SingleJobType["duration"];
+    jobConnects: SingleJobType["connects"];
 }
 
 const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps>) => {
     const submitProposalMutation = useSubmitProposalMutation();
+
+    const profileInfoQuery = useProfileInfoQuery();
+
+    const [connectsAmount, setConnectsAmount] = useState({ name: "Please select..", value: "" });
+
+    const boostProposalToggleHandler = () => {
+        setConnectsAmount({ name: "Please select..", value: "" });
+    };
+
+    const selectConnectsAmountHander = ({ name, value }: { name: string; value: string }) => {
+        setConnectsAmount({
+            name,
+            value
+        });
+    };
+
+    const customConnectsAmountHandler = (value: string) => {
+        setConnectsAmount({
+            name: "Custom",
+            value: Number(value) < 0 ? "" : value
+        });
+    };
+
+
+    const boostedConnects = connectsAmount.value === "" ? 0 : Number(connectsAmount.value);
+    const requiredTotalConnects = props.jobConnects + parseInt(boostedConnects.toString());
+    const freelancerConnects = profileInfoQuery.data?.data.roles.freelancer?.connects.connectionsCount || 0;
+    const remainingFreelancerConnects = freelancerConnects - requiredTotalConnects;
+
 
     const initialErrorFormState = {
         price: "",
@@ -43,7 +75,7 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
             timeValue: formData.get("submitProposal_estimatedTime")?.toString(),
             price: formData.get("submitProposal_price")?.toString(),
             spentConnects: formData.get("submitProposal_boostProposal")?.toString()
-        }        
+        }
 
         const getErrorFormStates = createProposalValidator(proposalData);
 
@@ -70,6 +102,8 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
             spentConnects: !proposalData.spentConnects ? 0 : Number(proposalData.spentConnects)
         };
 
+        if (remainingFreelancerConnects < 0) return;
+
         submitProposalMutation.mutate(proposal);
     }
 
@@ -83,9 +117,13 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
                     durationValue: errorFormState.timeValue
                 }} />
                 <ProposalFormCoverLetter errorMsg={errorFormState.coverLetter} />
-                <ProposalFormBoostProposal errorMsg={errorFormState.spentConnects} />
-                <div className="flex items-center gap-4 absolute bottom-0 left-0">
-                    <PrimaryButton disabled={submitProposalMutation.isLoading} isLoading={submitProposalMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">Submit proposal</PrimaryButton>
+                <ProposalFormBoostProposal errorMsg={errorFormState.spentConnects} onToggle={boostProposalToggleHandler} onSelect={selectConnectsAmountHander} onCustomSelect={customConnectsAmountHandler} connectsAmount={connectsAmount} />
+                <ProposalFormConnectsAmounts jobConnects={props.jobConnects} freelancerConnects={freelancerConnects} boostedConnects={boostedConnects} requiredTotalConnects={requiredTotalConnects} freelancerRemainingConnects={remainingFreelancerConnects} />
+                <div className="flex items-center gap-3 absolute bottom-0 left-0">
+                    <PrimaryButton disabled={submitProposalMutation.isLoading || remainingFreelancerConnects < 0} inactive={remainingFreelancerConnects < 0} isLoading={submitProposalMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">
+                        {remainingFreelancerConnects < 0 ? "Insufficient connects"
+                            : "Submit proposal"}
+                    </PrimaryButton>
                     <Link to={`/jobs`} className="font-semibold text-purple-700 p-2">Cancel</Link>
                 </div>
             </form>

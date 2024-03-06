@@ -1,15 +1,21 @@
+import notFoundImage from "/not_found.png";
 import Loading from "../../components/Loading";
-import { useEmployerJobProposalsQuery } from "../../features/proposal"
+import { EmployerJobProposalsContainer, useEmployerJobProposalsQuery } from "../../features/proposal"
 
 
 const EmployerJobProposals = () => {
     const employerJobProposals = useEmployerJobProposalsQuery();
 
     return (
-        <main className="p-4">
-            <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">My Proposals</h1>
+        <main className="py-4">
+            <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed px-4">Job proposals</h1>
             {employerJobProposals.isLoading ? <Loading />
-                : <h1>Proposals length: {employerJobProposals.data?.length}</h1>
+                : employerJobProposals.data!.length ?
+                    <EmployerJobProposalsContainer proposals={employerJobProposals.data!} />
+                    : <section className="flex flex-col gap-4 p-4 text-center items-center">
+                        <img src={notFoundImage} alt="search image" className="w-32 h-32" />
+                        <h2>This job has no proposals yet..</h2>
+                    </section>
             }
         </main>
     )

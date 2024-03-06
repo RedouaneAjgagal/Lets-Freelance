@@ -7,6 +7,11 @@ export type GetEmployerJobProposalType = {
         _id: string;
         name: string;
         avatar: string;
+        roles: {
+            freelancer: {
+                jobTitle?: string;
+            }
+        }
     };
     coverLetter: string;
     priceType: "fixed" | "hourly";

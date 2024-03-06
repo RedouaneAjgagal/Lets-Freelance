@@ -102,6 +102,7 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
                 "profile._id": 1,
                 "profile.name": 1,
                 "profile.avatar": 1,
+                "profile.roles.freelancer.jobTitle": 1,
                 coverLetter: 1,
                 priceType: 1,
                 price: 1,

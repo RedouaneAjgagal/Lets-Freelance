@@ -8,12 +8,13 @@ const useEmployerJobProposalsQuery = () => {
     const { jobId } = useParams();
 
     const employerProposalsQuery = useQuery({
-        queryKey: ["employerProposals", userInfo!.profileId],
+        queryKey: ["employerProposals", userInfo!.profileId, jobId],
         queryFn: () => getEmployerJobProposals({
             jobId: jobId!
         }),
         retry: false,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        useErrorBoundary: true
     });
 
     return employerProposalsQuery;

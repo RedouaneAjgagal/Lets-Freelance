@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { PipelineStage, isValidObjectId } from "mongoose";
+import mongoose, { PipelineStage, isValidObjectId } from "mongoose";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import createProposalValidator from "./validators/createProposalValidator";
 import Proposal from "./proposal.model";
@@ -38,14 +38,80 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthorizedError("Must be an employer");
     }
 
-    // find proposals
-    const proposals = await Proposal.find({ job: job_id }).populate({ path: "job", select: "_id user" }).sort("-boostProposal.spentConnects createdAt").select("-boostProposal.spentConnects");
-
-    // check if belong to the current employer
-    const isCurrentEmployerJob = proposals.every(proposal => proposal.job.user!.toString() === profile.user._id.toString());
-    if (!isCurrentEmployerJob) {
-        throw new UnauthorizedError("You dont have access to these ressources");
-    }
+    // find job proposals related to the current logged in employer
+    const proposals = await Proposal.aggregate([
+        {
+            $match: {
+                job: new mongoose.Types.ObjectId(job_id!.toString())
+            }
+        },
+        {
+            $lookup: {
+                from: "jobs",
+                foreignField: "_id",
+                localField: "job",
+                as: "job"
+            }
+        },
+        {
+            $addFields: {
+                job: {
+                    $first: "$job"
+                }
+            }
+        },
+        {
+            $match: {
+                $and: [
+                    { "job.profile": profile._id },
+                    { "job.user": profile.user._id },
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "profiles",
+                foreignField: "_id",
+                localField: "profile",
+                as: "profile"
+            }
+        },
+        {
+            $addFields: {
+                profile: {
+                    $first: "$profile"
+                }
+            }
+        },
+        {
+            $addFields: {
+                isBoostedProposal: {
+                    $cond: [
+                        {
+                            $gte: ["$boostProposal.spentConnects", 1]
+                        },
+                        true,
+                        false
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                "profile._id": 1,
+                "profile.name": 1,
+                "profile.avatar": 1,
+                coverLetter: 1,
+                priceType: 1,
+                price: 1,
+                estimatedTime: 1,
+                status: 1,
+                isBoostedProposal: 1,
+                createdAt: 1
+            }
+        }
+    ]);
 
     res.status(StatusCodes.OK).json(proposals);
 }

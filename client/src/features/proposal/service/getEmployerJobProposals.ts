@@ -2,12 +2,12 @@ import { getRequest } from "../../../services/api";
 
 export type GetEmployerJobProposalType = {
     _id: string;
-    job: {
-        _id: string;
-        user: string;
-    };
     user: string;
-    profile: string;
+    profile: {
+        _id: string;
+        name: string;
+        avatar: string;
+    };
     coverLetter: string;
     priceType: "fixed" | "hourly";
     price: number;
@@ -16,8 +16,8 @@ export type GetEmployerJobProposalType = {
         timeType: "hours" | "days" | "months";
         timeValue: number;
     };
+    isBoostedProposal: boolean;
     createdAt: string;
-    updatedAt: string;
 };
 
 type GetEmployerJobProposalsPayload = {

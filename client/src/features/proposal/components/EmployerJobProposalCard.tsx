@@ -20,7 +20,7 @@ const EmployerJobProposalCard = (props: React.PropsWithoutRef<EmployerJobProposa
                     <EmployerJobProposalPrice price={props.proposal.price} priceType={props.proposal.priceType} />
                     <EmployerJobProposalEstimatedTime estimatedTime={props.proposal.estimatedTime} />
                 </div>
-                <EmployerJobProposalCtaStatus status={props.proposal.status} />
+                <EmployerJobProposalCtaStatus status={props.proposal.status} proposalId={props.proposal._id} />
                 <EmployerJobProposalPostedAt createdAt={props.proposal.createdAt} />
             </div>
         </article>

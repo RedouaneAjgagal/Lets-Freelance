@@ -1,5 +1,8 @@
+import { TbLoader2 } from "react-icons/tb";
+
 type StatusProps = {
     type: "pending" | "approved" | "rejected" | "interviewing";
+    isLoading: boolean;
 }
 
 const Status = (props: React.PropsWithoutRef<StatusProps>) => {
@@ -25,8 +28,16 @@ const Status = (props: React.PropsWithoutRef<StatusProps>) => {
     const status = content[props.type];
 
     return (
-        <div className={`${status.color} py-2 px-3 rounded text-center`}>
-            <span className="font-medium">{status.value}</span>
+        <div className={`${status.color} py-2 px-3 rounded text-center relative flex items-center justify-center z-0`}>
+            <span className={`font-medium ${props.isLoading ? "invisible" : "visible"}`}>
+                {status.value}
+            </span>
+            {props.isLoading ?
+                <span className="absolute flex items-center justify-center">
+                    <TbLoader2 className="animate-spin absolute" size={20} />
+                </span>
+                : null
+            }
         </div>
     )
 }

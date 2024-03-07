@@ -4,6 +4,8 @@ import { TbCircleCheck, TbClock, TbXboxX } from "react-icons/tb";
 type EmployerProposalCallToActionProps = {
     status: "pending" | "interviewing";
     onCLose: () => void;
+    isLoading: boolean;
+    onSubmit: (status: "interviewing" | "approved" | "rejected") => void;
 }
 
 type CallToActionType = {
@@ -16,7 +18,6 @@ type CallToActionType = {
 }
 
 const EmployerProposalCallToAction = (props: React.PropsWithoutRef<EmployerProposalCallToActionProps>) => {
-
     const callToActions: {
         approved: CallToActionType;
         rejected: CallToActionType;
@@ -53,12 +54,13 @@ const EmployerProposalCallToAction = (props: React.PropsWithoutRef<EmployerPropo
 
     const callToActionButtonList = Object.entries(callToActions).map(([key, status]) => {
         const proposalActionHandler = () => {
-            console.log(key);
+            if (props.isLoading) return;
+            props.onSubmit(key as "interviewing" | "approved" | "rejected");
             props.onCLose();
         };
 
         return (
-            <button className={`tracking-wide py-2 px-4 flex items-center gap-2 border-b last:border-b-0`} key={key} onClick={proposalActionHandler}>
+            <button disabled={props.isLoading} className={`tracking-wide py-2 px-4 flex items-center gap-2 border-b last:border-b-0`} key={key} onClick={proposalActionHandler}>
                 <span className={`${status.style.text}`}>
                     <status.icon size={24} />
                 </span>

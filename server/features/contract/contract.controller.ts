@@ -91,6 +91,40 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
 }
 
 
+//@desc get single contract related to the current user
+//@route GET /api/v1/contracts/:contractId
+//@access authentication
+const getSingleContract: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { contractId } = req.params;
+
+    // check if valid mongodb id
+    const isValidMongodbId = isValidObjectId(contractId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid contract ID");
+    }
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user?.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
+
+    // find contract
+    const contract = await Contract.findById(contractId)
+        .select(`-cancelRequest.${profile.userAs === "employer" ? "freelancer" : "employer"}`);
+    if (!contract) {
+        throw new NotFoundError(`Found no contract with ID ${contractId}`);
+    }
+
+    // check if the contract belongs to the current user
+    if (contract[profile.userAs].profile._id.toString() !== profile._id.toString()) {
+        throw new UnauthorizedError("You dont have access to these ressources");
+    }
+
+    res.status(StatusCodes.OK).json(contract);
+}
+
+
 //@desc get contract cancelation requests
 //@route GET /api/v1/contracts/cancel-requests
 //@access authorization (admin - owner)
@@ -1117,6 +1151,7 @@ const refundPaidAmount: RequestHandler = async (req: CustomAuthRequest, res) => 
 
 export {
     getContracts,
+    getSingleContract,
     cancelationRequests,
     completeServiceContract,
     completeJobContract,

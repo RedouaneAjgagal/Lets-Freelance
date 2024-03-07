@@ -13,6 +13,7 @@ import sendProposalApprovedEmail from "./services/sendProposalApprovedEmail";
 import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
+import origin from "../../config/origin";
 
 
 //@desc get all proposals related to job
@@ -97,6 +98,25 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         },
         {
+            $lookup: {
+                from: "contracts",
+                localField: "_id",
+                foreignField: "job.proposal",
+                as: "contract"
+            }
+        },
+        {
+            $addFields: {
+                contract: {
+                    $cond: [
+                        { $eq: ["$status", "approved"] },
+                        { $first: "$contract" },
+                        undefined
+                    ]
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 "profile._id": 1,
@@ -109,7 +129,8 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
                 estimatedTime: 1,
                 status: 1,
                 isBoostedProposal: 1,
-                createdAt: 1
+                createdAt: 1,
+                "contract._id": 1
             }
         }
     ]);
@@ -319,7 +340,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 //     on_behalf_of: proposal.user.stripe?.id
                 // },
                 client_reference_id: profile.user._id.toString(),
-                success_url: `http://localhost:5000/api/v1/proposals/${proposal._id.toString()}/fixed-job?session_id={CHECKOUT_SESSION_ID}`,
+                success_url: `${origin}/profile/employer/proposals/${proposal._id.toJSON()}/pay/fixed-price?session_id={CHECKOUT_SESSION_ID}&job_id=${proposal.job._id.toString()}`,
                 cancel_url: "http://localhost:5173",
                 metadata: {
                     productId: jobProduct.id,
@@ -330,18 +351,16 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 }
             });
 
-
-            console.log(session.url);
-
-
             // set the stripe session id to check it later if it has been paid or not
             proposal.sessionId = session.id;
             await proposal.save();
 
-
-
             // redirect to the session url for employer to make the payment
-            return res.redirect(session.url!);
+            return res.status(StatusCodes.OK).json({
+                status,
+                priceType: proposal.priceType,
+                url: session.url!
+            });
         }
 
         // send hourly price proposal approved email to the employer

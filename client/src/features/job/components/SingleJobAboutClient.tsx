@@ -31,7 +31,7 @@ const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientP
     const aboutClient = {
         country: props.clientInfo.country,
         postedJobs: `${props.clientInfo.totalJobPosted} job${postedJobsPluralize} posted`,
-        totalSpent: `${totalSpent} total spent`,
+        totalSpent: `${totalSpent} total spent on jobs`,
         avgHourlyRate: `${avgHourlyRate} /hr avg hourly rate paid`,
         category: toUpperCase({ value: props.clientInfo.category, everyWord: true })
     };

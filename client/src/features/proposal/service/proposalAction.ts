@@ -3,11 +3,24 @@ import { patchRequest } from "../../../services/api";
 type ProposalActionPayload = {
     proposalId: string;
     status: "approved" | "rejected" | "interviewing";
-}
+};
 
 type ProposalActionResponse = {
     msg: string;
-    status: "approved" | "rejected" | "interviewing";
+    status: "rejected" | "interviewing";
+    priceType: "hourly" | "fixed";
+};
+
+type ApprovedHourlyPriceResponse = {
+    msg: string;
+    status: "approved";
+    priceType: "hourly";
+}
+
+type ApprovedFixedPriceResponse = {
+    status: "approved";
+    priceType: "fixed";
+    url: string;
 };
 
 const proposalAction = async (payload: ProposalActionPayload) => {
@@ -15,8 +28,9 @@ const proposalAction = async (payload: ProposalActionPayload) => {
         status: payload.status
     });
 
-    const data = await response.data as ProposalActionResponse;
-    return data;
+    const data = await response.data as ProposalActionResponse | (ApprovedHourlyPriceResponse | ApprovedFixedPriceResponse);
+
+    return data
 };
 
 export default proposalAction;

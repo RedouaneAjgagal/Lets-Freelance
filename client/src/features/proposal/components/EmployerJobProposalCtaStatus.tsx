@@ -4,11 +4,13 @@ import Status from "../../../components/Status";
 import { useState } from "react";
 import EmployerProposalCallToAction from "./EmployerProposalCallToAction";
 import useProposalActionMutation from "../hooks/useProposalActionMutation";
+import { Link } from "react-router-dom";
 
 
 type EmployerJobProposalCtaStatusProps = {
     status: GetEmployerJobProposalType["status"];
     proposalId: GetEmployerJobProposalType["_id"];
+    contractId: string | undefined;
 }
 
 const EmployerJobProposalCtaStatus = (props: React.PropsWithoutRef<EmployerJobProposalCtaStatusProps>) => {
@@ -47,6 +49,12 @@ const EmployerJobProposalCtaStatus = (props: React.PropsWithoutRef<EmployerJobPr
             <div className="w-full max-w-[8rem]">
                 <Status type={props.status} isLoading={proposalActionMutation.isLoading} />
             </div>
+            {props.contractId ?
+                <div className="flex items-center ml-2">
+                    <Link to={`/`} className="text-sm underline">View contract</Link>
+                </div>
+                : null
+            }
         </div>
     )
 }

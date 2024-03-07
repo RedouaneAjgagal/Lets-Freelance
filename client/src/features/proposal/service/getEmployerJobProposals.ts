@@ -22,6 +22,9 @@ export type GetEmployerJobProposalType = {
         timeValue: number;
     };
     isBoostedProposal: boolean;
+    contract?: {
+        _id: string;
+    };
     createdAt: string;
 };
 

@@ -15,8 +15,15 @@ const useProposalActionMutation = () => {
         mutationFn: proposalAction,
         retry: false,
         onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: ["employerProposals", userInfo!.profileId, jobId] });
+            console.log(data);
             
+            if (data.status === "approved" && data.priceType === "fixed") {
+                window.open(data.url, "_blank", "noopener noreferrer");
+                return;
+            }
+
+            queryClient.invalidateQueries({ queryKey: ["employerProposals", userInfo!.profileId, jobId] });
+
             toast.success(data.msg, {
                 id: "success_proposalAction",
                 duration: 3000

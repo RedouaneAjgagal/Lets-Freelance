@@ -1,5 +1,5 @@
 type ContractStatusProps = {
-    type: "inProgress" | "completed" | "canceled";
+    status: "inProgress" | "completed" | "canceled";
 }
 
 const ContractStatus = (props: React.PropsWithoutRef<ContractStatusProps>) => {
@@ -18,7 +18,7 @@ const ContractStatus = (props: React.PropsWithoutRef<ContractStatusProps>) => {
         }
     } as const;
 
-    const status = content[props.type];
+    const status = content[props.status];
 
     return (
         <div className={`${status.color} py-2 px-3 rounded text-center`}>

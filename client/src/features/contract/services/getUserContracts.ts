@@ -9,18 +9,23 @@ export type UserContractsQuery = {
 
 type ServiceContractType = {
     activityType: "service";
-    _id: string;
-    title: string;
-    tier: {
-        price: number;
-    };
+    service: {
+        _id: string;
+        title: string;
+        tier: {
+            price: number;
+        };
+    }
 };
 
 type JobContractType = {
     activityType: "job";
-    _id: string;
-    priceType: "fixed" | "hourly";
-    price: number;
+    job: {
+        _id: string;
+        title: string;
+        priceType: "fixed" | "hourly";
+        price: number;
+    };
 };
 
 export type ContractResponseType = {

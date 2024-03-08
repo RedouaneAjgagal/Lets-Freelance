@@ -59,7 +59,7 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
             </td>
             <td className="p-2 py-4">
                 <div className="flex">
-                    <ContractStatus type={props.service.freelancer.status} />
+                    <ContractStatus status={props.service.freelancer.status} />
                 </div>
             </td>
             <td className="p-2 py-4 text-slate-600">

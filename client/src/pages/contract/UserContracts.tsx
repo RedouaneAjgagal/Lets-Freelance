@@ -1,6 +1,7 @@
 import { useSearchParams } from "react-router-dom"
-import { UserContractsQuery, useGetUserContractsQuery } from "../../features/contract"
+import { FilterContracts, UserContractsContainer, UserContractsQuery, useGetUserContractsQuery } from "../../features/contract"
 import Loading from "../../components/Loading";
+import { useEffect } from "react";
 
 const UserContracts = () => {
     const [URLSearchParams] = useSearchParams();
@@ -8,6 +9,7 @@ const UserContracts = () => {
     const contractQueries: UserContractsQuery = {};
 
     const status = URLSearchParams.get("status");
+
     const validStatusTypes = ["inProgress", "completed", "canceled"];
     if (status && validStatusTypes.includes(status)) {
         contractQueries.status = status as UserContractsQuery["status"];
@@ -25,12 +27,20 @@ const UserContracts = () => {
 
     const getUserContractsQuery = useGetUserContractsQuery(contractQueries);
 
+    useEffect(() => {
+        getUserContractsQuery.refetch();
+    }, [status]);
+
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">My Contracts</h1>
+            <nav className="flex flex-col gap-1">
+                <h3 className="font-medium">Filter contracts:</h3>
+                <FilterContracts />
+            </nav>
             {getUserContractsQuery.isLoading ?
                 <Loading />
-                : <div>{getUserContractsQuery.data?.length}</div>
+                : <UserContractsContainer contracts={getUserContractsQuery.data!} />
             }
         </main>
     )

@@ -1,5 +1,6 @@
 import { User, useLogoutMutation } from "../../features/auth";
 import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare } from "react-icons/tb";
+import { LuFileSignature } from "react-icons/lu";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Overlay from "../Overlay";
@@ -63,10 +64,16 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
             sort: 8
         },
         {
+            value: "Contracts",
+            icon: LuFileSignature,
+            to: "/profile/contracts",
+            sort: 9
+        },
+        {
             value: "Settings",
             icon: TbSettings,
             to: "/profile/settings",
-            sort: 9
+            sort: 10
         },
     ];
 

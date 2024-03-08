@@ -39,8 +39,45 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
             $match: { [`${profile.userAs}.profile`]: profile._id } // find only contracts related to this user
         },
         {
+            $addFields: {
+                status: {
+                    $cond: [
+                        {
+                            $and: [
+                                { $eq: ["$freelancer.status", "completed"] },
+                                { $eq: ["$employer.status", "completed"] }
+                            ]
+                        },
+                        "completed",
+                        {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $eq: ["$freelancer.status", "canceled"] },
+                                        { $eq: ["$employer.status", "canceled"] }
+                                    ]
+                                },
+                                "canceled",
+                                "inProgress"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
             $project: {
-                cancelRequest: 0 // hide cancel request
+                _id: 1,
+                activityType: 1,
+                "service._id": "$service.serviceInfo",
+                "service.title": 1,
+                "service.tier.price": 1,
+                "job._id": "$job.jobInfo",
+                "job.title": 1,
+                "job.priceType": 1,
+                "job.price": 1,
+                status: 1,
+                createdAt: 1
             }
         },
         {
@@ -50,7 +87,7 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
         }
     ];
 
-    const getStatus = status?.toString() as "inProgress" | "completed" | "canceled" | undefined;
+    const getStatus = status?.toString() as "inProgress" | "completed" | "canceled";
 
     // check if its valid status
     if (getStatus) {
@@ -62,10 +99,7 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
         // search based on the status provided
         aggregate.push({
             $match: {
-                [getStatus === "inProgress" ? "$or" : "$and"]: [
-                    { "freelancer.status": getStatus },
-                    { "employer.status": getStatus }
-                ]
+                status: getStatus
             }
         });
     }
@@ -73,14 +107,14 @@ const getContracts: RequestHandler = async (req: CustomAuthRequest, res) => {
     // if service id provided then get service's contracts
     if (isValidObjectId(service_id?.toString())) {
         aggregate.push({
-            $match: { "service.serviceInfo": new mongoose.Types.ObjectId(service_id!.toString()) }
+            $match: { "service._id": new mongoose.Types.ObjectId(service_id!.toString()) }
         });
     }
 
     // if job id provided then get job's contracts
     if (isValidObjectId(job_id?.toString())) {
         aggregate.push({
-            $match: { "job.jobInfo": new mongoose.Types.ObjectId(job_id!.toString()) }
+            $match: { "job._id": new mongoose.Types.ObjectId(job_id!.toString()) }
         });
     }
 

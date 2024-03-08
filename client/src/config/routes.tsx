@@ -10,11 +10,11 @@ import { Settings, ResetEmail, SingleProfile, Dashboard, Statements } from "../p
 import { AllServices, CreateService, EmployerBoughtServices, FreelancerServices, SetAsPaidService, SingleService, UpdateService } from "../pages/service";
 import { EmployerJobProposals, FreelancerProposals, SetPaidFixedPriceProposal, SubmitProposal } from "../pages/proposal";
 import { Favorites } from "../pages/favorites";
-
 import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages/job";
+import { UserContracts } from "../pages/contract";
 
 const router = createBrowserRouter([
     {
@@ -140,6 +140,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/employer/proposals/:proposalId/pay/fixed-price",
                 element: <AuthenticatedRoute element={SetPaidFixedPriceProposal} accessBy="employer" />
+            },
+            {
+                path: "/profile/contracts",
+                element: <AuthenticatedRoute element={UserContracts} />
             }
         ]
     }

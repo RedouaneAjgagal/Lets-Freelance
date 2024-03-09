@@ -4,6 +4,7 @@ import { BoughtServiceType } from "../services/getEmployerBoughtServices"
 import { TbCalendar, TbLocation } from 'react-icons/tb'
 import ContractStatus from "../../../components/ContractStatus";
 import ActionButton from "../../../layouts/brand/ActionButton";
+import { LuFileSignature } from "react-icons/lu";
 
 type EmployerBoughtServiceTableProps = {
     service: BoughtServiceType;
@@ -25,6 +26,10 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
         navigate(`/services/${props.service.service.serviceInfo}`);
     }
 
+    const contractNavigation = () => {
+        navigate(`/profile/contracts/${props.service._id}`);
+    }
+
     const boughtAt = new Date(props.service.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
@@ -40,7 +45,7 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
                         <Link to={`/profiles/${props.service.freelancer.profile._id}`}>{freelancerName}</Link>
                     </div>
                     <div>
-                        <h2 className="font-medium text-[1.1rem]">{props.service.service.title}</h2>
+                        <Link to={`/services/${props.service.service.serviceInfo}`} className="font-medium text-[1.1rem]">{props.service.service.title}</Link>
                     </div>
                     <div className="flex flex-col gap-1">
                         <span className="text-sm text-slate-600 flex items-center gap-1">
@@ -66,7 +71,9 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
                 {boughtAt}
             </td>
             <td className="p-2 py-4">
-                <ActionButton type="view" onClick={viewServiceHanlder} />
+                <div className="flex gap-2">
+                    <ActionButton onClick={contractNavigation} type="customized" bgColor="bg-stone-600" icon={LuFileSignature} value="Contract" />
+                </div>
             </td>
         </tr>
     )

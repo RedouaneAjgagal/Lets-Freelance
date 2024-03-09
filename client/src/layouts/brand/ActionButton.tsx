@@ -53,7 +53,7 @@ const ActionButton = (props: React.PropsWithoutRef<ActionButtonProps | ActionCus
 
 
     return (
-        <button className={`${content.color} text-white p-2 rounded flex gap-1 items-center`} onClick={props.onClick}>
+        <button className={`${content.color} text-white h-8 px-2 rounded flex gap-1 items-center`} onClick={props.onClick}>
             {getContent}
         </button>
     )

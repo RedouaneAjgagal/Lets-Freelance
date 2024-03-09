@@ -1,7 +1,6 @@
 import { useSearchParams } from "react-router-dom"
 import { FilterContracts, UserContractsContainer, UserContractsQuery, useGetUserContractsQuery } from "../../features/contract"
 import Loading from "../../components/Loading";
-import { useEffect } from "react";
 
 const UserContracts = () => {
     const [URLSearchParams] = useSearchParams();
@@ -27,17 +26,24 @@ const UserContracts = () => {
 
     const getUserContractsQuery = useGetUserContractsQuery(contractQueries);
 
-    useEffect(() => {
-        getUserContractsQuery.refetch();
-    }, [status]);
+
+    const isSpecificContracts = (
+        getUserContractsQuery.isSuccess
+        && getUserContractsQuery.data.length
+        && (contractQueries.job_id || contractQueries.service_id)
+    ) ? true : false;
+
+    let activityTitle: string | undefined;
+
+    if (isSpecificContracts) {
+        activityTitle = getUserContractsQuery.data![0].activityType === "job" ? getUserContractsQuery.data![0].job.title : getUserContractsQuery.data![0].service.title;
+    }
+
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">
-            <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">My Contracts</h1>
-            <nav className="flex flex-col gap-1">
-                <h3 className="font-medium">Filter contracts:</h3>
-                <FilterContracts />
-            </nav>
+            <h1 className="text-3xl font-semibold text-purple-800 leading-tight">My contracts</h1>
+            <FilterContracts contractQueries={contractQueries} isSpecificContracts={isSpecificContracts} activityTitle={activityTitle} />
             {getUserContractsQuery.isLoading ?
                 <Loading />
                 : <UserContractsContainer contracts={getUserContractsQuery.data!} />

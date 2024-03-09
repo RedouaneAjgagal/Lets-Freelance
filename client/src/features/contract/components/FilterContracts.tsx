@@ -1,6 +1,23 @@
+import { useQueryClient } from "@tanstack/react-query";
 import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
+import { useAppSelector } from "../../../hooks/redux";
+import { UserContractsQuery } from "../services/getUserContracts";
+import { TbArrowLeft } from "react-icons/tb";
 
-const FilterContracts = () => {
+type FilterContractsProps = {
+    contractQueries: UserContractsQuery;
+    isSpecificContracts: boolean;
+    activityTitle: string | undefined;
+}
+
+
+const FilterContracts = (props: React.PropsWithoutRef<FilterContractsProps>) => {
+    const { userInfo } = useAppSelector(state => state.authReducer);
+    const { setSearchParams } = useCustomSearchParams();
+    const queryClient = useQueryClient();
+
+    const getStatus = props.contractQueries.status || "all";
+
     const statusOptions = [
         {
             name: "All",
@@ -21,27 +38,13 @@ const FilterContracts = () => {
     ];
 
     const filterStatus = statusOptions.map(status => {
-        const { getSearchParams, setSearchParams } = useCustomSearchParams();
-
-        const statusQuery = getSearchParams({ key: "status" });
-
-        const validStatusTypes = ["inProgress", "completed", "canceled"];
-
-        const getStatus = (statusQuery && validStatusTypes.includes(statusQuery)) ? statusQuery : "all";
-
         const filterStatusHandler = () => {
-            if (status.value === "all") {
-                setSearchParams({
-                    key: "",
-                    value: "",
-                    removePrev: true
-                });
-            } else {
-                setSearchParams({
-                    key: "status",
-                    value: status.value
-                });
-            }
+            setSearchParams({
+                key: "status",
+                value: status.value
+            });
+
+            queryClient.removeQueries({ queryKey: ["userContracts", userInfo!.profileId] });
         }
 
         return (
@@ -52,10 +55,40 @@ const FilterContracts = () => {
         )
     });
 
+    const backToAllContractsHandler = () => {
+        setSearchParams({
+            key: "",
+            value: "",
+            removePrev: true
+        });
+
+        queryClient.removeQueries({ queryKey: ["userContracts", userInfo!.profileId] });
+    }
+
     return (
-        <div className="flex items-center gap-1 flex-wrap">
-            {filterStatus}
-        </div>
+        <nav className="flex flex-col gap-6">
+            {props.isSpecificContracts ?
+                <div className="flex flex-col gap-2">
+                    <p className="font-medium">{props.contractQueries.job_id ? "Job" : "Service"} contracts
+                        {props.activityTitle ?
+                            <em className="text-[.95rem] font-normal text-slate-600"> "{props.activityTitle}"</em>
+                            : null
+                        }
+                    </p>
+                    <button onClick={backToAllContractsHandler} className="flex items-center gap-1 font-medium text-slate-700">
+                        <TbArrowLeft size={20} />
+                        Back to all contracts
+                    </button>
+                </div>
+                : null
+            }
+            <div className="flex flex-col gap-1">
+                <h3 className="font-medium">Filter contracts:</h3>
+                <div className="flex items-center gap-1 flex-wrap">
+                    {filterStatus}
+                </div>
+            </div>
+        </nav>
     )
 }
 

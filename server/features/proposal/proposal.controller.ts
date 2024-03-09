@@ -585,6 +585,21 @@ const getFreelancerProposals: RequestHandler = async (req: CustomAuthRequest, re
             $unwind: "$job"
         },
         {
+            $lookup: {
+                from: "contracts",
+                foreignField: "job.proposal",
+                localField: "_id",
+                as: "contracts"
+            }
+        },
+        {
+            $addFields: {
+                contract: {
+                    $first: "$contracts"
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 coverLetter: 1,
@@ -597,6 +612,7 @@ const getFreelancerProposals: RequestHandler = async (req: CustomAuthRequest, re
                 "job.title": 1,
                 "job.category": 1,
                 "job.locationType": 1,
+                "contract._id": 1
             }
         },
         {

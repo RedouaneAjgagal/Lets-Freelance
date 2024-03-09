@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toUpperCase from "../../../utils/toUpperCase";
 import { ContractResponseType } from "../services/getUserContracts"
 import ContractStatus from "../../../components/ContractStatus";
@@ -10,7 +10,7 @@ type UserContractTableProps = {
 }
 
 const UserContractTable = (props: React.PropsWithoutRef<UserContractTableProps>) => {
-
+    const navigate = useNavigate();
 
     let activityTitle: string;
     let toUrl: string;
@@ -35,7 +35,7 @@ const UserContractTable = (props: React.PropsWithoutRef<UserContractTableProps>)
     const createdAt = formatDate(props.contract.createdAt);
 
     const navigateToContractHanlder = () => {
-        console.log(props.contract._id);
+        navigate(`/profile/contracts/${props.contract._id}`);
     }
 
     return (
@@ -62,7 +62,7 @@ const UserContractTable = (props: React.PropsWithoutRef<UserContractTableProps>)
             </td>
             <td className="px-2 py-4">
                 <div className="flex gap-2">
-                    <ActionButton type="view" onClick={navigateToContractHanlder}  />
+                    <ActionButton type="view" onClick={navigateToContractHanlder} />
                 </div>
             </td>
         </tr>

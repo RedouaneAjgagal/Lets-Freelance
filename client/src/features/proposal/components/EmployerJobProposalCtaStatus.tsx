@@ -51,7 +51,7 @@ const EmployerJobProposalCtaStatus = (props: React.PropsWithoutRef<EmployerJobPr
             </div>
             {props.contractId ?
                 <div className="flex items-center ml-2">
-                    <Link to={`/`} className="text-sm underline">View contract</Link>
+                    <Link to={`/profile/contracts/${props.contractId}`} className="text-sm underline">View contract</Link>
                 </div>
                 : null
             }

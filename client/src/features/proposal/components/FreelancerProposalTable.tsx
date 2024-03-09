@@ -5,13 +5,16 @@ import ActionButton from "../../../layouts/brand/ActionButton";
 import { useState } from "react";
 import CoverLetterModal from "../modals/CoverLetterModal";
 import useOverflow from "../../../hooks/useOverflow";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FaRegEnvelope } from "react-icons/fa";
+import { LuFileSignature } from "react-icons/lu";
 
 type FreelancerProposalsTableProps = {
     proposal: FreelancerProposalType;
 };
 
 const FreelancerProposalTable = (props: React.PropsWithoutRef<FreelancerProposalsTableProps>) => {
+    const navigate = useNavigate();
 
     const [isCoverLetterOpen, setIsCoverLetterOpen] = useState(false);
 
@@ -26,11 +29,17 @@ const FreelancerProposalTable = (props: React.PropsWithoutRef<FreelancerProposal
     }
 
     const viewProposalContentHandler = () => {
-        console.log({ viewProposal: props.proposal.coverLetter });
         setIsCoverLetterOpen(true);
     }
 
+    const navigateToContractHandler = () => {
+        if (!props.proposal.contract) return;
+
+        navigate(`/profile/contracts/${props.proposal.contract._id}`);
+    }
+
     useOverflow(isCoverLetterOpen);
+    
     return (
         <tr className="border-t">
             <td className="p-2 py-4">
@@ -70,12 +79,16 @@ const FreelancerProposalTable = (props: React.PropsWithoutRef<FreelancerProposal
             </td>
             <td className="p-2 py-4">
                 <div className="flex">
-                    <Status type={props.proposal.status} />
+                    <Status isLoading={false} type={props.proposal.status} />
                 </div>
             </td>
             <td className="p-2 py-4">
                 <div className="flex gap-2">
-                    <ActionButton onClick={viewProposalContentHandler} type="view" />
+                    <ActionButton onClick={viewProposalContentHandler} type="customized" bgColor="bg-slate-500" icon={FaRegEnvelope} value="Cover letter" minimized={props.proposal.contract ? true : false} />
+                    {props.proposal.contract ?
+                        <ActionButton onClick={navigateToContractHandler} type="customized" bgColor="bg-stone-600" icon={LuFileSignature} value="Contract" />
+                        : null
+                    }
                     {
                         isCoverLetterOpen ?
                             <CoverLetterModal onClose={closeModalHandler} coverLetterContent={props.proposal.coverLetter} />

@@ -18,6 +18,9 @@ export type FreelancerProposalType = {
     boostProposal: {
         spentConnects: number;
     };
+    contract?: {
+        _id: string;
+    };
     createdAt: string;
 }
 

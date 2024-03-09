@@ -8,7 +8,7 @@ type FreelancerProposalsProps = {
 
 const FreelancerProposalsTable = (props: React.PropsWithoutRef<FreelancerProposalsProps>) => {
 
-    const tableHeads = ["Job", "Price", "Boost Proposal", "Submitted At", "Status", "Cover Letter"];
+    const tableHeads = ["Job", "Price", "Boost Proposal", "Submitted At", "Status", "Actions"];
 
     return (
         <section className='bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-2'>

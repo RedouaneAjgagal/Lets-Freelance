@@ -352,6 +352,17 @@ const getFreelancerServices: RequestHandler = async (req: CustomAuthRequest, res
             }
         },
         {
+            $addFields: {
+                hasContracts: {
+                    $cond: [
+                        { $eq: [{ $size: "$contracts" }, 0] },
+                        false,
+                        true
+                    ]
+                }
+            }
+        },
+        {
             // add a field of only paid orders
             $addFields: {
                 paidOrders: {
@@ -414,7 +425,8 @@ const getFreelancerServices: RequestHandler = async (req: CustomAuthRequest, res
                 category: 1,
                 createdAt: 1,
                 inQueue: 1,
-                totalRevenue: 1
+                totalRevenue: 1,
+                hasContracts: 1
             }
         }
     ]);

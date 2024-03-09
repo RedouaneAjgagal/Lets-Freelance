@@ -8,6 +8,7 @@ export type FreelancerServiceType = {
     createdAt: string;
     totalRevenue: number;
     inQueue: number;
+    hasContracts: boolean;
 };
 
 export type FreelancerServicesType = FreelancerServiceType[];

@@ -50,11 +50,11 @@ type ContractCancelRequest = {
 
 type ContractUserPayment = {
     status: "pending" | "paid" | "refunded";
-    net: number;
+    net?: number;
     at: string;
 };
 
-type ContractEmployerRefundRequest = {
+export type ContractEmployerRefundRequest = {
     status: "pending" | "rejected" | "approved";
     subject: string;
     reason: string;
@@ -78,11 +78,11 @@ export type GetUserContractsReponse = {
     cancelRequest: {
         freelancer?: ({ isCancelRequest: false } | ContractCancelRequest);
         employer?: ({ isCancelRequest: false } | ContractCancelRequest);
-        status: "pending" | "rejected" | "approved" | undefined;
+        status?: "pending" | "rejected" | "approved";
     };
     createdAt: string;
     updatedAt: string;
-    completedAt: string;
+    completedAt?: string;
     payments: ContractPayment[];
 } & (JobContractType | ServiceContractType);
 

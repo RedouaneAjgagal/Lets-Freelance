@@ -23,7 +23,7 @@ const PaymentsStatus = (props: React.PropsWithoutRef<StatusProps>) => {
     const status = content[props.type];
 
     return (
-        <div className={`${status.color} py-2 px-3 rounded text-center`}>
+        <div className={`${status.color} py-2 px-3 rounded text-center min-w-[8rem]`}>
             <span className="font-medium">{status.value}</span>
         </div>
     )

@@ -22,10 +22,6 @@ const EmployerBoughtServiceTable = (props: React.PropsWithoutRef<EmployerBoughtS
 
     const orderPrice = `$${props.service.payments[0].amount.toFixed(2)}`;
 
-    const viewServiceHanlder = () => {
-        navigate(`/services/${props.service.service.serviceInfo}`);
-    }
-
     const contractNavigation = () => {
         navigate(`/profile/contracts/${props.service._id}`);
     }

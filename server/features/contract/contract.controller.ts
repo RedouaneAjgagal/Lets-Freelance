@@ -143,9 +143,12 @@ const getSingleContract: RequestHandler = async (req: CustomAuthRequest, res) =>
         throw new UnauthenticatedError("Found no user");
     }
 
+
+    const otherUser = profile.userAs === "employer" ? "freelancer" : "employer";
+
     // find contract
     const contract = await Contract.findById(contractId)
-        .select(`-cancelRequest.${profile.userAs === "employer" ? "freelancer" : "employer"}`);
+        .select(`-cancelRequest.${otherUser} -payments.${otherUser}.net`);
     if (!contract) {
         throw new NotFoundError(`Found no contract with ID ${contractId}`);
     }

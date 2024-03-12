@@ -16,6 +16,7 @@ import CreateServiceSteps from "./components/CreateServiceSteps";
 import CreateServiceActions from "./components/CreateServiceActions";
 import serviceFormReducer from "./redux/serviceForm";
 import ServiceForm from "./components/ServiceForm";
+import IncludedInSelectedPackage from "./components/IncludedInSelectedPackage";
 
 export {
     useTrendingServicesQuery,
@@ -35,5 +36,6 @@ export {
     CreateServiceSteps,
     CreateServiceActions,
     serviceFormReducer,
-    ServiceForm
+    ServiceForm,
+    IncludedInSelectedPackage
 }

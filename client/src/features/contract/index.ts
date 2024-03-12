@@ -1,3 +1,4 @@
+import ContractContainer from "./components/ContractContainer";
 import FilterContracts from "./components/FilterContracts";
 import UserContractsContainer from "./components/UserContractsContainer";
 import useContractQuery from "./hooks/useContractQuery";
@@ -8,7 +9,8 @@ export {
     useGetUserContractsQuery,
     UserContractsContainer,
     FilterContracts,
-    useContractQuery
+    useContractQuery,
+    ContractContainer
 }
 
 export type {

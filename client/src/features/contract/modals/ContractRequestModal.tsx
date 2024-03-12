@@ -2,7 +2,7 @@ import { createPortal } from "react-dom"
 import Overlay from "../../../layouts/Overlay"
 import CancelContractStatus from "../../../components/CancelContractStatus";
 import { ContractEmployerRefundRequest } from "../services/getUserSingleContract";
-import { TbCalendar, TbX } from "react-icons/tb";
+import { TbX } from "react-icons/tb";
 import formatDate from "../../../utils/formatDate";
 
 type ContractRequestModalProps = {

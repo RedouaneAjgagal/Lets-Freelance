@@ -9,6 +9,7 @@ import ContractServiceInfo from "./ContractServiceInfo";
 import ContractStatusInfo from "./ContractStatusInfo";
 import SingleContractSectionWrapper from "./SingleContractSectionWrapper";
 import ContractJobInfo from "./ContractJobInfo";
+import useCompleteContractMutation from "../hooks/useCompleteContractMutation";
 
 type ContractContainerProps = {
     contract: GetUserContractsReponse;
@@ -16,6 +17,11 @@ type ContractContainerProps = {
 
 const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>) => {
     const { userInfo } = useAppSelector(state => state.authReducer);
+
+    const completeContractMutation = useCompleteContractMutation({
+        contractId: props.contract._id,
+        profileId: userInfo!.profileId
+    });
 
     const createdAt = formatDate(props.contract.createdAt);
 
@@ -41,7 +47,10 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
     const completeContractHandler = () => {
         if (!isCompleteContract) return;
 
-        console.log(props.contract._id);
+        completeContractMutation.mutate({
+            activityType: props.contract.activityType,
+            contractId: props.contract._id
+        });
     }
 
     return (
@@ -76,7 +85,7 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                         : null
                     }
                     {isCompleteContract ?
-                        <PrimaryButton onClick={completeContractHandler} disabled={false} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" >Complete contract</PrimaryButton>
+                        <PrimaryButton onClick={completeContractHandler} disabled={completeContractMutation.isLoading} isLoading={completeContractMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" >Complete contract</PrimaryButton>
                         : null
                     }
                 </div>

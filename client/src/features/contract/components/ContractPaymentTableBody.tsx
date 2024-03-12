@@ -7,7 +7,6 @@ import ActionButton from "../../../layouts/brand/ActionButton";
 import { TbArrowBackUp } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import ActionModal from "../../../layouts/ActionModal";
 import ContractRequestModal from "../modals/ContractRequestModal";
 import useOverflow from "../../../hooks/useOverflow";
 
@@ -25,7 +24,8 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
     const userPayment = props.payment[userInfo!.userAs];
     const otherUserPayment = props.payment[userInfo!.userAs === "freelancer" ? "employer" : "freelancer"];
 
-    const at = formatDate(userPayment.at);
+    const userStatusTime = formatDate(userPayment.at);
+    const otherUserStatusTime = formatDate(otherUserPayment.at);
 
     const refundRequestHandler = () => {
         if (props.payment.employer.refundRequest) {
@@ -74,7 +74,7 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
                     {userPayment.status !== "pending" ?
                         <span className="flex items-center gap-1 text-slate-600 text-sm">
                             <TbCalendar size={20} />
-                            {at}
+                            {userStatusTime}
                         </span>
                         : null
                     }
@@ -86,7 +86,7 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
                     {otherUserPayment.status !== "pending" ?
                         <span className="flex items-center gap-1 text-slate-600 text-sm">
                             <TbCalendar size={20} />
-                            {at}
+                            {otherUserStatusTime}
                         </span>
                         : null
                     }

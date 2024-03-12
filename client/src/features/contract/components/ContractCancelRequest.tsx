@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { useAppSelector } from "../../../hooks/redux";
 import { GetUserContractsReponse } from "../services/getUserSingleContract"
 import CancelContractStatus from "../../../components/CancelContractStatus";
@@ -12,7 +11,7 @@ type ContractCancelRequestProps = {
 const ContractCancelRequest = (props: React.PropsWithoutRef<ContractCancelRequestProps>) => {
     const { userInfo } = useAppSelector(state => state.authReducer);
     const cancelRequest = props.cancelRequest[userInfo!.userAs]!;
-    
+
     return (
         <div>
             {cancelRequest.isCancelRequest ?

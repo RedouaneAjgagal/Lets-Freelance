@@ -14,7 +14,7 @@ import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages/job";
-import { SingleContract, UserContracts } from "../pages/contract";
+import { SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
 
 const router = createBrowserRouter([
     {
@@ -148,6 +148,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/contracts/:contractId",
                 element: <AuthenticatedRoute element={SingleContract} />
+            },
+            {
+                path: "/profile/contracts/:contractId/submit-worked-hours",
+                element: <AuthenticatedRoute element={SubmitWorkedHours} accessBy="freelancer" />
             }
         ]
     }

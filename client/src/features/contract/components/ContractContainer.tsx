@@ -75,7 +75,7 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                         : <p className="text-slate-600">Empty..</p>
                     }
                     {(priceType === "hourly" && userInfo!.userAs === "freelancer") ?
-                        <Link to={`/`} className="self-start underline">Submit worked hours</Link>
+                        <Link to={`submit-worked-hours`} className="self-start underline">Submit worked hours</Link>
                         : null
                     }
                 </SingleContractSectionWrapper>

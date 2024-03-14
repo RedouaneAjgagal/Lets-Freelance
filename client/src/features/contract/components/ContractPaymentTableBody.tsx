@@ -9,13 +9,17 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import ContractRequestModal from "../modals/ContractRequestModal";
 import useOverflow from "../../../hooks/useOverflow";
+import usePayHourlyContractMutation from "../hooks/usePayHourlyContractMutation";
 
 type ContractPaymentTableBodyProps = {
     payment: ContractPayment;
     priceType: "hourly" | "fixed";
+    contractId: string
 }
 
 const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTableBodyProps>) => {
+    const payHourlyContractMutation = usePayHourlyContractMutation();
+
     const [isRefundRequestOpen, setIsRefundRequestOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -39,7 +43,16 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
     }
 
     const payWorkedHoursHandler = () => {
-        console.log(props.payment.amount);
+        if (
+            props.payment.employer.status !== "pending"
+            || props.priceType !== "hourly"
+            || payHourlyContractMutation.isLoading
+        ) return;
+
+        payHourlyContractMutation.mutate({
+            contractId: props.contractId,
+            paymentId: props.payment._id
+        });
     }
 
     useOverflow(isRefundRequestOpen);
@@ -102,7 +115,7 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
                         {
                             props.payment.employer.status === "pending" ?
                                 props.priceType === "hourly" ?
-                                    <ActionButton type="customized" bgColor="bg-green-500" icon={TbChecks} onClick={payWorkedHoursHandler} value="Pay" />
+                                    <ActionButton disabled={payHourlyContractMutation.isLoading} type="customized" bgColor="bg-green-500" icon={TbChecks} onClick={payWorkedHoursHandler} value="Pay" />
                                     : <span>--</span>
                                 : <ActionButton bgColor={props.payment.employer.refundRequest ? "bg-purple-500" : "bg-stone-500"} icon={props.payment.employer.refundRequest ? TbEye : TbArrowBackUp} onClick={refundRequestHandler} type="customized" value={props.payment.employer.refundRequest ? "Track refund status" : "Request a refund"} />
                         }

@@ -5,6 +5,7 @@ type ActionButtonProps = {
     type: "view" | "edit" | "delete";
     onClick: () => void;
     minimized?: boolean;
+    disabled?: boolean;
 }
 
 type ActionCustomizedButtonProps = {
@@ -14,6 +15,7 @@ type ActionCustomizedButtonProps = {
     icon: IconType;
     onClick: () => void;
     minimized?: boolean;
+    disabled?: boolean;
 }
 
 
@@ -53,7 +55,7 @@ const ActionButton = (props: React.PropsWithoutRef<ActionButtonProps | ActionCus
 
 
     return (
-        <button className={`${content.color} text-white h-8 px-2 rounded flex gap-1 items-center`} onClick={props.onClick}>
+        <button disabled={props.disabled} className={`${content.color} text-white h-8 px-2 rounded flex gap-1 items-center`} onClick={props.onClick}>
             {getContent}
         </button>
     )

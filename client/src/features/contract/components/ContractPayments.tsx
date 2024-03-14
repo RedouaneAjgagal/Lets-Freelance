@@ -6,6 +6,7 @@ import ContractPaymentTableBody from "./ContractPaymentTableBody";
 type ContractPaymentsProps = {
     payments: ContractPayment[];
     priceType: "hourly" | "fixed";
+    contractId: string
 }
 
 const ContractPayments = (props: React.PropsWithoutRef<ContractPaymentsProps>) => {
@@ -23,7 +24,7 @@ const ContractPayments = (props: React.PropsWithoutRef<ContractPaymentsProps>) =
             <table className="w-full text-left">
                 <TableHead width="wider" tableHeads={tableHeads} />
                 <tbody>
-                    {props.payments.map(payment => <ContractPaymentTableBody priceType={props.priceType} key={payment._id} payment={payment} />)}
+                    {props.payments.map(payment => <ContractPaymentTableBody key={payment._id} priceType={props.priceType} payment={payment} contractId={props.contractId} />)}
                 </tbody>
             </table>
         </div>

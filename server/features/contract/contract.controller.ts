@@ -19,6 +19,7 @@ import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import hasPeriodExpired from "../../utils/hasPeriodExpired";
 import refundContractValidator from "./validators/refundContractValidator";
+import origin from "../../config/origin";
 
 
 //@desc get all contracts related to the current user
@@ -745,8 +746,6 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         totalPaidAmount: totalPayment
     });
 
-    console.log({ freelancerReveiceAmount: netAmount, employerPaymentWithFees });
-
     const employerAmount = transferToStripeAmount(employerPaymentWithFees);
     const freelancerReceiveAmount = transferToStripeAmount(netAmount);
 
@@ -788,8 +787,8 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
         },
         customer_email: contract.employer.user.email,
         client_reference_id: contract.employer.user._id.toString(),
-        success_url: `http://localhost:5000/api/v1/contracts/${contract._id.toString()}/worked-hours?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: "http://localhost:5173",
+        success_url: `${origin}/profile/contracts/${contract._id.toString()}/worked-hours/pay?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/profile/contracts/${contract._id.toString()}`,
         metadata: {
             contractId,
             paymentId,
@@ -804,8 +803,7 @@ const payWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     payment.sessionId = session.id;
     await contract.save();
 
-    console.log({ url: session.url });
-    res.redirect(session.url!);
+    res.status(StatusCodes.OK).json({ url: session.url });
 }
 
 
@@ -908,7 +906,7 @@ const setAsPaidHours: RequestHandler = async (req: CustomAuthRequest, res) => {
     // update the contract
     await contract.save();
 
-    res.status(StatusCodes.OK).json({ msg: `${payment.workedHours} worked hours has been paid successfully` });
+    res.status(StatusCodes.OK).json({ msg: `${payment.workedHours} worked hours has been paid successfully`, contractId: contract._id.toString() });
 }
 
 

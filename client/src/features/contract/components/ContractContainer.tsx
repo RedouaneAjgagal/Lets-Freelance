@@ -71,7 +71,7 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                 }
                 <SingleContractSectionWrapper sectionTitle="Payments" hasDate={false}>
                     {props.contract.payments.length ?
-                        <ContractPayments payments={props.contract.payments} priceType={priceType} />
+                        <ContractPayments payments={props.contract.payments} priceType={priceType} contractId={props.contract._id} />
                         : <p className="text-slate-600">Empty..</p>
                     }
                     {(priceType === "hourly" && userInfo!.userAs === "freelancer") ?

@@ -5,6 +5,7 @@ import UserContractsContainer from "./components/UserContractsContainer";
 import useContractQuery from "./hooks/useContractQuery";
 import useGetUserContractsQuery from "./hooks/useGetUserContractsQuery";
 import { UserContractsQuery } from "./services/getUserContracts";
+import CancelContractForm from "./components/CancelContractForm";
 
 export {
     useGetUserContractsQuery,
@@ -12,7 +13,8 @@ export {
     FilterContracts,
     useContractQuery,
     ContractContainer,
-    SubmitWorkedHoursForm
+    SubmitWorkedHoursForm,
+    CancelContractForm
 }
 
 export type {

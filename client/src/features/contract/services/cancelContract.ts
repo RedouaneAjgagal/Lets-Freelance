@@ -1,12 +1,12 @@
 import { postRequest } from "../../../services/api";
 
-type CancelContractPayload = {
+export type CancelContractPayload = {
     contractId: string;
     subject: string;
     reason: string;
 }
 
-type CancelContractResponse = {
+export type CancelContractResponse = {
     msg: string;
 }
 

@@ -37,9 +37,7 @@ const ContractPaymentTableBody = (props: React.PropsWithoutRef<ContractPaymentTa
             return;
         }
 
-        console.log(props.payment._id);
-
-        navigate("/");
+        navigate(`refund-request/payments/${props.payment._id}`);
     }
 
     const payWorkedHoursHandler = () => {

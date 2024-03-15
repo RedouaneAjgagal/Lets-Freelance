@@ -14,7 +14,7 @@ import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages/job";
-import { CancelContract, PayWorkedHours, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
+import { CancelContract, PayWorkedHours, RefundRequest, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
 
 const router = createBrowserRouter([
     {
@@ -160,6 +160,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/contracts/:contractId/worked-hours/pay",
                 element: <AuthenticatedRoute element={PayWorkedHours} accessBy="employer" />
+            },
+            {
+                path: "/profile/contracts/:contractId/refund-request/payments/:paymentId",
+                element: <AuthenticatedRoute element={RefundRequest} accessBy="employer" />
             }
         ]
     }

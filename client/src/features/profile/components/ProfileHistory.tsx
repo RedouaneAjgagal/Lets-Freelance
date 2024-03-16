@@ -22,7 +22,7 @@ const ProfileHistory = (props: React.PropsWithoutRef<Props>) => {
     }
 
     return (
-        <section className="py-4 flex flex-col gap-3">
+        <section className="py-4 flex flex-col gap-3 p-4">
             <h2 className="font-medium text-2xl">Work History</h2>
             {props.completedJobs?.length === 0 && props.inProgressJobs?.length === 0 ?
                 <p className="text-slate-500">Empty..</p>

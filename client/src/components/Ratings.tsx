@@ -20,8 +20,8 @@ const Ratings = (props: React.PropsWithoutRef<Props>) => {
             // Partially filled star
             return (
                 <div key={index} className="relative w-full">
-                    <TbStarFilled className={`${props.size} text-purple-600`} style={{ clipPath: `inset(0 ${100 - fractionRating * 100}% 0 0)` }} />
-                    <TbStarFilled className={`${props.size} absolute -z-10 top-0 left-0 text-slate-200 w-full`} />
+                    <TbStarFilled className={`${props.size} text-purple-600 relative z-20`} style={{ clipPath: `inset(0 ${100 - fractionRating * 100}% 0 0)` }} />
+                    <TbStarFilled className={`${props.size} absolute z-10 top-0 left-0 text-slate-200 w-full`} />
                 </div>
             );
         } else {

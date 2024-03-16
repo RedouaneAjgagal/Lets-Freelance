@@ -144,12 +144,63 @@ const getSingleContract: RequestHandler = async (req: CustomAuthRequest, res) =>
         throw new UnauthenticatedError("Found no user");
     }
 
-
-    const otherUser = profile.userAs === "employer" ? "freelancer" : "employer";
-
+    const otherUser = profile.userAs === "employer" ? "freelancer" : "employer";    
+    
     // find contract
-    const contract = await Contract.findById(contractId)
-        .select(`-cancelRequest.${otherUser} -payments.${otherUser}.net`);
+    const [contract] = await Contract.aggregate([
+        {
+            // only contract matching the contract ID
+            $match: {
+                _id: new mongoose.Types.ObjectId(contractId)
+            }
+        },
+        {
+            // get all reviews related to this contract
+            $lookup: {
+                from: "reviews",
+                foreignField: "contract",
+                localField: "_id",
+                as: "reviews"
+            }
+        },
+        {
+            // filter reviews and get only the review that has been submitted by the current user
+            $addFields: {
+                reviews: {
+                    $filter: {
+                        input: "$reviews",
+                        as: "review",
+                        cond: {
+                            $and: [
+                                {
+                                    $eq: [`$$review.${profile.userAs}`, profile.user._id]
+                                },
+                                {
+                                    $eq: [`$$review.submittedBy`, profile.userAs]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the first review from the list (bc only 1 review per contract by the same user)
+            $addFields: {
+                review: {
+                    $first: "$reviews"
+                }
+            }
+        },
+        {
+            $project: {
+                reviews: 0, // hide review list
+                [`cancelRequest.${otherUser}`]: 0, // hide canceled request by the opossite user
+                [`payments.${otherUser}.net`]: 0 // hide net amount that opposite user gets
+            }
+        }
+    ])
+
     if (!contract) {
         throw new NotFoundError(`Found no contract with ID ${contractId}`);
     }

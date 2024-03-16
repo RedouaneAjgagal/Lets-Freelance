@@ -71,6 +71,29 @@ export type ContractPayment = {
     chargeId?: string;
 };
 
+type ServiceReview = {
+    activityType: "service";
+    service: string;
+}
+
+type JobReview = {
+    activityType: "job";
+    job: string;
+}
+
+export type ContractReviewType = {
+    _id: string;
+    contract: string;
+    freelancer: string;
+    employer: string;
+    activityTitle: string;
+    description: string;
+    rating: number;
+    createdAt: string;
+    updatedAt: string;
+    submittedBy: "freelancer" | "employer";
+} & (ServiceReview | JobReview);
+
 export type GetUserContractsReponse = {
     _id: string;
     freelancer: UserContractType;
@@ -84,6 +107,7 @@ export type GetUserContractsReponse = {
     updatedAt: string;
     completedAt?: string;
     payments: ContractPayment[];
+    review?: ContractReviewType
 } & (JobContractType | ServiceContractType);
 
 const getUserSingleContract = async (contractId: string) => {

@@ -10,6 +10,7 @@ import ContractStatusInfo from "./ContractStatusInfo";
 import SingleContractSectionWrapper from "./SingleContractSectionWrapper";
 import ContractJobInfo from "./ContractJobInfo";
 import useCompleteContractMutation from "../hooks/useCompleteContractMutation";
+import ContractReview from "./ContractReview";
 
 type ContractContainerProps = {
     contract: GetUserContractsReponse;
@@ -79,6 +80,12 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                         : null
                     }
                 </SingleContractSectionWrapper>
+                {props.contract.completedAt ?
+                    <SingleContractSectionWrapper sectionTitle="My review" hasDate={false}>
+                        <ContractReview review={props.contract.review} />
+                    </SingleContractSectionWrapper>
+                    : null
+                }
                 <div className="flex items-center justify-end gap-x-4 gap-y-2 flex-wrap">
                     {isCancelContract ?
                         <Link to="cancel-contract" className="text-sm font-medium text-slate-600 underline">Cancel contract</Link>

@@ -1,9 +1,11 @@
 import Ratings from "../../../components/Ratings";
+import ActionButton from "../../../layouts/brand/ActionButton";
 import formatDate from "../../../utils/formatDate";
 import { ContractReviewType } from "../services/getUserSingleContract";
 
 type ViewContractReviewProps = {
     review: ContractReviewType;
+    onUpdateReview: () => void;
 }
 
 const ViewContractReview = (props: React.PropsWithoutRef<ViewContractReviewProps>) => {
@@ -11,6 +13,10 @@ const ViewContractReview = (props: React.PropsWithoutRef<ViewContractReviewProps
 
     const isUpdated = new Date(props.review.createdAt).getTime() !== new Date(props.review.updatedAt).getTime();
     const updatedAt = formatDate(props.review.createdAt);
+
+    const deleteReviewHandler = () => {
+        console.log("delete review");
+    }
 
     return (
         <article className="flex flex-col gap-3">
@@ -23,9 +29,19 @@ const ViewContractReview = (props: React.PropsWithoutRef<ViewContractReviewProps
                     : null
                 }
             </div>
-            <p className="text-slate-600 text-[.95rem]">
-                <em>"{props.review.description}"</em>
-            </p>
+            {props.review.description ?
+                <p className="text-slate-600 text-[.95rem]">
+                    <em>"{props.review.description}"</em>
+                </p>
+                : <p className="text-slate-600">
+                    <strong className="text-slate-800">Description: </strong>
+                    Empty..
+                </p>
+            }
+            <div className="flex items-center gap-2 self-end">
+                <ActionButton type="edit" disabled={false} onClick={props.onUpdateReview} />
+                <ActionButton type="delete" disabled={false} onClick={deleteReviewHandler} minimized />
+            </div>
         </article>
     )
 }

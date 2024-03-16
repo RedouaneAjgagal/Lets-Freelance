@@ -87,7 +87,7 @@ export type ContractReviewType = {
     freelancer: string;
     employer: string;
     activityTitle: string;
-    description: string;
+    description?: string;
     rating: number;
     createdAt: string;
     updatedAt: string;

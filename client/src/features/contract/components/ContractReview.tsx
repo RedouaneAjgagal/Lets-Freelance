@@ -1,5 +1,6 @@
 import { ContractReviewType } from "../services/getUserSingleContract";
 import ContractReviewContainer from "./ContractReviewContainer";
+import ContractReviewForm from "./ContractReviewForm";
 
 type ContractReviewProps = {
     review: ContractReviewType | undefined;
@@ -7,10 +8,10 @@ type ContractReviewProps = {
 
 const ContractReview = (props: React.PropsWithoutRef<ContractReviewProps>) => {
     return (
-        <div>
+        <div className="mt-2">
             {props.review ?
                 <ContractReviewContainer review={props.review} />
-                : <p>Create review form</p>
+                : <ContractReviewForm type="create" />
             }
         </div>
     )

@@ -28,15 +28,15 @@ const useUpdateReviewMutation = (payload: UseUpdateReviewMutationPayload) => {
                 }
             })
 
-            toast.success(`You have submitted a new review`, {
-                id: "success_createReview",
+            toast.success(`Review has been updated`, {
+                id: "success_updateReview",
                 duration: 3000
             });
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";
             toast.error(errorMsg, {
-                id: "error_createReview",
+                id: "error_updateReview",
                 duration: 5000
             });
         }

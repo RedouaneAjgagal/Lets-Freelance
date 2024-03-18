@@ -9,11 +9,11 @@ type ContractReviewContainerProps = {
 }
 
 const ContractReviewContainer = (props: React.PropsWithoutRef<ContractReviewContainerProps>) => {
+    const [isUpdateReview, setIsUpdateReview] = useState(false);
+
     const updateReviewMutation = useUpdateReviewMutation({
         contractId: props.review.contract
     });
-
-    const [isUpdateReview, setIsUpdateReview] = useState(false);
 
     const toggleUpdateReview = () => {
         setIsUpdateReview(prev => !prev);

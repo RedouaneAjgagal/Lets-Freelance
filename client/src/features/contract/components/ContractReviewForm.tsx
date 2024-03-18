@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PrimaryButton } from "../../../layouts/brand";
 import { ContractReviewType } from "../services/getUserSingleContract";
+import { UseMutationResult } from "@tanstack/react-query";
+import { CreateReviewPayload, CreateReviewResponse, UpdateReviewPayload, UpdateReviewResponse } from "../../reviews";
+import { AxiosError } from "axios";
+import { useParams } from "react-router-dom";
 
 type ContractCreateReviewForm = {
     type: "create";
+    onSubmit: UseMutationResult<CreateReviewResponse, AxiosError<{
+        msg: string;
+    }, any>, CreateReviewPayload, unknown>;
 }
 
 type ContractUpdateReviewForm = {
     type: "update";
     review: ContractReviewType;
+    onSubmit: UseMutationResult<UpdateReviewResponse, AxiosError<{
+        msg: string;
+    }, any>, UpdateReviewPayload, unknown>;
     onClose: () => void;
 }
 
@@ -16,6 +26,8 @@ type ContractReviewFormProps = (ContractCreateReviewForm | ContractUpdateReviewF
 
 const ContractReviewForm = (props: React.PropsWithoutRef<ContractReviewFormProps>) => {
     const DESCRIPTION_MAX_LENGTH = 2000;
+
+    const { contractId } = useParams();
 
     const [rate, setRate] = useState({
         value: props.type === "update" ? props.review.rating : 0,
@@ -80,11 +92,28 @@ const ContractReviewForm = (props: React.PropsWithoutRef<ContractReviewFormProps
 
         if (ratingError !== "" || descriptionError !== "") return;
 
-        console.log({
-            rating: Number(rate.value.toFixed(2)),
-            description: description.value
-        });
+        const rating = Number(rate.value.toFixed(2));
+
+        if (props.type === "create") {
+            props.onSubmit.mutate({
+                contractId: contractId!,
+                rating,
+                description: description.value
+            });
+        } else {
+            props.onSubmit.mutate({
+                reviewId: props.review._id,
+                rating,
+                description: description.value
+            });
+        }
     }
+
+    useEffect(() => {
+        if (props.onSubmit.isSuccess && props.type === "update") {
+            props.onClose();
+        }
+    }, [props.onSubmit.isSuccess]);
 
     return (
         <form onSubmit={submitContractHandler} className="flex flex-col gap-2" noValidate>
@@ -101,7 +130,7 @@ const ContractReviewForm = (props: React.PropsWithoutRef<ContractReviewFormProps
                 <small className="self-end text-slate-600">{`${description.value.length} / ${DESCRIPTION_MAX_LENGTH}`}</small>
             </div>
             <div className="flex items-center justify-between mt-3">
-                <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md" isLoading={false}>
+                <PrimaryButton disabled={props.onSubmit.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md" isLoading={props.onSubmit.isLoading}>
                     {`${props.type === "create" ? "Submit" : "Update"} Review`}
                 </PrimaryButton>
                 {props.type === "update" ?

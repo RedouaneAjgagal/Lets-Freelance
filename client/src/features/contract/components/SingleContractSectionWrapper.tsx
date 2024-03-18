@@ -24,7 +24,7 @@ const SingleContractSectionWrapper = (props: React.PropsWithChildren<SingleContr
                     </div>
                 </div> : null
             }
-            <h2 className="text-xl font-medium underline underline-offset-2 text-purple-700">{props.sectionTitle}</h2>
+            <h2 className="text-2xl font-medium text-purple-700">{props.sectionTitle}</h2>
             {props.children}
         </section>
     )

@@ -4,6 +4,7 @@ import DescriptionModal from "../modals/DescriptionModal";
 import useOverflow from "../../../hooks/useOverflow";
 import { IncludedInSelectedPackage } from "../../service";
 import toUpperCase from "../../../utils/toUpperCase";
+import { Link } from "react-router-dom";
 
 type ContractServiceInfoProps = {
     service: ServiceContractType["service"];
@@ -17,7 +18,7 @@ const ContractServiceInfo = (props: React.PropsWithoutRef<ContractServiceInfoPro
     return (
         <div className="flex flex-col gap-2">
             <div>
-                <small>Service</small>
+                <Link to={`/services/${props.service.serviceInfo}`} className="underline text-sm text-slate-600">Service</Link>
                 <h3 className="text-lg font-medium leading-5">Contract title: <span className="text-base text-slate-700">"{props.service.title}"</span>
                 </h3>
             </div>

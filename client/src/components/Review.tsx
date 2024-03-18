@@ -10,7 +10,7 @@ type ReviewProps = {
         avatar: string;
     };
     rating: number;
-    description: string;
+    description?: string;
     createdAt: string;
 }
 
@@ -38,9 +38,12 @@ const Review = (props: React.PropsWithoutRef<ReviewProps>) => {
                     </div>
                 </div>
             </div>
-            <p className="text-slate-700 text-[.95rem]">
-                {props.description}
-            </p>
+            {props.description ?
+                <p className="text-slate-700 text-[.95rem]">
+                    {props.description}
+                </p>
+                : null
+            }
         </li>
     )
 }

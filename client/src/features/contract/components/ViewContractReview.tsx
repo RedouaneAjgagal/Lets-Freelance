@@ -12,7 +12,7 @@ const ViewContractReview = (props: React.PropsWithoutRef<ViewContractReviewProps
     const postedAt = formatDate(props.review.createdAt);
 
     const isUpdated = new Date(props.review.createdAt).getTime() !== new Date(props.review.updatedAt).getTime();
-    const updatedAt = formatDate(props.review.createdAt);
+    const updatedAt = formatDate(props.review.updatedAt);
 
     const deleteReviewHandler = () => {
         console.log("delete review");

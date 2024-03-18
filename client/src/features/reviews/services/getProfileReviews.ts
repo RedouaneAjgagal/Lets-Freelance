@@ -26,7 +26,7 @@ export type CompletedReviewsType = {
         completedAt: string;
     };
     activityTitle: string;
-    description: string;
+    description?: string;
     rating: number;
     submittedByProfile: {
         _id: string;

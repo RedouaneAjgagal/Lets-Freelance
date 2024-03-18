@@ -12,8 +12,6 @@ const CompletedJob = (props: React.PropsWithoutRef<Props>) => {
     const endDate = formatDate(props.jobDetail.contract.completedAt);
     const date = `${startDate} - ${endDate}`;
 
-    const content = `"${props.jobDetail.description}"`;
-
     return (
         <>
             <li className="pb-5 border-b last:pb-0 last:border-b-0">
@@ -27,9 +25,12 @@ const CompletedJob = (props: React.PropsWithoutRef<Props>) => {
                         {date}
                     </small>
                 </div>
-                <p className="mt-4 text-slate-600 text-[.95rem]">
-                    <em>{content}</em>
-                </p>
+                {props.jobDetail.description ?
+                    <p className="mt-4 text-slate-600 text-[.95rem]">
+                        <em>"{props.jobDetail.description}"</em>
+                    </p>
+                    : null
+                }
             </li>
         </>
     )

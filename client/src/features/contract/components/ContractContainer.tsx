@@ -82,7 +82,7 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                 </SingleContractSectionWrapper>
                 {props.contract.completedAt ?
                     <SingleContractSectionWrapper sectionTitle="My review" hasDate={false}>
-                        <ContractReview review={props.contract.review} />
+                        <ContractReview review={props.contract.review} contractId={props.contract._id} />
                     </SingleContractSectionWrapper>
                     : null
                 }

@@ -3,6 +3,7 @@ import DescriptionModal from "../modals/DescriptionModal";
 import { JobContractType } from "../services/getUserSingleContract"
 import useOverflow from "../../../hooks/useOverflow";
 import toUpperCase from "../../../utils/toUpperCase";
+import { Link } from "react-router-dom";
 
 
 type ContractJobInfoProps = {
@@ -22,7 +23,7 @@ const ContractJobInfo = (props: React.PropsWithoutRef<ContractJobInfoProps>) => 
     return (
         <div className="flex flex-col gap-2">
             <div>
-                <small>Job</small>
+                <Link to={`/jobs/${props.job.jobInfo}`} className="underline text-sm text-slate-600">Job</Link>
                 <h3 className="text-lg font-medium leading-5">Contract title: <span className="text-base text-slate-700">"{props.job.title}"</span>
                 </h3>
             </div>

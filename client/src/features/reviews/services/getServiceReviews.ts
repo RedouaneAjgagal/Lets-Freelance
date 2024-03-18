@@ -8,7 +8,7 @@ export type ServiceReviewType = {
         avatar: string;
     };
     activityTitle: string;
-    description: string;
+    description?: string;
     rating: number;
     createdAt: string;
     updatedAt: string;

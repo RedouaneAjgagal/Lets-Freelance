@@ -75,7 +75,9 @@ const SingleProfileFreelancer = () => {
                 profileHistory.isLoading ?
                     <Loading />
                     :
-                    <ProfileHistory completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+                    <div className="p-4">
+                        <ProfileHistory completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
+                    </div>
             }
         </>
     )

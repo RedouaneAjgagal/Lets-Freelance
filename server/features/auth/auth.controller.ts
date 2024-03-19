@@ -428,12 +428,11 @@ const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) =>
 
     // check if already set bank account
     if (user.stripe.id || user.stripe.bankAccounts.length) {
-        throw new BadRequestError("You have already set your bank infomation")
+        throw new BadRequestError("You have already set bank information");
     }
 
     // external account info
-    const externalAccount = {
-        object: "bank_account",
+    const externalAccount: Stripe.TokenCreateParams.BankAccount = {
         account_number: accountNumber,
         routing_number: routingNumber,
         account_holder_name: accountHolderName,
@@ -583,7 +582,6 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
 
     // check if valid external account values
     isValidExternalAccountValues({
-        object: "bank_account",
         account_number: accountNumber,
         routing_number: routingNumber,
         account_holder_name: accountHolderName,
@@ -592,20 +590,23 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
         currency
     });
 
-    const externalAccountParams: Stripe.ExternalAccountCreateParamsV2 = {
-        external_account: {
-            object: "bank_account",
-            account_number: accountNumber,
-            routing_number: routingNumber,
-            account_holder_name: accountHolderName,
-            account_holder_type: accountHolderType,
-            country: accountCountry,
-            currency
-        },
-        default_for_currency: true
-    }
+    const externalAccountParams: Stripe.TokenCreateParams.BankAccount = {
+        account_number: accountNumber,
+        routing_number: routingNumber,
+        account_holder_name: accountHolderName,
+        account_holder_type: accountHolderType,
+        country: accountCountry,
+        currency
+    };
 
-    const externalAccount = await stripe.accounts.createExternalAccount(user.stripe.id, externalAccountParams as any); // bypass by any since ts stripe doesnt support external_account as an object even if its valid
+    const token = await stripe.tokens.create({
+        bank_account: externalAccountParams
+    });
+
+    const externalAccount = await stripe.accounts.createExternalAccount(user.stripe.id, {
+        external_account: token.id,
+        default_for_currency: true
+    });
 
     const isDefault = user.stripe.bankAccounts.filter((bankInfo) => bankInfo.currency === currency).length > 0;
 
@@ -622,9 +623,9 @@ const addExternalBankAccounts: RequestHandler = async (req: CustomAuthRequest, r
     // add external account to the database
     (user.stripe.bankAccounts as BankInfoWithoutId[]).push({
         isDefault,
-        currency,
-        accountLastFour: accountNumber.slice(-4),
-        country: accountCountry,
+        currency: token.bank_account!.currency,
+        accountLastFour: token.bank_account!.last4,
+        country: token.bank_account!.country,
         bankAccountId: externalAccount.id
     });
 

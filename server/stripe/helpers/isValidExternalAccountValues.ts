@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { isInvalidAccountHolderName, isInvalidAccountHolderType, isInvalidAccountNumber, isInvalidCurrency, isInvalidRoutingNumber, isInvalidTwoLetterCountry } from "../validators/externalAccountValidators";
 import { BadRequestError } from "../../errors";
 
-const isValidExternalAccountValues = (externalAccount: Stripe.AccountCreateParams.ExternalAccount) => {
+const isValidExternalAccountValues = (externalAccount: Stripe.TokenCreateParams.BankAccount) => {
     const invalidAccountNumber = isInvalidAccountNumber(externalAccount.account_number);
     if (invalidAccountNumber) {
         throw new BadRequestError(invalidAccountNumber);

@@ -3,7 +3,7 @@ import isValidExternalAccountValues from "../helpers/isValidExternalAccountValue
 import isValidIndividualValues from "../helpers/isValidIndividualValues";
 
 type CreateConnectedAccountValidator = {
-    externalAccount: Stripe.AccountCreateParams.ExternalAccount;
+    externalAccount: Stripe.TokenCreateParams.BankAccount;
     individual: Stripe.AccountCreateParams.Individual;
     isSsnRequired: boolean;
 }

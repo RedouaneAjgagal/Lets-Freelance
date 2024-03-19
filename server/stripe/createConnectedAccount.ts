@@ -14,18 +14,22 @@ type CreateConnectedAccount = {
         last_name: Stripe.AccountCreateParams.Individual["last_name"];
         dob: Stripe.AccountCreateParams.Individual["dob"];
     } & Partial<Stripe.AccountCreateParams.Individual>;
-    externalAccount: Stripe.AccountCreateParams.ExternalAccount;
+    externalAccount: Stripe.TokenCreateParams.BankAccount;
     tosAcceptance: Stripe.AccountCreateParams.TosAcceptance;
 }
 
 const createConnectedAccount = async ({ email, userId, profileId, country, externalAccount, individual, tosAcceptance }: CreateConnectedAccount) => {
+    const token = await stripe.tokens.create({
+        bank_account: externalAccount
+    });
+
     const account = await stripe.accounts.create({
         type: "custom",
         email,
         country,
         individual,
-        business_type: "individual", // initial individual for now 
-        external_account: externalAccount,
+        external_account: token.id,
+        business_type: externalAccount.account_holder_type,
         tos_acceptance: tosAcceptance,
         capabilities: {
             transfers: {

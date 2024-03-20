@@ -1,6 +1,5 @@
-import { useState } from "react";
 import InfoModal from "../../../layouts/brand/InfoModal";
-import { UserBankAccount } from "../../auth";
+import { UserBankAccount, useRemoveExternalBankAccountMutation } from "../../auth";
 import { BsBank } from "react-icons/bs";
 import { TbDots } from "react-icons/tb";
 
@@ -11,16 +10,21 @@ type FreelancerBankAccountProps = {
 }
 
 const FreelancerBankAccount = (props: React.PropsWithoutRef<FreelancerBankAccountProps>) => {
+    const removeExternalBankAccountMutation = useRemoveExternalBankAccountMutation();
 
     const removeExternalBankAccountHanlder = () => {
-        if (props.bankAccount.isDefault) return;
-        console.log(`remove bank ${props.bankAccount._id}`);
+        if (props.bankAccount.isDefault || removeExternalBankAccountMutation.isLoading || removeExternalBankAccountMutation.isSuccess) return;
+        removeExternalBankAccountMutation.mutate({
+            bankAccountId: props.bankAccount._id
+        });
     }
 
     return (
         <li className="border-b last:border-b-0 border-slate-300 p-3 flex items-center gap-1 justify-between">
             <div className="flex items-center gap-2 min-h-[2.25rem]">
-                <BsBank />
+                <div>
+                    <BsBank />
+                </div>
                 <div className="font-medium">
                     <span className="mr-1 text-lg">••••</span>
                     <span className="text-[.95rem]">{props.bankAccount.accountLastFour}</span>
@@ -54,7 +58,10 @@ const FreelancerBankAccount = (props: React.PropsWithoutRef<FreelancerBankAccoun
                             <TbDots />
                         </button>
                         <div className="group-focus-within:visible group-focus-within:top-8 group-focus-within:opacity-100 opacity-0 invisible top-4 absolute right-0 z-10 bg-white min-w-[8rem] rounded border shadow-lg font-medium transition-all duration-200">
-                            <button onClick={removeExternalBankAccountHanlder} className="py-1 px-2 w-full text-left text-red-600">Remove</button>
+                            <button onClick={removeExternalBankAccountHanlder} className="py-1 px-2 w-full text-left text-red-600">
+                                {removeExternalBankAccountMutation.isLoading || removeExternalBankAccountMutation.isSuccess ? "Removing.."
+                                    : "Remove"}
+                            </button>
                         </div>
                     </div>
             }

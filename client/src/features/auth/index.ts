@@ -7,6 +7,7 @@ import { User } from "./services/getCurrentUser";
 import useCurrentUserQuery from "./hooks/useCurrentUserQuery";
 import useUserBankAccountsQuery from "./hooks/useUserBankAccountsQuery";
 import useRemoveExternalBankAccountMutation from "./hooks/useRemoveExternalBankAccountMutation";
+import useDeleteBankAccountMutation from "./hooks/useDeleteBankAccountMutation";
 import { UserBankAccount, UserBankAccountsResponse } from "./services/getUserBankAccounts";
 
 export {
@@ -17,7 +18,8 @@ export {
     useLogoutMutation,
     useCurrentUserQuery,
     useUserBankAccountsQuery,
-    useRemoveExternalBankAccountMutation
+    useRemoveExternalBankAccountMutation,
+    useDeleteBankAccountMutation
 };
 
 export type {

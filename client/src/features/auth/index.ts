@@ -6,6 +6,7 @@ import useLogoutMutation from "./hooks/useLogoutMutation";
 import { User } from "./services/getCurrentUser";
 import useCurrentUserQuery from "./hooks/useCurrentUserQuery";
 import useUserBankAccountsQuery from "./hooks/useUserBankAccountsQuery";
+import { UserBankAccount, UserBankAccountsResponse } from "./services/getUserBankAccounts";
 
 export {
     RegisterForm,
@@ -17,4 +18,8 @@ export {
     useUserBankAccountsQuery
 };
 
-export type { User };
+export type {
+    User,
+    UserBankAccount,
+    UserBankAccountsResponse
+};

@@ -69,9 +69,12 @@ const Navbar = () => {
         <SearchModel isShown={isSearchOpen} closeSearchModal={searchHandler} closeNavbar={closeNavbarHandler} />
         :
         null}
-      <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0 z-[100]" : "-left-full"}`}>
-        <Link onClick={closeNavbarHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
-      </div>
+      {userInfo ?
+        null
+        : <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0 z-[100]" : "-left-full"}`}>
+          <Link onClick={closeNavbarHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
+        </div>
+      }
     </div>
   )
 }

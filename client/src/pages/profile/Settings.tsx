@@ -19,7 +19,6 @@ const Settings = () => {
           <AccountForm role={profileInfoQuery.data!.data.userAs} />
           :
           <PublicProfileForm profileInfo={profileInfoQuery.data!.data} />
-
       }
     </main>
   )

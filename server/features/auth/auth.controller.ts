@@ -404,7 +404,10 @@ const getBankAccounts: RequestHandler = async (req: CustomAuthRequest, res) => {
         return { _id, accountLastFour, country, currency, isDefault }
     })
 
-    res.status(StatusCodes.OK).json(bankAccounts);
+    res.status(StatusCodes.OK).json({
+        bankAccounts,
+        defaultCurrency: user.stripe.defaultCurrency
+    });
 }
 
 

@@ -55,7 +55,7 @@ const ServiceForm = (props: React.PropsWithoutRef<ServiceFormProps>) => {
                     : <CreateServiceContainer formType={props.formType} />
                 : userBankAccountsQuery!.isLoading ?
                     <Loading />
-                    : userBankAccountsQuery?.data?.length ?
+                    : userBankAccountsQuery?.data?.bankAccounts.length ?
                         <CreateServiceContainer formType={props.formType} />
                         : <div className="flex flex-col gap-3">
                             <h3 className="text-xl font-medium">You are not allowed to create services</h3>
@@ -72,7 +72,7 @@ const ServiceForm = (props: React.PropsWithoutRef<ServiceFormProps>) => {
                 :
                 userBankAccountsQuery!.isLoading ?
                     null
-                    : userBankAccountsQuery?.data?.length ?
+                    : userBankAccountsQuery?.data?.bankAccounts.length ?
                         <CreateServiceActions currentStep={currentStep} numOfSteps={numOfSteps} formType={props.formType} />
                         : null
             }

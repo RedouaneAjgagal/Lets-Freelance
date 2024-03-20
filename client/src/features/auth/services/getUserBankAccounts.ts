@@ -1,6 +1,6 @@
 import { getRequest } from "../../../services/api"
 
-type UserBankAccount = {
+export type UserBankAccount = {
     _id: string;
     accountLastFour: string;
     country: string;
@@ -8,7 +8,10 @@ type UserBankAccount = {
     isDefault: boolean;
 }
 
-type UserBankAccountsResponse = UserBankAccount[];
+export type UserBankAccountsResponse = {
+    bankAccounts: UserBankAccount[];
+    defaultCurrency: string;
+};
 
 const getUserBankAccounts = async () => {
     const response = await getRequest("auth/bank-account");

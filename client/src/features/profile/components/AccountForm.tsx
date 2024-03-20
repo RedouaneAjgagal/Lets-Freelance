@@ -7,6 +7,8 @@ import ActionModal from "../../../layouts/ActionModal";
 import EditSection from "./EditSection";
 import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
 import useSwitchProfileMutation from "../hooks/useSwitchProfileMutation";
+import FreelancerBankAccountContainer from "./FreelancerBankAccountContainer";
+import { useAppSelector } from "../../../hooks/redux";
 
 
 interface Props {
@@ -14,6 +16,8 @@ interface Props {
 }
 
 const AccountForm = (props: React.PropsWithoutRef<Props>) => {
+    const { userInfo } = useAppSelector(state => state.authReducer);
+
     const deleteAccountMutation = useDeleteAccountMutation();
     const switchProfileMutation = useSwitchProfileMutation();
     const [isDeleteModel, setIsDeleteModel] = useState(false);
@@ -55,6 +59,12 @@ const AccountForm = (props: React.PropsWithoutRef<Props>) => {
                     <PrimaryButton style="solid" disabled={switchProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Update Account <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
                 </form>
             </EditSection>
+            {userInfo?.userAs === "freelancer" ?
+                <EditSection title="Bank Accounts" titleColor="black" bgTransparent withoutPadding>
+                    <FreelancerBankAccountContainer />
+                </EditSection>
+                : null
+            }
             <EditSection title="Delete Account" titleColor="red" bgTransparent withoutPadding>
                 <div className="flex flex-col gap-3">
                     <p>Once you delete your account, there is no going back. Please be certain.</p>

@@ -1,5 +1,6 @@
 import Loading from "../../../components/Loading";
 import { useUserBankAccountsQuery } from "../../auth"
+import FreelancerBankAccountForm from "./FreelancerBankAccountForm";
 import FreelancerBankAccounts from "./FreelancerBankAccounts";
 
 
@@ -15,7 +16,7 @@ const FreelancerBankAccountContainer = () => {
             : <div>
                 {bankAccountsQuery!.data?.bankAccounts.length ?
                     <FreelancerBankAccounts bankAccountDetails={bankAccountsQuery!.data} />
-                    : <p>Bank account form</p>
+                    : <FreelancerBankAccountForm externalAccountOnly={false} />
                 }
             </div>
     )

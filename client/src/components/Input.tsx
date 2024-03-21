@@ -10,6 +10,8 @@ type InputProps = {
     value?: string;
     defaultValue?: string | number;
     readonly?: boolean
+    min?: string | number;
+    max?: string | number;
 }
 
 type InputWithLabelProps = {
@@ -28,7 +30,7 @@ const Input = (props: React.PropsWithoutRef<InputWithLabelProps | InputWithoutLa
                 <label htmlFor={props.id} className="text-lg font-medium">{props.labelContent}</label>
                 : null
             }
-            <input onChange={props.onChange} onKeyDown={props.onKeyDown} value={props.value} defaultValue={props.defaultValue} name={props.name} type={props.type} id={props.id} placeholder={props.placeHolder} readOnly={props.readonly} className={`border-2 w-full rounded bg-white outline-slate-400 px-2 py-1 ${props.isError ? "border-red-300 outline-red-300" : "border-slate-300"}`} />
+            <input onChange={props.onChange} onKeyDown={props.onKeyDown} value={props.value} defaultValue={props.defaultValue} name={props.name} type={props.type} id={props.id} placeholder={props.placeHolder} readOnly={props.readonly} className={`border-2 w-full rounded bg-white outline-slate-400 px-2 py-1 ${props.isError ? "border-red-300 outline-red-300" : "border-slate-300"}`} min={props.min} max={props.max} />
             {props.isError ?
                 <span className="absolute right-0 bottom-1 text-red-600 text-sm">{props.errorMsg}</span>
                 : null

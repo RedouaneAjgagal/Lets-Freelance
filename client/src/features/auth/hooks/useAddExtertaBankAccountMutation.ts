@@ -1,19 +1,23 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import setBankAccount from '../services/setBankAccount';
-import toast from 'react-hot-toast';
+import addExternalBankAccount from '../services/addExternalBankAccount';
 import { useAppSelector } from '../../../hooks/redux';
 import { AxiosError } from 'axios';
+import toast from 'react-hot-toast';
 
-const useSetBankAccountMutation = () => {
+type UseAddExtertaBankAccountMutationPayload = {
+    onClose?: () => void;
+}
+
+const useAddExtertaBankAccountMutation = (payload: UseAddExtertaBankAccountMutationPayload) => {
     const queryClient = useQueryClient();
     const { userInfo } = useAppSelector(state => state.authReducer);
 
-    const setBankAccountMutation = useMutation({
-        mutationFn: setBankAccount,
+    const addExtertaBankAccountMutation = useMutation({
+        mutationFn: addExternalBankAccount,
         retry: false,
         onSuccess: (data) => {
             toast.success(data.msg, {
-                id: "success_setBankAccount",
+                id: "success_externalBankAccount",
                 duration: 3000
             });
 
@@ -22,18 +26,21 @@ const useSetBankAccountMutation = () => {
                 behavior: "instant"
             });
 
-            queryClient.invalidateQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
+            queryClient.resetQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
+            if (payload.onClose) {
+                payload.onClose();
+            }
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";
             toast.error(errorMsg, {
-                id: "error_setBankAccount",
+                id: "error_externalBankAccount",
                 duration: 5000
             });
         }
-    });
+    })
 
-    return setBankAccountMutation;
+    return addExtertaBankAccountMutation;
 }
 
-export default useSetBankAccountMutation
+export default useAddExtertaBankAccountMutation

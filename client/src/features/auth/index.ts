@@ -8,7 +8,9 @@ import useCurrentUserQuery from "./hooks/useCurrentUserQuery";
 import useUserBankAccountsQuery from "./hooks/useUserBankAccountsQuery";
 import useRemoveExternalBankAccountMutation from "./hooks/useRemoveExternalBankAccountMutation";
 import useDeleteBankAccountMutation from "./hooks/useDeleteBankAccountMutation";
+import useSetBankAccountMutation from "./hooks/useSetBankAccountMutation";
 import { UserBankAccount, UserBankAccountsResponse } from "./services/getUserBankAccounts";
+import { SetBankAccountPayload, SetBankAccountResponse, ExternalAccountFormData } from "./services/setBankAccount";
 
 export {
     RegisterForm,
@@ -19,11 +21,15 @@ export {
     useCurrentUserQuery,
     useUserBankAccountsQuery,
     useRemoveExternalBankAccountMutation,
-    useDeleteBankAccountMutation
+    useDeleteBankAccountMutation,
+    useSetBankAccountMutation
 };
 
 export type {
     User,
     UserBankAccount,
-    UserBankAccountsResponse
+    UserBankAccountsResponse,
+    SetBankAccountPayload,
+    SetBankAccountResponse,
+    ExternalAccountFormData
 };

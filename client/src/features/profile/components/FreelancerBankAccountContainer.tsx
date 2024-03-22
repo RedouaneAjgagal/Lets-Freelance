@@ -1,10 +1,11 @@
 import Loading from "../../../components/Loading";
-import { useUserBankAccountsQuery } from "../../auth"
+import { useSetBankAccountMutation, useUserBankAccountsQuery } from "../../auth"
 import FreelancerBankAccountForm from "./FreelancerBankAccountForm";
 import FreelancerBankAccounts from "./FreelancerBankAccounts";
 
 
 const FreelancerBankAccountContainer = () => {
+    const setBankAccountMutation = useSetBankAccountMutation();
 
     const bankAccountsQuery = useUserBankAccountsQuery({
         fetchBankAccounts: true
@@ -16,7 +17,7 @@ const FreelancerBankAccountContainer = () => {
             : <div>
                 {bankAccountsQuery!.data?.bankAccounts.length ?
                     <FreelancerBankAccounts bankAccountDetails={bankAccountsQuery!.data} />
-                    : <FreelancerBankAccountForm externalAccountOnly={false} />
+                    : <FreelancerBankAccountForm externalAccountOnly={false} submit={setBankAccountMutation} />
                 }
             </div>
     )

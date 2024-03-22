@@ -16,6 +16,25 @@ const emptyValuesChecker = ({ allowedType, errorValue, value }: EmptyValuesCheck
     return error;
 }
 
+const isInvalidHolderType = (holderType: string | undefined) => {
+    const isEmpty = emptyValuesChecker({
+        value: holderType,
+        allowedType: "string",
+        errorValue: "Holder type"
+    });
+
+    if (isEmpty) {
+        return isEmpty;
+    }
+
+    const validHolderTypes = ["individual", "company"];
+    if (!validHolderTypes.includes(holderType!)) {
+        return "Invalid holder type";
+    };
+
+    return "";
+}
+
 const isInvalidFirstName = (firstName: string | undefined) => {
     return emptyValuesChecker({
         value: firstName,
@@ -70,6 +89,26 @@ const isInvalidDob = (dob: string | undefined) => {
     const now = new Date();
     if (date.getTime() > now.getTime()) {
         return "Invalid date of birth";
+    }
+
+    return "";
+}
+
+const isInvalidPhoneNumber = (phoneNumber: string | undefined) => {
+    const isEmpty = emptyValuesChecker({
+        value: phoneNumber,
+        allowedType: "string",
+        errorValue: "Phone number"
+    });
+
+    if (isEmpty) {
+        return isEmpty;
+    }
+
+    const validPhoneNumberRegex = /^\+\d{1,15}$/.test(`+${phoneNumber}`!);
+    
+    if (!validPhoneNumberRegex) {
+        return "Invalid phone number";
     }
 
     return "";
@@ -208,11 +247,13 @@ const isInvalidCurrency = (currency: string | undefined) => {
 }
 
 const BankAccountInputValidation = {
+    isInvalidHolderType,
     isInvalidAccountNumber,
     isInvalidCity,
     isInvalidCountry,
     isInvalidCurrency,
     isInvalidDob,
+    isInvalidPhoneNumber,
     isInvalidEmail,
     isInvalidFirstName,
     isInvalidFullName,

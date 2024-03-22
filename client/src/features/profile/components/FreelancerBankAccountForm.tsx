@@ -2,16 +2,28 @@ import { useState } from "react";
 import Input from "../../../components/Input"
 import { PrimaryButton } from "../../../layouts/brand";
 import bankAccountValidator from "../validators/bankAccountValidator";
+import { UseMutationResult } from "@tanstack/react-query";
+import { ExternalAccountFormData, SetBankAccountPayload, SetBankAccountResponse } from "../../auth";
+import { AxiosError } from "axios";
 
 type FreelancerBankAccountFormProps = {
-    externalAccountOnly: boolean;
+    externalAccountOnly: false;
+    submit: UseMutationResult<SetBankAccountResponse, AxiosError<{
+        msg: string;
+    }, any>, SetBankAccountPayload, unknown>;
 }
 
-const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAccountFormProps>) => {
+type FreelancerExternalBankAccountProps = {
+    externalAccountOnly: true;
+}
+
+const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAccountFormProps | FreelancerExternalBankAccountProps>) => {
     const initialInputErrorState = {
+        holderType: "",
         firstName: "",
         lastName: "",
         email: "",
+        phoneNumber: "",
         dob: "",
         country: "",
         city: "",
@@ -33,12 +45,16 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
     const setBankAccoountHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!props.externalAccountOnly && props.submit.isLoading) return;
+
         const formData = new FormData(e.currentTarget);
 
         const data = {
+            holdetType: formData.get("generalInfo_holderType")?.toString(),
             firstName: formData.get("generalInfo_firstName")?.toString(),
             lastName: formData.get("generalInfo_lastName")?.toString(),
             email: formData.get("generalInfo_email")?.toString(),
+            phoneNumber: formData.get("generalInfo_phoneNumber")?.toString(),
             dob: formData.get("generalInfo_dob")?.toString(),
             country: formData.get("generalInfo_country")?.toString(),
             city: formData.get("generalInfo_city")?.toString(),
@@ -53,6 +69,7 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
             currency: formData.get("bankInfo_currency")?.toString(),
         }
 
+
         const invalidInputs = bankAccountValidator({
             externalAccountOnly: props.externalAccountOnly,
             formData: data
@@ -66,12 +83,67 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
         }
 
         console.log("Submit");
+
+        const externalBankAccountData: ExternalAccountFormData = {
+            accountNumber: data.accountNumber!,
+            accountHolderName: data.fullName!,
+            currency: data.currency!,
+            accountCountry: data.bankCountry!,
+            accountHolderType: data.holdetType! as "individual" | "company"
+        }
+
+        if (!props.externalAccountOnly) {
+            const [yyyy, mm, dd] = data.dob!.split("-");
+            
+            const bankAccountData: SetBankAccountPayload = {
+                firstName: data.firstName!,
+                lastName: data.lastName!,
+                email: data.email!,
+                dob: {
+                    day: Number(dd),
+                    month: Number(mm),
+                    year: Number(yyyy)
+                },
+                phoneNumber: `+${data.phoneNumber!}`,
+                address: {
+                    country: data.country!,
+                    city: data.city!,
+                    postal_code: data.postalCode!,
+                    line1: data.line1!
+                },
+                ...externalBankAccountData
+            }
+
+            if (data.routingNumber) {
+                bankAccountData.routingNumber = data.routingNumber;
+            }
+
+            if (data.state) {
+                bankAccountData.address.state = data.state;
+            }
+
+            if (data.line2) {
+                bankAccountData.address.line2 = data.line2;
+            }
+
+            props.submit.mutate(bankAccountData);
+        }
     }
 
     return (
         <form onSubmit={setBankAccoountHandler} className="flex flex-col gap-8 bg-slate-200/50 px-3 py-4 rounded" noValidate>
             <div className="flex flex-col gap-4">
                 <h2 className="font-medium text-xl text-slate-800">General:</h2>
+                <div className="flex gap-4">
+                    <div className="flex items-center gap-2">
+                        <input type="radio" name="generalInfo_holderType" id="generalInfo_holderType_individual" className="accent-purple-600" defaultChecked value="individual" />
+                        <label htmlFor="generalInfo_holderType_individual" className="text-lg font-medium">Individual</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <input type="radio" name="generalInfo_holderType" id="generalInfo_holderType_company" className="accent-purple-600" value="company" />
+                        <label htmlFor="generalInfo_holderType_company" className="text-lg font-medium">Company</label>
+                    </div>
+                </div>
                 <div>
                     <div className="flex gap-4">
                         <Input errorMsg="" id="generalInfo_firstName" name="generalInfo_firstName" includeLabel isError={inputsErros.firstName !== ""} labelContent="First name*" type="text" />
@@ -79,6 +151,7 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
                     </div>
                     <Input errorMsg={inputsErros.email} id="generalInfo_email" name="generalInfo_email" includeLabel isError={inputsErros.email !== ""} labelContent="Email*" type="email" />
                     <Input errorMsg={inputsErros.dob} id="generalInfo_dob" name="generalInfo_dob" includeLabel isError={inputsErros.dob !== ""} labelContent="Date of birth*" type="date" max={date} />
+                    <Input errorMsg={inputsErros.phoneNumber} id="generalInfo_phoneNumber" name="generalInfo_phoneNumber" includeLabel isError={inputsErros.phoneNumber !== ""} labelContent="Phone number*" type="number" placeHolder="+1" />
                 </div>
             </div>
             <div className="flex flex-col gap-4">
@@ -109,7 +182,7 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
                 </div>
             </div>
             <div>
-                <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md" isLoading={false}>Submit Bank Account</PrimaryButton>
+                <PrimaryButton disabled={!props.externalAccountOnly && props.submit.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md" isLoading={!props.externalAccountOnly && props.submit.isLoading}>Submit Bank Account</PrimaryButton>
             </div>
         </form>
     )

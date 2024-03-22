@@ -1,10 +1,12 @@
 import BankAccountInputValidation from "./bankAccountInputValidations";
 
 type BankAccountFormData = {
+    holdetType: string | undefined;
     firstName: string | undefined;
     lastName: string | undefined;
     email: string | undefined;
     dob: string | undefined;
+    phoneNumber: string | undefined;
     country: string | undefined;
     city: string | undefined;
     state: string | undefined;
@@ -36,9 +38,11 @@ type ExternalBankAccountValidator = {
 
 const bankAccountValidator = (payload: (BankAccountValidator | ExternalBankAccountValidator)) => {
     const inputErrors = {
+        holderType: "",
         firstName: "",
         lastName: "",
         email: "",
+        phoneNumber: "",
         dob: "",
         country: "",
         city: "",
@@ -54,6 +58,11 @@ const bankAccountValidator = (payload: (BankAccountValidator | ExternalBankAccou
     };
 
     if (!payload.externalAccountOnly) {
+        const invalidHolderType = BankAccountInputValidation.isInvalidHolderType(payload.formData.holdetType);
+        if (invalidHolderType) {
+            inputErrors.holderType = invalidHolderType;
+        }
+
         const invalidFirstName = BankAccountInputValidation.isInvalidFirstName(payload.formData.firstName);
         if (invalidFirstName) {
             inputErrors.firstName = invalidFirstName;
@@ -72,6 +81,11 @@ const bankAccountValidator = (payload: (BankAccountValidator | ExternalBankAccou
         const invalidDob = BankAccountInputValidation.isInvalidDob(payload.formData.dob);
         if (invalidDob) {
             inputErrors.dob = invalidDob;
+        }
+
+        const invalidPhoneNumber = BankAccountInputValidation.isInvalidPhoneNumber(payload.formData.phoneNumber);
+        if (invalidPhoneNumber) {
+            inputErrors.phoneNumber = invalidPhoneNumber;
         }
 
         const invalidCountry = BankAccountInputValidation.isInvalidCountry(payload.formData.country);

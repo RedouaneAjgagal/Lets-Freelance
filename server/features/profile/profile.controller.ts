@@ -136,15 +136,6 @@ const updateProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new UnauthenticatedError("Cannot find any profile");
     }
 
-
-    // switch roles between freelancer and employer
-    const isSwitichingRole: { userAs: IProfile["userAs"] } | undefined = req.body.switchRole;
-    if (isSwitichingRole && isSwitichingRole.userAs && (isSwitichingRole.userAs === "employer" || isSwitichingRole.userAs === "freelancer")) {
-        await profile.updateOne({ userAs: isSwitichingRole.userAs });
-        return res.status(StatusCodes.OK).json({ msg: `Profile now is ${isSwitichingRole.userAs}` });
-    }
-
-
     // get the correct updated profile info
     const updatedProfileInfo = getUpdatedProfileInfo({
         newProfileInfo: req.body.profileInfo || {},

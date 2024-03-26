@@ -1,40 +1,15 @@
-import { BiArrowBack } from "react-icons/bi";
-import { PrimaryButton } from "../../../layouts/brand";
-import SelectInputContainer from "./SelectInputContainer";
 import { useState } from "react";
 import useOverflow from "../../../hooks/useOverflow";
 import ActionModal from "../../../layouts/ActionModal";
 import EditSection from "./EditSection";
 import useDeleteAccountMutation from "../hooks/useDeleteAccountMutation";
-import useSwitchProfileMutation from "../hooks/useSwitchProfileMutation";
 import FreelancerBankAccountContainer from "./FreelancerBankAccountContainer";
 import { useAppSelector } from "../../../hooks/redux";
 
-
-interface Props {
-    role: "freelancer" | "employer";
-}
-
-const AccountForm = (props: React.PropsWithoutRef<Props>) => {
+const AccountForm = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
-
     const deleteAccountMutation = useDeleteAccountMutation();
-    const switchProfileMutation = useSwitchProfileMutation();
     const [isDeleteModel, setIsDeleteModel] = useState(false);
-    const [switchedRole, setSwitchedRole] = useState<"freelancer" | "employer">(props.role);
-
-    const switchProfileHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedRole = e.currentTarget.value.toLowerCase() as "freelancer" | "employer";
-        setSwitchedRole(selectedRole);
-    }
-
-    const updateAccountHandler = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (!switchedRole || (switchedRole !== "freelancer" && switchedRole !== "employer")) {
-            return;
-        }
-        switchProfileMutation.mutate(switchedRole);
-    }
 
 
     const openDeleteModel = () => {
@@ -53,12 +28,6 @@ const AccountForm = (props: React.PropsWithoutRef<Props>) => {
 
     return (
         <div className="flex flex-col gap-12 mb-4">
-            <EditSection title="Account Settings" titleColor="black" bgTransparent withoutPadding>
-                <form onSubmit={updateAccountHandler} className="flex flex-col gap-3">
-                    <SelectInputContainer onChange={switchProfileHandler} label="Switch Profile" name="switchProfile" options={["Freelancer", "Employer"]} value={switchedRole} isError={false} error="" />
-                    <PrimaryButton style="solid" disabled={switchProfileMutation.isLoading} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Update Account <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
-                </form>
-            </EditSection>
             {userInfo?.userAs === "freelancer" ?
                 <EditSection title="Bank Accounts" titleColor="black" bgTransparent withoutPadding>
                     <FreelancerBankAccountContainer />

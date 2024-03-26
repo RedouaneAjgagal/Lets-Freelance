@@ -16,7 +16,7 @@ const Settings = () => {
         <Loading />
         :
         isAccountSettings ?
-          <AccountForm role={profileInfoQuery.data!.data.userAs} />
+          <AccountForm />
           :
           <PublicProfileForm profileInfo={profileInfoQuery.data!.data} />
       }

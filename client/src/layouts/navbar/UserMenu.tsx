@@ -1,5 +1,5 @@
 import { User, useLogoutMutation } from "../../features/auth";
-import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare } from "react-icons/tb";
+import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare, TbAd } from "react-icons/tb";
 import { LuFileSignature } from "react-icons/lu";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -101,6 +101,12 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
             icon: TbSquareRoundedPlus,
             to: "/profile/freelancer/service/create",
             sort: 7
+        },
+        {
+            value: "Advertisements",
+            icon: TbAd,
+            to: "/profile/freelancer/advertisements",
+            sort: 11
         },
     ];
 

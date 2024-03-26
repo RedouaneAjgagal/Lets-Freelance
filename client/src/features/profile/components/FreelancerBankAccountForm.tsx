@@ -6,7 +6,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 import { AddExternalBankAccountPayload, AddExternalBankAccountResponse, ExternalAccountFormData, SetBankAccountPayload, SetBankAccountResponse } from "../../auth";
 import { AxiosError } from "axios";
 import { BsArrowDown } from "react-icons/bs";
-import QuickAccessBankAccount from "./quickAccessBankAccount";
+import QuickAccessBankAccount from "./QuickAccessBankAccount";
 
 type FreelancerBankAccountFormProps = {
     externalAccountOnly: false;

@@ -5,6 +5,8 @@ import bankAccountValidator from "../validators/bankAccountValidator";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AddExternalBankAccountPayload, AddExternalBankAccountResponse, ExternalAccountFormData, SetBankAccountPayload, SetBankAccountResponse } from "../../auth";
 import { AxiosError } from "axios";
+import { BsArrowDown } from "react-icons/bs";
+import QuickAccessBankAccount from "./quickAccessBankAccount";
 
 type FreelancerBankAccountFormProps = {
     externalAccountOnly: false;
@@ -22,6 +24,8 @@ type FreelancerExternalBankAccountProps = {
 }
 
 const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAccountFormProps | FreelancerExternalBankAccountProps>) => {
+    const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
+
     const initialInputErrorState = {
         holderType: "",
         firstName: "",
@@ -97,12 +101,10 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
             externalBankAccountData.routingNumber = data.routingNumber;
         }
 
-
         if (props.externalAccountOnly) {
             props.submit.mutate(externalBankAccountData);
             return;
         }
-
 
         const [yyyy, mm, dd] = data.dob!.split("-");
 
@@ -138,6 +140,16 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
 
     return (
         <form onSubmit={setBankAccoountHandler} className="flex flex-col gap-8 bg-slate-200/50 px-3 py-4 rounded" noValidate>
+            <div className="flex flex-col gap-4">
+                <button onClick={() => setIsQuickAccessOpen(prev => !prev)} type="button" className="text-slate-700 font-medium flex items-center gap-1 self-start border-b-2 border-slate-500">Quick Access
+                    <BsArrowDown className={`stroke-1 text-slate-500 transition-all duration-300 ${isQuickAccessOpen ? "-rotate-180" : "rotate-0"}`} />
+                </button>
+                {
+                    isQuickAccessOpen ?
+                        <QuickAccessBankAccount externalAccountOnly={props.externalAccountOnly} onClose={props.externalAccountOnly ? props.onClose : undefined} />
+                        : null
+                }
+            </div>
             {props.externalAccountOnly ?
                 null
                 : <>

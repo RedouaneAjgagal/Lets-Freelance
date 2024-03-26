@@ -17,12 +17,16 @@ const useSetBankAccountMutation = () => {
                 duration: 3000
             });
 
+            queryClient.invalidateQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
+
+            if (data.addExtraInfoUrl) {
+                window.open(data.addExtraInfoUrl, "_blank", "noopener noreferrer");
+            }
+
             window.scrollTo({
                 top: 0,
                 behavior: "instant"
             });
-
-            queryClient.invalidateQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";

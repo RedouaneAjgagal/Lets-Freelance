@@ -21,12 +21,13 @@ const useAddExtertaBankAccountMutation = (payload: UseAddExtertaBankAccountMutat
                 duration: 3000
             });
 
+            queryClient.invalidateQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
+
             window.scrollTo({
                 top: 0,
                 behavior: "instant"
             });
 
-            queryClient.resetQueries({ queryKey: ["bankAccounts", userInfo!.profileId] });
             if (payload.onClose) {
                 payload.onClose();
             }

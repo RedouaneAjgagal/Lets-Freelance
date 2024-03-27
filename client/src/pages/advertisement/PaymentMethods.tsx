@@ -14,7 +14,7 @@ const PaymentMethods = () => {
                 getPaymentMethodsQuery.isLoading ?
                     <Loading />
                     : getPaymentMethodsQuery.data!.length ?
-                        <PaymentMethodsContainer />
+                        <PaymentMethodsContainer paymentMethods={getPaymentMethodsQuery.data!} />
                         : <div className="flex flex-col gap-2">
                             <p className="text-slate-600">You don't have any payment methods yet</p>
                             <Link className="flex justify-center border-2 border-slate-600 font-semibold py-1 rounded bg-amber-500" to={"/"}>ADD NEW ONE</Link>

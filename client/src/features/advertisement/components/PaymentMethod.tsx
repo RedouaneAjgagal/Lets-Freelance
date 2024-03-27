@@ -1,4 +1,5 @@
 import toUpperCase from "../../../utils/toUpperCase";
+import useDeletePaymentMethodMutation from "../hooks/useDeletePaymentMethodMutation";
 import { PaymentMethodType } from "../services/getPaymentMethods";
 
 
@@ -7,9 +8,21 @@ type PaymentMethodProps = {
 }
 
 const PaymentMethod = (props: React.PropsWithoutRef<PaymentMethodProps>) => {
+    const deletePaymentMethodMutation = useDeletePaymentMethodMutation({
+        paymentMethodId: props.paymentMethod.id
+    });
+
     const brandName = toUpperCase({
         value: props.paymentMethod.brand
     });
+
+    const deletePaymentMethodHandler = () => {
+        if (deletePaymentMethodMutation.isLoading) return;
+
+        deletePaymentMethodMutation.mutate({
+            paymentMethodId: props.paymentMethod.id
+        });
+    }
 
     return (
         <div className="border border-slate-300 rounded py-3 px-4 bg-slate-100 shadow-sm flex flex-col gap-1">
@@ -20,8 +33,8 @@ const PaymentMethod = (props: React.PropsWithoutRef<PaymentMethodProps>) => {
                         •••
                     </button>
                     <div className="group-focus-within:visible group-focus-within:top-8 group-focus-within:opacity-100 opacity-0 invisible top-4 absolute right-0 z-10 bg-white min-w-[8rem] rounded border shadow-lg font-medium transition-all duration-200">
-                        <button className="py-1 px-2 w-full text-left text-red-600">
-                            Delete
+                        <button onClick={deletePaymentMethodHandler} className="py-1 px-2 w-full text-left text-red-600">
+                            {deletePaymentMethodMutation.isLoading ? "Deleting.." : "Delete"}
                         </button>
                     </div>
                 </div>

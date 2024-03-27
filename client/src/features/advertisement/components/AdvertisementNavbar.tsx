@@ -13,7 +13,7 @@ const AdvertisementNavbar = () => {
                     </button>
                     <div className="transition-all duration-500 opacity-0 -translate-y-4 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 pt-1 absolute left-0 top-8">
                         <ul className=" bg-white p-3 min-w-[15rem] border rounded shadow-lg text-base">
-                            <li className="flex"><Link to={`/`} className="border-b py-2 w-full">My payment methods</Link></li>
+                            <li className="flex"><Link to={`/profile/freelancer/advertisements/payment-methods`} className="border-b py-2 w-full">My payment methods</Link></li>
                             <li className="flex"><Link to={`/`} className="py-2 w-full">Add a payment method</Link></li>
                         </ul>
                     </div>

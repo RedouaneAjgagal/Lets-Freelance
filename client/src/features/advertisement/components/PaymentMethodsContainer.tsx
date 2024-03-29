@@ -16,7 +16,7 @@ const PaymentMethodsContainer = (props: React.PropsWithoutRef<PaymentMethodsCont
           </li>
         ))}
       </ul>
-      <Link className="flex justify-center border-2 border-slate-600 font-semibold py-1 rounded bg-amber-500" to={"/"}>ADD NEW ONE</Link>
+      <Link className="flex justify-center border-2 border-slate-600 font-semibold py-1 rounded bg-amber-500" to={"/profile/freelancer/advertisements/payment-methods/create"}>ADD NEW ONE</Link>
     </section>
   )
 }

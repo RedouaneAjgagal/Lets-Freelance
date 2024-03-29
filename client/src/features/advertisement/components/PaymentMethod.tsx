@@ -25,7 +25,7 @@ const PaymentMethod = (props: React.PropsWithoutRef<PaymentMethodProps>) => {
     }
 
     return (
-        <div className="border border-slate-300 rounded py-3 px-4 bg-slate-100 shadow-sm flex flex-col gap-1">
+        <div className="border border-slate-300 rounded py-3 px-4 bg-slate-50 shadow-sm flex flex-col gap-1">
             <div className="flex items-center justify-between">
                 <span className="text-slate-600">{brandName}</span>
                 <div className="relative group">

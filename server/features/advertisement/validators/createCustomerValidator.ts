@@ -4,7 +4,7 @@ import { isInvalidCardToken, isInvalidEmail, isInvalidPaymentMethodName } from "
 type CreateCustomerValidator = {
     name: any;
     email: any;
-    cardToken: any;
+    // cardToken: any;
 }
 
 const createCustomerValidator = (input: CreateCustomerValidator) => {
@@ -18,10 +18,10 @@ const createCustomerValidator = (input: CreateCustomerValidator) => {
         throw new BadRequestError(invalidName);
     }
 
-    const invalidCardToken = isInvalidCardToken(input.cardToken);
-    if (invalidCardToken) {
-        throw new BadRequestError(invalidCardToken);
-    }
+    // const invalidCardToken = isInvalidCardToken(input.cardToken);
+    // if (invalidCardToken) {
+    //     throw new BadRequestError(invalidCardToken);
+    // }
 }
 
 export default createCustomerValidator;

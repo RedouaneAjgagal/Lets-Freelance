@@ -11,101 +11,124 @@ import { createPaymentMethodAndAttachToCustomer } from "../../stripe/createPayme
 import "./payments/invoicesSchedule";
 
 
-
-//@desc set payment methods info for advertisements
-//@route POST /api/v1/advertisements/payment-methods
+//@desc set new payment method using stripe setup intent (need client_secret for the clientSide)
+//@route POST /api/v1/advertisements/intent
 //@access authentication (freelancers only)
-const createPaymentMethods: RequestHandler = async (req: CustomAuthRequest, res) => {
-    const { cardToken, name, email } = req.body;
-
+const createStripeSetupIntent: RequestHandler = async (req: CustomAuthRequest, res) => {
     // find user
-    const user = await User.findById(req.user!.userId);
-    const profile = await Profile.findOne({ user: user?._id });
-    if (!user || !profile) {
+    const user = await User.findById(req.user!.userId).populate({ path: "profile", select: "userAs roles name" });
+    if (!user) {
         throw new UnauthenticatedError("Found no user");
     }
 
+    // check if the user is a freelancer
+    if (user.profile?.userAs !== "freelancer") {
+        throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
+    }
+
+    // make the current freelancer a customer if not already is
+    if (!user.stripe.customer_id) {
+        const customer = await stripe.customers.create({
+            name: user.profile.name,
+            email: user.email,
+            metadata: {
+                freelancer_user_id: user._id.toString()
+            }
+        });
+
+        user.stripe.customer_id = customer.id;
+        await user.save();
+    }
+
+    // get stripe client secret to confirm payment method on the client side
+    const { client_secret } = await stripe.setupIntents.create({
+        customer: user.stripe.customer_id,
+        automatic_payment_methods: {
+            enabled: true,
+            allow_redirects: "never"
+        }
+    });
+
+    // add unpaidIncoices boolean, if true make another request on the client to try and pay the invoices 
+    const hasUnpaidInvoices = user.profile.roles!.freelancer!.advertisement.unpaidInvoices.length > 0;
+
+    res.status(StatusCodes.OK).json({ client_secret, hasUnpaidInvoices });
+}
+
+
+//@desc set paymentMethod to default and pay unpaidInvoices if any exist
+//@route POST /api/v1/advertisements/payment-methods
+//@access authentication (freelancers only)
+const payUnpaidInvoicesAfterNewPaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { paymentMethodId } = req.body;
+
+    // find user
+    const profile = await Profile.findOne({ user: req.user!.userId }).populate({ path: "user", select: "stripe" });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    }
 
     // check if the user is a freelancer
     if (profile.userAs !== "freelancer") {
         throw new UnauthorizedError("You dont have access to create payment methods. Freelancers only");
     }
 
-    // check if valid values
-    createCustomerValidator({ cardToken, name, email });
-
-    const customerDetails = {
-        userId: user._id.toString(),
-        cardToken,
-        email,
-        name
+    // check if the freelancer is already a customer
+    if (!profile.user.stripe!.customer_id) {
+        throw new BadRequestError("Invalid customer");
     }
 
-    // if the freelancer already is a customer then create another payment method for the same customer
-    if (user.stripe.customer_id) {
-        const paymentMethod = await createPaymentMethodAndAttachToCustomer({ ...customerDetails, customerId: user.stripe.customer_id });
+    // set the new payment method to default payment
+    await stripe.customers.update(profile.user.stripe!.customer_id, {
+        invoice_settings: {
+            default_payment_method: paymentMethodId
+        }
+    });
 
-        // make the new payment method as default payment
-        await stripe.customers.update(user.stripe.customer_id, {
-            invoice_settings: {
-                default_payment_method: paymentMethod.id,
-            },
-        });
+    // check if there is unpaid invoices
+    if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
+        // pay all invoices
+        for (const unpaidInvoice of profile.roles.freelancer!.advertisement.unpaidInvoices) {
+            try {
+                const invoice = await stripe.invoices.pay(unpaidInvoice);
 
-        // check if there is unpaid invoices
-        if (profile.roles.freelancer!.advertisement.unpaidInvoices.length) {
-            // pay all invoices
-            for (const unpaidInvoice of profile.roles.freelancer!.advertisement.unpaidInvoices) {
-                try {
-                    const invoice = await stripe.invoices.pay(unpaidInvoice);
-
-                    // if the invoice has been paid successful then remove the unpaid invoice id from the unpaid invoices array
-                    if (invoice.status === "paid") {
-                        profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(unpaidInvoice => unpaidInvoice !== invoice.id);
-                        profile.save();
-                    }
-                } catch (error: any) {
-                    // check if the freelancer tried until the invoice is no longer payable
-                    if (error.message.startsWith("This invoice can no longer be paid")) {
-                        // create a new invoice based on the unpayable invoice
-                        const clonedInvoice = await stripe.invoices.create({
-                            from_invoice: {
-                                action: "revision",
-                                invoice: unpaidInvoice
-                            }
-                        });
-
-                        // push the new invoice as unpaid invoice
-                        profile.roles.freelancer!.advertisement.unpaidInvoices.push(clonedInvoice.id);
-
-                        // remove the unpayable invoice from freelancer's unpaid invoices to avoid the duplication
-                        profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(freelancerUnpaidInvoice => freelancerUnpaidInvoice !== unpaidInvoice);
-                        await profile.save();
-
-                        try {
-                            await stripe.invoices.pay(clonedInvoice.id);
-                            return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
-                        } catch (error: any) {
-                            console.log(`Invoice pay error when attaching new payment method after making a new invoice clone: ${error.message}`);
-                            throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
-                        }
-                    }
-
-                    console.log(`Invoice pay error when attaching new payment method: ${error.message}`);
-                    throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
+                // if the invoice has been paid successful then remove the unpaid invoice id from the unpaid invoices array
+                if (invoice.status === "paid") {
+                    profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(unpaidInvoice => unpaidInvoice !== invoice.id);
+                    profile.save();
                 }
+            } catch (error: any) {
+                // check if the freelancer tried until the invoice is no longer payable
+                if (error.message.startsWith("This invoice can no longer be paid")) {
+                    // create a new invoice based on the unpayable invoice
+                    const clonedInvoice = await stripe.invoices.create({
+                        from_invoice: {
+                            action: "revision",
+                            invoice: unpaidInvoice
+                        }
+                    });
+
+                    // push the new invoice as unpaid invoice
+                    profile.roles.freelancer!.advertisement.unpaidInvoices.push(clonedInvoice.id);
+
+                    // remove the unpayable invoice from freelancer's unpaid invoices to avoid the duplication
+                    profile.roles.freelancer!.advertisement.unpaidInvoices = profile.roles.freelancer!.advertisement.unpaidInvoices.filter(freelancerUnpaidInvoice => freelancerUnpaidInvoice !== unpaidInvoice);
+                    await profile.save();
+
+                    try {
+                        await stripe.invoices.pay(clonedInvoice.id);
+                        return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
+                    } catch (error: any) {
+                        console.log(`Invoice pay error when attaching new payment method after making a new invoice clone: ${error.message}`);
+                        throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
+                    }
+                }
+
+                console.log(`Invoice pay error when attaching new payment method: ${error.message}`);
+                throw new BadRequestError(`Unable to pay unpaid invoices after setting the new payment method`);
             }
         }
-
-        return res.status(StatusCodes.CREATED).json({ msg: "New payment method has been added successfully" });
     }
-
-    // create new customer
-    const customer = await createCustomer(customerDetails);
-
-    // set customer ID to the user
-    user.stripe.customer_id = customer.id;
-    await user.save();
 
     res.status(StatusCodes.CREATED).json({ msg: "Payment method has been added successfully" });
 }
@@ -210,7 +233,8 @@ const deletePaymentMethod: RequestHandler = async (req: CustomAuthRequest, res) 
 }
 
 export {
-    createPaymentMethods,
+    createStripeSetupIntent,
+    payUnpaidInvoicesAfterNewPaymentMethod,
     getPaymentMethods,
     deletePaymentMethod
 }

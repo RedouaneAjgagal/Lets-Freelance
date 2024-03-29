@@ -2,7 +2,7 @@ import { Router } from "express";
 import authentication from "../../middlewares/authentication";
 import { createAd, deleteAd, displayAds, updateAd } from "./advertisement.ads.controller";
 import { createCampaign, deleteCampaign, getCampaignDetails, getCampaigns, updateCampaign } from "./advertisement.campaigns.controller";
-import { createPaymentMethods, deletePaymentMethod, getPaymentMethods } from "./advertisement.payments.controller";
+import { payUnpaidInvoicesAfterNewPaymentMethod, createStripeSetupIntent, deletePaymentMethod, getPaymentMethods } from "./advertisement.payments.controller";
 import { trackAdClickAction, trackAdEngagement, trackAdOrderAction } from "./advertisement.performaces.controller";
 import authorization from "../../middlewares/authorization";
 import campaignControllers from "../dashboard/advertisements/campaign.controller";
@@ -12,8 +12,11 @@ import adControllers from "../dashboard/advertisements/ads.controller";
 const router = Router();
 
 router.route("/payment-methods")
-    .post(authentication, createPaymentMethods)
+    .post(authentication, payUnpaidInvoicesAfterNewPaymentMethod)
     .get(authentication, getPaymentMethods);
+
+router.route("/payment-methods/intent")
+    .post(authentication, createStripeSetupIntent);
 
 router.route("/payment-methods/:paymentMethodId")
     .delete(authentication, deletePaymentMethod);

@@ -10,12 +10,12 @@ const Campaigns = () => {
             <div className="mt-6">
                 <AdvertisementNavbar />
             </div>
-            <h1 className="text-3xl font-semibold p-4">My Campaigns</h1>
-            <div className="p-4 pt-0">
+            <h1 className="text-3xl font-semibold p-4 mt-2">My Campaigns</h1>
+            <div className="p-4">
                 {getCampaignsQuery.isLoading ?
                     <Loading />
                     : getCampaignsQuery.data?.length ?
-                        <CampaignsContainer />
+                        <CampaignsContainer campaigns={getCampaignsQuery.data!} />
                         : <div className="flex flex-col gap-2">
                             <p className="text-slate-600">Empty.. You havn't created any campaings yet</p>
                             <AdverisementPrimaryLink to="/">CREATE NEW CAMPAIGN</AdverisementPrimaryLink>

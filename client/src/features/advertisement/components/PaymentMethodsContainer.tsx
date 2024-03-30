@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { GetPaymentMethodsResponse } from "../services/getPaymentMethods"
 import PaymentMethod from "./PaymentMethod";
 import AdverisementPrimaryLink from "./AdverisementPrimaryLink";

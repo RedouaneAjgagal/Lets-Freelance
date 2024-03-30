@@ -2,7 +2,6 @@ import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { clientURL } from '../../../config/baseURL';
 import useCreatePaymentMethodMutation from '../hooks/useCreatePaymentMethodMutation';
 import useDefaultPaymentAndPayUnpaidInvoicesMutation from '../hooks/useDefaultPaymentAndPayUnpaidInvoicesMutation';
-import { TbLoader } from "react-icons/tb";
 import { useEffect, useState } from 'react';
 import { AdverisementPrimaryButton } from '..';
 

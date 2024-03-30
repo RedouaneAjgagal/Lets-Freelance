@@ -4,6 +4,7 @@ import CampaignsContainer from "./components/CampaignsContainer";
 import PaymentMethodsContainer from "./components/PaymentMethodsContainer";
 import useGetCampaignsQuery from "./hooks/useGetCampaignsQuery";
 import useGetPaymentMethodsQuery from "./hooks/useGetPaymentMethodsQuery";
+import useGetSingleCampaignQuery from "./hooks/useGetSingleCampaignQuery";
 
 export {
     AdvertisementNavbar,
@@ -11,5 +12,6 @@ export {
     useGetPaymentMethodsQuery,
     CampaignsContainer,
     useGetCampaignsQuery,
-    AdverisementPrimaryButton
+    AdverisementPrimaryButton,
+    useGetSingleCampaignQuery
 }

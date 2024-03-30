@@ -1,10 +1,8 @@
-import { Link } from "react-router-dom"
 import { AdvertisementNavbar, PaymentMethodsContainer, useGetPaymentMethodsQuery } from "../../features/advertisement"
 import Loading from "../../components/Loading";
-
+import AdverisementPrimaryLink from "../../features/advertisement/components/AdverisementPrimaryLink";
 
 const PaymentMethods = () => {
-
     const getPaymentMethodsQuery = useGetPaymentMethodsQuery();
 
     return (
@@ -21,7 +19,9 @@ const PaymentMethods = () => {
                             <PaymentMethodsContainer paymentMethods={getPaymentMethodsQuery.data!} />
                             : <div className="flex flex-col gap-2">
                                 <p className="text-slate-600">You don't have any payment methods yet</p>
-                                <Link className="flex justify-center border-2 border-slate-600 font-semibold py-1 rounded bg-amber-500" to={"/profile/freelancer/advertisements/payment-methods/create"}>ADD NEW ONE</Link>
+                                <AdverisementPrimaryLink to="/profile/freelancer/advertisements/payment-methods/create" fullWidth>
+                                    ADD NEW ONE
+                                </AdverisementPrimaryLink>
                             </div>
                 }
             </div>

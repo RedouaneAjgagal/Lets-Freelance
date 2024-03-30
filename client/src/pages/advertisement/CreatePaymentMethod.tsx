@@ -7,7 +7,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISH_KEY);
 
 const CreatePaymentMethod = () => {
     return (
-        <main className="flex flex-col">
+        <main className="bg-slate-200/70 flex flex-col">
             <div className="mt-6">
                 <AdvertisementNavbar />
             </div>

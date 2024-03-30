@@ -4,6 +4,7 @@ import useCreatePaymentMethodMutation from '../hooks/useCreatePaymentMethodMutat
 import useDefaultPaymentAndPayUnpaidInvoicesMutation from '../hooks/useDefaultPaymentAndPayUnpaidInvoicesMutation';
 import { TbLoader } from "react-icons/tb";
 import { useEffect, useState } from 'react';
+import { AdverisementPrimaryButton } from '..';
 
 const PaymentMethodForm = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -55,22 +56,12 @@ const PaymentMethodForm = () => {
         }
     }, [createPaymentMethodMutation.isLoading, defaultPaymentAndPayUnpaidInvoicesMutation.isSuccess, defaultPaymentAndPayUnpaidInvoicesMutation.isError]);
 
-    // const isLoading = createPaymentMethodMutation.isLoading || defaultPaymentAndPayUnpaidInvoicesMutation.isLoading;
-
     return (
         <form onSubmit={createPaymentMethodHandler} className='flex flex-col gap-4'>
             <PaymentElement />
-            <button disabled={isLoading} className="flex justify-center items-center border-2 border-slate-600 font-semibold h-10 rounded bg-amber-500 relative">
-                {isLoading ?
-                    <>
-                        <span className="invisible absolute">
-                            ADD PAYMENT METHOD
-                        </span>
-                        <TbLoader size={24} className="animate-spin" />
-                    </>
-                    : "ADD PAYMENT METHOD"
-                }
-            </button>
+            <AdverisementPrimaryButton type="submit" fullWidth isLoading={isLoading}>
+                ADD PAYMENT METHOD
+            </AdverisementPrimaryButton>
         </form>
     )
 }

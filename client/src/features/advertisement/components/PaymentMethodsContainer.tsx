@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { GetPaymentMethodsResponse } from "../services/getPaymentMethods"
 import PaymentMethod from "./PaymentMethod";
+import AdverisementPrimaryLink from "./AdverisementPrimaryLink";
 
 type PaymentMethodsContainerProps = {
   paymentMethods: GetPaymentMethodsResponse;
@@ -16,7 +17,9 @@ const PaymentMethodsContainer = (props: React.PropsWithoutRef<PaymentMethodsCont
           </li>
         ))}
       </ul>
-      <Link className="flex justify-center border-2 border-slate-600 font-semibold py-1 rounded bg-amber-500" to={"/profile/freelancer/advertisements/payment-methods/create"}>ADD NEW ONE</Link>
+      <AdverisementPrimaryLink to="/profile/freelancer/advertisements/payment-methods/create" fullWidth>
+        ADD NEW ONE
+      </AdverisementPrimaryLink>
     </section>
   )
 }

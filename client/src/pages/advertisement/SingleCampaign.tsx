@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { AdvertisementNavbar, useGetSingleCampaignQuery } from "../../features/advertisement"
+import { AdvertisementNavbar, SingleCampaignContainer, useGetSingleCampaignQuery } from "../../features/advertisement"
 import Loading from "../../components/Loading";
 
 
@@ -18,7 +18,7 @@ const SingleCampaign = () => {
             <div className="p-4">
                 {getSingleCampaign.isLoading ?
                     <Loading />
-                    : <h2>{getSingleCampaign.data?.name}</h2>
+                    : <SingleCampaignContainer campaign={getSingleCampaign.data!} />
                 }
             </div>
         </main>

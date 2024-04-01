@@ -18,6 +18,8 @@ type SingleCampaignTableProps = {
 const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTableProps>) => {
     const tableHeads = ["Ad ID", "Status", "Event", "Bid amount", "Ctr", "Cr", "Cpc", "Impressions", "Clicks", "Orders", "Spend", "Actions"];
 
+    const ads = props.ads.sort((a, b) => a.ad.localeCompare(b.ad));
+
     return (
         <div className="overflow-x-scroll">
             <table className="border-separate border border-slate-500">
@@ -29,7 +31,7 @@ const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTablePro
                     </tr>
                 </thead>
                 <tbody className="text-left">
-                    {props.ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} />)}
+                    {ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} />)}
                 </tbody>
                 <tfoot className="font-medium">
                     <tr>

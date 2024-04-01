@@ -6,8 +6,7 @@ type CampaignsContainerProps = {
 }
 
 const CampaignsContainer = (props: React.PropsWithoutRef<CampaignsContainerProps>) => {
-
-    const tableHeads = ["Campaign name", "Status", "Budget", "Budget type", "Clicks", "Impressions", "Orders", "Ctr", "Cr", "Cpc", "Spend", "Active ads", "Starting date", "Ending date"];
+    const tableHeads = ["Campaign name", "Status", "Budget", "Budget type", "Ctr", "Cr", "Cpc", "Impressions", "Clicks", "Orders", "Spend", "Active ads", "Starting date", "Ending date"];
 
     return (
         <div className="overflow-x-scroll">

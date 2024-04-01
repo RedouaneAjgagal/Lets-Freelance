@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { GetSingleCampaignResponse } from "../services/getSingleCampaign";
 import AdSetRow from "./AdSetRow";
 
@@ -20,8 +21,10 @@ const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTablePro
 
     const ads = props.ads.sort((a, b) => a.ad.localeCompare(b.ad));
 
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+
     return (
-        <div className="overflow-x-scroll">
+        <div className="overflow-x-scroll" ref={tableContainerRef}>
             <table className="border-separate border border-slate-500">
                 <thead>
                     <tr className="text-left">
@@ -31,13 +34,13 @@ const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTablePro
                     </tr>
                 </thead>
                 <tbody className="text-left">
-                    {ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} />)}
+                    {ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} tableContainerRef={tableContainerRef} isLastAd={ads.length === 1} />)}
                 </tbody>
                 <tfoot className="font-medium">
                     <tr>
                         <th colSpan={4} className="text-left border border-slate-400 px-2 py-5 bg-slate-300">Total Metrics</th>
-                        <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.ctr}%</td>
-                        <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.cr}%</td>
+                        <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.ctr.toFixed(2)}%</td>
+                        <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.cr.toFixed(2)}%</td>
                         <td className="border border-slate-400 p-2 capitalize bg-slate-300">${props.totalMetrics.cpc.toFixed(2)}</td>
                         <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.totalImpressions}</td>
                         <td className="border border-slate-400 p-2 capitalize bg-slate-300">{props.totalMetrics.totalClicks}</td>

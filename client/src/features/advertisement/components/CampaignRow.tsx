@@ -48,12 +48,12 @@ const CampaignRow = (props: React.PropsWithoutRef<CampaignRowProps>) => {
             <td className="border border-slate-300 p-2 capitalize">{props.campaign.status}</td>
             <td className="border border-slate-300 p-2">${props.campaign.budget.toFixed(2)}</td>
             <td className="border border-slate-300 p-2 capitalize">{props.campaign.budgetType}</td>
-            <td className="border border-slate-300 p-2">{props.campaign.clicks}</td>
+            <td className="border border-slate-300 p-2">{props.campaign.ctr.toFixed(2)}%</td>
+            <td className="border border-slate-300 p-2">{props.campaign.cr.toFixed(2)}%</td>
+            <td className="border border-slate-300 p-2">${props.campaign.cpc.toFixed(2)}</td>
             <td className="border border-slate-300 p-2">{props.campaign.impressions}</td>
+            <td className="border border-slate-300 p-2">{props.campaign.clicks}</td>
             <td className="border border-slate-300 p-2">{props.campaign.orders}</td>
-            <td className="border border-slate-300 p-2">{props.campaign.ctr}</td>
-            <td className="border border-slate-300 p-2">{props.campaign.cr}</td>
-            <td className="border border-slate-300 p-2">{props.campaign.cpc}</td>
             <td className="border border-slate-300 p-2">${props.campaign.spend.toFixed(2)}</td>
             <td className="border border-slate-300 p-2">
                 {`${props.campaign.activeAds} / ${props.campaign.totalAds}`}

@@ -15,7 +15,7 @@ import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages/job";
 import { CancelContract, PayWorkedHours, RefundRequest, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
-import { AdvertisementHomePage, Campaigns, CreatePaymentMethod, PaymentMethods, SingleCampaign } from "../pages/advertisement";
+import { AdvertisementHomePage, Campaigns, CreateCampaign, CreatePaymentMethod, PaymentMethods, SingleCampaign } from "../pages/advertisement";
 
 const router = createBrowserRouter([
     {
@@ -185,6 +185,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/freelancer/advertisements/campaigns/:campaignId",
                 element: <AuthenticatedRoute element={SingleCampaign} accessBy="freelancer" />
+            },
+            {
+                path: "/profile/freelancer/advertisements/create/campaign",
+                element: <AuthenticatedRoute element={CreateCampaign} accessBy="freelancer" />
             }
         ]
     }

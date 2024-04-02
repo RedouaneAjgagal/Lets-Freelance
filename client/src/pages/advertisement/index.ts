@@ -1,5 +1,6 @@
 import AdvertisementHomePage from "./AdvertisementHomePage";
 import Campaigns from "./Campaigns";
+import CreateCampaign from "./CreateCampaign";
 import CreatePaymentMethod from "./CreatePaymentMethod";
 import PaymentMethods from "./PaymentMethods";
 import SingleCampaign from "./SingleCampaign";
@@ -9,5 +10,6 @@ export {
     PaymentMethods,
     CreatePaymentMethod,
     Campaigns,
-    SingleCampaign
+    SingleCampaign,
+    CreateCampaign
 }

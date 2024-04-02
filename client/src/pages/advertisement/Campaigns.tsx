@@ -16,9 +16,9 @@ const Campaigns = () => {
                     <Loading />
                     : getCampaignsQuery.data?.length ?
                         <CampaignsContainer campaigns={getCampaignsQuery.data!} />
-                        : <div className="flex flex-col gap-2">
+                        : <div className="flex flex-col gap-3">
                             <p className="text-slate-600">Empty.. You havn't created any campaings yet</p>
-                            <AdverisementPrimaryLink to="/">CREATE NEW CAMPAIGN</AdverisementPrimaryLink>
+                            <AdverisementPrimaryLink to="/profile/freelancer/advertisements/create/campaign">CREATE NEW CAMPAIGN</AdverisementPrimaryLink>
                         </div>
                 }
             </div>

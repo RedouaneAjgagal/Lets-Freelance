@@ -7,6 +7,7 @@ import SingleCampaignContainer from "./components/SingleCampaignContainer";
 import useGetCampaignsQuery from "./hooks/useGetCampaignsQuery";
 import useGetPaymentMethodsQuery from "./hooks/useGetPaymentMethodsQuery";
 import useGetSingleCampaignQuery from "./hooks/useGetSingleCampaignQuery";
+import campaignFormReducer from "./redux/campaignForm";
 
 export {
     AdvertisementNavbar,
@@ -17,5 +18,6 @@ export {
     AdverisementPrimaryButton,
     useGetSingleCampaignQuery,
     SingleCampaignContainer,
-    CampaignForm
+    CampaignForm,
+    campaignFormReducer
 }

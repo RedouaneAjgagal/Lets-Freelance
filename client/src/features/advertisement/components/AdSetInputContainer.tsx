@@ -4,12 +4,14 @@ import { CampaignFormAdInitialState } from "../redux/campaignForm";
 import { useAppDispatch } from "../../../hooks/redux";
 import { campaignFormAction } from "../redux/campaignForm";
 import { useRef, useState } from "react";
+import { FreelancerServiceType } from "../../service";
 
 type AdSetInputContainerProps = {
     index: number;
     type: "create";
     adSet: CampaignFormAdInitialState;
     adsLength: number;
+    services: FreelancerServiceType[];
 }
 
 const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerProps>) => {
@@ -78,10 +80,12 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
         }));
     }
 
-    const services = [
-        { _id: "1", title: "React developer" },
-        { _id: "2", title: "UI/UX designer" }
-    ];
+    const services = props.services.map(service => {
+        return {
+            _id: service._id,
+            title: service.title
+        }
+    })
 
 
     const setEventHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -123,7 +127,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
             <div className="w-full flex flex-col">
                 <div className="flex flex-col gap-[.1rem] w-full relative">
                     <label htmlFor={`${props.type}_service_${props.adSet.ad}`} className="text-[.9rem]">Service</label>
-                    <select id={`${props.type}_service_${props.adSet.ad}`} className={`px-2 py-[.3rem] bg-white border-2 focus:border-2 focus:border-blue-300 shadow-sm rounded outline-none w-full appearance-none ${props.adSet.service.error.isError && props.adSet.service.error.errorMsg ? "border-red-400" : "border-white"}`} onChange={setServiceHandler} value={props.adSet.service.value._id}>
+                    <select id={`${props.type}_service_${props.adSet.ad}`} className={`px-2 py-[.3rem] bg-white border-2 focus:border-2 focus:border-blue-300 shadow-sm rounded outline-none w-full appearance-none pr-6 ${props.adSet.service.error.isError && props.adSet.service.error.errorMsg ? "border-red-400" : "border-white"}`} onChange={setServiceHandler} value={props.adSet.service.value._id}>
                         {[{ _id: "Select a service", title: "Select a service" }, ...services].map(service => <option key={service._id} value={service._id} data-title={service.title}>{service.title}</option>)}
                     </select>
                     <span className="absolute right-2 bottom-3 text-slate-700">

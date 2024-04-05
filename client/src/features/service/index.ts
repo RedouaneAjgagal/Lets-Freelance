@@ -17,6 +17,7 @@ import CreateServiceActions from "./components/CreateServiceActions";
 import serviceFormReducer from "./redux/serviceForm";
 import ServiceForm from "./components/ServiceForm";
 import IncludedInSelectedPackage from "./components/IncludedInSelectedPackage";
+import { FreelancerServiceType } from "./services/getFreelancerServices";
 
 export {
     useTrendingServicesQuery,
@@ -38,4 +39,8 @@ export {
     serviceFormReducer,
     ServiceForm,
     IncludedInSelectedPackage
+}
+
+export type {
+    FreelancerServiceType
 }

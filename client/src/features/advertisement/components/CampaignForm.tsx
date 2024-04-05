@@ -3,12 +3,16 @@ import AdSetInputContainer from "./AdSetInputContainer";
 import { AdverisementPrimaryButton } from "..";
 import { useAppSelector, useAppDispatch } from "../../../hooks/redux";
 import { campaignFormAction } from "../redux/campaignForm";
+import { useFreelancerServicesQuery } from "../../service";
+import Loading from "../../../components/Loading";
 
 type CampaignFormProps = {
     type: "create";
 }
 
 const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
+    const freelancerServices = useFreelancerServicesQuery();
+
     const dispatch = useAppDispatch();
     const campaignValues = useAppSelector(state => state.campaignFormReducer);
 
@@ -133,10 +137,19 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
             <div className="flex flex-col gap-3">
                 <h2 className="font-medium text-lg underline decoration-double decoration-amber-500">Ad set details</h2>
                 <div className="flex flex-col gap-8">
-                    {campaignValues.ads.map((adSet, index) => <AdSetInputContainer key={adSet.ad} type={props.type} index={index} adSet={adSet} adsLength={campaignValues.ads.length} />)}
-                    {campaignValues.ads.length < 10 ?
-                        <button onClick={addAdSetHandler} type="button" className="bg-slate-600 text-white font-medium rounded py-1 px-3 self-start">Add another ad</button>
-                        : null
+                    {freelancerServices.isLoading ?
+                        <Loading />
+                        : <>
+                            {
+                                campaignValues.ads.map((adSet, index) => <AdSetInputContainer key={adSet.ad} type={props.type} index={index} adSet={adSet} adsLength={campaignValues.ads.length} services={freelancerServices.data!} />)
+                            }
+                            {
+                                campaignValues.ads.length < 10 ?
+                                    <button onClick={addAdSetHandler} type="button" className="bg-slate-600 text-white font-medium rounded py-1 px-3 self-start">Add another ad</button>
+                                    : null
+                            }
+                        </>
+
                     }
                 </div>
             </div>

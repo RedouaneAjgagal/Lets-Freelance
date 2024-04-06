@@ -376,6 +376,9 @@ const campaignSlice = createSlice({
             });
 
             return state;
+        },
+        resetState() {
+            return initialState;
         }
     }
 });

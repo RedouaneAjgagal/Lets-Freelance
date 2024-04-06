@@ -1,7 +1,16 @@
+import { useEffect } from "react";
 import { AdvertisementNavbar, CampaignForm } from "../../features/advertisement"
+import { campaignFormAction } from "../../features/advertisement/redux/campaignForm";
+import { useAppDispatch } from "../../hooks/redux";
 
 
 const CreateCampaign = () => {
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        dispatch(campaignFormAction.resetState());
+    }, []);
+
     return (
         <main className="bg-slate-200/70 flex flex-col">
             <div className="mt-6">

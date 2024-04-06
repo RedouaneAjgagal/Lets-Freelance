@@ -5,6 +5,8 @@ import { useAppSelector, useAppDispatch } from "../../../hooks/redux";
 import { campaignFormAction } from "../redux/campaignForm";
 import { useFreelancerServicesQuery } from "../../service";
 import Loading from "../../../components/Loading";
+import useCreateCampaignMutation from "../hooks/useCreateCampaignMutation";
+import { CreateCampaignPayload } from "../services/createCampaign";
 
 type CampaignFormProps = {
     type: "create";
@@ -12,6 +14,8 @@ type CampaignFormProps = {
 
 const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
     const freelancerServices = useFreelancerServicesQuery();
+
+    const createCampaignMutation = useCreateCampaignMutation();
 
     const dispatch = useAppDispatch();
     const campaignValues = useAppSelector(state => state.campaignFormReducer);
@@ -81,9 +85,44 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
             return;
         }
 
-        console.log("Submit");
-    }
+        const campaingAdSets = campaignValues.ads.map(ad => {
+            return {
+                service: ad.service.value._id,
+                event: ad.event.value,
+                bidAmount: ad.bidAmount.value,
+                category: ad.category.value as CreateCampaignPayload["ads"][number]["category"],
+                keywords: ad.keywords.value.map(keyword => keyword.content)
+            }
+        });
 
+        const campaignData: CreateCampaignPayload = {
+            name: campaignValues.name.value,
+            budgetType: campaignValues.budgetType.value,
+            budget: campaignValues.budget.value,
+            startDate: new Date(campaignValues.startDate.value).toISOString(),
+            endDate: new Date(campaignValues.endDate.value).toISOString(),
+            ads: campaingAdSets
+        }
+
+
+        // check if startDate is today to add LATENCY_TIME because backend doesn't accept past time
+        const now = new Date()
+        const startingDate = new Date(campaignData.startDate).getTime();
+        if (now.setHours(0, 0, 0, 0) === startingDate) {
+            const LATENCY_TIME = 1 * 60 * 1000; // 1min
+            const startingDate = new Date(Date.now() + LATENCY_TIME);
+            campaignData.startDate = startingDate.toISOString();
+
+            if (new Date(now.setHours(0, 0, 0, 0) + (24 * 60 * 60 * 1000)).getTime() === new Date(campaignData.endDate).getTime()) {
+                const endingDate = new Date(Date.now() + ((24 * 60 * 60 * 1000) + LATENCY_TIME));
+
+                campaignData.endDate = endingDate.toISOString();
+            }
+        }
+
+
+        createCampaignMutation.mutate(campaignData);
+    }
 
     const todayDate = new Date().toJSON().split("T")[0];
     const nextDayDate = new Date(Date.now() + (1 * 24 * 60 * 60 * 1000)).toJSON().split("T")[0];
@@ -153,7 +192,7 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
                     }
                 </div>
             </div>
-            <AdverisementPrimaryButton type="submit" fullWidth>
+            <AdverisementPrimaryButton type="submit" fullWidth isLoading={createCampaignMutation.isLoading}>
                 CREATE CAMPAIGN
             </AdverisementPrimaryButton>
         </form>

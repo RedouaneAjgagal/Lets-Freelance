@@ -8,7 +8,7 @@ import { FreelancerServiceType } from "../../service";
 
 type AdSetInputContainerProps = {
     index: number;
-    type: "create";
+    type: "create" | "update";
     adSet: CampaignFormAdInitialState;
     adsLength: number;
     services: FreelancerServiceType[];

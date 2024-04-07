@@ -26,6 +26,9 @@ export type GetSingleCampaignResponse = {
     _id: string;
     status: "active" | "inactive";
     name: string;
+    budget: number;
+    budgetType: "total" | "daily";
+    endDate: string;
     ads: AdType[];
     totalClicks: number;
     totalImpressions: number;

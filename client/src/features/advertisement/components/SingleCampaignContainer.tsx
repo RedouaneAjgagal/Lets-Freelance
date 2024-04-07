@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { GetSingleCampaignResponse } from "../services/getSingleCampaign";
 import CampaignStatus from "./CampaignStatus";
 import SingleCampaignTable from "./SingleCampaignTable";
@@ -6,6 +5,7 @@ import { TbDotsVertical, TbEdit, TbTrash } from "react-icons/tb";
 import useDeleteCampaignMutation from "../hooks/useDeleteCampaignMutation";
 import { useState } from "react";
 import ActionModal from "../../../layouts/ActionModal";
+import EditCampaign from "./EditCampaign";
 
 type SingleCampaignContainerProps = {
     campaign: GetSingleCampaignResponse;
@@ -13,11 +13,11 @@ type SingleCampaignContainerProps = {
 
 const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignContainerProps>) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const deleteCampaignMutation = useDeleteCampaignMutation();
-    const navigate = useNavigate();
 
     const editCampaignHandler = () => {
-        navigate(`/profile/freelancer/advertisements/campaigns/${props.campaign._id}/edit`);
+        setIsEditModalOpen(true);
     }
 
     const deleteCampaignHandler = () => {
@@ -30,6 +30,15 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
         <>
             {isDeleteModalOpen ?
                 <ActionModal cancelBtnContent="Cancel" color="red" confirmBtnContent="Delete" title="Campaign deletion" desc={`Are you sure you want to delete campaign "${props.campaign.name}"? This action can't be undone.`} disabled={deleteCampaignMutation.isLoading} isLoading={deleteCampaignMutation.isLoading} onClose={() => setIsDeleteModalOpen(false)} onConfirm={deleteCampaignHandler} />
+                : null
+            }
+            {isEditModalOpen ?
+                <EditCampaign onClose={() => setIsEditModalOpen(false)} campaignDetails={{
+                    name: props.campaign.name,
+                    budgetType: props.campaign.budgetType,
+                    budget: props.campaign.budget,
+                    endDate: props.campaign.endDate
+                }} />
                 : null
             }
             <article className="flex flex-col gap-3">

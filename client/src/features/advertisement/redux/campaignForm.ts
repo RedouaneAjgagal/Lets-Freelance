@@ -45,7 +45,7 @@ const initialErrorInput: InitialError = {
     errorMsg: ""
 };
 
-const initialValidInput: InitialError = {
+export const initialValidInput: InitialError = {
     isError: false,
     errorMsg: ""
 };
@@ -379,6 +379,10 @@ const campaignSlice = createSlice({
         },
         resetState() {
             return initialState;
+        },
+        setInitialData(state, action: Action<CampaignFormInitialState>) {
+            state = action.payload;
+            return state;
         }
     }
 });

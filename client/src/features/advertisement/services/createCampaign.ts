@@ -18,7 +18,7 @@ export type CreateCampaignPayload = {
     ads: AdSetType[];
 }
 
-type CreateCampaignResponse = {
+export type CreateCampaignResponse = {
     msg: string;
 }
 

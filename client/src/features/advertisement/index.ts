@@ -4,6 +4,7 @@ import CampaignForm from "./components/CampaignForm";
 import CampaignsContainer from "./components/CampaignsContainer";
 import PaymentMethodsContainer from "./components/PaymentMethodsContainer";
 import SingleCampaignContainer from "./components/SingleCampaignContainer";
+import useCreateCampaignMutation from "./hooks/useCreateCampaignMutation";
 import useGetCampaignsQuery from "./hooks/useGetCampaignsQuery";
 import useGetPaymentMethodsQuery from "./hooks/useGetPaymentMethodsQuery";
 import useGetSingleCampaignQuery from "./hooks/useGetSingleCampaignQuery";
@@ -19,5 +20,6 @@ export {
     useGetSingleCampaignQuery,
     SingleCampaignContainer,
     CampaignForm,
-    campaignFormReducer
+    campaignFormReducer,
+    useCreateCampaignMutation
 }

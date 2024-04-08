@@ -6,6 +6,7 @@ import Toggle from "./Toggle";
 import useActivateAdMutation from "../hooks/useActivateAdMutation";
 import ActionModal from "../../../layouts/ActionModal";
 import useDeleteAdMutation from "../hooks/useDeleteAdMutation";
+import EditAd from "./EditAd";
 
 type AdSetRowProps = {
     ad: AdType;
@@ -17,6 +18,7 @@ type AdSetRowProps = {
 const AdSetRow = (props: React.PropsWithoutRef<AdSetRowProps>) => {
     const [isActiveAd, setIsActiveAd] = useState(props.ad.status === "active" ? true : false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditAdOpen, setIsEditAdOpen] = useState(false);
 
     const deleteAdMutation = useDeleteAdMutation();
 
@@ -36,7 +38,7 @@ const AdSetRow = (props: React.PropsWithoutRef<AdSetRowProps>) => {
     }
 
     const editAdHandler = () => {
-        console.log({ edit: props.ad.ad });
+        setIsEditAdOpen(true);
     }
 
     const deleteAdHandler = () => {
@@ -58,6 +60,10 @@ const AdSetRow = (props: React.PropsWithoutRef<AdSetRowProps>) => {
         <>
             {isDeleteModalOpen ?
                 <ActionModal cancelBtnContent="Cancel" color="red" confirmBtnContent="Delete Ad" title="Ad deletion" desc={`Are you sure you want to delete ad ID "${props.ad.ad}"? This action can't be undone.`} disabled={deleteAdMutation.isLoading} onClose={() => setIsDeleteModalOpen(false)} onConfirm={deleteAdHandler} isLoading={deleteAdMutation.isLoading} />
+                : null
+            }
+            {isEditAdOpen ?
+                <EditAd onClose={() => setIsEditAdOpen(false)} ad={props.ad} tableContainerRef={props.tableContainerRef} />
                 : null
             }
             <tr key={props.ad.ad} className={`${props.ad.status === "active" ? "text-black" : "text-slate-400"} ${props.index % 2 !== 0 ? "bg-slate-200/30" : "bg-slate-100"}`}>

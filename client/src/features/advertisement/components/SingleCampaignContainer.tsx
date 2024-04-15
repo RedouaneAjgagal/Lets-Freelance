@@ -24,6 +24,7 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
     }
 
     const addMoreAdSetHandler = () => {
+        if (props.campaign.ads.length >= 10) return;
         setIsAddMoreAdSetOpen(true);
     }
 
@@ -87,10 +88,13 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
                     totalOrders: props.campaign.totalOrders,
                     totalSpend: props.campaign.totalSpend
                 }} />
-                <button onClick={addMoreAdSetHandler} className="flex items-center gap-1 self-start bg-slate-300 rounded px-2 py-1 font-semibold border border-slate-400 text-slate-900">
-                    <TbPlus size={20} className="text-slate-800" />
-                    Add more
-                </button>
+                {props.campaign.ads.length < 10 ?
+                    <button onClick={addMoreAdSetHandler} className="flex items-center gap-1 self-start bg-slate-300 rounded px-2 py-1 font-semibold border border-slate-400 text-slate-900">
+                        <TbPlus size={20} className="text-slate-800" />
+                        Add more
+                    </button>
+                    : null
+                }
             </article>
         </>
     )

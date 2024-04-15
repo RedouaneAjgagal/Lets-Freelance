@@ -10,17 +10,17 @@ type AdSetInputContainerType = {
     index?: number;
     adSet: CampaignFormAdInitialState;
     adsLength: number;
+    isServicesLoading: boolean;
 }
 
 type AdSetInputUpdateContainer = {
     type: "update";
-    isServicesLoading: boolean;
     services?: FreelancerServiceType[];
 } & AdSetInputContainerType;
 
 type AdSetInputCreateContainer = {
     type: "create";
-    services: FreelancerServiceType[];
+    services?: FreelancerServiceType[];
 } & AdSetInputContainerType;
 
 
@@ -125,6 +125,14 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
         }));
     }
 
+    const freelancerServices = props.type === "create" ?
+        [{ _id: "Select a service", title: "Select a service" }]
+        : [];
+
+    if (!props.isServicesLoading) {
+        freelancerServices.push(...services!);
+    }
+
     return (
         <div className="flex flex-col gap-4 border-t border-slate-300 pt-6 first:border-0 first:pt-2">
             <div className="flex items-center justify-between text-slate-600 font-medium">
@@ -143,12 +151,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
                 <div className="flex flex-col gap-[.1rem] w-full relative">
                     <label htmlFor={`${props.type}_service_${props.adSet.ad}`} className="text-[.9rem]">Service</label>
                     <select id={`${props.type}_service_${props.adSet.ad}`} className={`px-2 py-[.3rem] bg-white border-2 focus:border-2 focus:border-blue-300 shadow-sm rounded outline-none w-full appearance-none pr-6 ${props.adSet.service.error.isError && props.adSet.service.error.errorMsg ? "border-red-400" : "border-white"}`} disabled={props.type === "update" && props.isServicesLoading} onChange={setServiceHandler} value={props.adSet.service.value._id}>
-                        {props.type === "update" ?
-                            props.isServicesLoading ?
-                                null
-                                : services!.map(service => <option key={service._id} value={service._id} data-title={service.title}>{service.title}</option>)
-                            :
-                            [{ _id: "Select a service", title: "Select a service" }, ...services!].map(service => <option key={service._id} value={service._id} data-title={service.title}>{service.title}</option>)
+                        {freelancerServices.map(service => <option key={service._id} value={service._id} data-title={service.title}>{service.title}</option>)
                         }
                     </select>
                     <span className="absolute right-2 bottom-3 text-slate-700">

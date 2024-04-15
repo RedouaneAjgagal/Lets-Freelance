@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import React from 'react'
 import updateAd from '../services/updateAd';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
@@ -7,7 +6,6 @@ import { useAppSelector } from '../../../hooks/redux';
 import { GetSingleCampaignResponse } from '../services/getSingleCampaign';
 
 type UseUpdateAdMutationPayload = {
-    onSuccess?: () => void;
     campaignId: string;
     adId: string;
 }
@@ -34,7 +32,7 @@ const useUpdateAdMutation = (payload: UseUpdateAdMutationPayload) => {
                         const keys = ["service", "bidAmount", "event", "category", "keywords"] as const;
                         keys.forEach(key => {
                             if (data[key]) {
-                                ad[key] = data[key];
+                                (ad[key] as (typeof ad[typeof key])) = data[key]!;
                             }
                         });
                     }
@@ -42,10 +40,6 @@ const useUpdateAdMutation = (payload: UseUpdateAdMutationPayload) => {
                     return updater;
                 }
             )
-
-            if (payload.onSuccess) {
-                payload.onSuccess();
-            }
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";

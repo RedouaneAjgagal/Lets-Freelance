@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { GetSingleCampaignResponse } from "../services/getSingleCampaign";
 import AdSetRow from "./AdSetRow";
 
@@ -13,7 +12,8 @@ type SingleCampaignTableProps = {
         ctr: GetSingleCampaignResponse["ctr"];
         cr: GetSingleCampaignResponse["cr"];
         cpc: GetSingleCampaignResponse["cpc"];
-    }
+    };
+    tableContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTableProps>) => {
@@ -21,10 +21,8 @@ const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTablePro
 
     const ads = props.ads.sort((a, b) => a.ad.localeCompare(b.ad));
 
-    const tableContainerRef = useRef<HTMLDivElement>(null);
-
     return (
-        <div className="overflow-x-scroll" ref={tableContainerRef}>
+        <div className="overflow-x-scroll" ref={props.tableContainerRef}>
             <table className="border-separate border border-slate-500">
                 <thead>
                     <tr className="text-left">
@@ -34,7 +32,7 @@ const SingleCampaignTable = (props: React.PropsWithoutRef<SingleCampaignTablePro
                     </tr>
                 </thead>
                 <tbody className="text-left">
-                    {ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} tableContainerRef={tableContainerRef} isLastAd={ads.length === 1} />)}
+                    {ads.map((adSet, index) => <AdSetRow key={adSet.ad} ad={adSet} index={index} tableContainerRef={props.tableContainerRef} isLastAd={ads.length === 1} />)}
                 </tbody>
                 <tfoot className="font-medium">
                     <tr>

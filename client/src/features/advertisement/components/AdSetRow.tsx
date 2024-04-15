@@ -7,6 +7,7 @@ import useActivateAdMutation from "../hooks/useActivateAdMutation";
 import ActionModal from "../../../layouts/ActionModal";
 import useDeleteAdMutation from "../hooks/useDeleteAdMutation";
 import EditAd from "./EditAd";
+import useOverflow from "../../../hooks/useOverflow";
 
 type AdSetRowProps = {
     ad: AdType;
@@ -55,6 +56,10 @@ const AdSetRow = (props: React.PropsWithoutRef<AdSetRowProps>) => {
             setIsDeleteModalOpen(false);
         }
     }, [deleteAdMutation.isSuccess]);
+
+
+    useOverflow(isDeleteModalOpen);
+    useOverflow(isEditAdOpen);
 
     return (
         <>

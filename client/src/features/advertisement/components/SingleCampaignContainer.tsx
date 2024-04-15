@@ -1,11 +1,13 @@
 import { GetSingleCampaignResponse } from "../services/getSingleCampaign";
 import CampaignStatus from "./CampaignStatus";
 import SingleCampaignTable from "./SingleCampaignTable";
-import { TbDotsVertical, TbEdit, TbTrash } from "react-icons/tb";
+import { TbDotsVertical, TbEdit, TbPlus, TbTrash } from "react-icons/tb";
 import useDeleteCampaignMutation from "../hooks/useDeleteCampaignMutation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ActionModal from "../../../layouts/ActionModal";
 import EditCampaign from "./EditCampaign";
+import CreateAd from "./CreateAd";
+import useOverflow from "../../../hooks/useOverflow";
 
 type SingleCampaignContainerProps = {
     campaign: GetSingleCampaignResponse;
@@ -14,10 +16,15 @@ type SingleCampaignContainerProps = {
 const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignContainerProps>) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isAddMoreAdSetOpen, setIsAddMoreAdSetOpen] = useState(false);
     const deleteCampaignMutation = useDeleteCampaignMutation();
 
     const editCampaignHandler = () => {
         setIsEditModalOpen(true);
+    }
+
+    const addMoreAdSetHandler = () => {
+        setIsAddMoreAdSetOpen(true);
     }
 
     const deleteCampaignHandler = () => {
@@ -25,6 +32,12 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
             campaignId: props.campaign._id
         });
     }
+
+    const tableContainerRef = useRef<HTMLDivElement>(null);
+
+    useOverflow(isDeleteModalOpen);
+    useOverflow(isEditModalOpen);
+    useOverflow(isAddMoreAdSetOpen);
 
     return (
         <>
@@ -39,6 +52,10 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
                     budget: props.campaign.budget,
                     endDate: props.campaign.endDate
                 }} />
+                : null
+            }
+            {isAddMoreAdSetOpen ?
+                <CreateAd onClose={() => setIsAddMoreAdSetOpen(false)} tableContainerRef={tableContainerRef} />
                 : null
             }
             <article className="flex flex-col gap-3">
@@ -61,7 +78,7 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
                     </div>
                 </div>
                 <h2 className="text-lg font-medium">Campaign: <em className="text-slate-700 text-xl font-normal">"{props.campaign.name}"</em></h2>
-                <SingleCampaignTable ads={props.campaign.ads} totalMetrics={{
+                <SingleCampaignTable tableContainerRef={tableContainerRef} ads={props.campaign.ads} totalMetrics={{
                     cpc: props.campaign.cpc,
                     cr: props.campaign.cr,
                     ctr: props.campaign.ctr,
@@ -70,6 +87,10 @@ const SingleCampaignContainer = (props: React.PropsWithoutRef<SingleCampaignCont
                     totalOrders: props.campaign.totalOrders,
                     totalSpend: props.campaign.totalSpend
                 }} />
+                <button onClick={addMoreAdSetHandler} className="flex items-center gap-1 self-start bg-slate-300 rounded px-2 py-1 font-semibold border border-slate-400 text-slate-900">
+                    <TbPlus size={20} className="text-slate-800" />
+                    Add more
+                </button>
             </article>
         </>
     )

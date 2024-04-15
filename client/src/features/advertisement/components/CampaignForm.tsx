@@ -100,6 +100,8 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
     const submitCampaignFormHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (props.submit.isLoading) return;
+
         dispatch(campaignFormAction.submit());
 
         const validCampaignDetails = isValidCampaignDetails(props.type);
@@ -218,7 +220,7 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
                             <Loading />
                             : <>
                                 {
-                                    campaignValues.ads.map((adSet, index) => <AdSetInputContainer key={adSet.ad} type={props.type} index={index} adSet={adSet} adsLength={campaignValues.ads.length} services={props.freelancerServices.data!} />)
+                                    campaignValues.ads.map((adSet, index) => <AdSetInputContainer isServicesLoading={false} key={adSet.ad} type={props.type} index={index} adSet={adSet} adsLength={campaignValues.ads.length} services={props.freelancerServices.data!} />)
                                 }
                                 {
                                     campaignValues.ads.length < 10 ?

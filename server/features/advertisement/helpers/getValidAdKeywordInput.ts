@@ -7,7 +7,7 @@ const getValidAdKeywordInput = (keyword: string | undefined) => {
         throw new BadRequestError(invalidKeyword);
     }
 
-    const adKeyword = keyword!.split("-").join(" ");
+    const adKeyword = keyword!.split("-").join(" ").toLowerCase();
 
     return adKeyword;
 }

@@ -80,7 +80,7 @@ const createAd: RequestHandler = async (req: CustomAuthRequest, res) => {
         bidAmount: input.bidAmount,
         event: input.event,
         category: input.category,
-        keywords: input.keywords,
+        keywords: input.keywords.map(keyword => keyword.toLowerCase()),
         displayPeriods: [],
         nextPeriodGenerationDates: [new Date(Date.now() + 24 * 60 * 60 * 1000)], // next 24h
         country: input.country,

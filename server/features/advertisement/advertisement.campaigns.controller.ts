@@ -80,8 +80,11 @@ const createCampaign: RequestHandler = async (req: CustomAuthRequest, res) => {
         const startDate = new Date(input.startDate);
         const nextPeriod = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
 
+        // turn every keyword to lowerCase for a better search
+        const keywords = ad.keywords.map(keyword => keyword.toLowerCase());
+
         ads.push({
-            ...ad, user: profile.user._id, budgetAllocation, displayPeriods, nextPeriodGenerationDates: input.budgetType === "daily" ? [nextPeriod] : []
+            ...ad, keywords, user: profile.user._id, budgetAllocation, displayPeriods, nextPeriodGenerationDates: input.budgetType === "daily" ? [nextPeriod] : []
         });
     });
 

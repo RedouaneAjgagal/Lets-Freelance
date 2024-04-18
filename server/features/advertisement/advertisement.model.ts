@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { IService } from "../service";
 import { IUser } from "../auth";
+import getValidAdKeywordInput from "./helpers/getValidAdKeywordInput";
 
 export type DisplayPeriod = {
     startTime: Date;
@@ -139,6 +140,48 @@ const Ad = mongoose.model("Ad", adSchema);
 
 // --------- Campaign --------- //
 
+export type GetSponsoredServicesPayload = {
+    keyword: string;
+    category: string;
+    page: number;
+};
+
+type SponsoredService = {
+    _id: string;
+    service: {
+        _id: string;
+        title: string;
+        category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+        featuredImage: string;
+        tier: {
+            starter: {
+                price: number;
+            };
+        };
+        rating: {
+            numOfReviews: number;
+            avgRate?: number;
+        };
+        profile: {
+            _id: string;
+            name: string;
+            avatar: string;
+            userAs: "freelancer";
+            roles: {
+                freelancer: {
+                    englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
+                    badge: "none" | "rising talent" | "top rated" | "top rated plus";
+                };
+            };
+            country?: string;
+        };
+        ad: {
+            _id: string;
+        };
+        sponsored: true;
+    };
+};
+
 export type CampaignPayment = {
     amount: number;
     status: "unpaid" | "pending" | "paid" | "failed";
@@ -162,10 +205,14 @@ export type CampaignType = {
     } & Partial<IUser>;
     ads: ({
         _id: mongoose.Types.ObjectId;
-    } & Partial<AdType>)[]
+    } & Partial<AdType>)[];
 } & CampaignTypeWithoutRefs;
 
-const campaignSchema = new mongoose.Schema<CampaignType>({
+interface CampaignStatics extends Model<CampaignType> {
+    getSponsoredServices(payload: GetSponsoredServicesPayload): Promise<SponsoredService[]>;
+}
+
+const campaignSchema = new mongoose.Schema<CampaignType, CampaignStatics>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -249,8 +296,202 @@ campaignSchema.post("deleteOne", { document: true, query: false }, async functio
     advertisementModels.Performance.bulkWrite(deleteAdsPerformance);
 });
 
-const Campaign = mongoose.model("Campaign", campaignSchema);
+campaignSchema.statics.getSponsoredServices = async function (payload: GetSponsoredServicesPayload): Promise<SponsoredService[]> {
 
+    const currentTime = new Date();
+
+    const keyword = getValidAdKeywordInput(payload.keyword);
+
+    if (keyword === "") {
+        return [];
+    }
+
+    const keywords = keyword.split(" ");
+
+    const sponsoredServices = await this.aggregate([
+        {
+            $match: {
+                status: "active" // find only active campaigns
+            }
+        },
+        {
+            // populate ads documents
+            $lookup: {
+                from: "ads",
+                localField: "ads",
+                foreignField: "_id",
+                as: "ad"
+            }
+        },
+        {
+            $unwind: {
+                path: "$ad"
+            }
+        },
+        {
+            $match: payload.category ? {
+                "ad.status": "active", // find only active ads
+                "ad.budgetAllocationCompleted": false, // find only uncompleted budget allocations ads
+                "ad.category": payload.category // find ads with a specific category
+            } : {
+                "ad.status": "active", // find only active ads
+                "ad.budgetAllocationCompleted": false // find only uncompleted budget allocations ads
+            }
+        },
+        {
+            // create an ads array that match current time display
+            $addFields: {
+                currentDisplayedAds: {
+                    $size: {
+                        $filter: {
+                            input: "$ad.displayPeriods",
+                            as: "displayPeriod",
+                            cond: {
+                                $and: [
+                                    { $lte: ["$$displayPeriod.startTime", currentTime] },
+                                    { $gte: ["$$displayPeriod.endTime", currentTime] }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get only ads that are visible at the moment
+            $match: {
+                currentDisplayedAds: { $ne: 0 }
+            }
+        },
+        {
+            // create a commonKeywords array where it shows search keywords that match ads keywords 
+            $addFields: {
+                commonKeywords: {
+                    $setIntersection: ["$ad.keywords", keywords]
+                }
+            }
+        },
+        {
+            // create score field where it multiply by 2 each time a search keyword match ad keywords
+            $addFields: {
+                score: {
+                    $multiply: [
+                        { $size: "$commonKeywords" },
+                        2
+                    ]
+                }
+            }
+        },
+        {
+            // get only ads that has score is not equal to 0
+            $match: {
+                score: { $ne: 0 }
+            }
+        },
+        {
+            // multiply bid amount by 10 and add it to the score
+            $addFields: {
+                score: {
+                    $add: [
+                        "$score",
+                        {
+                            $multiply: [
+                                "$ad.bidAmount",
+                                10
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            // populate the ad service document
+            $lookup: {
+                from: "services",
+                localField: "ad.service",
+                foreignField: "_id",
+                as: "service"
+            }
+        },
+        {
+            $addFields: {
+                service: {
+                    $arrayElemAt: ["$service", 0]
+                }
+            }
+        },
+        {
+            // populate the service profile document
+            $lookup: {
+                from: "profiles",
+                localField: "service.profile",
+                foreignField: "_id",
+                as: "profile"
+            }
+        },
+        {
+            $addFields: {
+                "service.profile": {
+                    $arrayElemAt: ["$profile", 0]
+                }
+            }
+        },
+        {
+            // get only campaigns where their freelancers doesn't have any unpaid invoices
+            $match: {
+                "service.profile.roles.freelancer.advertisement.unpaidInvoices": { $eq: [] }
+            }
+        },
+        {
+            $sort: {
+                score: -1, // make ads with higher score shows first
+                "ad.bidAmount": -1, // if multiple ads scores match, then sort by bid amount
+                "ad.budgetAllocation": -1, // if multiple ads scores match and bid amount match, then sort by budgetAllocation,
+                "ad.createdAt": -1 // if all match then display old ads first
+            }
+        },
+        {
+            $limit: payload.page * 2 // display only 2 ads per page
+        },
+        {
+            $skip: (payload.page - 1) * 2 // display the rest of ads based on the search page
+        },
+        {
+            // set service as sponsored
+            $set: {
+                "service.sponsored": true
+            }
+        },
+        {
+            // response with only ad ID, and the service info
+            $project: {
+                "_id": 1,
+                "service._id": 1,
+                "service.sponsored": 1,
+                "service.title": 1,
+                "service.ad._id": "$ad._id",
+                "service.featuredImage": 1,
+                "service.category": 1,
+                "service.tier.starter.price": 1,
+                "service.rating": 1,
+                "service.profile._id": 1,
+                "service.profile.name": 1,
+                "service.profile.avatar": 1,
+                "service.profile.country": 1,
+                "service.profile.userAs": 1,
+                "service.profile.roles.freelancer.englishLevel": 1,
+                "service.profile.roles.freelancer.badge": 1,
+            }
+        }
+    ]);
+
+    // console.log(sponsoredServices);
+
+    return sponsoredServices;
+}
+
+
+const Campaign = mongoose.model<CampaignType, CampaignStatics>("Campaign", campaignSchema);
 
 
 // --------- Performance --------- //

@@ -10,11 +10,10 @@ type ServicesContainerProps = {
     pages: SearchServicesType[]
     onLoadMore: (options?: FetchNextPageOptions | undefined) => Promise<InfiniteQueryObserverResult<SearchServicesType, unknown>>;
     isFetchingNextPage: boolean;
-    hasNextPage: boolean | undefined
+    hasNextPage: boolean | undefined;
 }
 
 const ServicesContainer = (props: React.PropsWithoutRef<ServicesContainerProps>) => {
-
     return (
         <div className="flex flex-col gap-4">
             <SearchServicesHeader numOfServices={props.pages[0].numOfServices} />

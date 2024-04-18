@@ -4,6 +4,8 @@ import Badge from "../layouts/brand/Badge";
 import { useFavoritesMutation } from "../features/favorites";
 import FavoriteHeartButton from "./FavoriteHeartButton";
 import formatProfileName from "../utils/formatProfileName";
+import { BsFillLightningFill } from "react-icons/bs";
+import { ServiceType } from "../features/service/services/searchServices";
 
 type Rating = {
   avgRate?: number;
@@ -11,19 +13,7 @@ type Rating = {
 };
 
 export type ServiceCardType = {
-  service: {
-    _id: string;
-    title: string;
-    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
-    featuredImage: string;
-    tier: {
-      starter: {
-        price: number;
-      };
-    };
-    rating: Rating
-  };
-
+  service: ServiceType;
   serviceBy: {
     _id: string;
     name: string;
@@ -76,8 +66,14 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
 
   return (
     <li role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
-
       <div className="relative">
+        {props.serviceDetails.service.sponsored ?
+          <span className="absolute -top-3 left-2 bg-amber-200 font-semibold tracking-wide rounded-full p-[0.2rem] px-3 border text-sm flex items-center gap-1">
+            <BsFillLightningFill />
+            Sponsored
+          </span>
+          : null
+        }
         <img src={props.serviceDetails.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
         {!props.hideFavorite && props.favorite ?
           <FavoriteHeartButton onClick={() => favoriteServiceToggle()} fillHeart={props.favorite.isFavorite} />

@@ -8,7 +8,7 @@ const useSearchServicesQuery = (searchQuery: SearchServicesQuery) => {
     const searchServicesQuery = useInfiniteQuery({
         queryKey: ["searchServices"],
         queryFn: searchedServices,
-        enabled:  false,
+        enabled: false,
         retry: false,
         refetchOnWindowFocus: false,
         getNextPageParam: (lastPage, pages) => {

@@ -4,7 +4,7 @@ import { isInvalidAdKeyword } from "../validators/inputValidations"
 const getValidAdKeywordInput = (keyword: string | undefined) => {
     const invalidKeyword = isInvalidAdKeyword(keyword);
     if (invalidKeyword) {
-        throw new BadRequestError(invalidKeyword);
+        return "";
     }
 
     const adKeyword = keyword!.split("-").join(" ").toLowerCase();

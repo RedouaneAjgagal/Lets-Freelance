@@ -1,18 +1,24 @@
 import ServiceCard from "../../../components/ServiceCard";
-import { SearchServiceType } from "../services/searchServices"
+import { ServiceType } from "../services/searchServices"
 
 type SearchedServicesProps = {
-    services: SearchServiceType[];
+    services: ServiceType[];
 }
 
 const SearchedServices = (props: React.PropsWithoutRef<SearchedServicesProps>) => {
 
-    return (
-        <ul className="flex flex-col gap-6">
-            {props.services.map(service => <ServiceCard key={service._id} serviceDetails={{
+    const searchedServices = props.services.map(service => {
+        return (
+            <ServiceCard key={crypto.randomUUID()} serviceDetails={{
                 service,
                 serviceBy: service.profile
-            }} hideFavorite />)}
+            }} hideFavorite />
+        );
+    });
+
+    return (
+        <ul className="flex flex-col gap-6">
+            {searchedServices}
         </ul>
     )
 }

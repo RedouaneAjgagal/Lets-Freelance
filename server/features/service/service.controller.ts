@@ -19,11 +19,45 @@ import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import { ContractPayments } from "../contract/contract.model";
 import getServicePriceAfterFees from "./utils/getServicePriceAfterFees";
 import origin from "../../config/origin";
+import { GetSponsoredServicesPayload, advertisementModels } from "../advertisement";
+
+
+type SearchServiceType = {
+    _id: string;
+    title: string;
+    category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
+    featuredImage: string;
+    tier: {
+        starter: {
+            price: number;
+        };
+    };
+    rating: {
+        avgRate?: number;
+        numOfReviews: number;
+    };
+    profile: {
+        _id: string;
+        name: string;
+        avatar: string;
+        userAs: "freelancer";
+        roles: {
+            freelancer: {
+                englishLevel: "basic" | "conversational" | "fluent" | "native" | "professional";
+                badge: "none" | "rising talent" | "top rated" | "top rated plus";
+            };
+        };
+        country?: string;
+    };
+    sponsored: boolean;
+    ad?: {
+        _id: string;
+    }
+}
 
 
 
-
-//@desc get all services info
+//@desc get searched & sponsored services
 //@route GET /api/v1/services
 //@access public
 const getAllservices: RequestHandler = async (req, res) => {
@@ -34,6 +68,11 @@ const getAllservices: RequestHandler = async (req, res) => {
         $and: {}[];
     }> = {};
 
+    const sponsoredServicesPayload: GetSponsoredServicesPayload = {
+        keyword: "",
+        category: "",
+        page: 1
+    }
 
     // search by keywords & title
     if (search && search.toString().trim() !== "") {
@@ -44,14 +83,19 @@ const getAllservices: RequestHandler = async (req, res) => {
 
         // if no keyword exist then search by title
         searchQuery.$or.push({ title: { $regex: search!.toString(), $options: "i" } });
-    }
 
+        // insert seach keyword to sponsored services
+        sponsoredServicesPayload.keyword = search.toString();
+    }
 
     // seach by category
     const categories = ["digital-marketing", "design-creative", "programming-tech", "writing-translation", "video-animation", "finance-accounting", "music-audio"];
     if (category && categories.includes(category.toString())) {
         const formatCategory = category === "digital-marketing" ? category.toString().split("-").join(" ") : category.toString().split("-").join(" & ");
         searchQuery.category = formatCategory;
+
+        // insert category to sponsored services
+        sponsoredServicesPayload.category = formatCategory;
     }
 
 
@@ -81,33 +125,36 @@ const getAllservices: RequestHandler = async (req, res) => {
 
     // search by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
-    const limit = 8;
+    const limit = 12;
     const start = (currentPage - 1) * limit;
     const end = currentPage * limit;
 
+    // insert page to sponsored services
+    sponsoredServicesPayload.page = currentPage;
 
-    let services = await Service.find(searchQuery).select("featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge" }).lean();
 
-    services = services.filter(service => service.profile.userAs === "freelancer");
+    let searchedServices = await Service.find(searchQuery).select("featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "name avatar country userAs roles.freelancer.englishLevel roles.freelancer.badge" }).lean();
+
+    searchedServices = searchedServices.filter(service => service.profile.userAs === "freelancer");
 
 
     // search by english level
     const englishLevelList = ["basic", "conversational", "fluent", "native", "professional"];
     if (english_level && englishLevelList.includes(english_level.toString())) {
-        services = services.filter(service => service.profile!.roles!.freelancer!.englishLevel === english_level.toString());
+        searchedServices = searchedServices.filter(service => service.profile!.roles!.freelancer!.englishLevel === english_level.toString());
     }
 
 
     // search by location
     if (country && country.toString().trim() !== "") {
-        services = services.filter(service => service.profile!.country?.toLowerCase() === country.toString().toLowerCase());
+        searchedServices = searchedServices.filter(service => service.profile!.country?.toLowerCase() === country.toString().toLowerCase());
     }
 
 
     // search by rating
     const isValidRating = rating && /^\d+(\.\d+)?$/.test(rating.toString()) && (Number(rating.toString()) >= 1 || Number(rating.toString()) <= 5);
     if (isValidRating) {
-        services = services.filter(service => service.rating.avgRate && service.rating.avgRate >= Number(rating.toString()))
+        searchedServices = searchedServices.filter(service => service.rating.avgRate && service.rating.avgRate >= Number(rating.toString()))
     }
 
     // search by profile badges
@@ -118,13 +165,61 @@ const getAllservices: RequestHandler = async (req, res) => {
     }
     const isValidBadge = badge && Object.keys(badges).includes(badge.toString());
     if (isValidBadge) {
-        services = services.filter(service => service.profile.roles?.freelancer?.badge === badges[badge.toString() as "rising-talent" || "top-rated" || "top-rated-plus"]);
+        searchedServices = searchedServices.filter(service => service.profile.roles?.freelancer?.badge === badges[badge.toString() as "rising-talent" || "top-rated" || "top-rated-plus"]);
     }
+
+    // get sponsored services
+    const sponsoredServices = await advertisementModels.Campaign.getSponsoredServices(sponsoredServicesPayload);
+
+    // limit services for better performance
+    const limitedServices = searchedServices.slice(start, end);
+
+    const services = limitedServices.map((service, index): (SearchServiceType & { sponsored?: boolean; ad?: { _id: string } }) => {
+
+        for (let i = 0; i < sponsoredServices.length; i++) {
+            const sponsoredService = sponsoredServices[i];
+
+            const NUM_OF_SERVICES_BETWEEN_EACH_AD = 5;
+
+            if (index === (NUM_OF_SERVICES_BETWEEN_EACH_AD * i)) {
+                return sponsoredService.service;
+            }
+        }
+
+        return {
+            _id: service._id.toString(),
+            category: service.category,
+            featuredImage: service.featuredImage,
+            profile: {
+                ...service.profile,
+                _id: service.profile._id.toString(),
+                avatar: service.profile.avatar!,
+                country: service.profile.country,
+                name: service.profile.name!,
+                roles: {
+                    freelancer: {
+                        badge: service.profile.roles!.freelancer!.badge,
+                        englishLevel: service.profile.roles!.freelancer!.englishLevel,
+                    }
+                },
+                userAs: service.profile.userAs as "freelancer",
+            },
+            rating: service.rating,
+            tier: service.tier,
+            title: service.title,
+            sponsored: false
+        }
+    });
 
     // get number of pages for pagination
     const numOfPages = Math.ceil(services.length / limit);
 
-    res.status(StatusCodes.OK).json({ numOfPages, numOfServices: services.length, services: services.slice(start, end) });
+    res.status(StatusCodes.OK).json({
+        numOfPages,
+        numOfServices: !limitedServices.length ? 0 : services.length,
+        services,
+        sponsoredServices
+    });
 }
 
 

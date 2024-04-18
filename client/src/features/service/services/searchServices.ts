@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api"
 import formatSearchQueries from "../../../utils/formatSearchQueries";
 
@@ -30,10 +31,24 @@ export type SearchServiceType = {
     };
 }
 
+type UnsponsoredService = {
+    sponsored: false;
+} & SearchServiceType;
+
+type SponsoredService = {
+    sponsored: true;
+    ad: {
+        _id: string;
+    }
+} & SearchServiceType;
+
+
+export type ServiceType = (UnsponsoredService | SponsoredService);
+
 export type SearchServicesType = {
     numOfPages: number;
     numOfServices: number;
-    services: SearchServiceType[];
+    services: ServiceType[];
 };
 
 export type SearchServicesQuery = {
@@ -51,8 +66,8 @@ export type SearchServicesQuery = {
 const searchServices = (query: SearchServicesQuery) => async ({ pageParam = 1 }) => {
     const searchQuery = formatSearchQueries({ ...query, page: pageParam });
 
-    const response = await getRequest(`services${searchQuery}`);
-    const services = await response.data as SearchServicesType;
+    const response: AxiosResponse<Promise<SearchServicesType>> = await getRequest(`services${searchQuery}`);
+    const services = await response.data;
     return services;
 };
 

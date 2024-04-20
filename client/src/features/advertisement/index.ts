@@ -8,6 +8,7 @@ import useCreateCampaignMutation from "./hooks/useCreateCampaignMutation";
 import useGetCampaignsQuery from "./hooks/useGetCampaignsQuery";
 import useGetPaymentMethodsQuery from "./hooks/useGetPaymentMethodsQuery";
 import useGetSingleCampaignQuery from "./hooks/useGetSingleCampaignQuery";
+import useTrackAdEngagementMutation from "./hooks/useTrackAdEngagementMutation";
 import campaignFormReducer from "./redux/campaignForm";
 
 export {
@@ -21,5 +22,6 @@ export {
     SingleCampaignContainer,
     CampaignForm,
     campaignFormReducer,
-    useCreateCampaignMutation
+    useCreateCampaignMutation,
+    useTrackAdEngagementMutation
 }

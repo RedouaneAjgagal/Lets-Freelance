@@ -6,7 +6,6 @@ type SearchedServicesProps = {
 }
 
 const SearchedServices = (props: React.PropsWithoutRef<SearchedServicesProps>) => {
-
     const searchedServices = props.services.map(service => {
         return (
             <ServiceCard key={crypto.randomUUID()} serviceDetails={{

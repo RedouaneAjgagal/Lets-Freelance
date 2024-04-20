@@ -171,10 +171,8 @@ const getAllservices: RequestHandler = async (req, res) => {
     // get sponsored services
     const sponsoredServices = await advertisementModels.Campaign.getSponsoredServices(sponsoredServicesPayload);
 
-    // limit services for better performance
-    const limitedServices = searchedServices.slice(start, end);
 
-    const services = limitedServices.map((service, index): (SearchServiceType & { sponsored?: boolean; ad?: { _id: string } }) => {
+    const services = searchedServices.map((service, index): (SearchServiceType & { sponsored?: boolean; ad?: { _id: string } }) => {
 
         for (let i = 0; i < sponsoredServices.length; i++) {
             const sponsoredService = sponsoredServices[i];
@@ -216,9 +214,8 @@ const getAllservices: RequestHandler = async (req, res) => {
 
     res.status(StatusCodes.OK).json({
         numOfPages,
-        numOfServices: !limitedServices.length ? 0 : services.length,
-        services,
-        sponsoredServices
+        numOfServices: !searchedServices.length ? 0 : services.length,
+        services: services.slice(start, end)
     });
 }
 

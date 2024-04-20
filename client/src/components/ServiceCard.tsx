@@ -6,6 +6,9 @@ import FavoriteHeartButton from "./FavoriteHeartButton";
 import formatProfileName from "../utils/formatProfileName";
 import { BsFillLightningFill } from "react-icons/bs";
 import { ServiceType } from "../features/service/services/searchServices";
+import { useEffect, useRef, useState } from "react";
+import { useTrackAdEngagementMutation } from "../features/advertisement";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Rating = {
   avgRate?: number;
@@ -46,6 +49,14 @@ type ServiceCardWithFavorite = {
 type ServiceCardProps = ServiceCardWithoutFavorite | ServiceCardWithFavorite;
 
 const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
+  const mutationClient = useQueryClient();
+  const [isInView, setIsInView] = useState(false);
+  const trackAdEngagementMutation = useTrackAdEngagementMutation({
+    adId: props.serviceDetails.service.sponsored ? props.serviceDetails.service.ad._id : undefined
+  });
+
+  const serviceRef = useRef<HTMLLIElement>(null);
+
   const favoritesMutation = useFavoritesMutation("service");
   const navigate = useNavigate();
 
@@ -64,8 +75,52 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
 
   const freelancerName = formatProfileName(props.serviceDetails.serviceBy.name);
 
+
+  // Set sponsored service inView whenever its 50% inViewPort
+  useEffect(() => {
+    if (props.serviceDetails.service.sponsored) {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+        }
+      }, {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.5
+      });
+
+      if (serviceRef.current) {
+        observer.observe(serviceRef.current);
+      }
+
+      return () => {
+        if (serviceRef.current) {
+          observer.unobserve(serviceRef.current);
+        }
+      }
+    }
+  }, []);
+
+
+  // Track AD engagement
+  useEffect(() => {
+    if (isInView && props.serviceDetails.service.sponsored) {
+      const mutationCache = mutationClient.getMutationCache();
+      const hasFetched = mutationCache.find({ mutationKey: ["trackAdEngagement", props.serviceDetails.service.ad._id], exact: true }) ?
+        true
+        : false;
+
+      // track ad engagement only if it hasen't been tracked onmount (to prevent tracking each time scrolling on the same AD)
+      if (!hasFetched) {
+        trackAdEngagementMutation.mutate({
+          adId: props.serviceDetails.service.ad._id
+        });
+      }
+    }
+  }, [isInView]);
+
   return (
-    <li role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
+    <li ref={serviceRef} role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
       <div className="relative">
         {props.serviceDetails.service.sponsored ?
           <span className="absolute -top-3 left-2 bg-amber-200 font-semibold tracking-wide rounded-full p-[0.2rem] px-3 border text-sm flex items-center gap-1">

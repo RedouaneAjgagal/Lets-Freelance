@@ -5,6 +5,7 @@ import ReportModal from "./ReportModal";
 
 type ReportActivityProps = {
     activity: "profile" | "job" | "service";
+    target: string;
 }
 
 const ReportActivity = (props: React.PropsWithoutRef<ReportActivityProps>) => {
@@ -22,7 +23,7 @@ const ReportActivity = (props: React.PropsWithoutRef<ReportActivityProps>) => {
 
     return (
         <div>
-            {isReportModalOpen ? <ReportModal onCLose={closeReportModelHandler} activity={props.activity} /> : null}
+            {isReportModalOpen ? <ReportModal onCLose={closeReportModelHandler} activity={props.activity} target={props.target} /> : null}
             <button onClick={openReportModelHandler} className="flex items-center gap-2 font-medium text-2xl p-1 text-orange-400">
                 <TiWarning />
             </button>

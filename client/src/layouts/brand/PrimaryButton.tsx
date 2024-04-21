@@ -22,7 +22,7 @@ const PrimaryButton = (props: React.PropsWithChildren<Props>) => {
         <button disabled={props.disabled} type={props.type} onClick={props.onClick} className={`${style} px-${props.x === "sm" && "1" || props.x === "md" && "2" || props.x === "lg" && "3"} py-${props.y === "sm" && "1" || props.y === "md" && "2" || props.y === "lg" && "3"} justify-${props.justifyConent} ${props.fullWith ? "w-full" : `self-${props.justifyConent}`} font-semibold flex items-center gap-2 rounded`}>
             {props.isLoading ?
                 <>
-                    <span className="invisible">
+                    <span className="invisible flex">
                         {props.children}
                     </span>
                     <TbLoader2 className="animate-spin absolute" size={20} />

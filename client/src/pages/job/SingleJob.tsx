@@ -1,4 +1,5 @@
 import Loading from "../../components/Loading";
+import SingleActivityNavbar from "../../components/SingleActivityNavbar";
 import { SingleJobContainer, SingleJobProfileHistory, useGetSingleJobQuery } from "../../features/job"
 
 const SingleJob = () => {
@@ -9,7 +10,9 @@ const SingleJob = () => {
             {singleJobQuery.isLoading ?
                 <Loading />
                 : <>
-                    <SingleJobContainer jobDetails={singleJobQuery.data!} />
+                    <div className="flex flex-col gap-5">
+                        <SingleJobContainer jobDetails={singleJobQuery.data!} />
+                    </div>
                     <SingleJobProfileHistory employerId={singleJobQuery.data!.profile._id} />
                 </>
             }

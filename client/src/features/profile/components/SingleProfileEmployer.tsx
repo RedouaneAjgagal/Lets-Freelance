@@ -57,7 +57,7 @@ const SingleProfileEmployer = () => {
         <>
             <header>
                 <div className="p-4">
-                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                    <SingleActivityNavbar target={profile._id} activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
                 </div>
                 <ProfileHeader profile='employer' userInfo={employerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>

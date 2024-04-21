@@ -5,8 +5,10 @@ import ReportActivity from "./ReportActivity";
 
 type SingleActivityNavbarProps = {
     activity: "profile" | "job" | "service";
+    hideShare?: boolean;
     hideSave?: boolean;
     hideReport?: boolean;
+    target: string;
 }
 
 const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarProps>) => {
@@ -19,13 +21,18 @@ const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarP
     return (
         <nav className="inline-flex items-center justify-between w-full">
             <div className="flex items-center gap-6">
-                <SocialShare socialPlatforms={socialPlatforms} />
-                {props.hideSave ? null : <SaveActivity activity={props.activity} />}
+                {props.hideShare ?
+                    null
+                    : <SocialShare socialPlatforms={socialPlatforms} />
+                }
+                {props.hideSave ?
+                    null
+                    : <SaveActivity activity={props.activity} />
+                }
             </div>
             {props.hideReport ?
                 null
-                :
-                <ReportActivity activity={props.activity} />
+                : <ReportActivity activity={props.activity} target={props.target} />
             }
         </nav>
     )

@@ -13,7 +13,7 @@ const SingleJobContainer = (props: React.PropsWithoutRef<SingleJobContainerProps
     return (
         <div className="grid grid-cols-1 gap-10">
             <div className="flex flex-col gap-6">
-                <SingleJobHeader status={props.jobDetails.status} title={props.jobDetails.title} category={props.jobDetails.category} createdAt={props.jobDetails.createdAt} />
+                <SingleJobHeader status={props.jobDetails.status} title={props.jobDetails.title} category={props.jobDetails.category} createdAt={props.jobDetails.createdAt} jobId={props.jobDetails._id} />
                 <SingleJobMainContent jobMainDetails={{
                     description: props.jobDetails.description,
                     connects: props.jobDetails.connects,

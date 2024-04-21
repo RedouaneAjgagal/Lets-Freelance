@@ -1,6 +1,9 @@
+import { useSearchParams } from 'react-router-dom';
+import { useAppSelector } from '../../../hooks/redux';
 import { PrimaryButton } from '../../../layouts/brand'
 import useOrderServiceMutation from '../hooks/useOrderServiceMutation';
 import { SingleServiceType } from '../services/getSingleService';
+import { OrderServicePayload } from '../services/orderService';
 
 type CtaOrderServiceProps = {
     serviceId: SingleServiceType["_id"];
@@ -10,13 +13,27 @@ type CtaOrderServiceProps = {
 }
 
 const CtaOrderService = (props: React.PropsWithoutRef<CtaOrderServiceProps>) => {
+    const serviceAdOrderTrackers = useAppSelector(state => state.serviceAdOrderTrackerReducer);
+
+    const [URLSearchParams] = useSearchParams();
+    const adId = URLSearchParams.get("ad_id");
+
     const orderServiceMutation = useOrderServiceMutation();
 
     const orderServiceHandler = () => {
-        orderServiceMutation.mutate({
+        const orderPayload: OrderServicePayload = {
             serviceId: props.serviceId,
             tier: props.selectedTier
-        });
+        }
+
+        if (adId) {
+            const isValidAdId = serviceAdOrderTrackers.ad_id === adId;
+            if (isValidAdId) {
+                orderPayload.track = serviceAdOrderTrackers.track_id;
+            }
+        }
+
+        orderServiceMutation.mutate(orderPayload);
     }
 
     const messageFreelancer = () => {

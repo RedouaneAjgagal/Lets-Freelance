@@ -5,7 +5,7 @@ import { filterByStatusReducer, filterSearchedServicesReducer, serviceFormReduce
 
 import { jobFormReducer } from "../features/job";
 
-import { campaignFormReducer, serviceAdClickTrackerReducer } from "../features/advertisement";
+import { campaignFormReducer, serviceAdClickTrackerReducer, serviceAdOrderTrackerReducer } from "../features/advertisement";
 
 const store = configureStore({
     reducer: {
@@ -16,7 +16,8 @@ const store = configureStore({
         serviceFormReducer,
         jobFormReducer,
         campaignFormReducer,
-        serviceAdClickTrackerReducer
+        serviceAdClickTrackerReducer,
+        serviceAdOrderTrackerReducer
     }
 });
 

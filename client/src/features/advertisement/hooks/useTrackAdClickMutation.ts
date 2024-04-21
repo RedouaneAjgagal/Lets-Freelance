@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import trackAdClick from '../services/trackAdClick';
 import { useAppDispatch } from '../../../hooks/redux';
 import { serviceAdClickTrackerAction } from '../redux/serviceAdClickTracker';
+import { serviceAdOrderTrackerAction } from '../redux/serviceAdOrderTracker';
 
 const useTrackAdClickMutation = () => {
     const dispatch = useAppDispatch();
@@ -14,7 +15,8 @@ const useTrackAdClickMutation = () => {
             dispatch(serviceAdClickTrackerAction.removeTracker({
                 ad_id: data.ad_id
             }));
-            console.log({ isClick: true, data });
+
+            dispatch(serviceAdOrderTrackerAction.addNewOrderTracker(data));
         }
     })
 

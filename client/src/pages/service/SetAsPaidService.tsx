@@ -1,27 +1,39 @@
 import { useParams, useSearchParams } from "react-router-dom"
 import { SetServiceAsPaidContainer, useSetServiceAsPaidQuery } from "../../features/service";
 import Loading from "../../components/Loading";
+import { SetServiceAsPaidPayload } from "../../features/service/services/setServiceAsPaid";
+import { useEffect } from "react";
+import { useTrackAdOrderMutation } from "../../features/advertisement";
 
 
 const SetAsPaidService = () => {
-
+    const trackAdOrderMutation = useTrackAdOrderMutation();
     const { serviceId } = useParams();
 
     const [URLSearchParams] = useSearchParams();
 
     const sessionId = URLSearchParams.get("session_id");
+    const trackId = URLSearchParams.get("track_id");
 
     if (!sessionId) {
         return <SetServiceAsPaidContainer isError msg="Something went wrong!" />
     }
 
-    const setServiceAsPaidQuery = useSetServiceAsPaidQuery({
+    const setServiceAsPaidPayload: SetServiceAsPaidPayload = {
         serviceId: serviceId!,
         session_id: sessionId
-    });
+    }
 
-    console.log(setServiceAsPaidQuery.data);
+    if (trackId) {
+        setServiceAsPaidPayload.track_id = trackId;
+    }
 
+    const setServiceAsPaidQuery = useSetServiceAsPaidQuery(setServiceAsPaidPayload);
+
+    useEffect(() => {
+        if (!setServiceAsPaidQuery.isSuccess || !setServiceAsPaidQuery.data.ad) return;
+        trackAdOrderMutation.mutate(setServiceAsPaidQuery.data.ad);
+    }, [setServiceAsPaidQuery.isSuccess]);
 
     return (
         <main className="p-4">

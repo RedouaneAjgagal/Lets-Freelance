@@ -10,7 +10,7 @@ const useOrderServiceMutation = () => {
             window.open(data.url, "_bank", "noopener noreferrer");
         },
         onError: (error: AxiosError<{ msg: string }>) => {
-            toast.error(error.response?.data.msg || "Something went wrong!", { id: "orderService" })
+            toast.error(error.response?.data.msg || "Something went wrong!", { id: "orderService" });
         }
     });
 

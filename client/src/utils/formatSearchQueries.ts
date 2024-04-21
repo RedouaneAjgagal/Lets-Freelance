@@ -1,5 +1,6 @@
 const formatSearchQueries = (query: {}) => {
     const searchQueries = Object.entries(query).map(([key, value]) => {
+        if (value === undefined) return;
         return `${key}=${value}`;
     });
 

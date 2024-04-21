@@ -10,8 +10,10 @@ import useGetPaymentMethodsQuery from "./hooks/useGetPaymentMethodsQuery";
 import useGetSingleCampaignQuery from "./hooks/useGetSingleCampaignQuery";
 import useTrackAdClickMutation from "./hooks/useTrackAdClickMutation";
 import useTrackAdEngagementMutation from "./hooks/useTrackAdEngagementMutation";
+import useTrackAdOrderMutation from "./hooks/useTrackAdOrderMutation";
 import campaignFormReducer from "./redux/campaignForm";
 import serviceAdClickTrackerReducer from "./redux/serviceAdClickTracker";
+import serviceAdOrderTrackerReducer from "./redux/serviceAdOrderTracker";
 
 export {
     AdvertisementNavbar,
@@ -27,5 +29,7 @@ export {
     useCreateCampaignMutation,
     useTrackAdEngagementMutation,
     serviceAdClickTrackerReducer,
-    useTrackAdClickMutation
+    useTrackAdClickMutation,
+    serviceAdOrderTrackerReducer,
+    useTrackAdOrderMutation
 }

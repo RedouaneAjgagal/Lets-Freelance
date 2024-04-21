@@ -1,13 +1,10 @@
 import setServiceAsPaid, { SetServiceAsPaidPayload } from '../services/setServiceAsPaid'
 import { useQuery } from '@tanstack/react-query'
 
-const useSetServiceAsPaidQuery = ({ serviceId, session_id }: SetServiceAsPaidPayload) => {
+const useSetServiceAsPaidQuery = (payload: SetServiceAsPaidPayload) => {
     const setServiceAsPaidQuery = useQuery({
-        queryKey: ["setServiceAsPaid", serviceId, session_id],
-        queryFn: () => setServiceAsPaid({
-            serviceId,
-            session_id
-        }),
+        queryKey: ["setServiceAsPaid", payload.serviceId, payload.session_id],
+        queryFn: () => setServiceAsPaid(payload),
         retry: false,
         refetchOnWindowFocus: false
     });

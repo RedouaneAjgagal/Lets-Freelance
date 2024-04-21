@@ -6,8 +6,8 @@ type TrackAdEngagementPayload = {
 }
 
 type TrackAdEngagementResponse = {
-    track: string;
-    ad: string;
+    ad_id: string;
+    track_id: string;
 }
 
 const trackAdEngagement = async (payload: TrackAdEngagementPayload) => {

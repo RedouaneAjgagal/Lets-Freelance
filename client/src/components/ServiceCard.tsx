@@ -9,6 +9,7 @@ import { ServiceType } from "../features/service/services/searchServices";
 import { useEffect, useRef, useState } from "react";
 import { useTrackAdEngagementMutation } from "../features/advertisement";
 import { useQueryClient } from "@tanstack/react-query";
+import formatSearchQueries from "../utils/formatSearchQueries";
 
 type Rating = {
   avgRate?: number;
@@ -61,7 +62,14 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
   const navigate = useNavigate();
 
   const serviceNavigator = () => {
-    navigate(`/services/${props.serviceDetails.service._id}`);
+    const adQueries: { ad_id?: string } = {};
+
+    if (props.serviceDetails.service.sponsored) {
+      adQueries.ad_id = props.serviceDetails.service.ad._id;
+    }
+
+    const searchQuery = formatSearchQueries(adQueries);
+    navigate(`/services/${props.serviceDetails.service._id}${searchQuery}`);
   }
 
   const favoriteServiceToggle = () => {
@@ -76,7 +84,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
   const freelancerName = formatProfileName(props.serviceDetails.serviceBy.name);
 
 
-  // Set sponsored service inView whenever its 50% inViewPort
+  // Set sponsored service inView whenever its 30% inViewPort
   useEffect(() => {
     if (props.serviceDetails.service.sponsored) {
       const observer = new IntersectionObserver(([entry]) => {
@@ -86,7 +94,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
       }, {
         root: null,
         rootMargin: "0px",
-        threshold: 0.5
+        threshold: 0.3
       });
 
       if (serviceRef.current) {

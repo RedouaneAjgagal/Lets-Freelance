@@ -15,7 +15,7 @@ const SingleServiceContainer = (props: React.PropsWithoutRef<SingleServiceContai
 
     return (
         <main className="p-4 flex flex-col gap-8">
-            <SingleActivityNavbar activity="service" hideReport={isBelongToCurrentUser || !userInfo} hideSave={isBelongToCurrentUser} target={props.serviceInfo._id} />
+            <SingleActivityNavbar activity="service" hideReport={isBelongToCurrentUser} hideSave={isBelongToCurrentUser} target={props.serviceInfo._id} />
             <SingleServiceContent serviceInfo={props.serviceInfo} />
             <ServiceFAQs />
             {

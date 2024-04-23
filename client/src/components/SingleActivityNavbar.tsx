@@ -27,7 +27,7 @@ const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarP
                 }
                 {props.hideSave ?
                     null
-                    : <SaveActivity activity={props.activity} />
+                    : <SaveActivity activity={props.activity} targetId={props.target} />
                 }
             </div>
             {props.hideReport ?

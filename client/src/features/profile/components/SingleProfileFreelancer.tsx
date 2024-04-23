@@ -58,7 +58,7 @@ const SingleProfileFreelancer = () => {
         <>
             <header>
                 <div className="p-4">
-                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser || !userInfo} hideSave={isCurrentUser} target={profile._id} />
+                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} target={profile._id} />
                 </div>
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>

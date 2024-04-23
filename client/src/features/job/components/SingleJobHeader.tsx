@@ -12,6 +12,7 @@ type SingleJobHeaderProps = {
     createdAt: SingleJobType["createdAt"];
     category: SingleJobType["category"];
     jobId: string;
+    publisherId: string;
 }
 
 const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => {
@@ -27,17 +28,19 @@ const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => 
 
     const status = toUpperCase({ value: props.status });
 
+    const isCurrentUser = props.publisherId === userInfo?.profileId;
+
     return (
         <header className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <span className={`${props.status === "open" ? "bg-blue-300/30 text-blue-500" : "bg-stone-300/30 text-stone-500"} self-start py-1 px-3 rounded text-center font-medium`}>{status}</span>
-                <div className="flex items-center gap-4">
-                    <SaveActivity activity="job" />
-                    {userInfo ?
+                {isCurrentUser ?
+                    null
+                    : <div className="flex items-center gap-4">
+                        <SaveActivity activity="job" targetId={props.jobId} />
                         <ReportActivity activity="job" target={props.jobId} />
-                        : null
-                    }
-                </div>
+                    </div>
+                }
             </div>
             <h1 className="text-2xl font-semibold">{props.title}</h1>
             <div className="flex flex-col gap-2">

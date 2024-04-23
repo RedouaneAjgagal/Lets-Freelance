@@ -17,7 +17,7 @@ interface Props {
 const JobItem = (props: React.PropsWithoutRef<Props>) => {
     const navigate = useNavigate();
     const onLastJob = () => {
-        navigate("/");
+        navigate(`/jobs/${props.jobInfo._id}`);
     }
 
     return (

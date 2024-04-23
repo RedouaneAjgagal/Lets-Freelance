@@ -1,5 +1,4 @@
 import Loading from "../../components/Loading";
-import SingleActivityNavbar from "../../components/SingleActivityNavbar";
 import { SingleJobContainer, SingleJobProfileHistory, useGetSingleJobQuery } from "../../features/job"
 
 const SingleJob = () => {

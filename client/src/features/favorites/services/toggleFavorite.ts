@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { postRequest } from "../../../services/api"
 
 type ToggleFavoritePayloadType = {
@@ -11,12 +12,12 @@ type ToggleFavoriteType = {
 }
 
 const toggleFavorite = async ({ event, target }: ToggleFavoritePayloadType) => {
-    const response = await postRequest("favourites", {
+    const response: AxiosResponse<Promise<ToggleFavoriteType>> = await postRequest("favourites", {
         event,
         target
     });
 
-    const favorite = await response.data as ToggleFavoriteType;
+    const favorite = await response.data;
     return favorite;
 }
 

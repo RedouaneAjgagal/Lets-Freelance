@@ -13,8 +13,10 @@ const useFavoritesMutation = (event: "profile" | "service" | "job") => {
         mutationFn: toggleFavorite,
         onSuccess: (data) => {
             toast.success(data.msg, {
-                id: "setFavoriteSuccess"
+                id: "success_setFavoriteSuccess",
+                duration: 3000
             });
+            
             queryClient.invalidateQueries({ queryKey: ["favorites", userInfo!.profileId] });
             if (event === "profile") {
                 queryClient.invalidateQueries({ queryKey: ["highRatedFreelancers"] });
@@ -22,7 +24,8 @@ const useFavoritesMutation = (event: "profile" | "service" | "job") => {
         },
         onError: (e: AxiosError<{ msg: string }>) => {
             toast.error(e.response!.data.msg, {
-                id: "setFavoriteError"
+                id: "error_setFavoriteError",
+                duration: 5000
             });
         }
     });

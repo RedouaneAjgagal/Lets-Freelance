@@ -12,6 +12,8 @@ import useSetConnectsAsPaidQuery from "./hooks/useSetConnectsAsPaidQuery";
 import SetAsPaidConnectsContainer from "./components/SetAsPaidConnectsContainer";
 import ProfileHistory from "./components/ProfileHistory";
 import { SingleProfile } from "./services/getSingleProfileInfo";
+import SearchFreelancersNav from "./components/SearchFreelancersNav";
+import SearchedFreelancers from "./components/SearchedFreelancers";
 
 export {
     PublicProfileForm,
@@ -26,7 +28,9 @@ export {
     ConnectsContainer,
     useSetConnectsAsPaidQuery,
     SetAsPaidConnectsContainer,
-    ProfileHistory
+    ProfileHistory,
+    SearchFreelancersNav,
+    SearchedFreelancers
 }
 
 export type {

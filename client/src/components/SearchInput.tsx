@@ -8,7 +8,7 @@ type SearchInputProps = {
 const SearchInput = (props: React.PropsWithoutRef<SearchInputProps>) => {
     return (
         <form onSubmit={props.onSubmit} className="w-full">
-            <div className="flex items-center border border-slate-800 rounded h-8">
+            <div className="flex items-center border border-slate-400 rounded h-8 focus-within:border-slate-800">
                 <button type="submit" className="h-full px-2 text-lg">
                     <BiSearch className="-mb-[0.1rem]" />
                 </button>

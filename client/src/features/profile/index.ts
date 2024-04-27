@@ -11,6 +11,7 @@ import ConnectsContainer from "./components/ConnectsContainer";
 import useSetConnectsAsPaidQuery from "./hooks/useSetConnectsAsPaidQuery";
 import SetAsPaidConnectsContainer from "./components/SetAsPaidConnectsContainer";
 import ProfileHistory from "./components/ProfileHistory";
+import { SingleProfile } from "./services/getSingleProfileInfo";
 
 export {
     PublicProfileForm,
@@ -26,4 +27,8 @@ export {
     useSetConnectsAsPaidQuery,
     SetAsPaidConnectsContainer,
     ProfileHistory
+}
+
+export type {
+    SingleProfile
 }

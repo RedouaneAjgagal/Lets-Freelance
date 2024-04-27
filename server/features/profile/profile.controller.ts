@@ -54,60 +54,296 @@ const profileInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@access public
 const singleProfile: RequestHandler = async (req, res) => {
     const { profileId } = req.params;
-    const profile = await Profile.findById(profileId).select("-roles.freelancer.connects -updatedAt");
+    const { accessToken } = req.signedCookies;
+
+    const isValidMongodbId = mongoose.isValidObjectId(profileId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid profile ID");
+    }
+
+    const user = getUserPayload({
+        accessToken: accessToken || ""
+    });
+
+    const [profile] = await Profile.aggregate([
+        {
+            // get profile related to this ID
+            $match: {
+                _id: new mongoose.Types.ObjectId(profileId)
+            }
+        },
+        {
+            // populate services related to this profile
+            $lookup: {
+                from: "services",
+                foreignField: "profile",
+                localField: "_id",
+                as: "services"
+            }
+        },
+        {
+            // populate jobs related to this profile
+            $lookup: {
+                from: "jobs",
+                foreignField: "profile",
+                localField: "_id",
+                as: "jobs"
+            }
+        },
+        {
+            // get only open jobs
+            $addFields: {
+                openJobs: {
+                    $filter: {
+                        input: "$jobs",
+                        as: "job",
+                        cond: {
+                            $eq: ["$$job.status", "open"]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // populate contracts related to this profile (freelancer)
+            $lookup: {
+                from: "contracts",
+                foreignField: "freelancer.profile",
+                localField: "_id",
+                as: "contracts"
+            }
+        },
+        {
+            // get completed jobs
+            $addFields: {
+                completedJobs: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.activityType", "job"] },
+                                { $eq: ["$$contract.freelancer.status", "completed"] },
+                                { $eq: ["$$contract.employer.status", "completed"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the size of completed jobs
+            $addFields: {
+                projectSuccess: {
+                    $size: "$completedJobs"
+                }
+            }
+        },
+        {
+            // get completed services
+            $addFields: {
+                completedServices: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.activityType", "service"] },
+                                { $eq: ["$$contract.freelancer.status", "completed"] },
+                                { $eq: ["$$contract.employer.status", "completed"] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the size of completed services
+            $addFields: {
+                completedService: {
+                    $size: "$completedServices"
+                }
+            }
+        },
+        {
+            // get in progress services
+            $addFields: {
+                inQueueServices: {
+                    $filter: {
+                        input: "$contracts",
+                        as: "contract",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$contract.activityType", "service"] },
+                                {
+                                    $or: [
+                                        { $eq: ["$$contract.freelancer.status", "inProgress"] },
+                                        { $eq: ["$$contract.employer.status", "inProgress"] }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // get the size of in progress services
+            $addFields: {
+                inQueueService: {
+                    $size: "$inQueueServices"
+                }
+            }
+        },
+        {
+            // get the size of services
+            $addFields: {
+                totalServices: {
+                    $size: "$services"
+                }
+            }
+        },
+        {
+            // populate favorites related to this profile
+            $lookup: {
+                from: "favourites",
+                foreignField: "target",
+                localField: "_id",
+                as: "favorites"
+            }
+        },
+        {
+            // get only favorites related to this current user (if logged in)
+            $addFields: {
+                favorites: {
+                    $filter: {
+                        input: "$favorites",
+                        as: "favorite",
+                        cond: {
+                            $and: [
+                                { $eq: ["$$favorite.event", "profile"] },
+                                { $eq: ["$$favorite.user", new mongoose.Types.ObjectId(user?.userId)] }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // check if it has been favorited
+            $addFields: {
+                isFavorited: {
+                    $cond: [
+                        {
+                            $eq: [{ $size: "$favorites" }, 0]
+                        },
+                        false,
+                        true
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                user: 1,
+                name: 1,
+                avatar: 1,
+                showProfile: 1,
+                userAs: 1,
+                country: 1,
+                phoneNumber: 1,
+                description: 1,
+                category: 1,
+                roles: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        { freelancer: "$roles.freelancer" },
+                        { employer: "$roles.employer" }
+                    ]
+                },
+                rating: 1,
+                isFavorited: 1,
+                createdAt: 1,
+                projectSuccess: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        "$projectSuccess",
+                        "$$REMOVE"
+                    ]
+                },
+                completedService: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        "$completedService",
+                        "$$REMOVE"
+                    ]
+                },
+                inQueueService: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        "$inQueueService",
+                        "$$REMOVE"
+                    ]
+                },
+                totalServices: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        "$totalServices",
+                        "$$REMOVE"
+                    ]
+                },
+                openJobs: {
+                    $cond: [
+                        { $eq: ["$userAs", "employer"] },
+                        "$openJobs",
+                        "$$REMOVE"
+                    ]
+                },
+                services: {
+                    $cond: [
+                        { $eq: ["$userAs", "freelancer"] },
+                        "$services",
+                        "$$REMOVE"
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                "roles.freelancer.connects": false,
+                "roles.freelancer.advertisement": false,
+                "openJobs.user": false,
+                "openJobs.profile": false,
+                "openJobs.description": false,
+                "openJobs.duration": false,
+                "openJobs.weeklyHours": false,
+                "openJobs.experienceLevel": false,
+                "openJobs.connects": false,
+                "openJobs.tags": false,
+                "openJobs.status": false,
+                "openJobs.updatedAt": false,
+                "services.user": false,
+                "services.profile": false,
+                "services.description": false,
+                "services.gallery": false,
+                "services.keywords": false,
+                "services.tier.starter.deliveryTime": false,
+                "services.tier.starter.includedIn": false,
+                "services.tier.standard": false,
+                "services.tier.advanced": false,
+                "services.orders": false,
+                "services.createdAt": false,
+                "services.updatedAt": false,
+            }
+        },
+    ]);
+
     if (!profile) {
         throw new NotFoundError("Found no profile");
     }
 
-    const profileInfo = getProfileInfo(profile.toObject());
-
-    let profileData: ProfileData = {
-        ...profileInfo
-    }
-
-    if (profileData.userAs === "freelancer") {
-        const services = await Service.find({ user: profile.user._id, profile: profile._id }).select("_id featuredImage title category tier.starter.price rating").populate({ path: "profile", select: "_id name avatar" }).lean();
-
-        const projectSuccess = await Contract.count({
-            "freelancer.user": profile.user._id,
-            "freelancer.profile": profile._id,
-            activityType: "job",
-            $and: [{ "freelancer.status": "completed" }, { "employer.status": "completed" }]
-        });
-
-        const completedService = await Contract.count({
-            "freelancer.user": profile.user._id,
-            "freelancer.profile": profile._id,
-            activityType: "service",
-            $and: [{ "freelancer.status": "completed" }, { "employer.status": "completed" }]
-        });
-
-        const inQueueService = await Contract.count({
-            "freelancer.user": profile.user._id,
-            "freelancer.profile": profile._id,
-            activityType: "service",
-            $or: [{ "freelancer.status": "inProgress" }, { "employer.status": "inProgress" }]
-        });
-
-        profileData = {
-            ...profileData,
-            projectSuccess,
-            totalService: services.length,
-            completedService,
-            inQueueService,
-            services
-        }
-    }
-
-    if (profileData.userAs === "employer") {
-        const openJobs = await Job.find({ user: profile.user._id, profile: profile._id, status: "open" }).select("_id title category priceType price locationType createdAt profile").populate({ path: "profile", select: "name country" }).lean();
-        profileData = {
-            ...profileData,
-            openJobs
-        }
-    }
-
-    res.status(StatusCodes.OK).json(profileData);
+    res.status(StatusCodes.OK).json(profile);
 }
 
 

@@ -13,6 +13,7 @@ type SingleJobHeaderProps = {
     category: SingleJobType["category"];
     jobId: string;
     publisherId: string;
+    isFavorited: SingleJobType["isFavorited"];
 }
 
 const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => {
@@ -37,7 +38,7 @@ const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => 
                 {isCurrentUser ?
                     null
                     : <div className="flex items-center gap-4">
-                        <SaveActivity activity="job" targetId={props.jobId} />
+                        <SaveActivity activity="job" targetId={props.jobId} isFavorited={props.isFavorited} />
                         <ReportActivity activity="job" target={props.jobId} />
                     </div>
                 }

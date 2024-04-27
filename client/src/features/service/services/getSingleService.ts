@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api"
 import { Category } from "../../profile/helpers/getFormatedCategory";
 
@@ -48,11 +49,12 @@ export type SingleServiceType = {
     updatedAt: string;
     tier: ServiceTiersTypes;
     rating: Rating;
+    isFavorited: boolean;
 }
 
 const getSingleService = async (serviceId: string) => {
-    const response = await getRequest(`services/${serviceId}`);
-    const serviceInfo = await response.data as SingleServiceType;
+    const response: AxiosResponse<Promise<SingleServiceType>> = await getRequest(`services/${serviceId}`);
+    const serviceInfo = await response.data;
     return serviceInfo;
 }
 

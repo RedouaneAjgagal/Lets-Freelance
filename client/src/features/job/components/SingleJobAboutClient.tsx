@@ -11,7 +11,8 @@ type SingleJobAboutClientProps = {
     connects: number;
     jobId: string;
     jobStatus: "open" | "closed";
-    hasSubmitted: boolean
+    hasSubmitted: boolean;
+    isFavorited: SingleJobType["isFavorited"];
 }
 
 const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientProps>) => {
@@ -45,7 +46,7 @@ const SingleJobAboutClient = (props: React.PropsWithoutRef<SingleJobAboutClientP
             {userInfo ?
                 (userInfo.userAs === "freelancer" && props.jobStatus === "open") ?
                     <header className="fixed bg-slate-50 bottom-0 left-0 w-full px-4 h-20 items-center z-10 flex gap-4 border-t">
-                        <ApplyJobContainer connects={props.connects} jobId={props.jobId} hasSubmitted={props.hasSubmitted} />
+                        <ApplyJobContainer connects={props.connects} jobId={props.jobId} hasSubmitted={props.hasSubmitted} isFavorited={props.isFavorited} />
                     </header>
                     : null
                 :

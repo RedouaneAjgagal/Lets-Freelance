@@ -7,6 +7,11 @@ import { ServiceType } from '../services/getSingleProfileInfo'
 import Service from './Service'
 
 interface Props {
+    profile: {
+        _id: string;
+        name: string;
+        avatar: string;
+    };
     services: ServiceType[];
 }
 
@@ -22,7 +27,7 @@ const ProfileServices = (props: React.PropsWithoutRef<Props>) => {
                 {props.services.length ?
                     <Slider navigationClassName="services" slidesPerView={1} isPagination={false} isAutoPlay={false} >
                         {props.services.map(service => <SwiperSlide tag='li' key={service._id}>
-                            <Service serviceInfo={service} />
+                            <Service serviceInfo={service} profile={props.profile} />
                         </SwiperSlide>)}
                     </Slider>
                     :

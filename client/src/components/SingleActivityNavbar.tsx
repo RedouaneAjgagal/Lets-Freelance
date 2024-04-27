@@ -9,6 +9,7 @@ type SingleActivityNavbarProps = {
     hideSave?: boolean;
     hideReport?: boolean;
     target: string;
+    isFavorited: boolean;
 }
 
 const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarProps>) => {
@@ -27,7 +28,7 @@ const SingleActivityNavbar = (props: React.PropsWithoutRef<SingleActivityNavbarP
                 }
                 {props.hideSave ?
                     null
-                    : <SaveActivity activity={props.activity} targetId={props.target} />
+                    : <SaveActivity activity={props.activity} targetId={props.target} isFavorited={props.isFavorited} />
                 }
             </div>
             {props.hideReport ?

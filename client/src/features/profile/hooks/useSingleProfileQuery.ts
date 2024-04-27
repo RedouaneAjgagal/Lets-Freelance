@@ -1,12 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import getSingleProfileInfo from "../services/getSingleProfileInfo";
-import { useParams } from "react-router-dom";
 
-const useSingleProfileQuery = () => {
-    const { profileId } = useParams();
+type SingleProfileQueryPayload = {
+    profileId: string;
+}
+
+const useSingleProfileQuery = (payload: SingleProfileQueryPayload) => {
     const singleProfileQuery = useQuery({
-        queryKey: ["singleProfile", profileId],
-        queryFn: getSingleProfileInfo.bind(null, profileId!),
+        queryKey: ["profiles", payload.profileId],
+        queryFn: () => getSingleProfileInfo({
+            profileId: payload.profileId
+        }),
         refetchOnWindowFocus: false
     });
     return singleProfileQuery;

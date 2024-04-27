@@ -3,7 +3,12 @@ import { ServiceType } from "../services/getSingleProfileInfo"
 import { AiFillStar } from "react-icons/ai";
 
 type Service = {
-    serviceInfo: ServiceType
+    profile: {
+        _id: string;
+        name: string;
+        avatar: string;
+    };
+    serviceInfo: ServiceType;
 }
 
 const Service = (props: React.PropsWithoutRef<Service>) => {
@@ -39,10 +44,10 @@ const Service = (props: React.PropsWithoutRef<Service>) => {
                     </div>
                     <div className="px-3">
                         <div className="border-t flex items-center justify-between gap-2 flex-wrap py-4">
-                            <Link to={"/user"} className="flex items-center gap-2 text-sm hover:text-purple-800">
-                                <img src={props.serviceInfo.profile.avatar} alt="user image" className="w-8 h-8 object-cover rounded-full" />
-                                <span>{props.serviceInfo.profile.name}</span>
-                            </Link>
+                            <div className="flex items-center gap-2 text-sm">
+                                <img src={props.profile.avatar} alt="user image" className="w-8 h-8 object-cover rounded-full" />
+                                <span>{props.profile.name}</span>
+                            </div>
                             <div className="text-sm text-slate-600">
                                 <p>Starting at: <span className="text-lg text-black font-medium">${props.serviceInfo.tier.starter.price}</span></p>
                             </div>

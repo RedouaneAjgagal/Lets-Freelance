@@ -4,7 +4,7 @@ import { CustomAuthRequest } from "../../middlewares/authentication";
 import createServiceValidator from "./validators/createServiceValidator";
 import { User } from "../auth";
 import { BadRequestError, NotFoundError, UnauthenticatedError, UnauthorizedError } from "../../errors";
-import Service, { IService, Order, ServiceWithoutRefs, TrandingServices } from "./service.model";
+import Service, { Order, ServiceWithoutRefs, TrandingServices } from "./service.model";
 import rolePermissionChecker from "../../utils/rolePermissionChecker";
 import uploadImage from "../../utils/uploadImage";
 import { UploadedFile } from "express-fileupload";
@@ -20,6 +20,7 @@ import { ContractPayments } from "../contract/contract.model";
 import getServicePriceAfterFees from "./utils/getServicePriceAfterFees";
 import origin from "../../config/origin";
 import { GetSponsoredServicesPayload, advertisementModels } from "../advertisement";
+import getUserPayload from "../../utils/getUserPayload";
 
 
 type SearchServiceType = {
@@ -225,21 +226,119 @@ const getAllservices: RequestHandler = async (req, res) => {
 //@access public
 const singleService: RequestHandler = async (req, res) => {
     const { serviceId } = req.params;
-    if (!serviceId || serviceId.trim() === "") {
-        throw new BadRequestError("Service id is messing");
+
+    const isValidMongodbId = mongoose.isValidObjectId(serviceId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid service ID");
     }
 
+    const { accessToken } = req.signedCookies;
+    const user = getUserPayload({
+        accessToken: accessToken || ""
+    });
+
     // find the service
-    const service = await Service.findById(serviceId).populate("profile", "name avatar userAs rating roles.freelancer.badge").select("-orders -keywords");
+    const [service] = await Service.aggregate([
+        {
+            // get service related to this ID
+            $match: {
+                _id: new mongoose.Types.ObjectId(serviceId)
+            }
+        },
+        {
+            // populate profiles related to this service
+            $lookup: {
+                from: "profiles",
+                foreignField: "_id",
+                localField: "profile",
+                as: "profiles"
+            }
+        },
+        {
+            // get the profile
+            $addFields: {
+                profile: {
+                    $first: "$profiles"
+                }
+            }
+        },
+        {
+            // populate favorites related to this service
+            $lookup: {
+                from: "favourites",
+                foreignField: "target",
+                localField: "_id",
+                as: "favorites"
+            }
+        },
+        {
+            // get only favorites related to this current user (if logged in)
+            $addFields: {
+                currentUserFavorites: {
+                    $filter: {
+                        input: "$favorites",
+                        as: "favorite",
+                        cond: {
+                            $and: [
+                                {
+                                    $eq: [
+                                        "$$favorite.user",
+                                        new mongoose.Types.ObjectId(user?.userId)
+                                    ]
+                                },
+                                {
+                                    $eq: [
+                                        "$$favorite.event",
+                                        "service"
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // check if it has been favorited
+            $addFields: {
+                isFavorited: {
+                    $cond: [
+                        {
+                            $eq: [{ $size: "$currentUserFavorites" }, 0]
+                        },
+                        false,
+                        true
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                user: 1,
+                title: 1,
+                description: 1,
+                category: 1,
+                featuredImage: 1,
+                gallery: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                tier: 1,
+                rating: 1,
+                "profile._id": 1,
+                "profile.name": 1,
+                "profile.avatar": 1,
+                "profile.userAs": 1,
+                "profile.rating": 1,
+                "profile.roles.freelancer.badge": 1,
+                isFavorited: 1
+            }
+        }
+    ]);
 
     // check if service exist
     if (!service) {
         throw new NotFoundError(`Found no service with id ${serviceId}`);
-    }
-
-    // check if role is not freelancer (changed role)
-    if (service.profile.userAs !== "freelancer") {
-        throw new UnauthorizedError(`${service.profile.name} is no longer a freelancer`);
     }
 
     res.status(StatusCodes.OK).json(service);

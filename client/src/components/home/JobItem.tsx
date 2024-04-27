@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
     jobInfo: {
@@ -25,7 +25,7 @@ const JobItem = (props: React.PropsWithoutRef<Props>) => {
             <button onClick={onLastJob} className="border rounded p-4 bg-white flex flex-col gap-4 text-left w-full h-full">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-black font-semibold text-xl">{props.jobInfo.title}</h3>
-                    <Link to={"/"} className="text-purple-600 font-semibold text-sm self-start">{props.jobInfo.employer.name}</Link>
+                    <span className="text-purple-600 font-semibold text-sm self-start">{props.jobInfo.employer.name}</span>
                 </div>
                 <div className="flex text-sm text-slate-500 flex-wrap gap-x-2 gap-y-2">
                     {props.tags.map((tag, index) =>

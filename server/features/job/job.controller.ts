@@ -17,6 +17,7 @@ import { Profile } from "../profile";
 import { proposalModel as Proposal } from "../proposal";
 import getUserPayload from "../../utils/getUserPayload";
 import mongoose from "mongoose";
+import Favourite from "../favourite/favourite.model";
 
 type JobAggregateData = {
     proposals: {
@@ -184,15 +185,118 @@ const singleJob: RequestHandler = async (req, res) => {
         throw new BadRequestError("Must provide the job id");
     }
 
+    // is freelancer logged in to return if has submitted proposal to this job or not
+    const { accessToken } = req.signedCookies;
+    const user = getUserPayload({
+        accessToken: accessToken || ""
+    });
+
     // find the job
-    const job = await Job.findById(jobId).populate({ path: "profile", select: "name userAs country category roles.employer.employees roles.employer.totalJobPosted createdAt" }).lean();
+    const [job] = await Job.aggregate([
+        {
+            // get only jobs that match jobId
+            $match: {
+                _id: new mongoose.Types.ObjectId(jobId)
+            }
+        },
+        {
+            // populate profiles related to this job
+            $lookup: {
+                from: "profiles",
+                foreignField: "_id",
+                localField: "profile",
+                as: "profile"
+            }
+        },
+        {
+            // get the profile
+            $addFields: {
+                profile: {
+                    $first: "$profile"
+                }
+            }
+        },
+        {
+            // populate favorites related to this job
+            $lookup: {
+                from: "favourites",
+                foreignField: "target",
+                localField: "_id",
+                as: "favorites"
+            }
+        },
+        {
+            // get only favorites related to this current user (if logged in)
+            $addFields: {
+                currentUserFavorites: {
+                    $filter: {
+                        input: "$favorites",
+                        as: "favorite",
+                        cond: {
+                            $and: [
+                                {
+                                    $eq: [
+                                        "$$favorite.event",
+                                        "job"
+                                    ]
+                                },
+                                {
+                                    $eq: [
+                                        "$$favorite.user",
+                                        new mongoose.Types.ObjectId(user?.userId)
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        {
+            // check if it has been favorited
+            $addFields: {
+                isFavorited: {
+                    $cond: [
+                        { $eq: [{ $size: ["$currentUserFavorites"] }, 0] },
+                        false,
+                        true
+                    ]
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                isFavorited: 1,
+                user: 1,
+                title: 1,
+                description: 1,
+                category: 1,
+                priceType: 1,
+                price: 1,
+                locationType: 1,
+                duration: 1,
+                weeklyHours: 1,
+                experienceLevel: 1,
+                tags: 1,
+                connects: 1,
+                status: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "profile._id": 1,
+                "profile.name": 1,
+                "profile.userAs": 1,
+                "profile.country": 1,
+                "profile.category": 1,
+                "profile.createdAt": 1,
+                "profile.roles.employer.employees": 1,
+                "profile.roles.employer.totalJobPosted": 1
+            }
+        }
+    ]);
+
     if (!job) {
         throw new NotFoundError(`Found no job with id ${jobId}`);
-    }
-
-    // check if the uesr an employer
-    if (job.profile.userAs !== "employer") {
-        throw new UnauthorizedError(`${job.profile.name} is no longer an employer`);
     }
 
     // calc average hourly rate paid and total spent by the employer
@@ -255,12 +359,6 @@ const singleJob: RequestHandler = async (req, res) => {
             }
         }
     ]);
-
-    // is freelancer logged in to return if has submitted proposal to this job or not
-    const { accessToken } = req.signedCookies;
-    const user = getUserPayload({
-        accessToken: accessToken || ""
-    });
 
     // get activity on this job
     const [jobActivity]: JobAggregateData[] = await Proposal.aggregate([
@@ -369,7 +467,8 @@ const singleJob: RequestHandler = async (req, res) => {
             interviewing: jobActivity?.interviewing[0]?.total || 0,
             approved: jobActivity?.approved[0]?.total || 0,
             rejected: jobActivity?.rejected[0]?.total || 0
-        }
+        },
+        // isFavorite: favorite ? true : false
     }
 
     res.status(StatusCodes.OK).json(jobDetails);

@@ -1,14 +1,21 @@
-import { TbHeart } from "react-icons/tb";
+import { TbHeart, TbLoader2 } from "react-icons/tb";
 import { PrimaryButton } from "../../../layouts/brand";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useFavoritesMutation } from "../../favorites";
 
 type ApplyJobContainerProps = {
     connects: number;
     jobId: string;
     hasSubmitted: boolean;
+    isFavorited: boolean
 }
 
 const ApplyJobContainer = (props: React.PropsWithoutRef<ApplyJobContainerProps>) => {
+    const favoriteMutation = useFavoritesMutation({
+        event: "job",
+        target: props.jobId
+    });
+
     const navigate = useNavigate();
 
     const connectPluralize = props.connects === 1 ? "" : "s";
@@ -21,13 +28,28 @@ const ApplyJobContainer = (props: React.PropsWithoutRef<ApplyJobContainerProps>)
         navigate(`/proposals/job/${props.jobId}/submit`);
     }
 
+    const favoriteJobToggle = () => {
+        if (favoriteMutation.isLoading) return;
+        favoriteMutation.mutate({
+            event: "job",
+            target: props.jobId
+        });
+    }
+
     return (
         <>
-            {props.hasSubmitted ?
-                <Link className="w-full text-center bg-slate-200/60 font-medium p-2 rounded border-2 text-slate-600" to={`/profile/freelancer/proposals`}>{alreadySubmittedContent}</Link>
-                : <PrimaryButton disabled={false} fullWith={true} justifyConent="center" style="solid" type="button" x="lg" y="lg" isLoading={false} onClick={applyJobHandler}>{applyJobContent}</PrimaryButton>
-            }
-            <button className="border text-slate-700 border-slate-300 p-3 rounded-full flex items-center justify-center"><TbHeart size={20} /></button>
+            <PrimaryButton disabled={props.hasSubmitted} fullWith={true} justifyConent="center" style="solid" type="button" x="lg" y="lg" isLoading={false} onClick={applyJobHandler} inactive={props.hasSubmitted}>
+                {props.hasSubmitted ?
+                    alreadySubmittedContent
+                    : applyJobContent
+                }
+            </PrimaryButton>
+            <button onClick={favoriteJobToggle} disabled={favoriteMutation.isLoading} className={`${props.isFavorited ? "text-white border-white bg-purple-600" : "text-slate-700 border-slate-300"} border p-3 rounded-full flex items-center justify-center`}>
+                {favoriteMutation.isLoading ?
+                    <TbLoader2 className="animate-spin" size={20} />
+                    : <TbHeart size={20} />
+                }
+            </button>
         </>
     )
 }

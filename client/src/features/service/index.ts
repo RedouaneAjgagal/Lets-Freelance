@@ -19,6 +19,7 @@ import ServiceForm from "./components/ServiceForm";
 import IncludedInSelectedPackage from "./components/IncludedInSelectedPackage";
 import { FreelancerServiceType } from "./services/getFreelancerServices";
 import { SearchServicesType } from "./services/searchServices";
+import { SingleServiceType } from "./services/getSingleService";
 
 export {
     useTrendingServicesQuery,
@@ -44,5 +45,6 @@ export {
 
 export type {
     FreelancerServiceType,
-    SearchServicesType
+    SearchServicesType,
+    SingleServiceType
 }

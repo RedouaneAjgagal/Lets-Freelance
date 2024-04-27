@@ -2,6 +2,11 @@ import JobItem from "../../../components/home/JobItem";
 import { OpenJobType } from "../services/getSingleProfileInfo";
 
 interface Props {
+    profileDetails: {
+        _id: string;
+        name: string;
+        country?: string;
+    };
     jobs: OpenJobType[];
 }
 
@@ -9,7 +14,7 @@ const OpenJobs = (props: React.PropsWithoutRef<Props>) => {
     const jobs = props.jobs.map(job => {
         const jobInfo = {
             _id: job._id,
-            employer: job.profile,
+            employer: props.profileDetails,
             title: job.title
         };
 

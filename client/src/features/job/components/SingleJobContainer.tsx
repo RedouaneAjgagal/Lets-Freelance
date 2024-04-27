@@ -13,7 +13,7 @@ const SingleJobContainer = (props: React.PropsWithoutRef<SingleJobContainerProps
     return (
         <div className="grid grid-cols-1 gap-10">
             <div className="flex flex-col gap-6">
-                <SingleJobHeader status={props.jobDetails.status} title={props.jobDetails.title} category={props.jobDetails.category} createdAt={props.jobDetails.createdAt} jobId={props.jobDetails._id} publisherId={props.jobDetails.profile._id} />
+                <SingleJobHeader status={props.jobDetails.status} title={props.jobDetails.title} category={props.jobDetails.category} createdAt={props.jobDetails.createdAt} jobId={props.jobDetails._id} publisherId={props.jobDetails.profile._id} isFavorited={props.jobDetails.isFavorited} />
                 <SingleJobMainContent jobMainDetails={{
                     description: props.jobDetails.description,
                     connects: props.jobDetails.connects,
@@ -28,7 +28,7 @@ const SingleJobContainer = (props: React.PropsWithoutRef<SingleJobContainerProps
                 <SingleJobActivity jobActivity={props.jobDetails.activity} />
             </div>
             <aside className="flex flex-col gap-6">
-                <SingleJobAboutClient jobStatus={props.jobDetails.status} clientInfo={props.jobDetails.profile} connects={props.jobDetails.connects} jobId={props.jobDetails._id} hasSubmitted={props.jobDetails.hasSubmitted} />
+                <SingleJobAboutClient jobStatus={props.jobDetails.status} clientInfo={props.jobDetails.profile} connects={props.jobDetails.connects} jobId={props.jobDetails._id} hasSubmitted={props.jobDetails.hasSubmitted} isFavorited={props.jobDetails.isFavorited} />
             </aside>
         </div>
     )

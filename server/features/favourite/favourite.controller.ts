@@ -117,14 +117,14 @@ const toggleFavourite: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // dont allow to favourite own targets (service, job or profile)
     if (target.user._id.toString() === req.user!.userId) {
-        throw new BadRequestError(`You can't favourite your own ${favouriteData.event}`);
+        throw new BadRequestError(`You can't favorite your own ${favouriteData.event}`);
     }
 
     // if the target already has been created then delete it (toggle)
     const alreadyExistTarget = await Favourite.findOne({ user: req.user!.userId, target: target.id });
     if (alreadyExistTarget) {
         alreadyExistTarget.deleteOne();
-        return res.status(StatusCodes.OK).json({ msg: `${favouriteData.event} has been removed from favourites`, status: "remove" });
+        return res.status(StatusCodes.OK).json({ msg: `${favouriteData.event} has been removed from favorites`, status: "remove" });
     }
 
     // create favourite
@@ -134,7 +134,7 @@ const toggleFavourite: RequestHandler = async (req: CustomAuthRequest, res) => {
         target: favouriteData.target
     });
 
-    res.status(StatusCodes.CREATED).json({ msg: `New ${favouriteData.event} has been added to favourites`, status: "add" });
+    res.status(StatusCodes.CREATED).json({ msg: `New ${favouriteData.event} has been added to favorites`, status: "add" });
 }
 
 

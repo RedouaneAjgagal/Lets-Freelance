@@ -275,8 +275,4 @@ const getJobsAnalysis: RequestHandler = async (req: CustomAuthRequest, res) => {
     res.status(StatusCodes.OK).json(jobs);
 }
 
-const jobControllers = {
-    getJobsAnalysis
-}
-
-export default jobControllers;
+export default getJobsAnalysis;

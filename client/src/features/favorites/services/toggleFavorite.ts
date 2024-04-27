@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { postRequest } from "../../../services/api"
 
-type ToggleFavoritePayloadType = {
+export type ToggleFavoritePayloadType = {
     event: "profile" | "service" | "job";
     target: string;
 };

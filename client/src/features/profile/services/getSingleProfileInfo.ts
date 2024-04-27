@@ -1,3 +1,4 @@
+import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api";
 
 export type Freelancer = {
@@ -73,11 +74,6 @@ export interface IEmployerRole {
 
 export type OpenJobType = {
     _id: string;
-    profile: {
-        _id: string;
-        name: string;
-        country: string;
-    };
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     priceType: "fixed" | "hourly";
@@ -100,26 +96,17 @@ export type GeneralProfile = {
     name: string;
     avatar: string;
     showProfile: boolean;
-    userAs: "freelancer" | "employer";
     country?: string;
     phoneNumber?: number;
     description?: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
-    roles: {
-        freelancer: IFreelancerRole | undefined;
-        employer: IEmployerRole | undefined;
-    };
     rating: RatingType;
+    isFavorited: boolean;
     createdAt: string;
 }
 
 export type ServiceType = {
     _id: string;
-    profile: {
-        _id: string;
-        name: string;
-        avatar: string;
-    };
     title: string;
     category: "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
     featuredImage: string;
@@ -132,6 +119,10 @@ export type ServiceType = {
 };
 
 type FreelancerSigleProfile = {
+    userAs: "freelancer";
+    roles: {
+        freelancer: IFreelancerRole;
+    };
     services: ServiceType[];
     projectSuccess: number;
     totalService: number;
@@ -140,18 +131,25 @@ type FreelancerSigleProfile = {
 }
 
 type EmployerSignleProfile = {
+    userAs: "employer";
+    roles: {
+        employer: IEmployerRole;
+    };
     openJobs: OpenJobType[];
 }
 
-export type FreelancerGeneralProfile = GeneralProfile & { userAs: "freelancer"; roles: { freelancer: IFreelancerRole } } & FreelancerSigleProfile;
+export type FreelancerProfileType = (GeneralProfile & FreelancerSigleProfile);
+export type EmployerProfileType = (GeneralProfile & EmployerSignleProfile);
 
-export type EmployerGeneralProfile = GeneralProfile & { userAs: "employer"; roles: { employer: IEmployerRole } } & EmployerSignleProfile;
+export type SingleProfile = FreelancerProfileType | EmployerProfileType;
 
-export type SingleProfile = FreelancerGeneralProfile | EmployerGeneralProfile;
+type GetSingleProfileInfoPayload = {
+    profileId: string;
+}
 
+const getSingleProfileInfo = async (payload: GetSingleProfileInfoPayload) => {
+    const response: AxiosResponse<Promise<SingleProfile>> = await getRequest(`profiles/${payload.profileId}`);
 
-const getSingleProfileInfo = async (profileId: string): Promise<SingleProfile> => {
-    const response = await getRequest(`profiles/${profileId}`);
     const data = await response.data;
     return data;
 }

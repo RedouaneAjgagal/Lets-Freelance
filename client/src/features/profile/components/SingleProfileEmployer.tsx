@@ -3,9 +3,7 @@ import AboutProfile from './AboutProfile'
 import OpenJobs from './OpenJobs';
 import ProfileHistory from './ProfileHistory';
 import ContactSection from './ContactSection';
-import { EmployerGeneralProfile } from '../services/getSingleProfileInfo';
-import useProfileId from '../hooks/useProfileId';
-import { useQueryClient } from '@tanstack/react-query';
+import { EmployerProfileType } from '../services/getSingleProfileInfo';
 import { useAppSelector } from '../../../hooks/redux';
 import { useProfileReviewsQuery } from '../../reviews';
 import Loading from '../../../components/Loading';
@@ -23,49 +21,55 @@ export type OpenJob = {
     }
 }
 
-const SingleProfileEmployer = () => {
-    const queryCLient = useQueryClient();
-    const profileId = useProfileId()!;
-    const profile = queryCLient.getQueryData(["singleProfile", profileId]) as EmployerGeneralProfile
+type SingleProfileEmployerProps = {
+    profileId: string;
+    employerDetails: EmployerProfileType;
+}
 
+const SingleProfileEmployer = (props: React.PropsWithoutRef<SingleProfileEmployerProps>) => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     const employerDetail = {
-        location: profile.country || "Unknown",
-        category: profile.category,
-        companyName: profile.roles.employer!.companyName,
-        employees: profile.roles.employer!.employees,
-        website: profile.roles.employer!.website,
+        location: props.employerDetails.country || "Unknown",
+        category: props.employerDetails.category,
+        companyName: props.employerDetails.roles.employer!.companyName,
+        employees: props.employerDetails.roles.employer!.employees,
+        website: props.employerDetails.roles.employer!.website,
     }
 
     const employerHeaderInfo = {
-        name: profile.name,
-        avatar: profile.avatar,
-        rating: profile.rating.avgRate,
-        reviews: profile.rating.numOfReviews,
-        location: profile.country || "Unknown",
+        name: props.employerDetails.name,
+        avatar: props.employerDetails.avatar,
+        rating: props.employerDetails.rating.avgRate,
+        reviews: props.employerDetails.rating.numOfReviews,
+        location: props.employerDetails.country || "Unknown",
     }
 
+    const profileDetails = {
+        _id: props.employerDetails._id,
+        name: props.employerDetails.name,
+        country: props.employerDetails.country
+    }
 
-    const isCurrentUser = userInfo?.profileId === profile._id;
+    const isCurrentUser = userInfo?.profileId === props.employerDetails._id;
 
     const profileHistory = useProfileReviewsQuery({
-        profileId
+        profileId: props.profileId
     });
 
     return (
         <>
             <header>
                 <div className="p-4">
-                    <SingleActivityNavbar target={profile._id} activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} />
+                    <SingleActivityNavbar target={props.employerDetails._id} activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} isFavorited={props.employerDetails.isFavorited} />
                 </div>
                 <ProfileHeader profile='employer' userInfo={employerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
-            <AboutProfile profile='employer' content={profile.description || "Employer with no description"} />
+            <AboutProfile profile='employer' content={props.employerDetails.description || "Employer with no description"} />
             <div className='px-4'>
                 <hr />
             </div>
-            <OpenJobs jobs={profile.openJobs} />
+            <OpenJobs jobs={props.employerDetails.openJobs} profileDetails={profileDetails} />
             <aside>
                 <ContactSection contactType='employer' details={employerDetail} />
             </aside>

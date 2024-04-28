@@ -1,11 +1,17 @@
-import { SearchFreelancersNav, SearchedFreelancers } from "../../features/profile"
+import Loading from "../../components/Loading";
+import { SearchFreelancersNav, SearchedFreelancers, useSearchTalentsQuery } from "../../features/profile"
 
 
 const AllFreelancers = () => {
+    const searchTalentsQuery = useSearchTalentsQuery({});
+
     return (
         <main>
             <SearchFreelancersNav />
-            <SearchedFreelancers />
+            {searchTalentsQuery.isLoading ?
+                <Loading />
+                : <SearchedFreelancers telents={searchTalentsQuery.data!} />
+            }
         </main>
     )
 }

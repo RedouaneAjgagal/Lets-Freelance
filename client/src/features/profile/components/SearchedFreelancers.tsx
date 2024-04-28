@@ -1,10 +1,14 @@
+import { SearchedTalentType } from '../services/getFreelancers'
 import SearchedFreelancerCard from './SearchedFreelancerCard'
 
-const SearchedFreelancers = () => {
+type SearchedFreelancersProps = {
+    telents: SearchedTalentType[];
+}
+
+const SearchedFreelancers = (props: React.PropsWithoutRef<SearchedFreelancersProps>) => {
     return (
         <ul>
-            <SearchedFreelancerCard />
-            <SearchedFreelancerCard />
+            {props.telents.map(talent => <SearchedFreelancerCard key={talent._id} telent={talent} />)}
         </ul>
     )
 }

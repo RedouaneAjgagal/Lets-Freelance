@@ -1,23 +1,12 @@
-import Badge from "../../../layouts/brand/Badge"
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
+import Badge from "../layouts/brand/Badge";
 
+type BadgeFilter = {
+    badge?: "any-talent" | "top-rated-plus" | "top-rated" | "rising-talent";
+    onSelectBadge: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-const BadgeFilter = () => {
-    const { badge } = useAppSelector(state => state.filterSearchedServicesReducer);
-    const dispatch = useAppDispatch();
-
+const BadgeFilter = (props: React.PropsWithoutRef<BadgeFilter>) => {
     const badges = ["any-talent", "top-rated-plus", "top-rated", "rising-talent"] as const;
-
-    const badgeFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const badge = e.currentTarget.value as "any-talent" | "top-rated-plus" | "top-rated" | "rising-talent";
-
-        if (!badges.includes(badge)) {
-            return;
-        }
-
-        dispatch(filterSearchedServicesAction.filterByBadge(badge));
-    }
 
     const badgesInputs = badges.map(badgeInput => {
 
@@ -25,10 +14,10 @@ const BadgeFilter = () => {
 
         return (
             <label key={badgeInput} htmlFor={badgeInput} className="flex gap-2">
-                <input type="radio" id={badgeInput} name="badgeInput" value={badgeInput} className="accent-purple-600" onChange={badgeFilterHandler} checked={
+                <input type="radio" id={badgeInput} name="badgeInput" value={badgeInput} className="accent-purple-600" onChange={props.onSelectBadge} checked={
                     badgeInput === "any-talent" ?
-                        !badge
-                        : badge === badgeInput
+                        !props.badge
+                        : props.badge === badgeInput
                 } />
                 {badgeInput !== "any-talent" ?
                     <Badge badge={badgeLabel.toLocaleLowerCase() as "rising talent" | "top rated" | "top rated plus"} size="sm" minimized />

@@ -1,14 +1,16 @@
 import { BiArrowBack, BiX } from "react-icons/bi";
 import Overlay from "../../../layouts/Overlay";
-import CategoryFilter from "../components/CategoryFilter";
 import { PrimaryButton } from "../../../layouts/brand";
 import DeliveryTimeFilter from "../components/DeliveryTimeFilter";
-import BudgetFilter from "../components/BudgetFilter";
-import RatingFilter from "../components/RatingFilter";
-import EnglishLevelFilter from "../components/EnglishLevelFilter";
-import BadgeFilter from "../components/BadgeFilter";
-import CountryFilter from "../components/CountryFilter";
 import { useEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
+import BadgeFilter from "../../../components/BadgeFilter";
+import SearchServicesRatingFilter from "../components/SearchServicesRatingFilter";
+import SearchServicesBudgetFilter from "../components/SearchServicesBudgetFilter";
+import SearchServicesCategoryFilter from "../components/SearchServicesCategoryFilter";
+import SearchServicesEnglishLevelFilter from "../components/SearchServicesEnglishLevelFilter";
+import SearchServicesLocationFilter from "../components/SearchServicesLocationFilter";
 
 type FilterServicesModalProps = {
     isModalOpen: boolean;
@@ -16,6 +18,9 @@ type FilterServicesModalProps = {
 }
 
 const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalProps>) => {
+    const { badge } = useAppSelector(state => state.filterSearchedServicesReducer);
+    const dispatch = useAppDispatch();
+
     const modalRef = useRef<HTMLDivElement>(null);
 
     const filterServicesHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -26,11 +31,24 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
         props.onCloseModal();
     }
 
+
+    const badgeFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const badges = ["any-talent", "top-rated-plus", "top-rated", "rising-talent"] as const;
+
+        const badge = e.currentTarget.value as "any-talent" | "top-rated-plus" | "top-rated" | "rising-talent";
+
+        if (!badges.includes(badge)) {
+            return;
+        }
+
+        dispatch(filterSearchedServicesAction.filterByBadge(badge));
+    }
+
     useEffect(() => {
         if (props.isModalOpen) {
             modalRef.current!.scrollTop = 0;
         }
-    }, [props.isModalOpen])
+    }, [props.isModalOpen]);
 
     return (
         <section className="relative">
@@ -47,14 +65,14 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                     </button>
                 </div>
                 <form onSubmit={filterServicesHandler} className="flex flex-col gap-8">
-                    <CategoryFilter SIZE={5} />
+                    <SearchServicesCategoryFilter SIZE={5} />
                     <DeliveryTimeFilter />
-                    <BudgetFilter from={5} to={1000} step={5} />
-                    <RatingFilter rates={[4.5, 4, 3]} />
+                    <SearchServicesBudgetFilter from={5} to={1000} step={5} />
+                    <SearchServicesRatingFilter rates={[4.5, 4, 3]} />
                     <h3 className="text-black text-2xl -mb-3">Talent Details</h3>
-                    <EnglishLevelFilter SIZE={4} />
-                    <BadgeFilter />
-                    <CountryFilter />
+                    <SearchServicesEnglishLevelFilter SIZE={4} />
+                    <BadgeFilter onSelectBadge={badgeFilterHandler} badge={badge} />
+                    <SearchServicesLocationFilter />
                     <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
                         Filter Services
                         <BiArrowBack className="rotate-[135deg]" />

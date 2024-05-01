@@ -2,8 +2,12 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
 
+type Categories = "all-categories" | "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
+
 type CategoryFilterProps = {
     SIZE: number;
+    onSelectCategory: (category: Categories) => void;
+    category?: Categories;
 }
 
 type CategoryType = {
@@ -12,9 +16,6 @@ type CategoryType = {
 };
 
 const CategoryFilter = (props: React.PropsWithoutRef<CategoryFilterProps>) => {
-    const filterSearchedServices = useAppSelector(state => state.filterSearchedServicesReducer);
-    const dispatch = useAppDispatch();
-
     const [size, setSize] = useState(props.SIZE);
 
     const categories: CategoryType[] = [
@@ -61,7 +62,7 @@ const CategoryFilter = (props: React.PropsWithoutRef<CategoryFilterProps>) => {
             return;
         };
 
-        dispatch(filterSearchedServicesAction.filterByCategory(category));
+        props.onSelectCategory(category);
     }
 
     const formatedCategories = categories.map((category, index) => {
@@ -70,7 +71,7 @@ const CategoryFilter = (props: React.PropsWithoutRef<CategoryFilterProps>) => {
         }
         return (
             <label key={category.label} htmlFor={category.label} className="flex gap-2">
-                <input type="radio" id={category.label} value={category.value} name="category" className="accent-purple-600" onChange={selectCategoryHandler} checked={filterSearchedServices.category ? category.value === filterSearchedServices.category : category.value === "all-categories"} />
+                <input type="radio" id={category.label} value={category.value} name="category" className="accent-purple-600" onChange={selectCategoryHandler} checked={props.category ? category.value === props.category : category.value === "all-categories"} />
                 {category.label}
             </label>
         )

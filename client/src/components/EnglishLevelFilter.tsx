@@ -1,28 +1,27 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
+
+type EnglishLevelType = "Any level" | "professional" | "native" | "fluent" | "conversational" | "basic";
 
 type EnglishLevelFilterProps = {
     SIZE: number;
+    onSelectEnglishLevel: (englishLevel: EnglishLevelType) => void;
+    englishLevel?: EnglishLevelType;
 }
 
 const EnglishLevelFilter = (props: React.PropsWithoutRef<EnglishLevelFilterProps>) => {
-    const { english_level } = useAppSelector(state => state.filterSearchedServicesReducer);
-    const dispatch = useAppDispatch();
-
     const [size, setSize] = useState(props.SIZE);
 
     const englishLevels = ["Any level", "professional", "native", "fluent", "conversational", "basic"] as const;
 
     const englishLevelFilterHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const englishLevel = e.currentTarget.value as "Any level" | "professional" | "native" | "fluent" | "conversational" | "basic";
+        const englishLevel = e.currentTarget.value as EnglishLevelType;
 
         // check if valid value
         if (!englishLevels.includes(englishLevel)) {
             return;
         }
 
-        dispatch(filterSearchedServicesAction.filterByEnglishLevel(englishLevel));
+        props.onSelectEnglishLevel(englishLevel);
     }
 
     const englishLevelsInputs = englishLevels.map((englishLevel, index) => {
@@ -34,7 +33,7 @@ const EnglishLevelFilter = (props: React.PropsWithoutRef<EnglishLevelFilterProps
 
         return (
             <label key={label} htmlFor={label} className="flex gap-2">
-                <input type="radio" id={label} name="englishLevel" className="accent-purple-600" value={englishLevel} checked={englishLevel === "Any level" ? !english_level : english_level === englishLevel} onChange={englishLevelFilterHandler} />
+                <input type="radio" id={label} name="englishLevel" className="accent-purple-600" value={englishLevel} checked={englishLevel === "Any level" ? !props.englishLevel : props.englishLevel === englishLevel} onChange={englishLevelFilterHandler} />
                 {label}
             </label>
         );

@@ -1,25 +1,24 @@
 import { useState, useRef, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
-import convertBudgetToPriceRange from "../../../utils/covertBudgetToPriceRange";
+import convertBudgetToPriceRange from "../utils/covertBudgetToPriceRange";
 
 
 type BudgetFilterProps = {
+    title: string;
     from: number;
     to: number;
     step: number;
+    price_range?: string;
+    onChange: (range: string) => void;
 }
 
 const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
-    const { price_range } = useAppSelector(state => state.filterSearchedServicesReducer);
-
-
-    const dispatch = useAppDispatch();
     const fromRef = useRef<HTMLInputElement>(null);
 
-    const [fromBudget, setFromBudget] = useState(props.from);
-    const [toBudget, setToBudget] = useState(props.to);
+    const [from, to] = props.price_range ? props.price_range.split(",") : [];
+    const isValidRange = !Number.isNaN(from) && !Number.isNaN(to) && Number(to) >= Number(from);
 
+    const [fromBudget, setFromBudget] = useState(isValidRange ? from : props.from);
+    const [toBudget, setToBudget] = useState(isValidRange ? to : props.to);
 
     const [isFilter, setIsFilter] = useState(false);
 
@@ -61,9 +60,7 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
 
     useEffect(() => {
         if (isFilter) {
-            const filterByPriceRange = setTimeout(() => {
-                dispatch(filterSearchedServicesAction.filterByPriceRange(priceRange));
-            }, 1500);
+            const filterByPriceRange = setTimeout(() => props.onChange(priceRange), 1500);
 
             return () => clearTimeout(filterByPriceRange);
         }
@@ -71,12 +68,12 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
 
 
     useEffect(() => {
-        if (!price_range) {
+        if (!props.price_range) {
             setFromBudget(props.from);
             setToBudget(props.to);
             setIsFilter(false);
         }
-    }, [price_range])
+    }, [props.price_range]);
 
     const colors = {
         sliderColor: "#eee",
@@ -87,15 +84,15 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">Budget</h4>
+            <h4 className="text-black text-xl">{props.title}</h4>
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center text-sm">
-                    <span className="px-3 py-1 bg-purple-100/60 rounded text-purple-500">${fromBudget}</span>
+                    <span className="px-3 py-1 bg-purple-100/60 rounded text-purple-500">${fromBudget.toLocaleString()}</span>
                     <span className="px-3 py-1 bg-purple-100/60 rounded text-purple-500">
-                        {isFilter ?
-                            `$${toBudget}`
+                        {(isFilter || isValidRange) ?
+                            `$${toBudget.toLocaleString()}`
                             :
-                            `+$${toBudget}`
+                            `+$${toBudget.toLocaleString()}`
                         }
                     </span>
                 </div>

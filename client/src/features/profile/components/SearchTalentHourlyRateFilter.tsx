@@ -1,8 +1,12 @@
+import { useQueryClient } from "@tanstack/react-query";
 import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
+import { SEARCHED_TALENT_HOURLY_RATES } from "../helpers/getValidSearchedTalentQueries";
 import { isValidHourlyRate } from "../validators/searchTalentsValidators";
 
 
 const SearchTalentHourlyRateFilter = () => {
+    const queryClient = useQueryClient();
+    
     const customSearchParams = useCustomSearchParams();
 
     const searchedHourlyRate = customSearchParams.getSearchParams({
@@ -37,30 +41,15 @@ const SearchTalentHourlyRateFilter = () => {
             key: "hourly_rate",
             value: hourlyRate === "0" ? "" : hourlyRate
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validHourlyRate = isValidHourlyRate({
-        validHourlyRates: [
-            {
-                from: 1,
-                to: 10
-            },
-            {
-                from: 10,
-                to: 30
-            },
-            {
-                from: 30,
-                to: 60
-            },
-            {
-                from: 60,
-                to: 999
-            },
-        ],
+        validHourlyRates: SEARCHED_TALENT_HOURLY_RATES,
         hourlyRate: searchedHourlyRate || ""
     });
-    
+
     const talentHourlyRate = validHourlyRate ? searchedHourlyRate! : undefined;
 
     return (

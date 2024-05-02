@@ -3,7 +3,7 @@ import { SearchFreelancersNav, SearchedFreelancers, useSearchTalentsQuery } from
 
 
 const AllFreelancers = () => {
-    const searchTalentsQuery = useSearchTalentsQuery({});
+    const searchTalentsQuery = useSearchTalentsQuery();
 
     return (
         <main>

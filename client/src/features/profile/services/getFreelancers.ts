@@ -1,7 +1,6 @@
 import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api"
 import formatSearchQueries from "../../../utils/formatSearchQueries";
-import { Category } from "../helpers/getFormatedCategory";
 
 export type GetFreelancersPayload = {
     search?: string;

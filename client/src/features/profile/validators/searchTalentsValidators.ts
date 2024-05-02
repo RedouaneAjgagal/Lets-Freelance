@@ -64,7 +64,7 @@ const isValidRevenue = (revenue: string) => {
     };
 
     const [from, to] = revenue.split(",");
-    if (!Number.isNaN(to) && (Number(from) < Number(to))) {
+    if (!Number.isNaN(to) && (Number(from) > Number(to))) {
         return false;
     };
 
@@ -104,7 +104,7 @@ const isValidHourlyRate = ({ hourlyRate, validHourlyRates }: { hourlyRate: strin
     return true;
 }
 
-const isValidTelentType = (talentType: string) => {
+const isValidTalentType = (talentType: string) => {
     if (!talentType || talentType.trim() === "") {
         return false;
     };
@@ -151,5 +151,5 @@ export {
     isValidLocation,
     isValidRating,
     isValidRevenue,
-    isValidTelentType
+    isValidTalentType
 }

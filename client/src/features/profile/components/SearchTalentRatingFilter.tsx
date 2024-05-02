@@ -2,13 +2,15 @@ import React from 'react'
 import RatingFilter from '../../../components/RatingFilter'
 import useCustomSearchParams from '../../../hooks/useCustomSearchParams';
 import { isValidRating } from '../validators/searchTalentsValidators';
+import { useQueryClient } from '@tanstack/react-query';
 
 type SearchTalentRatingFilterProps = {
     rates: number[];
 }
 
 const SearchTalentRatingFilter = (props: React.PropsWithoutRef<SearchTalentRatingFilterProps>) => {
-
+    const queryClient = useQueryClient();
+    
     const customSearchParams = useCustomSearchParams();
 
     const rating = customSearchParams.getSearchParams({
@@ -22,6 +24,8 @@ const SearchTalentRatingFilter = (props: React.PropsWithoutRef<SearchTalentRatin
             key: "rating",
             value: rating === "0" ? "" : rating
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validRating = isValidRating({

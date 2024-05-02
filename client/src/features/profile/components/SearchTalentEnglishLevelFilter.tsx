@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import EnglishLevelFilter from "../../../components/EnglishLevelFilter";
 import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { isValidEnglishLevel } from "../validators/searchTalentsValidators";
@@ -9,7 +10,8 @@ type SearchTalentEnglishLevelFilterProps = {
 }
 
 const SearchTalentEnglishLevelFilter = (props: React.PropsWithoutRef<SearchTalentEnglishLevelFilterProps>) => {
-
+    const queryClient = useQueryClient();
+    
     const customSearchParams = useCustomSearchParams();
 
     const englishLevel = customSearchParams.getSearchParams({
@@ -21,6 +23,8 @@ const SearchTalentEnglishLevelFilter = (props: React.PropsWithoutRef<SearchTalen
             key: "english_level",
             value: englishLevel === "Any level" ? "" : englishLevel
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validEnglishLevel = isValidEnglishLevel(englishLevel || "");

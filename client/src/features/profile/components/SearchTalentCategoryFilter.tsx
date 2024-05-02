@@ -2,6 +2,7 @@ import React from 'react'
 import CategoryFilter from '../../../components/CategoryFilter'
 import useCustomSearchParams from '../../../hooks/useCustomSearchParams';
 import { isValidCategory } from '../validators/searchTalentsValidators';
+import { useQueryClient } from '@tanstack/react-query';
 
 type Categories = "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
 
@@ -10,6 +11,7 @@ type SearchTalentCategoryFilterProps = {
 }
 
 const SearchTalentCategoryFilter = (props: React.PropsWithoutRef<SearchTalentCategoryFilterProps>) => {
+    const queryClient = useQueryClient();
     const customSearchParams = useCustomSearchParams();
 
     const searchedCategory = customSearchParams.getSearchParams({
@@ -21,6 +23,8 @@ const SearchTalentCategoryFilter = (props: React.PropsWithoutRef<SearchTalentCat
             key: "category",
             value: category === "all-categories" ? "" : category
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validCategory = isValidCategory(searchedCategory || "");

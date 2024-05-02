@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react'
-import getFreelancers, { GetFreelancersPayload } from '../services/getFreelancers';
+import getFreelancers from '../services/getFreelancers';
+import useSearchedTalentsQueries from './useSearchedTalentsQueries';
 
-const useSearchTalentsQuery = (payload: GetFreelancersPayload) => {
+const useSearchTalentsQuery = () => {
+    const searchedTalentsQueries = useSearchedTalentsQueries();
+
     const searchTalentsQuery = useQuery({
         queryKey: ["telents"],
-        queryFn: () => getFreelancers(payload),
+        queryFn: () => getFreelancers(searchedTalentsQueries),
         retry: false,
         refetchOnWindowFocus: false
     });

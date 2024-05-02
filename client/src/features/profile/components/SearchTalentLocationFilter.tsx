@@ -1,8 +1,11 @@
+import { useQueryClient } from '@tanstack/react-query';
 import CountryFilter from '../../../components/CountryFilter'
 import useCustomSearchParams from '../../../hooks/useCustomSearchParams'
 import { isValidLocation } from '../validators/searchTalentsValidators';
 
 const SearchTalentLocationFilter = () => {
+    const queryClient = useQueryClient();
+
     const customSearchParams = useCustomSearchParams();
 
     const country = customSearchParams.getSearchParams({
@@ -15,6 +18,8 @@ const SearchTalentLocationFilter = () => {
             key: "country",
             value: country
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validLocation = isValidLocation(country || "");

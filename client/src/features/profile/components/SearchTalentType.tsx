@@ -1,10 +1,13 @@
+import { useQueryClient } from '@tanstack/react-query';
 import FreelancerTypeFilter from '../../../components/FreelancerTypeFilter'
 import useCustomSearchParams from '../../../hooks/useCustomSearchParams'
-import { isValidTelentType } from '../validators/searchTalentsValidators';
+import { isValidTalentType } from '../validators/searchTalentsValidators';
 
 type TalentTypes = "any-talent" | "single-freelancer" | "independent-freelancers" | "agency-freelancers";
 
 const SearchTalentType = () => {
+    const queryClient = useQueryClient();
+
     const customSearchParams = useCustomSearchParams();
 
     const searchedTalentType = customSearchParams.getSearchParams({
@@ -16,9 +19,11 @@ const SearchTalentType = () => {
             key: "talent_type",
             value: talentType === "any-talent" ? "" : talentType
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
-    const validTalentType = isValidTelentType(searchedTalentType || "");
+    const validTalentType = isValidTalentType(searchedTalentType || "");
 
     const talentType = validTalentType ? searchedTalentType as TalentTypes : undefined;
 

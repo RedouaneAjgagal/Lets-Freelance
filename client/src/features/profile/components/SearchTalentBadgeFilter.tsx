@@ -1,8 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
 import BadgeFilter from "../../../components/BadgeFilter"
 import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { isValidTalentBadge } from "../validators/searchTalentsValidators";
 
 const SearchTalentBadgeFilter = () => {
+    const queryClient = useQueryClient();
     const customSearch = useCustomSearchParams();
 
     const badge = customSearch.getSearchParams({
@@ -15,6 +17,8 @@ const SearchTalentBadgeFilter = () => {
             key: "badge",
             value: badge === "any-talent" ? "" : badge
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validTalentBadge = isValidTalentBadge(badge || "");

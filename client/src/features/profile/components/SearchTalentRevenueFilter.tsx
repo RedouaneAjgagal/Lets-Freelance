@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import BudgetFilter from "../../../components/BudgetFilter"
 import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { isValidRevenue } from "../validators/searchTalentsValidators";
@@ -9,6 +10,7 @@ type SearchTalentRevenueFilterProps = {
 }
 
 const SearchTalentRevenueFilter = (props: React.PropsWithoutRef<SearchTalentRevenueFilterProps>) => {
+    const queryClient = useQueryClient();
     const customSearchParams = useCustomSearchParams();
 
     const revenueRange = customSearchParams.getSearchParams({
@@ -20,6 +22,8 @@ const SearchTalentRevenueFilter = (props: React.PropsWithoutRef<SearchTalentReve
             key: "revenue",
             value: revenueRange
         });
+
+        queryClient.removeQueries({ queryKey: ["telents"] });
     }
 
     const validRevenue = isValidRevenue(revenueRange || "");

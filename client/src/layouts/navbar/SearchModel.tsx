@@ -32,11 +32,14 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
 
             case "jobs":
                 queryClient.removeQueries({ queryKey: ["jobs"] });
-                navigate(`jobs?search=${search}`);
+                navigate(`/jobs?search=${search}`);
                 break;
 
+            case "talent":
+                queryClient.removeQueries({ queryKey: ["talents"] });
+                navigate(`/profiles/?search=${search}`);
+                break;
             default:
-                console.log(search);
                 break;
         }
 

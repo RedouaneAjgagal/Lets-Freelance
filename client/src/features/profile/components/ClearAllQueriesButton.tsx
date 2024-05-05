@@ -1,4 +1,3 @@
-import React from 'react'
 import useCustomSearchParams from '../../../hooks/useCustomSearchParams'
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -14,7 +13,7 @@ const ClearAllQueriesButton = () => {
             removePrev: true
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     return (

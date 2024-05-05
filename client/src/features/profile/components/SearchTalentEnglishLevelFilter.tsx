@@ -24,7 +24,7 @@ const SearchTalentEnglishLevelFilter = (props: React.PropsWithoutRef<SearchTalen
             value: englishLevel === "Any level" ? "" : englishLevel
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validEnglishLevel = isValidEnglishLevel(englishLevel || "");

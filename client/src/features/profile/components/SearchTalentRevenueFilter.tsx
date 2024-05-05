@@ -23,7 +23,7 @@ const SearchTalentRevenueFilter = (props: React.PropsWithoutRef<SearchTalentReve
             value: revenueRange
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validRevenue = isValidRevenue(revenueRange || "");

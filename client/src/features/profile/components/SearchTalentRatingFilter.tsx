@@ -25,7 +25,7 @@ const SearchTalentRatingFilter = (props: React.PropsWithoutRef<SearchTalentRatin
             value: rating === "0" ? "" : rating
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validRating = isValidRating({

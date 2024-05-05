@@ -20,7 +20,7 @@ const SearchTalentType = () => {
             value: talentType === "any-talent" ? "" : talentType
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validTalentType = isValidTalentType(searchedTalentType || "");

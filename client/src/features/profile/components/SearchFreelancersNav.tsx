@@ -36,7 +36,7 @@ const SearchFreelancersNav = () => {
                 value: ""
             });
 
-            queryClient.removeQueries({ queryKey: ["telents"] });
+            queryClient.removeQueries({ queryKey: ["talents"] });
         }
 
         const validSearchKeyword = isValidSearchKeyword(search);
@@ -47,7 +47,7 @@ const SearchFreelancersNav = () => {
             value: search.trim()
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     useOverflow(isFilterMenuOpen);

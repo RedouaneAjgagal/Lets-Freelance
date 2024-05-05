@@ -42,7 +42,7 @@ const SearchTalentHourlyRateFilter = () => {
             value: hourlyRate === "0" ? "" : hourlyRate
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validHourlyRate = isValidHourlyRate({

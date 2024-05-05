@@ -14,7 +14,7 @@ import ProfileHistory from "./components/ProfileHistory";
 import { SingleProfile } from "./services/getSingleProfileInfo";
 import SearchFreelancersNav from "./components/SearchFreelancersNav";
 import SearchedFreelancers from "./components/SearchedFreelancers";
-import useSearchTalentsQuery from "./hooks/useSearchTalentsQuery";
+import useInfiniteSearchTalentsQuery from "./hooks/useInfiniteSearchTalentsQuery";
 
 export {
     PublicProfileForm,
@@ -32,7 +32,7 @@ export {
     ProfileHistory,
     SearchFreelancersNav,
     SearchedFreelancers,
-    useSearchTalentsQuery
+    useInfiniteSearchTalentsQuery
 }
 
 export type {

@@ -1,16 +1,18 @@
 import Loading from "../../components/Loading";
-import { SearchFreelancersNav, SearchedFreelancers, useSearchTalentsQuery } from "../../features/profile"
+import { SearchFreelancersNav, SearchedFreelancers, useInfiniteSearchTalentsQuery } from "../../features/profile"
 
 
 const AllFreelancers = () => {
-    const searchTalentsQuery = useSearchTalentsQuery();
+    const infiniteSearchTalentsQuery = useInfiniteSearchTalentsQuery();
 
     return (
         <main>
             <SearchFreelancersNav />
-            {searchTalentsQuery.isLoading ?
+            {infiniteSearchTalentsQuery.isLoading ?
                 <Loading />
-                : <SearchedFreelancers telents={searchTalentsQuery.data!} />
+                : infiniteSearchTalentsQuery.data!.pages.map((group, index) => (
+                    <SearchedFreelancers key={index} telents={group.talents} fetchNextPage={infiniteSearchTalentsQuery.fetchNextPage} cursor={group.cursor} />
+                ))
             }
         </main>
     )

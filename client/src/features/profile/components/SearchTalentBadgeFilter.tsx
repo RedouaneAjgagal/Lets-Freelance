@@ -18,7 +18,7 @@ const SearchTalentBadgeFilter = () => {
             value: badge === "any-talent" ? "" : badge
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validTalentBadge = isValidTalentBadge(badge || "");

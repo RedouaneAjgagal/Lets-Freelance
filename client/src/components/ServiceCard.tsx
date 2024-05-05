@@ -58,7 +58,11 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
 
   const serviceRef = useRef<HTMLLIElement>(null);
 
-  const favoritesMutation = useFavoritesMutation("service");
+  const favoritesMutation = useFavoritesMutation({
+    event: "service",
+    target: props.serviceDetails.service._id
+  });
+  
   const navigate = useNavigate();
 
   const serviceNavigator = () => {

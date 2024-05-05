@@ -12,6 +12,7 @@ export type GetFreelancersPayload = {
     english_level?: "basic" | "conversational" | "fluent" | "native" | "professional";
     talent_type?: "agency-freelancers" | "independent-freelancers" | "single-freelancer";
     revenue?: string;
+    cursor?: number;
 }
 
 export type SearchedTalentType = {
@@ -39,14 +40,21 @@ export type SearchedTalentType = {
     isFavourite: 0 | 1;
 }
 
-type GetFreelancersResponse = SearchedTalentType[];
+export type GetFreelancersResponse = {
+    talents: SearchedTalentType[];
+    cursor: number | null;
+};
 
-const getFreelancers = async (payload: GetFreelancersPayload) => {
-    const searchQueries = formatSearchQueries(payload);
-    const response: AxiosResponse<Promise<GetFreelancersResponse>> = await getRequest(`profiles/freelancers${searchQueries}`);
+const getFreelancers = (payload: GetFreelancersPayload) => {
+    return async ({ pageParam = 1 }) => {
+        payload.cursor = pageParam;
+        const searchQueries = formatSearchQueries(payload);
 
-    const data = await response.data;
-    return data;
+        const response: AxiosResponse<Promise<GetFreelancersResponse>> = await getRequest(`profiles/freelancers${searchQueries}`);
+
+        const data = await response.data;
+        return data;
+    }
 }
 
 export default getFreelancers;

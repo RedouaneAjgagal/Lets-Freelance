@@ -24,7 +24,7 @@ const SearchTalentCategoryFilter = (props: React.PropsWithoutRef<SearchTalentCat
             value: category === "all-categories" ? "" : category
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validCategory = isValidCategory(searchedCategory || "");

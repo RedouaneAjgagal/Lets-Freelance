@@ -688,7 +688,7 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
     const { accessToken } = req.signedCookies;
     const userPayload = getUserPayload({ accessToken });
 
-    const { badge, rating, country, hourly_rate, category, revenue, english_level, talent_type, search } = req.query;
+    const { badge, rating, country, hourly_rate, category, revenue, english_level, talent_type, search, cursor } = req.query;
 
     const match: PipelineStage.Match["$match"] = {
         $and: [
@@ -777,54 +777,8 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
     const bigIntValue = BigInt('0x' + hash);
     const seed = +bigIntValue.toString().slice(0, 12);
 
-    const profileAggregate: PipelineStage[] = [
-        {
-            $match: match
-        },
-        {
-            $lookup: {
-                from: "contracts",
-                localField: "_id",
-                foreignField: "freelancer.profile",
-                as: "contracts"
-            }
-        },
-        {
-            $addFields: {
-                paidAmounts: {
-                    $reduce: {
-                        input: {
-                            $map: {
-                                input: "$contracts",
-                                as: "contract",
-                                in: {
-                                    $filter: {
-                                        input: "$$contract.payments",
-                                        as: "payment",
-                                        cond: { $eq: ["$$payment.freelancer.status", "paid"] }
-                                    }
-                                }
-                            }
-                        },
-                        initialValue: [],
-                        in: { $concatArrays: ["$$value", "$$this"] }
-                    },
-                }
-            }
-        },
-        {
-            $addFields: {
-                totalRevenue: {
-                    $sum: {
-                        $map: {
-                            input: "$paidAmounts",
-                            as: "paidAmount",
-                            in: "$$paidAmount.amount"
-                        }
-                    }
-                }
-            }
-        },
+
+    const talentFacetPipeline: PipelineStage.FacetPipelineStage[] = [
         {
             $addFields: {
                 sortOrder: {
@@ -884,12 +838,87 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
         },
     ];
 
+
+    const cursorFacetPipeline: PipelineStage.FacetPipelineStage[] = [
+        {
+            $group: {
+                _id: null,
+                count: {
+                    $sum: 1
+                }
+            }
+        }
+    ];
+
+    const profileAggregate: PipelineStage[] = [
+        {
+            $match: match
+        },
+        {
+            $lookup: {
+                from: "contracts",
+                localField: "_id",
+                foreignField: "freelancer.profile",
+                as: "contracts"
+            }
+        },
+        {
+            $addFields: {
+                paidAmounts: {
+                    $reduce: {
+                        input: {
+                            $map: {
+                                input: "$contracts",
+                                as: "contract",
+                                in: {
+                                    $filter: {
+                                        input: "$$contract.payments",
+                                        as: "payment",
+                                        cond: { $eq: ["$$payment.freelancer.status", "paid"] }
+                                    }
+                                }
+                            }
+                        },
+                        initialValue: [],
+                        in: { $concatArrays: ["$$value", "$$this"] }
+                    },
+                }
+            }
+        },
+        {
+            $addFields: {
+                totalRevenue: {
+                    $sum: {
+                        $map: {
+                            input: "$paidAmounts",
+                            as: "paidAmount",
+                            in: "$$paidAmount.amount"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            $facet: {
+                talents: talentFacetPipeline,
+                cursor: cursorFacetPipeline
+            }
+        },
+        {
+            $addFields: {
+                cursor: {
+                    $first: "$cursor"
+                }
+            }
+        }
+    ];
+
     // search by revenue
     const getRevenue = searchFreelancersQueryValidator.isValidRevenue(revenue);
     if (getRevenue) {
         const [minRevenue, maxRevenue] = getRevenue.split(",");
         if ((Number(minRevenue) <= Number(maxRevenue)) || maxRevenue === "infinity") {
-            profileAggregate.push({
+            const matchRevenue: PipelineStage.Match = {
                 $match: {
                     $and: [
                         { totalRevenue: { $gte: Number(minRevenue) } },
@@ -897,11 +926,46 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
                             : { totalRevenue: { $lte: Number(maxRevenue) } }
                     ]
                 }
-            });
+            };
+
+            talentFacetPipeline.push(matchRevenue);
+            cursorFacetPipeline.unshift(matchRevenue);
         }
     }
 
-    const freelancersAggregate = await Profile.aggregate(profileAggregate);
+    // add limits to the profiles
+    const isValidCursor = !Number.isNaN(Number(cursor)) && Number.isInteger(Number(cursor));
+    const cursorNumber = isValidCursor ? Number(cursor) : 1;
+    const LIMIT = 12;
+    const SKIP = (cursorNumber - 1) * LIMIT;
+    const SIZE_LIMIT = cursorNumber * LIMIT;
+
+    const limitPipeline: PipelineStage.FacetPipelineStage[] = [
+        {
+            $limit: SIZE_LIMIT
+        },
+        {
+            $skip: SKIP
+        }
+    ];
+
+    talentFacetPipeline.push(...limitPipeline);
+
+
+    // get cursor number if still profiles that needs to be fetched otherwise return null
+    profileAggregate.push({
+        $addFields: {
+            cursor: {
+                $cond: [
+                    { $gt: ["$cursor.count", SIZE_LIMIT] },
+                    cursorNumber,
+                    null
+                ]
+            }
+        }
+    })
+
+    const [freelancersAggregate] = await Profile.aggregate(profileAggregate);
 
     res.status(StatusCodes.OK).json(freelancersAggregate);
 }

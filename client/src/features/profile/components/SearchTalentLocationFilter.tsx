@@ -19,7 +19,7 @@ const SearchTalentLocationFilter = () => {
             value: country
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     const validLocation = isValidLocation(country || "");

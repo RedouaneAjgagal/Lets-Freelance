@@ -101,7 +101,7 @@ const RemoveTalentFilter = (props: React.PropsWithoutRef<RemoveTalentFilterProps
             value: ""
         });
 
-        queryClient.removeQueries({ queryKey: ["telents"] });
+        queryClient.removeQueries({ queryKey: ["talents"] });
     }
 
     return (

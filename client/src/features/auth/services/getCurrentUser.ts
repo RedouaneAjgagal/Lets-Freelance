@@ -8,6 +8,7 @@ export type User = {
     avatar: string;
     expirationDate: number;
     userAs: "freelancer" | "employer";
+    role: "user" | "admin" | "owner";
 }
 
 const getCurrentUserRequest = async (): Promise<AxiosResponse<User>> => {

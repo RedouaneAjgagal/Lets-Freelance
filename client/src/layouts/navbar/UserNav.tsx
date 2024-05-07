@@ -15,6 +15,7 @@ const UserNav = () => {
     }
 
     useOverflow(isUserMenuOpen);
+
     return (
         <>
             <span role="button" onClick={userMenuHandler}>
@@ -22,7 +23,7 @@ const UserNav = () => {
                     <img src={userInfo!.avatar} alt={`${userInfo!.userName}'s profile image`} className="rounded-full w-11 h-11 object-cover" />
                 </div>
             </span>
-            <UserMenu userInfo={userInfo!} isMenuOpen={isUserMenuOpen} onCloseMenu={closeMenuHandler} />
+            <UserMenu userInfo={userInfo!} isMenuOpen={isUserMenuOpen} onCloseMenu={closeMenuHandler} role={userInfo!.role} />
         </>
     )
 }

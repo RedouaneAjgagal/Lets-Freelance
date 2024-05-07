@@ -7,10 +7,19 @@ import Overlay from "../Overlay";
 import { useEffect, useRef } from "react";
 import { IconType } from "react-icons";
 
+type LinkMenuType = {
+    to: string;
+    value: string;
+    icon: IconType;
+    sort: number;
+    accessRoles: ("user" | "admin" | "owner")[];
+};
+
 interface Props {
     userInfo: User;
     isMenuOpen: boolean;
     onCloseMenu: () => void;
+    role: "user" | "admin" | "owner";
 }
 
 const UserMenu = (props: React.PropsWithoutRef<Props>) => {
@@ -38,103 +47,118 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         closeMenuHandler();
     }
 
-    const generalMenus: { to: string; value: string; icon: IconType, sort: number }[] = [
+    const generalMenus: LinkMenuType[] = [
         {
             value: "Dashboard",
             icon: TbSmartHome,
             to: "/profile/dashboard",
+            accessRoles: ["user", "admin", "owner"],
             sort: 1
         },
         {
             value: "Favorites",
             icon: TbHeart,
             to: "/profile/favorites",
+            accessRoles: ["user"],
             sort: 4
         },
         {
             value: "Messages",
             icon: TbMessage,
             to: "/profile/messages",
+            accessRoles: ["user"],
             sort: 6
         },
         {
             value: "Statements",
             icon: TbAppWindow,
             to: "/profile/statements",
+            accessRoles: ["user"],
             sort: 8
         },
         {
             value: "Contracts",
             icon: LuFileSignature,
             to: "/profile/contracts",
+            accessRoles: ["user"],
             sort: 9
         },
         {
             value: "Settings",
             icon: TbSettings,
             to: "/profile/settings",
+            accessRoles: ["user"],
             sort: 10
         },
     ];
 
-    const freelancerMenus: { to: string; value: string; icon: IconType, sort: number }[] = [
+    const freelancerMenus: LinkMenuType[] = [
         {
             value: "My Services",
             icon: TbBriefcase,
             to: "/profile/freelancer/services",
+            accessRoles: ["user"],
             sort: 2
         },
         {
             value: "My Proposals",
             icon: TbChecklist,
             to: "/profile/freelancer/proposals",
+            accessRoles: ["user"],
             sort: 3
         },
         {
             value: "Connects",
             icon: TbShare,
             to: "/profile/freelancer/connects",
+            accessRoles: ["user"],
             sort: 5
         },
         {
             value: "Submission Service",
             icon: TbSquareRoundedPlus,
             to: "/profile/freelancer/service/create",
+            accessRoles: ["user"],
             sort: 7
         },
         {
             value: "Advertisements",
             icon: TbAd,
             to: "/profile/freelancer/advertisements",
+            accessRoles: ["user"],
             sort: 11
         },
     ];
 
-    const employerMenus: { to: string; value: string; icon: IconType; sort: number }[] = [
+    const employerMenus: LinkMenuType[] = [
         {
             value: "My Jobs",
             icon: TbBriefcase,
             to: "/profile/employer/jobs",
+            accessRoles: ["user"],
             sort: 2
         },
         {
             value: "Bought Services",
             icon: TbReportMoney,
             to: "/profile/employer/bought-services",
+            accessRoles: ["user"],
             sort: 3
         },
         {
             value: "Submission Job",
             icon: TbSquareRoundedPlus,
             to: "/profile/employer/jobs/create",
+            accessRoles: ["user"],
             sort: 7
         },
     ];
 
     const selectedMenu = props.userInfo.userAs === "freelancer" ? freelancerMenus : employerMenus;
-    const userMenu = [...selectedMenu, ...generalMenus];
+    const userMenu = [...selectedMenu, ...generalMenus]
+        .filter(menu => menu.accessRoles.includes(props.role));
 
-    userMenu.sort((a, b) => a.sort - b.sort)
+    userMenu.sort((a, b) => a.sort - b.sort);
 
     return (
         <>
@@ -147,7 +171,10 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                     <img src={props.userInfo.avatar} alt={`${props.userInfo.userName}'s profile avatar`} className="w-20 h-20 rounded-full object-cover" />
                     <div className="flex flex-col gap-1 text-slate-950 font-medium">
                         <h6 className="text-lg">{props.userInfo.userName}</h6>
-                        <Link to={`/profiles/${props.userInfo.profileId}`} onClick={closeMenuHandler} className="underline text-sm self-start">View Profile</Link>
+                        {props.role === "user" ?
+                            <Link to={`/profiles/${props.userInfo.profileId}`} onClick={closeMenuHandler} className="underline text-sm self-start capitalize">View Profile</Link>
+                            : <span className={`text-sm uppercase ${props.role === "admin" ? "text-blue-600" : "text-purple-600"}`}>{props.role}</span>
+                        }
                     </div>
                 </div>
                 <div className="flex flex-col gap-3">

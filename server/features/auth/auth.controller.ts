@@ -17,8 +17,22 @@ import userAsPermission from "../../helpers/userAsOnly";
 import stripe from "../../stripe/stripeConntect";
 import createConnectedAccountValidator from "../../stripe/validators/createConnectedAccountValidator";
 import Stripe from "stripe";
-import { isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import isValidExternalAccountValues from "../../stripe/helpers/isValidExternalAccountValues";
+
+
+type AuthInfoType = {
+    _id: string;
+    name: string;
+    avatar: string;
+    userAs: string;
+    user: {
+        _id: string;
+        role: "user" | "admin" | "owner";
+    }
+}
+
+
 
 //@desc register a user
 //@route POST /api/v1/auth/register
@@ -90,15 +104,6 @@ const login: RequestHandler = async (req, res) => {
         },
         res
     });
-
-
-
-    // const link = await stripe.accountLinks.create({
-    //     account: conntectedAccount.id,
-    //     type: "account_onboarding",
-    //     refresh_url: "http://localhost:5173",
-    //     return_url: "http://localhost:5173"
-    // });
 
     res.status(StatusCodes.OK).json({ msg: `Welcome back` });
 }
@@ -373,13 +378,54 @@ const userInfo: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     const expirationDate = new Date(exp * 1000).getTime();
 
-    const profile = await Profile.findOne({ user: userId });
+    const [profile] = await Profile.aggregate<AuthInfoType>([
+        {
+            $match: {
+                user: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "user",
+                as: "users"
+            }
+        },
+        {
+            $addFields: {
+                user: {
+                    $first: "$users"
+                }
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                avatar: 1,
+                userAs: 1,
+                "user._id": 1,
+                "user.role": 1
+            }
+        }
+    ]);
 
     if (!profile) {
         throw new UnauthenticatedError("Found no user");
     }
 
-    res.status(StatusCodes.OK).json({ userId, profileId: profile._id, userName: profile.name, avatar: profile.avatar, expirationDate, userAs: profile.userAs });
+    const authInfo = {
+        userId: profile.user._id,
+        profileId: profile._id,
+        userName: profile.name,
+        avatar: profile.avatar,
+        userAs: profile.userAs,
+        role: profile.user.role,
+        expirationDate
+    }
+
+    res.status(StatusCodes.OK).json(authInfo);
 }
 
 

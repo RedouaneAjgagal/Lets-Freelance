@@ -1,81 +1,50 @@
-import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import formatDates, { formatRequestDates } from "../../utils/formatDates";
 import { FilterValues } from "../ChartsNavbar";
-import AnalyticsWrapper from "../AnalyticsWrapper";
 import { useEffect, useState } from "react";
+import useAccountsAnalyticsQuery from "../../hooks/useAccountsAnalyticsQuery";
+import CreatedUsersAnalytics, { FilterAccountsType } from "./CreatedUsersAnalytics";
+import VerifiedUsersAnalytics from "./VerifiedUsersAnalytics";
+import { AccountsAnalyticsPayload } from "../../services/accountsAnalytics";
 
+type FiltersType = {
+  createdAccounts: FilterValues;
+  verifiedAccounts: FilterValues;
+  loading?: "createdAccounts" | "verifiedAccounts";
+};
 
 const UsersAnalyticsContainer = () => {
-  const [filterValue, setFilterValue] = useState<FilterValues>("week");
+  const [filters, setFilters] = useState<FiltersType>({
+    createdAccounts: "week",
+    verifiedAccounts: "week"
+  });
 
-  const barDataKey = "Created accounts";
+  const accountsAnalyticsPayload: AccountsAnalyticsPayload = {};
 
-  const values = [
-    {
-      _id: "2024",
-      count: 2
-    },
-    {
-      _id: "2023",
-      count: 6
-    },
-    {
-      _id: "2020",
-      count: 4
-    },
-    {
-      _id: "2017",
-      count: 4
-    }
-  ].map(value => {
-    const dateValue = formatRequestDates({
-      value: value._id,
-      dateType: filterValue === "all" ? undefined : filterValue
+  if (filters.createdAccounts !== "all") {
+    accountsAnalyticsPayload.created_accounts_duration = filters.createdAccounts;
+  }
+
+  if (filters.verifiedAccounts !== "all") {
+    accountsAnalyticsPayload.verified_accounts_duration = filters.verifiedAccounts;
+  }
+
+  const accountsAnalyticsQuery = useAccountsAnalyticsQuery(accountsAnalyticsPayload);
+
+  const onFilterHandler = ({ filterBy, key, loading }: FilterAccountsType) => {
+    setFilters(prev => {
+      return { ...prev, [key]: filterBy, loading };
     });
-
-    return {
-      _id: dateValue,
-      [barDataKey]: value.count
-    }
-  });
-
-  const dates = formatDates({
-    dateType: filterValue === "all" ? undefined : filterValue,
-    value: values,
-    barDataKey
-  });
-
-  const selectFilterValueHandler = (filter: FilterValues) => {
-    setFilterValue(filter);
   }
 
   useEffect(() => {
-    console.log(filterValue);
-  }, [filterValue]);
+    accountsAnalyticsQuery.refetch();
+  }, [filters.createdAccounts, filters.verifiedAccounts]);
+
 
   return (
-    <AnalyticsWrapper filterValue={filterValue} onSelectFilter={selectFilterValueHandler} title="Created accounts">
-      <ResponsiveContainer>
-        <BarChart className="w-full"
-          width={300}
-          height={300}
-          data={dates}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray={3} />
-          <XAxis dataKey="_id" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey={barDataKey} fill="#4884d8" activeBar={<Rectangle fill="#bae6fd" stroke="blue" />} />
-        </BarChart>
-      </ResponsiveContainer>
-    </AnalyticsWrapper>
+    <div className="grid gap-6">
+      <CreatedUsersAnalytics filteBy={filters.createdAccounts} isLoading={(accountsAnalyticsQuery.isLoading || accountsAnalyticsQuery.isFetching) && filters.loading === "createdAccounts"} createdUsers={accountsAnalyticsQuery.data?.createdAccounts} onFilter={onFilterHandler} totalAccounts={accountsAnalyticsQuery.data?.totalAccounts} />
+      <VerifiedUsersAnalytics filteBy={filters.verifiedAccounts} isLoading={(accountsAnalyticsQuery.isLoading || accountsAnalyticsQuery.isFetching) && filters.loading === "verifiedAccounts"} onFilter={onFilterHandler} verifiedUsers={accountsAnalyticsQuery.data?.verifiedAccounts} />
+    </div>
   )
 }
 

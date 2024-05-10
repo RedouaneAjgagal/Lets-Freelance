@@ -1,5 +1,10 @@
 export type AnalyticsTypes = "profiles" | "services" | "jobs" | "reports" | "proposals" | "contracts" | "advertisements" | "revenues";
 
+export type AnalyticsType = {
+    _id: string;
+    count: number;
+}
+
 export type AccessAnalyticsTypes = {
     value: AnalyticsTypes;
     accessBy: ("admin" | "owner")[];

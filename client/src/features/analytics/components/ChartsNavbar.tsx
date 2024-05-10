@@ -62,7 +62,7 @@ const ChartsNavbar = (props: React.PropsWithoutRef<ChartsNavbarProps>) => {
                 <MdArrowBackIos className={`${false ? "rotate-90" : "-rotate-90"} transition-all text-slate-500`} />
             </button>
             {isFilterMenuOpen ?
-                <div className="absolute right-4 top-14 bg-white flex flex-col border border-slate-500 min-w-[10rem] z-10 shadow-lg px-2 text-slate-700">
+                <div className="absolute right-4 top-14 bg-white flex flex-col border border-slate-500 min-w-[10rem] shadow-lg px-2 text-slate-700 z-30">
                     {filterDurations}
                 </div>
                 : null

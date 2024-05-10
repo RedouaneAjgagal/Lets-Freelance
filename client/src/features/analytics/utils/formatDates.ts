@@ -15,11 +15,13 @@ export const formatRequestDates = (payload: FormatRequestDatesPayload) => {
     const date = new Date();
     switch (payload.dateType) {
         case "year":
-            const month = Number.isNaN(Number(payload.value))
+            const getYear = Number.isNaN(Number(payload.value))
                 ? Number(payload.value.toString().split("-")[1]) - 1
                 : payload.value;
-            const yearDateValue = new Date(date.setMonth(Number(month)));
+
+            const yearDateValue = new Date(date.setMonth(Number(getYear)));
             const yearValue = yearDateValue.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+
             return yearValue;
         case "month":
             const getMonth = Number.isNaN(Number(payload.value))
@@ -36,7 +38,7 @@ export const formatRequestDates = (payload: FormatRequestDatesPayload) => {
 
             const getWeek = Number.isNaN(Number(payload.value))
                 ? new Date(payload.value)
-                : new Date(date.setDate(Number(payload.value)));
+                : new Date(Date.now() - (Number(payload.value) * 24 * 60 * 60 * 1000));
 
             const weekValue = getWeek.toLocaleDateString("en-US", {
                 month: "short",
@@ -63,7 +65,6 @@ const formatDates = (payload: FormatDatesPayload) => {
         _id: string;
         [key: string]: string | number;
     }[] = [];
-    // console.log(payload.value);
 
     switch (payload.dateType) {
         case "day":
@@ -83,7 +84,7 @@ const formatDates = (payload: FormatDatesPayload) => {
         case "week":
             for (let i = 0; i < 7; i++) {
                 const weekValue = formatRequestDates({
-                    value: i + 2,
+                    value: i,
                     dateType: "week"
                 });
                 data.push({
@@ -148,14 +149,13 @@ const formatDates = (payload: FormatDatesPayload) => {
             break;
     }
 
-
     const newData = [...payload.value, ...data]
         .filter((data, index, arr) => {
             return arr.findIndex((d) => d._id === data._id) === index;
         });
 
     const uniqueData = [...new Set(newData)];
-    // console.log(new Date(uniqueData[0]._id));
+
     uniqueData.sort((a, b) => {
         if (payload.dateType === "day") {
             const a_hour = a._id.split(":")[0];
@@ -164,10 +164,7 @@ const formatDates = (payload: FormatDatesPayload) => {
             return Number(a_hour) - Number(b_hour);
         }
         return new Date(a._id).getTime() - new Date(b._id).getTime();
-    })
-
-    // console.log(uniqueData);
-
+    });
 
     return uniqueData;
 

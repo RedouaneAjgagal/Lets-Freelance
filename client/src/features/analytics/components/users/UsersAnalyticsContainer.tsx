@@ -4,6 +4,8 @@ import useAccountsAnalyticsQuery from "../../hooks/useAccountsAnalyticsQuery";
 import CreatedUsersAnalytics, { FilterAccountsType } from "./CreatedUsersAnalytics";
 import VerifiedUsersAnalytics from "./VerifiedUsersAnalytics";
 import { AccountsAnalyticsPayload } from "../../services/accountsAnalytics";
+import FreelancersAnalyticsContainer from "./FreelancersAnalyticsContainer";
+import EmployersAnalyticsContainer from "./EmployersAnalyticsContainer";
 
 type FiltersType = {
   createdAccounts: FilterValues;
@@ -44,6 +46,13 @@ const UsersAnalyticsContainer = () => {
     <div className="grid gap-6">
       <CreatedUsersAnalytics filteBy={filters.createdAccounts} isLoading={(accountsAnalyticsQuery.isLoading || accountsAnalyticsQuery.isFetching) && filters.loading === "createdAccounts"} createdUsers={accountsAnalyticsQuery.data?.createdAccounts} onFilter={onFilterHandler} totalAccounts={accountsAnalyticsQuery.data?.totalAccounts} />
       <VerifiedUsersAnalytics filteBy={filters.verifiedAccounts} isLoading={(accountsAnalyticsQuery.isLoading || accountsAnalyticsQuery.isFetching) && filters.loading === "verifiedAccounts"} onFilter={onFilterHandler} verifiedUsers={accountsAnalyticsQuery.data?.verifiedAccounts} />
+      {accountsAnalyticsQuery.isLoading
+        ? null
+        : <>
+          <FreelancersAnalyticsContainer />
+          <EmployersAnalyticsContainer />
+        </>
+      }
     </div>
   )
 }

@@ -46,7 +46,7 @@ const VerifiedUsersAnalytics = (props: React.PropsWithoutRef<VerifiedUsersAnalyt
     });
 
     return (
-        <AnalyticsWrapper key={barDataKey} filterValue={props.filteBy} onSelectFilter={selectFilterValueHandler} title={barDataKey} data={[]}>
+        <AnalyticsWrapper key={barDataKey} filterValue={props.filteBy} onSelectFilter={selectFilterValueHandler} title={barDataKey} data={[]} isFilter bottomData={[]}>
             {props.isLoading ?
                 <div className=" bg-slate-900/80 absolute  flex items-center justify-center w-full top-0 left-0 h-full z-20">
                     <TbLoader3 className="animate-spin text-white" size={55} />

@@ -1,3 +1,4 @@
+import { TbLoader3 } from "react-icons/tb";
 import pieChartColors from "../utils/pieChartColors";
 import ChartsNavbar, { FilterValues } from "./ChartsNavbar";
 import DataContainer from "./DataContainer";
@@ -10,6 +11,7 @@ export type ExtraAnalyticsDataType = {
 };
 
 type AnalyticsWrapperPropsWithoutFilter = {
+    isLoading: boolean;
     isFilter: false;
     title: string;
     data: { title: string; value: number | string; }[];
@@ -17,6 +19,7 @@ type AnalyticsWrapperPropsWithoutFilter = {
 }
 
 type AnalyticsWrapperPropsWithFilter = {
+    isLoading: boolean;
     isFilter: true;
     title: string;
     data: { title: string; value: number | string; }[];
@@ -41,6 +44,12 @@ const AnalyticsWrapper = (props: React.PropsWithChildren<AnalyticsWrapperProps>)
             {props.children ?
                 <div className="pb-[75%] relative h-0" >
                     <div className="absolute top-0 left-0 w-full h-full py-4">
+                        {props.isLoading ?
+                            <div className=" bg-slate-900/80 absolute  flex items-center justify-center w-full top-0 left-0 h-full z-20">
+                                <TbLoader3 className="animate-spin text-white" size={55} />
+                            </div>
+                            : null
+                        }
                         {props.children}
                     </div>
                 </div>

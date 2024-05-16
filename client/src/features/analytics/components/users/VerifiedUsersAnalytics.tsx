@@ -1,5 +1,4 @@
 import AnalyticsWrapper from '../AnalyticsWrapper'
-import { TbLoader3 } from 'react-icons/tb'
 import { Bar, BarChart, CartesianGrid, Legend, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { FilterValues } from '../ChartsNavbar'
 import { AccountsAnalyticsResponse } from '../../services/accountsAnalytics'
@@ -46,13 +45,7 @@ const VerifiedUsersAnalytics = (props: React.PropsWithoutRef<VerifiedUsersAnalyt
     });
 
     return (
-        <AnalyticsWrapper key={barDataKey} filterValue={props.filteBy} onSelectFilter={selectFilterValueHandler} title={barDataKey} data={[]} isFilter bottomData={[]}>
-            {props.isLoading ?
-                <div className=" bg-slate-900/80 absolute  flex items-center justify-center w-full top-0 left-0 h-full z-20">
-                    <TbLoader3 className="animate-spin text-white" size={55} />
-                </div>
-                : null
-            }
+        <AnalyticsWrapper key={barDataKey} filterValue={props.filteBy} onSelectFilter={selectFilterValueHandler} title={barDataKey} data={[]} isFilter bottomData={[]} isLoading={props.isLoading}>
             <ResponsiveContainer>
                 <BarChart className="w-full"
                     width={300}

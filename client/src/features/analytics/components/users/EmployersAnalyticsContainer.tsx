@@ -26,7 +26,7 @@ const EmployersAnalyticsContainer = () => {
 
     return (
         <div>
-            <AnalyticsWrapper title="Employers overview" isFilter={false} data={data} bottomData={[]} />
+            <AnalyticsWrapper title="Employers overview" isFilter={false} data={data} bottomData={[]} isLoading={false} />
         </div>
     )
 }

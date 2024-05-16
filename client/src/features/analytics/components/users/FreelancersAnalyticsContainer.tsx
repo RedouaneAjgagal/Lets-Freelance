@@ -16,6 +16,7 @@ const FreelancersAnalyticsContainer = () => {
 
             extraFreelancersAnalytics.push({
                 ...freelancer,
+                percentage: Number(freelancer.percentage.toFixed(2)),
                 color: color.bgColor || "bg-blue-300"
             });
 
@@ -51,7 +52,7 @@ const FreelancersAnalyticsContainer = () => {
 
     return (
         <div>
-            <AnalyticsWrapper data={freelancersData} isFilter={false} title="Freelancers overview" bottomData={extraFreelancersAnalytics}>
+            <AnalyticsWrapper data={freelancersData} isFilter={false} title="Freelancers overview" bottomData={extraFreelancersAnalytics} isLoading={false}>
                 <ResponsiveContainer>
                     <PieChart >
                         <Pie

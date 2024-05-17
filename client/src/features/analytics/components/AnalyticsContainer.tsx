@@ -5,6 +5,7 @@ import { AccessAnalyticsTypes, AnalyticsTypes } from "../utils/validAccessAnalyt
 import ServicesAnalyticsContainer from "./services/ServicesAnalyticsContainer";
 import JobsAnalyticsContainer from "./jobs/JobsAnalyticsContainer";
 import ReportsAnalyticsContainer from "./reports/ReportsAnalyticsContainer";
+import ProposalsAnalyticsContainer from "./proposals/ProposalsAnalyticsContainer";
 
 type AnalyticsContainerProps = {
     role: "admin" | "owner";
@@ -61,10 +62,11 @@ const AnalyticsContainer = (props: React.PropsWithoutRef<AnalyticsContainerProps
         profiles: UsersAnalyticsContainer,
         services: ServicesAnalyticsContainer,
         jobs: JobsAnalyticsContainer,
-        reports: ReportsAnalyticsContainer
+        reports: ReportsAnalyticsContainer,
+        proposals: ProposalsAnalyticsContainer
     };
 
-    const CurrentAnalytics = analyticsElements["reports"];
+    const CurrentAnalytics = analyticsElements["proposals"];
 
     return (
         <div>

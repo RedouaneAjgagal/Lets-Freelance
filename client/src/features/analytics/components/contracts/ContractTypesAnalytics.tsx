@@ -1,20 +1,21 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { ProposalsAnalyticsBoostersTypes } from "../../services/proposalsAnalytics";
+import { ContractAnalyticsContractTypes } from "../../services/contractAnalytics";
 import pieChartColors from "../../utils/pieChartColors";
 import AnalyticsWrapper, { ExtraAnalyticsDataType } from "../AnalyticsWrapper";
 
-type BoostedProposalsTypesAnalyticsProps = {
+
+type ContractTypesAnalyticsProps = {
     title: string;
-    proposals: ProposalsAnalyticsBoostersTypes[] | undefined;
+    contractTypes: ContractAnalyticsContractTypes[] | undefined;
     isLoading: boolean;
 }
 
-const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProposalsTypesAnalyticsProps>) => {
+const ContractTypesAnalytics = (props: React.PropsWithoutRef<ContractTypesAnalyticsProps>) => {
     const extraAnalytics: ExtraAnalyticsDataType[] = [];
 
-    const proposalsAnalytics = props.isLoading
+    const contractsAnalytics = props.isLoading
         ? []
-        : props.proposals!.map((value, index) => {
+        : props.contractTypes!.map((value, index) => {
             const color = pieChartColors[index + 1];
 
             extraAnalytics.push({
@@ -31,8 +32,8 @@ const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProp
         });
 
 
-    const data = proposalsAnalytics.length
-        ? proposalsAnalytics
+    const data = contractsAnalytics.length
+        ? contractsAnalytics
         : [{ name: "Empty", color: "#eee", value: 1 }];
 
     return (
@@ -49,7 +50,7 @@ const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProp
                         paddingAngle={1}
                         fill="#e2e2e2"
                     >
-                        {proposalsAnalytics.map((entry, index) => (
+                        {contractsAnalytics.map((entry, index) => (
                             <Cell key={`cell - ${index}`} fill={entry.color} />
                         ))}
                     </Pie>
@@ -60,4 +61,4 @@ const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProp
     )
 }
 
-export default BoostedProposalsTypesAnalytics
+export default ContractTypesAnalytics

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { ProposalsAnalyticsTopThreeBoostersType } from "../../services/proposalsAnalytics";
 import Loading from "../../../../components/Loading";
 

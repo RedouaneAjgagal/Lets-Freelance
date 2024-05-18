@@ -6,6 +6,7 @@ import ServicesAnalyticsContainer from "./services/ServicesAnalyticsContainer";
 import JobsAnalyticsContainer from "./jobs/JobsAnalyticsContainer";
 import ReportsAnalyticsContainer from "./reports/ReportsAnalyticsContainer";
 import ProposalsAnalyticsContainer from "./proposals/ProposalsAnalyticsContainer";
+import ContractsAnalyticsContainer from "./contracts/ContractsAnalyticsContainer";
 
 type AnalyticsContainerProps = {
     role: "admin" | "owner";
@@ -63,10 +64,11 @@ const AnalyticsContainer = (props: React.PropsWithoutRef<AnalyticsContainerProps
         services: ServicesAnalyticsContainer,
         jobs: JobsAnalyticsContainer,
         reports: ReportsAnalyticsContainer,
-        proposals: ProposalsAnalyticsContainer
+        proposals: ProposalsAnalyticsContainer,
+        contracts: ContractsAnalyticsContainer
     };
 
-    const CurrentAnalytics = analyticsElements["proposals"];
+    const CurrentAnalytics = analyticsElements["contracts"];
 
     return (
         <div>

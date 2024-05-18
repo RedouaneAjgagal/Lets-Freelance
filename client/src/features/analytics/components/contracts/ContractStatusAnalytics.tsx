@@ -1,38 +1,39 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { ProposalsAnalyticsBoostersTypes } from "../../services/proposalsAnalytics";
-import pieChartColors from "../../utils/pieChartColors";
+import { ContractAnalyticsStatusTypes } from "../../services/contractAnalytics";
 import AnalyticsWrapper, { ExtraAnalyticsDataType } from "../AnalyticsWrapper";
+import pieChartColors from "../../utils/pieChartColors";
 
-type BoostedProposalsTypesAnalyticsProps = {
+type ContractStatusAnalyticsProps = {
     title: string;
-    proposals: ProposalsAnalyticsBoostersTypes[] | undefined;
     isLoading: boolean;
+    contracts: ContractAnalyticsStatusTypes[] | undefined;
 }
 
-const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProposalsTypesAnalyticsProps>) => {
+const ContractStatusAnalytics = (props: React.PropsWithoutRef<ContractStatusAnalyticsProps>) => {
     const extraAnalytics: ExtraAnalyticsDataType[] = [];
 
-    const proposalsAnalytics = props.isLoading
+    const contractsAnalytics = props.isLoading
         ? []
-        : props.proposals!.map((value, index) => {
+        : props.contracts!.map((value, index) => {
             const color = pieChartColors[index + 1];
 
             extraAnalytics.push({
                 ...value,
+                _id: value._id === "inProgress" ? "in progress" : value._id,
                 percentage: Number(value.percentage.toFixed(2)),
                 color: color.bgColor || "bg-blue-300"
             });
 
             return {
-                name: value._id,
+                name: value._id === "inProgress" ? "in progress" : value._id,
                 value: value.count,
                 color: color.hex || "#eee"
             }
         });
 
 
-    const data = proposalsAnalytics.length
-        ? proposalsAnalytics
+    const data = contractsAnalytics.length
+        ? contractsAnalytics
         : [{ name: "Empty", color: "#eee", value: 1 }];
 
     return (
@@ -49,7 +50,7 @@ const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProp
                         paddingAngle={1}
                         fill="#e2e2e2"
                     >
-                        {proposalsAnalytics.map((entry, index) => (
+                        {contractsAnalytics.map((entry, index) => (
                             <Cell key={`cell - ${index}`} fill={entry.color} />
                         ))}
                     </Pie>
@@ -60,4 +61,4 @@ const BoostedProposalsTypesAnalytics = (props: React.PropsWithoutRef<BoostedProp
     )
 }
 
-export default BoostedProposalsTypesAnalytics
+export default ContractStatusAnalytics

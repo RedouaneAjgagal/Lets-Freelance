@@ -6,7 +6,7 @@ export type CampaignAnalyticsPayload = {
     created_campaign_duration?: "day" | "week" | "month" | "year";
 };
 
-export type CampaignAnalyticsValue<T extends string | boolean> = {
+export type CampaignAnalyticsValue<T extends string> = {
     _id: T;
     count: number;
     percentage: number;

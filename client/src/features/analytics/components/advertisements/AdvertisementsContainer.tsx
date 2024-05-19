@@ -1,5 +1,6 @@
 import { useState } from "react"
 import CampaignAnalyticsContainer from "./CampaignAnalyticsContainer";
+import AdSetsAnalyticsContainer from "./AdSetsAnalyticsContainer";
 
 
 const AdvertisementsContainer = () => {
@@ -9,7 +10,7 @@ const AdvertisementsContainer = () => {
 
     const CurrentOpenTab = tab === "campaign"
         ? CampaignAnalyticsContainer
-        : () => (<h1>ad analytics</h1>);
+        : AdSetsAnalyticsContainer;
 
     return (
         <div>

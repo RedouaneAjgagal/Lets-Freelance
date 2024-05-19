@@ -61,9 +61,9 @@ const AnalyticsWrapper = (props: React.PropsWithChildren<AnalyticsWrapperProps>)
                         const color = pieChartColors[index + 1]?.bgColor || "bg-slate-300";
 
                         return (
-                            <div key={data._id} className="grid grid-cols-5 mx-4 border-b last:border-0 pb-2">
+                            <div key={data._id} className="grid grid-cols-5 mx-4 border-b last:border-0 pb-2 gap-3">
                                 <div className="flex items-center gap-2 col-span-3">
-                                    <div className={`w-4 h-4 flex ${color}`}></div>
+                                    <div className={`min-w-[1rem] h-4 flex ${color}`}></div>
                                     <span>{data._id}</span>
                                 </div>
                                 <span className="col-span-1">{data.count.toLocaleString()}</span>

@@ -8,6 +8,7 @@ import ReportsAnalyticsContainer from "./reports/ReportsAnalyticsContainer";
 import ProposalsAnalyticsContainer from "./proposals/ProposalsAnalyticsContainer";
 import ContractsAnalyticsContainer from "./contracts/ContractsAnalyticsContainer";
 import AdvertisementsContainer from "./advertisements/AdvertisementsContainer";
+import RevenuesAnalyticsContainer from "./revenues/RevenuesAnalyticsContainer";
 
 type AnalyticsContainerProps = {
     role: "admin" | "owner";
@@ -67,10 +68,11 @@ const AnalyticsContainer = (props: React.PropsWithoutRef<AnalyticsContainerProps
         reports: ReportsAnalyticsContainer,
         proposals: ProposalsAnalyticsContainer,
         contracts: ContractsAnalyticsContainer,
-        advertisements: AdvertisementsContainer
+        advertisements: AdvertisementsContainer,
+        revenues: RevenuesAnalyticsContainer
     };
 
-    const CurrentAnalytics = analyticsElements["advertisements"];
+    const CurrentAnalytics = analyticsElements[analyticsType];
 
     return (
         <div>

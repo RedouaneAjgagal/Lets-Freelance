@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ServiceRevenueAnalyticsContainer from "./ServiceRevenueAnalyticsContainer";
 import FixedJobRevenueAnalyticsContainer from "./FixedJobRevenueAnalyticsContainer";
+import HourlyJobRevenueAnalyticsContainer from "./HourlyJobRevenueAnalyticsContainer";
 
 
 const RevenuesAnalyticsContainer = () => {
@@ -10,10 +11,11 @@ const RevenuesAnalyticsContainer = () => {
 
     const revenuesAnalytics = {
         services: ServiceRevenueAnalyticsContainer,
-        "fixed jobs": FixedJobRevenueAnalyticsContainer
+        "fixed jobs": FixedJobRevenueAnalyticsContainer,
+        "hourly jobs": HourlyJobRevenueAnalyticsContainer
     };
 
-    const CurrentOpenTabRevenueAnalytics = revenuesAnalytics["fixed jobs"];
+    const CurrentOpenTabRevenueAnalytics = revenuesAnalytics["hourly jobs"];
 
     return (
         <div>

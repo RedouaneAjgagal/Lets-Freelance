@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import hourlyJobRevenueAnalytics, { HourlyJobRevenueAnalyticsPayload } from "../services/HourlyJobRevenueAnalytics";
+import hourlyJobRevenueAnalytics, { HourlyJobRevenueAnalyticsPayload } from "../services/hourlyJobRevenueAnalytics";
 
 
 const useHourlyJobRevenueAnalyticsQuery = (payload: HourlyJobRevenueAnalyticsPayload) => {

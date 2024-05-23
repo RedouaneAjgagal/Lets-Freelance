@@ -1,6 +1,6 @@
 import { useState } from "react";
 import useHourlyJobRevenueAnalyticsQuery from "../../hooks/useHourlyJobRevenueAnalyticsQuery"
-import { HourlyJobRevenueAnalyticsPayload } from "../../services/HourlyJobRevenueAnalytics";
+import { HourlyJobRevenueAnalyticsPayload } from "../../services/hourlyJobRevenueAnalytics";
 import ChartsNavbar, { FilterValues } from "../ChartsNavbar";
 import { useQueryClient } from "@tanstack/react-query";
 import RevenueAnalyticsWrapper from "./RevenueAnalyticsWrapper";

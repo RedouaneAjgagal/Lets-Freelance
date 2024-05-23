@@ -464,7 +464,7 @@ const getAdvertisementStatements: RequestHandler = async (req: CustomAuthRequest
         facetAggregate[facetName] = facet;
     });
 
-    const advertisements = await advertisementModels.Campaign.aggregate([
+    const [advertisements] = await advertisementModels.Campaign.aggregate([
         {
             $match: {
                 $and: [

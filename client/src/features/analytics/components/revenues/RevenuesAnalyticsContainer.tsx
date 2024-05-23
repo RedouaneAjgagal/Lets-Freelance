@@ -3,6 +3,7 @@ import ServiceRevenueAnalyticsContainer from "./ServiceRevenueAnalyticsContainer
 import FixedJobRevenueAnalyticsContainer from "./FixedJobRevenueAnalyticsContainer";
 import HourlyJobRevenueAnalyticsContainer from "./HourlyJobRevenueAnalyticsContainer";
 import ConnectsRevenueAnalyticsContainer from "./ConnectsRevenueAnalyticsContainer";
+import AdvertisementRevenueAnalyticsContainer from "./AdvertisementRevenueAnalyticsContainer";
 
 
 const RevenuesAnalyticsContainer = () => {
@@ -14,10 +15,11 @@ const RevenuesAnalyticsContainer = () => {
         services: ServiceRevenueAnalyticsContainer,
         "fixed jobs": FixedJobRevenueAnalyticsContainer,
         "hourly jobs": HourlyJobRevenueAnalyticsContainer,
-        connects: ConnectsRevenueAnalyticsContainer
+        connects: ConnectsRevenueAnalyticsContainer,
+        advertisements: AdvertisementRevenueAnalyticsContainer
     };
 
-    const CurrentOpenTabRevenueAnalytics = revenuesAnalytics["connects"];
+    const CurrentOpenTabRevenueAnalytics = revenuesAnalytics[tab];
 
     return (
         <div>

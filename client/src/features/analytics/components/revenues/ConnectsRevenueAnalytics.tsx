@@ -7,7 +7,7 @@ import { ConnectsRevenueAnalyticsResponse } from "../../services/connectsRevenue
 type ConnectsRevenueAnalyticsProps = {
     filterBy: FilterValues;
     title: string;
-    payments: ConnectsRevenueAnalyticsResponse;
+    payments: ConnectsRevenueAnalyticsResponse | undefined;
     isLoading: boolean;
 };
 

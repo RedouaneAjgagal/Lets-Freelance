@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import React from 'react'
 import reportsAnalytics, { ReportsAnalyticsPayload } from '../services/reportsAnalytics';
 
 const useReportsAnalyticsQuery = (payload: ReportsAnalyticsPayload) => {

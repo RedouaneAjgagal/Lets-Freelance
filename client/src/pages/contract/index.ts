@@ -1,4 +1,5 @@
 import CancelContract from "./CancelContract";
+import ContractCancellations from "./ContractCancellations";
 import PayWorkedHours from "./PayWorkedHours";
 import RefundRequest from "./RefundRequest";
 import SingleContract from "./SingleContract";
@@ -12,5 +13,6 @@ export {
     SubmitWorkedHours,
     CancelContract,
     PayWorkedHours,
-    RefundRequest
+    RefundRequest,
+    ContractCancellations
 }

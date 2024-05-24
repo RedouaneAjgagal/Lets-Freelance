@@ -154,8 +154,18 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         },
     ];
 
+    const powerfulRolesMenues: LinkMenuType[] = [
+        {
+            value: "Contract Cancellations",
+            icon: TbBriefcase,
+            to: "/contracts/cancelation",
+            accessRoles: ["admin", "owner"],
+            sort: 2
+        }
+    ]
+
     const selectedMenu = props.userInfo.userAs === "freelancer" ? freelancerMenus : employerMenus;
-    const userMenu = [...selectedMenu, ...generalMenus]
+    const userMenu = [...selectedMenu, ...generalMenus, ...powerfulRolesMenues]
         .filter(menu => menu.accessRoles.includes(props.role));
 
     userMenu.sort((a, b) => a.sort - b.sort);

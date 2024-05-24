@@ -9,6 +9,8 @@ import CancelContractForm from "./components/CancelContractForm";
 import useSetAsPaidHoursQuery from "./hooks/useSetAsPaidHoursQuery";
 import RefundRequestForm from "./components/RefundRequestForm";
 import { GetUserContractsReponse } from "./services/getUserSingleContract";
+import useGetContractCancellationsQuery from "./hooks/useGetContractCancellationsQuery";
+import ContractCancellationsContainer from "./components/ContractCancellationsContainer";
 
 export {
     useGetUserContractsQuery,
@@ -19,7 +21,9 @@ export {
     SubmitWorkedHoursForm,
     CancelContractForm,
     useSetAsPaidHoursQuery,
-    RefundRequestForm
+    RefundRequestForm,
+    useGetContractCancellationsQuery,
+    ContractCancellationsContainer
 }
 
 export type {

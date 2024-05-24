@@ -14,8 +14,9 @@ import AuthenticatedRoute from "../components/AuthenticatedRoute";
 import Connects from "../pages/profile/Connects";
 import SetAsPaidConnects from "../pages/profile/SetAsPaidConnects";
 import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages/job";
-import { CancelContract, PayWorkedHours, RefundRequest, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
+import { CancelContract, ContractCancellations, PayWorkedHours, RefundRequest, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
 import { AdvertisementHomePage, Campaigns, CreateCampaign, CreatePaymentMethod, PaymentMethods, SingleCampaign } from "../pages/advertisement";
+import AuthorizedRoute from "../components/AuthorizedRoute";
 
 const router = createBrowserRouter([
     {
@@ -193,6 +194,10 @@ const router = createBrowserRouter([
             {
                 path: "/profile/freelancer/advertisements/create/campaign",
                 element: <AuthenticatedRoute element={CreateCampaign} accessBy="freelancer" />
+            },
+            {
+                path: "/contracts/cancelation",
+                element: <AuthorizedRoute element={ContractCancellations} accessBy={["admin", "owner"]} />
             }
         ]
     }

@@ -95,7 +95,7 @@ type JobContractCancellationType = {
     job: ContractCancellationJobType;
 } & ContractCancellationType;
 
-type GetContractCancellationType = (ServiceContractCancellationType | JobContractCancellationType);
+export type GetContractCancellationType = (ServiceContractCancellationType | JobContractCancellationType);
 
 export type GetContractCancellationsResponse = GetContractCancellationType[];
 

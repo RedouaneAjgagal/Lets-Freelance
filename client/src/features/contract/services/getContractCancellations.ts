@@ -12,7 +12,7 @@ type ContractCancellationsIncludedInService = {
     result: string | number | boolean;
 }
 
-type ContractCancellationServiceType = {
+export type ContractCancellationServiceType = {
     serviceInfo: string;
     title: string;
     description: string;
@@ -24,7 +24,7 @@ type ContractCancellationServiceType = {
     };
 };
 
-type ContractCancellationJobType = {
+export type ContractCancellationJobType = {
     jobInfo: string;
     title: string;
     description: string;
@@ -38,7 +38,7 @@ type ContractCancellationJobType = {
     proposal: string;
 };
 
-type ContractCancellationRequestType = {
+export type ContractCancellationRequestType = {
     isCancelRequest: true;
     subject: string;
     reason: string;

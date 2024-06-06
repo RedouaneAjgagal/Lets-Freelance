@@ -1,5 +1,6 @@
 import { User, useLogoutMutation } from "../../features/auth";
 import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare, TbAd } from "react-icons/tb";
+import { RiRefund2Line } from "react-icons/ri";
 import { LuFileSignature } from "react-icons/lu";
 import UserMenuLink from "./UserMenuLink";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -157,10 +158,17 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
     const powerfulRolesMenues: LinkMenuType[] = [
         {
             value: "Contract Cancellations",
-            icon: TbBriefcase,
+            icon: LuFileSignature,
             to: "/contracts/cancelation",
             accessRoles: ["admin", "owner"],
             sort: 2
+        },
+        {
+            value: "Refund Requests",
+            icon: RiRefund2Line,
+            to: "/contracts/payments/refund",
+            accessRoles: ["admin", "owner"],
+            sort: 3
         }
     ]
 

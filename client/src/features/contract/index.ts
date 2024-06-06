@@ -11,6 +11,7 @@ import RefundRequestForm from "./components/RefundRequestForm";
 import { GetUserContractsReponse } from "./services/getUserSingleContract";
 import useGetContractCancellationsQuery from "./hooks/useGetContractCancellationsQuery";
 import ContractCancellationsContainer from "./components/ContractCancellationsContainer";
+import useGetRefundRequestsQuery from "./hooks/useGetRefundRequestsQuery";
 
 export {
     useGetUserContractsQuery,
@@ -23,7 +24,8 @@ export {
     useSetAsPaidHoursQuery,
     RefundRequestForm,
     useGetContractCancellationsQuery,
-    ContractCancellationsContainer
+    ContractCancellationsContainer,
+    useGetRefundRequestsQuery
 }
 
 export type {

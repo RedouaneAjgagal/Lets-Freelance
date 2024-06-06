@@ -3,7 +3,7 @@ import { useAppSelector } from "../hooks/redux";
 
 type AuthorizedRouteProps = {
     element: JSX.ElementType;
-    accessBy: ("admin" | "owner")[];
+    accessBy: ("user" | "admin" | "owner")[];
 }
 
 const AuthorizedRoute = (props: React.PropsWithoutRef<AuthorizedRouteProps>) => {

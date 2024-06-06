@@ -44,7 +44,7 @@ const ContractCancellationModal = (props: React.PropsWithoutRef<ContractCancella
                         <ContractCancellationGeneralInfo activityId={activityId} activityType={props.contractCancellation.activityType} contractId={props.contractCancellation._id} employer={props.contractCancellation.employer} freelancer={props.contractCancellation.freelancer} />
                         {cancelRequests}
                         <ContractCancellationAboutActivity contract={props.contractCancellation} />
-                        <CancelContractCta />
+                        <CancelContractCta onClose={props.onClose} contractId={props.contractCancellation._id} />
                     </div>
                 </section>
             </>

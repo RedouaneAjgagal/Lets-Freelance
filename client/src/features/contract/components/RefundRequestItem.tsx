@@ -3,6 +3,7 @@ import Status from "../../../components/Status";
 import ActionButton from "../../../layouts/brand/ActionButton";
 import { GetRefundRequestContractType } from "../services/getRefundRequests"
 import RefundRequestModal from "../modals/RefundRequestModal";
+import useOverflow from "../../../hooks/useOverflow";
 
 type RefundRequestItemProps = {
     refundRequestContract: GetRefundRequestContractType;
@@ -24,6 +25,8 @@ const RefundRequestItem = (props: React.PropsWithoutRef<RefundRequestItemProps>)
         .reduce((prevValue, payment) => {
             return payment.amount + prevValue;
         }, 0);
+
+    useOverflow(isModalOpen);
 
     return (
         <>

@@ -1,7 +1,9 @@
-import { ContractCancellationRequestType } from "../services/getContractCancellations"
 
 type ContractCancellationRequestedByProps = {
-    cancelRequest: ContractCancellationRequestType;
+    cancelRequest: {
+        subject: string;
+        reason: string;
+    };
     user: "freelancer" | "employer";
 };
 

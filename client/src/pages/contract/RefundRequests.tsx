@@ -1,5 +1,5 @@
 import Loading from "../../components/Loading";
-import { useGetRefundRequestsQuery } from "../../features/contract"
+import { RefundRequestsContainer, useGetRefundRequestsQuery } from "../../features/contract"
 
 
 const RefundRequests = () => {
@@ -11,9 +11,7 @@ const RefundRequests = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">Refund Requests</h1>
             {getRefundRequestsQuery.isLoading ?
                 <Loading />
-                : <div>
-                    {getRefundRequestsQuery.data!.length}
-                </div>
+                : <RefundRequestsContainer refundRequestContracts={getRefundRequestsQuery.data!} />
             }
         </main>
     )

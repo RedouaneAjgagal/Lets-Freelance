@@ -2,10 +2,10 @@ import { createPortal } from "react-dom";
 import { GetContractCancellationType } from "../services/getContractCancellations";
 import Overlay from "../../../layouts/Overlay";
 import { TbX } from "react-icons/tb";
-import ContractCancellationAboutActivity from "../components/ContractCancellationAboutActivity";
+import AboutActivityContract from "../components/AboutActivityContract";
 import ContractCancellationRequestedBy from "../components/ContractCancellationRequestedBy";
 import CancelContractCta from "../components/CancelContractCta";
-import ContractCancellationGeneralInfo from "../components/ContractCancellationGeneralInfo";
+import ContractGeneralInfo from "../components/ContractGeneralInfo";
 
 type ContractCancellationModalProps = {
     onClose: () => void;
@@ -41,9 +41,9 @@ const ContractCancellationModal = (props: React.PropsWithoutRef<ContractCancella
                         </button>
                     </div>
                     <div className="flex flex-col gap-6">
-                        <ContractCancellationGeneralInfo activityId={activityId} activityType={props.contractCancellation.activityType} contractId={props.contractCancellation._id} employer={props.contractCancellation.employer} freelancer={props.contractCancellation.freelancer} />
+                        <ContractGeneralInfo activityId={activityId} activityType={props.contractCancellation.activityType} contractId={props.contractCancellation._id} usersInfo={true} employer={props.contractCancellation.employer} freelancer={props.contractCancellation.freelancer} createdAt={props.contractCancellation.createdAt} />
                         {cancelRequests}
-                        <ContractCancellationAboutActivity contract={props.contractCancellation} />
+                        <AboutActivityContract contract={props.contractCancellation} />
                         <CancelContractCta onClose={props.onClose} contractId={props.contractCancellation._id} />
                     </div>
                 </section>

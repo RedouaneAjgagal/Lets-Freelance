@@ -1,18 +1,13 @@
 import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api"
 
-type ContractUserType = {
-    user: string;
-    profile: string;
-    status: "inProgress" | "completed" | "canceled";
-};
-
 type ContractIncludedInService = {
+    _id: string;
     description: string;
     result: string | number | boolean;
 }
 
-type ContractServiceType = {
+export type ContractServiceType = {
     serviceInfo: string;
     title: string;
     description: string;
@@ -24,7 +19,7 @@ type ContractServiceType = {
     };
 };
 
-type ContractJobType = {
+export type ContractJobType = {
     jobInfo: string;
     title: string;
     description: string;
@@ -36,12 +31,6 @@ type ContractJobType = {
         timeValue: number;
     };
     proposal: string;
-};
-
-type ContractRequestType = {
-    isCancelRequest: true;
-    subject: string;
-    reason: string;
 };
 
 type RefundRequestType = {
@@ -57,7 +46,7 @@ type UserPaymentType = {
     net: number;
 };
 
-type ContractPaymentType = {
+export type ContractPaymentType = {
     _id: string;
     amount: number;
     employer: UserPaymentType & { refundRequest?: RefundRequestType };
@@ -69,20 +58,10 @@ type ContractPaymentType = {
 
 type ContractType = {
     _id: string;
-    freelancer: ContractUserType;
-    employer: ContractUserType;
-    cancelRequest: {
-        freelancer: {
-            isCancelRequest: false;
-        } | ContractRequestType;
-        employer: {
-            isCancelRequest: false;
-        } | ContractRequestType;
-        status: "pending" | "rejected" | "approved";
-    };
     payments: ContractPaymentType[];
     createdAt: string;
     updatedAt: string;
+    completedAt?: string;
 };
 
 type ServiceContractType = {
@@ -95,12 +74,12 @@ type JobContractType = {
     job: ContractJobType;
 } & ContractType;
 
-type GetContractType = (ServiceContractType | JobContractType);
+export type GetRefundRequestContractType = (ServiceContractType | JobContractType);
 
-type GetContractsResponse = GetContractType[];
+export type GetRefundRequestContractsResponse = GetRefundRequestContractType[];
 
 const getRefundRequests = async () => {
-    const response: AxiosResponse<Promise<GetContractsResponse>> = await getRequest(`contracts/refund`);
+    const response: AxiosResponse<Promise<GetRefundRequestContractsResponse>> = await getRequest(`contracts/refund`);
 
     const data = await response.data;
     return data;

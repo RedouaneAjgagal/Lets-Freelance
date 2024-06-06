@@ -10,7 +10,7 @@ const ContractCancellationAboutService = (props: React.PropsWithoutRef<ContractC
     return (
         <div className="flex flex-col gap-2">
             <div className="flex flex-col">
-                <h5 className="font-medium">Service:</h5>
+                <h5 className="font-medium">Service ID:</h5>
                 <span className="text-slate-600">{props.serviceContract.serviceInfo}</span>
             </div>
             <div className="flex flex-col">
@@ -30,7 +30,7 @@ const ContractCancellationAboutService = (props: React.PropsWithoutRef<ContractC
             <div className="flex flex-col">
                 <h5 className="font-medium capitalize">{props.serviceContract.tierName} tier:</h5>
                 <div className="flex flex-col gap-1 border px-4 py-3 rounded">
-                    <IncludedInSelectedPackage deliveryTime={props.serviceContract.tier.deliveryTime} includedIn={props.serviceContract.tier.includedIn} hideCalculatedTime={true} />
+                    <IncludedInSelectedPackage deliveryTime={props.serviceContract.tier.deliveryTime} includedIn={props.serviceContract.tier.includedIn} />
                 </div>
             </div>
         </div>

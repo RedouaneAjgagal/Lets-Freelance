@@ -8,6 +8,7 @@ type ContractCancellationUserType = {
 };
 
 type ContractCancellationsIncludedInService = {
+    _id: string;
     description: string;
     result: string | number | boolean;
 }

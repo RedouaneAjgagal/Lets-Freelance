@@ -46,7 +46,7 @@ const ContractCancellationItem = (props: React.PropsWithoutRef<ContractCancellat
                             return (
                                 <div key={user}>
                                     <span className="capitalize text-sm text-slate-600">{user}</span>
-                                    <h2 className="font-medium line-clamp-2">{cancelRequest.subject} more data here and there right? and we can even do anyways?</h2>
+                                    <h2 className="font-medium line-clamp-2">{cancelRequest.subject}</h2>
                                 </div>
                             )
                         })}

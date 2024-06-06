@@ -23,7 +23,7 @@ const ContractCancellationAboutJob = (props: React.PropsWithoutRef<ContractCance
     return (
         <div className="flex flex-col gap-2">
             <div className="flex flex-col">
-                <h5 className="font-medium">Job:</h5>
+                <h5 className="font-medium">Job ID:</h5>
                 <span className="text-slate-600">{props.jobContract.jobInfo}</span>
             </div>
             <div className="flex flex-col">
@@ -51,7 +51,7 @@ const ContractCancellationAboutJob = (props: React.PropsWithoutRef<ContractCance
                 <span className="text-slate-600">${props.jobContract.price.toFixed(2)} {props.jobContract.priceType === "hourly" ? "/hr" : "fixed"}</span>
             </div>
             <div className="flex flex-col">
-                <h5 className="font-medium">Proposal:</h5>
+                <h5 className="font-medium">Proposal ID:</h5>
                 <span className="text-slate-600">{props.jobContract.proposal}</span>
             </div>
             <div className="flex flex-col">

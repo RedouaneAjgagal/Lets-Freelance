@@ -7,9 +7,7 @@ type EventReportsContainerProps = {
 }
 
 const EventReportsContainer = (props: React.PropsWithoutRef<EventReportsContainerProps>) => {
-
     const tableHeads = ["Event", "Submitted By", "Subject", "Reported At", "Actions"];
-
 
     return (
         <section className='bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-2'>

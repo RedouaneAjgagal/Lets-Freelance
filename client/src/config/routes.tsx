@@ -17,6 +17,7 @@ import { AllJobs, CreateJob, EmployerJobs, SingleJob, UpdateJob } from "../pages
 import { CancelContract, ContractCancellations, PayWorkedHours, RefundRequest, RefundRequests, SingleContract, SubmitWorkedHours, UserContracts } from "../pages/contract";
 import { AdvertisementHomePage, Campaigns, CreateCampaign, CreatePaymentMethod, PaymentMethods, SingleCampaign } from "../pages/advertisement";
 import AuthorizedRoute from "../components/AuthorizedRoute";
+import { EventReports } from "../pages/report";
 
 const router = createBrowserRouter([
     {
@@ -202,6 +203,10 @@ const router = createBrowserRouter([
             {
                 path: "/contracts/payments/refund",
                 element: <AuthorizedRoute element={RefundRequests} accessBy={["admin", "owner"]} />
+            },
+            {
+                path: "/reports",
+                element: <AuthorizedRoute element={EventReports} accessBy={["admin", "owner"]} />
             }
         ]
     }

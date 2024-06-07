@@ -116,13 +116,13 @@ const getReports: RequestHandler = async (req: CustomAuthRequest, res) => {
                 from: "profiles",
                 localField: "subbmitedByUser",
                 foreignField: "user",
-                as: "profile"
+                as: "submittedBy"
             }
         },
         {
             $addFields: {
                 submittedBy: {
-                    $first: "$profile"
+                    $first: "$submittedBy"
                 }
             }
         },
@@ -132,6 +132,9 @@ const getReports: RequestHandler = async (req: CustomAuthRequest, res) => {
                 event: 1,
                 subject: 1,
                 message: 1,
+                profile: 1,
+                service: 1,
+                job: 1,
                 createdAt: 1,
                 "submittedBy.profile": "$submittedBy._id",
                 "submittedBy.user": 1,
@@ -166,7 +169,7 @@ const getReports: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // filter by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
-    const displayPerPage = 2;
+    const displayPerPage = 12;
     const limit = currentPage * displayPerPage;
     const skip = (currentPage - 1) * displayPerPage;
     const pagination: mongoose.PipelineStage[] = [{ $limit: limit }, { $skip: skip }];

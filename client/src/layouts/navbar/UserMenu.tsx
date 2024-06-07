@@ -1,5 +1,5 @@
 import { User, useLogoutMutation } from "../../features/auth";
-import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare, TbAd } from "react-icons/tb";
+import { TbSmartHome, TbChecklist, TbBriefcase, TbMessage, TbAppWindow, TbReportMoney, TbSquareRoundedPlus, TbSettings, TbLogout, TbX, TbHeart, TbShare, TbAd, TbReport } from "react-icons/tb";
 import { RiRefund2Line } from "react-icons/ri";
 import { LuFileSignature } from "react-icons/lu";
 import UserMenuLink from "./UserMenuLink";
@@ -169,6 +169,13 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
             to: "/contracts/payments/refund",
             accessRoles: ["admin", "owner"],
             sort: 3
+        },
+        {
+            value: "Event Reports",
+            icon: TbReport,
+            to: "/reports",
+            accessRoles: ["admin", "owner"],
+            sort: 4
         }
     ]
 

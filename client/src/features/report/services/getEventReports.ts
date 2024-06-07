@@ -17,7 +17,7 @@ type GeneralReportType = {
     submittedBy: {
         user: string;
         name: string;
-        userAs: string;
+        userAs: "freelancer" | "employer";
         profile: string;
     };
 };
@@ -37,11 +37,13 @@ type JobEventReportType = {
     job: string;
 } & GeneralReportType;
 
-export type EventReportsReponse = (
+export type EventReportsType = (
     ProfileEventReportType |
     ServiceEventReportType |
     JobEventReportType
-)[];
+);
+
+export type EventReportsReponse = EventReportsType[];
 
 const getEventReports = async (payload: GetEventReportsPayload) => {
     const formatedSearchQueries = formatSearchQueries(payload);

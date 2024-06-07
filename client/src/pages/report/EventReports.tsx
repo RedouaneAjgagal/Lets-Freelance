@@ -1,8 +1,10 @@
 import Loading from "../../components/Loading";
-import { EventReportsContainer, useGetEventReportsQuery } from "../../features/report"
+import { EventReportsContainer, GetEventReportsPayload, useGetEventReportsQuery } from "../../features/report"
 
 const EventReports = () => {
-    const getEventReportsQuery = useGetEventReportsQuery({});
+    const eventReportsPayload: GetEventReportsPayload = {};
+
+    const getEventReportsQuery = useGetEventReportsQuery(eventReportsPayload);
 
     return (
         <main className="p-4 bg-purple-100/30 flex flex-col gap-4">
@@ -11,7 +13,7 @@ const EventReports = () => {
             </h1>
             {getEventReportsQuery.isLoading ?
                 <Loading />
-                : <EventReportsContainer />
+                : <EventReportsContainer eventReports={getEventReportsQuery.data!} />
             }
         </main>
     )

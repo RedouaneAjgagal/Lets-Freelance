@@ -169,14 +169,63 @@ const getReports: RequestHandler = async (req: CustomAuthRequest, res) => {
 
     // filter by page
     const currentPage = page && /^\d+$/.test(page.toString()) ? Number(page) : 1;
-    const displayPerPage = 12;
+    const displayPerPage = 8;
     const limit = currentPage * displayPerPage;
     const skip = (currentPage - 1) * displayPerPage;
-    const pagination: mongoose.PipelineStage[] = [{ $limit: limit }, { $skip: skip }];
-    aggregate.push(...pagination);
+    const pagination: mongoose.PipelineStage.FacetPipelineStage[] = [
+        {
+            $limit: limit
+        },
+        {
+            $skip: skip
+        }
+    ];
+
+    aggregate.push({
+        $facet: {
+            numOfReports: [
+                {
+                    $group: {
+                        _id: null,
+                        count: {
+                            $sum: 1
+                        }
+                    }
+                },
+            ],
+            reports: [...pagination]
+        },
+    }, {
+        $addFields: {
+            numOfReports: {
+                $cond: {
+                    if: {
+                        $eq: [{ $size: "$reports" }, 0]
+                    },
+                    then: 0,
+                    else: {
+                        $first: "$numOfReports.count"
+                    }
+                }
+            }
+        }
+    }, {
+        $addFields: {
+            numOfpagesLeft: {
+                $ceil: {
+                    $divide: ["$numOfReports", limit]
+                }
+            }
+        }
+    }, {
+        $project: {
+            numOfpagesLeft: 1,
+            reports: 1
+        }
+    })
 
     // get reports
-    const reports = await Report.aggregate(aggregate);
+    const [reports] = await Report.aggregate(aggregate);
 
     res.status(StatusCodes.OK).json(reports);
 }

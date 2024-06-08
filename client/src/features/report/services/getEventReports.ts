@@ -43,7 +43,10 @@ export type EventReportsType = (
     JobEventReportType
 );
 
-export type EventReportsReponse = EventReportsType[];
+export type EventReportsReponse = {
+    reports: EventReportsType[];
+    numOfpagesLeft: number;
+};
 
 const getEventReports = async (payload: GetEventReportsPayload) => {
     const formatedSearchQueries = formatSearchQueries(payload);

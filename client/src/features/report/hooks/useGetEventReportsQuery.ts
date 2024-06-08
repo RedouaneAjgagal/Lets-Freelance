@@ -7,7 +7,8 @@ const useGetEventReportsQuery = (payload: GetEventReportsPayload) => {
         queryFn: () => getEventReports(payload),
         retry: false,
         refetchOnWindowFocus: false,
-        useErrorBoundary: true
+        useErrorBoundary: true,
+        keepPreviousData: true
     });
 
     return getEventReportsQuery;

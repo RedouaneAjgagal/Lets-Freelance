@@ -6,6 +6,7 @@ import useCurrentUserMutation from "./useCurrentUserMutation";
 
 const useLoginMutation = () => {
     const currentUserMutation = useCurrentUserMutation();
+
     const loginMutation = useMutation({
         mutationFn: loginRequest,
         onSuccess: ({ data }) => {

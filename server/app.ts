@@ -21,6 +21,8 @@ import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 import fileUpload from "express-fileupload";
+import WebSocket from "ws";
+import http from "http";
 
 // routes
 import { authRouter } from "./features/auth";
@@ -40,6 +42,8 @@ import { favouriteRouter } from "./features/favourite";
 import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
 import { statementRouter } from "./features/statement";
+import websockets from "./websockets";
+import { messageHandler } from "./features/message";
 
 
 cloudinary.config({
@@ -62,6 +66,15 @@ app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(fileUpload({ useTempFiles: true, safeFileNames: true }));
+
+
+// websocket
+const server = http.createServer(app);
+const wss = websockets(server);
+
+// messaging system
+messageHandler(wss);
+
 
 
 app.use("/api/v1/auth", authRouter);
@@ -89,7 +102,7 @@ const port = process.env.PORT || 5000;
 const start = async () => {
     try {
         await dbConnection(process.env.MONGO_URI!);
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Server is running on ${port}`);
         })
     } catch (error) {

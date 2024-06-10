@@ -18,6 +18,7 @@ import { CancelContract, ContractCancellations, PayWorkedHours, RefundRequest, R
 import { AdvertisementHomePage, Campaigns, CreateCampaign, CreatePaymentMethod, PaymentMethods, SingleCampaign } from "../pages/advertisement";
 import AuthorizedRoute from "../components/AuthorizedRoute";
 import { EventReports } from "../pages/report";
+import { Messages } from "../pages/message";
 
 const router = createBrowserRouter([
     {
@@ -207,6 +208,10 @@ const router = createBrowserRouter([
             {
                 path: "/reports",
                 element: <AuthorizedRoute element={EventReports} accessBy={["admin", "owner"]} />
+            },
+            {
+                path: "/profile/messages",
+                element: <AuthenticatedRoute element={Messages} />
             }
         ]
     }

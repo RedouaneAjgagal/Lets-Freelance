@@ -7,6 +7,8 @@ import { jobFormReducer } from "../features/job";
 
 import { campaignFormReducer, serviceAdClickTrackerReducer, serviceAdOrderTrackerReducer } from "../features/advertisement";
 
+import { websocketMessageReducer, websocketMiddleware } from "../features/message";
+
 const store = configureStore({
     reducer: {
         authReducer,
@@ -17,8 +19,10 @@ const store = configureStore({
         jobFormReducer,
         campaignFormReducer,
         serviceAdClickTrackerReducer,
-        serviceAdOrderTrackerReducer
-    }
+        serviceAdOrderTrackerReducer,
+        websocketMessageReducer
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(websocketMiddleware)
 });
 
 export type RootState = ReturnType<typeof store.getState>;

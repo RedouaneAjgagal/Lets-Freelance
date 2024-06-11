@@ -1,38 +1,34 @@
 import WebSocket from "ws";
+import { User } from "../../middlewares/authentication";
+import { IncomingMessage } from "http";
 
-//@desc get all jobs info
-//@route GET /api/v1/jobs
-//@access public
+interface CustomAuthRequest extends IncomingMessage {
+    user?: User;
+}
+
+
 const messageHandler = (wss: WebSocket.Server) => {
     const connectedUser: { [key: string]: WebSocket } = {};
 
-    wss.on("connection", (ws, req) => {
-        const query = req.url?.split("?")[1];
+    wss.on("connection", (ws, req: CustomAuthRequest) => {
+        const userId = req.user!.userId;
 
-        // req.
-
-        const [queryName, queryValue] = JSON.stringify(query)
-            .slice(0, -1)
-            .slice(1)
-            .split("=");
-
-        if (queryName === "userId" && queryValue.trim() !== "") {
-            connectedUser[queryValue] = ws;
-            console.log(`User ${queryValue} connected`);
-        }
+        console.log(`User ${userId} connected`);
+        
+        connectedUser[userId] = ws;
 
         // Handle incoming messages
-        ws.on('message', (message, a) => {
+        ws.on('message', (message: string) => {
             const { receiverId, content } = JSON.parse(message.toString());
 
             const msg = {
-                senderId: queryValue,
+                senderId: userId,
                 content
             };
 
             if (connectedUser[receiverId]) {
                 console.log({
-                    msg: `SENT from ${queryValue} to ${receiverId}`,
+                    msg: `SENT from ${userId} to ${receiverId}`,
                     content
                 });
 
@@ -42,7 +38,7 @@ const messageHandler = (wss: WebSocket.Server) => {
                 console.log(`User ${receiverId} is not connected`);
             }
 
-            connectedUser[queryValue].send(JSON.stringify(msg))
+            connectedUser[userId].send(JSON.stringify(msg))
         });
 
         // Handle disconnection event

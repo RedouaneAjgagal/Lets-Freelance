@@ -12,11 +12,18 @@ const MessagesContainer = () => {
   const { messages } = useAppSelector(state => state.websocketMessageReducer);
   const { userInfo } = useAppSelector(state => state.authReducer);
 
-  const receivers = ["R1", "R2"];
+  const [receiver, setReceiver] = useState<string>("");
+
+  const receivers = [
+    "R1",
+    "R2",
+    "R3",
+    "R4",
+  ];
 
 
   const sendMessageHandler = () => {
-    const [receiver] = receivers.filter(receiver => receiver !== userInfo!.profileId);
+    if (receiver === "") return;
 
     const msg = {
       receiverId: receiver,
@@ -36,6 +43,12 @@ const MessagesContainer = () => {
     setMessage(message);
   }
 
+  const setRecieverHandler = (receiverId: string) => {
+    setReceiver(receiverId);
+  }
+
+  const uniqueReceivers = receivers.filter(receiver => receiver !== userInfo?.userId);
+
   return (
     <div className="p-4 flex flex-col gap-10">
       <div className="flex flex-col gap-3">
@@ -45,7 +58,7 @@ const MessagesContainer = () => {
           </div>
           : messages.map((message, index) => {
 
-            const isYou = message.senderId === userInfo!.profileId;
+            const isYou = message.senderId === userInfo!.userId;
 
             return (
               <p key={index} className={`${isYou ? "text-right self-end bg-purple-700/90" : "text-left self-start bg-slate-600 "} w-[80%] text-white py-2 px-3 rounded`}>
@@ -58,6 +71,11 @@ const MessagesContainer = () => {
       <div>
         <textarea onChange={setMessageHandler} className="border border-slate-300 text-slate-600 rounded py-2 px-3 outline-none focus:border-slate-500 w-full resize-none" placeholder="Message" value={message}></textarea>
         <button className="bg-purple-800 text-white font-medium px-4 py-2 rounded" onClick={sendMessageHandler}>Send message</button>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        {uniqueReceivers.map((getReveiver, index) => (
+          <button key={index} className={`border py-1 px-2 rounded  ${getReveiver === receiver ? "text-white bg-slate-500 border-slate-600" : "bg-white border-slate-400"}`} onClick={() => setRecieverHandler(getReveiver)}>Profile {index + 1}</button>
+        ))}
       </div>
     </div>
   )

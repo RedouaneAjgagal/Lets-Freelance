@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import getCurrentUserRequest from "../services/getCurrentUser";
 import { useAppDispatch } from "../../../hooks/redux";
 import { authAction } from "../redux/auth";
-import { connectWebsocket } from "../../message";
+import { connectWebsocket, disconnectWebsocket } from "../../message";
 
 const useCurrentUserQuery = () => {
     const dispatch = useAppDispatch();
@@ -22,6 +22,8 @@ const useCurrentUserQuery = () => {
             dispatch(authAction.setUser(data));
         },
         onError: () => {
+            dispatch(disconnectWebsocket());
+
             dispatch(authAction.setUser(null));
         }
     });

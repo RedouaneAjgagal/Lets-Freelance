@@ -13,6 +13,8 @@ export interface CustomAuthRequest extends Request {
 
 const authentication: RequestHandler = async (req: CustomAuthRequest, res, next) => {
     const { accessToken } = req.signedCookies;
+    // console.log({accessToken});
+    
     if (!accessToken) {
         throw new UnauthenticatedError("Authentication failed");
     }

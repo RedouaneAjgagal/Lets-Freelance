@@ -3,6 +3,7 @@ import { createSlice, createAction } from "@reduxjs/toolkit";
 type MessageType = {
     senderId: string;
     content: string;
+    status: "error" | "success"
 };
 
 type WebSocketMessagesInitialStateType = {
@@ -32,7 +33,7 @@ const websocketMessageSlice = createSlice({
             type: string
         }) {
             console.log(action.payload);
-            
+
             state.messages.push(action.payload);
         }
     }
@@ -41,7 +42,7 @@ const websocketMessageSlice = createSlice({
 export const connectWebsocket = createAction<{ userId: string }>("websocket/connect");
 export const disconnectWebsocket = createAction("websocket/disconnect");
 export const sendWebsocketMessage = createAction<{
-    receiverId: string;
+    receiver: string;
     content: string
 }>("websocket/send");
 

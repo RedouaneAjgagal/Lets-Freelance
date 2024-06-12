@@ -2,22 +2,16 @@ import mongoose from "mongoose";
 import { IUser } from "../auth";
 import { IProfile } from "../profile";
 
-export type MessageTypeRequiedValues = {
-    receiverId: {
+export type MessageSchemaType = {
+    user: {
+        _id: mongoose.Types.ObjectId;
+    } & Partial<IUser>;
+    receiver: {
         _id: mongoose.Types.ObjectId;
     } & Partial<IProfile>;
     content: string;
     delivered: boolean;
 };
-
-export type MessageSchemaType = {
-    user: {
-        _id: mongoose.Types.ObjectId;
-    } & Partial<IUser>;
-    profile: {
-        _id: mongoose.Types.ObjectId;
-    } & Partial<IProfile>;
-} & MessageTypeRequiedValues;
 
 const messageSchema = new mongoose.Schema<MessageSchemaType>({
     user: {
@@ -25,12 +19,7 @@ const messageSchema = new mongoose.Schema<MessageSchemaType>({
         ref: "User",
         required: true
     },
-    profile: {
-        type: mongoose.Types.ObjectId,
-        ref: "Profile",
-        required: true
-    },
-    receiverId: {
+    receiver: {
         type: mongoose.Types.ObjectId,
         ref: "Profile",
         required: true

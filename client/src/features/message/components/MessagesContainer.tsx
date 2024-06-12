@@ -15,19 +15,16 @@ const MessagesContainer = () => {
   const [receiver, setReceiver] = useState<string>("");
 
   const receivers = [
-    "R1",
-    "R2",
-    "R3",
-    "R4",
+    "65b9910db45f8f349e73f35d",
+    "65b99272b45f8f349e73f379"
   ];
-
 
   const sendMessageHandler = () => {
     if (receiver === "") return;
 
     const msg = {
-      receiverId: receiver,
-      content: message
+      content: message,
+      receiver
     };
 
 
@@ -61,7 +58,7 @@ const MessagesContainer = () => {
             const isYou = message.senderId === userInfo!.userId;
 
             return (
-              <p key={index} className={`${isYou ? "text-right self-end bg-purple-700/90" : "text-left self-start bg-slate-600 "} w-[80%] text-white py-2 px-3 rounded`}>
+              <p key={index} className={`${isYou ? "text-right self-end bg-purple-700/90" : "text-left self-start bg-slate-600 "} ${message.status === "error" ? "bg-red-600" : ""} w-[80%] text-white py-2 px-3 rounded`}>
                 {message.content}
               </p>
             )

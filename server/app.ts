@@ -5,7 +5,7 @@ dotenv.config();
 import "express-async-errors";
 
 // express
-import express, { RequestHandler } from "express";
+import express from "express";
 const app = express();
 
 // db
@@ -21,7 +21,6 @@ import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 import fileUpload from "express-fileupload";
-import WebSocket from "ws";
 import http from "http";
 
 // routes
@@ -43,8 +42,11 @@ import { messageRouter } from "./features/message";
 // middlewares
 import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
+
+
+// websocket
 import websockets from "./websockets";
-import { messageHandler } from "./features/message";
+import { handleWebSocketMessages } from "./features/message";
 
 
 cloudinary.config({
@@ -74,7 +76,7 @@ const server = http.createServer(app);
 const wss = websockets(server);
 
 // messaging system
-messageHandler(wss);
+handleWebSocketMessages(wss);
 
 
 

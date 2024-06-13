@@ -15,8 +15,8 @@ const MessagesContainer = () => {
   const [receiver, setReceiver] = useState<string>("");
 
   const receivers = [
-    "65b9910db45f8f349e73f35d",
-    "65b99272b45f8f349e73f379"
+    // "66061d010cfc09f329796d13",
+    "65b99362b45f8f349e73f3a0"
   ];
 
   const sendMessageHandler = () => {

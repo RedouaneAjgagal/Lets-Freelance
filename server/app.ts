@@ -36,12 +36,13 @@ import { advertisementRouter } from "./features/advertisement";
 import { stripeRouter } from "./stripe/index";
 import { reportRouter } from "./features/report";
 import { favouriteRouter } from "./features/favourite";
+import { statementRouter } from "./features/statement";
+import { messageRouter } from "./features/message";
 
 
 // middlewares
 import notFoundMiddleware from "./middlewares/notFound";
 import errorHandlerMiddleware from "./middlewares/handleErrors";
-import { statementRouter } from "./features/statement";
 import websockets from "./websockets";
 import { messageHandler } from "./features/message";
 
@@ -88,6 +89,7 @@ app.use("/api/v1/advertisements", advertisementRouter);
 app.use("/api/v1/reports", reportRouter);
 app.use("/api/v1/favourites", favouriteRouter);
 app.use("/api/v1/statements", statementRouter);
+app.use("/api/v1/messages", messageRouter);
 
 
 // webhooks

@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { IUser } from "../auth";
-import { IProfile } from "../profile";
 
 export type MessageSchemaType = {
     user: {
@@ -8,7 +7,7 @@ export type MessageSchemaType = {
     } & Partial<IUser>;
     receiver: {
         _id: mongoose.Types.ObjectId;
-    } & Partial<IProfile>;
+    } & Partial<IUser>;
     content: string;
     delivered: boolean;
 };
@@ -21,7 +20,7 @@ const messageSchema = new mongoose.Schema<MessageSchemaType>({
     },
     receiver: {
         type: mongoose.Types.ObjectId,
-        ref: "Profile",
+        ref: "User",
         required: true
     },
     content: {

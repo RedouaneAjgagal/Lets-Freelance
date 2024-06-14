@@ -1,4 +1,5 @@
 import MessagesContainer from "./components/MessagesContainer";
+import useGetMessagesQuery from "./hooks/useGetMessagesQuery";
 import websocketMiddleware from "./middleware/websocketMiddleware";
 import websocketMessageReducer, {
     websocketMessageAction,
@@ -14,5 +15,6 @@ export {
     websocketMiddleware,
     connectWebsocket,
     disconnectWebsocket,
-    sendWebsocketMessage
+    sendWebsocketMessage,
+    useGetMessagesQuery
 }

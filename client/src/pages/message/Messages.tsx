@@ -12,7 +12,7 @@ const Messages = () => {
             </h1>
             {messages.isLoading
                 ? <Loading />
-                : <MessagesContainer  />}
+                : <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage}  isFetchingNextPage={messages.isFetchingNextPage}  />}
         </main>
     )
 }

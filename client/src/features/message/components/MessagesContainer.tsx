@@ -4,12 +4,14 @@ import SearchMessagesInput from "./SearchMessagesInput";
 import React from "react";
 import MessageItem from "./MessageItem";
 import { TbLoader2 } from "react-icons/tb";
+import FoundNoMessagesError from "./FoundNoMessagesError";
 
 type MessagesContainerProps = {
   messages: InfiniteData<MessagesResponse>;
   fetchNextPage: () => void;
   isFetchingNextPage: boolean;
   hasNextPage: boolean | undefined;
+  search: string;
 }
 
 const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>) => {
@@ -23,13 +25,15 @@ const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>)
   return (
     <section className="bg-white border rounded">
       <SearchMessagesInput />
-      <ul className="py-3 max-h-60 overflow-y-scroll">
+      <ul className="py-3 max-h-[16rem] overflow-y-scroll">
         {props.messages.pages.map((group, index) => (
-          <React.Fragment key={index}>
-            {group.messages.map(message => (
-              <MessageItem key={message._id} messageContent={message} />
-            ))}
-          </React.Fragment>
+          group.messages.length
+            ? <React.Fragment key={index}>
+              {group.messages.map(message => (
+                <MessageItem key={message._id} messageContent={message} />
+              ))}
+            </React.Fragment>
+            : <FoundNoMessagesError key={index} />
         ))}
       </ul>
       {props.hasNextPage

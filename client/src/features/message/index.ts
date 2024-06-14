@@ -7,6 +7,7 @@ import websocketMessageReducer, {
     disconnectWebsocket,
     sendWebsocketMessage
 } from "./redux/websocketMessageSlice";
+import { GetMessagesPayload, MessagesResponse } from "./services/getMessages";
 
 export {
     MessagesContainer,
@@ -17,4 +18,9 @@ export {
     disconnectWebsocket,
     sendWebsocketMessage,
     useGetMessagesQuery
+}
+
+export type {
+    GetMessagesPayload,
+    MessagesResponse
 }

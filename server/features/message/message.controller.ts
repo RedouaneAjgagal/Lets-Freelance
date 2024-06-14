@@ -3,7 +3,8 @@ import Message, { MessageSchemaType } from "./message.model";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Profile } from "../profile";
-import { UnauthenticatedError } from "../../errors";
+import { BadRequestError, UnauthenticatedError } from "../../errors";
+import mongoose, { isValidObjectId } from "mongoose";
 
 //@desc get messages
 //@route GET /api/v1/messages
@@ -23,7 +24,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
         : Number.parseInt(page.toString());
 
 
-    const limit = 2;
+    const limit = 6;
     const skip = (currentPage - 1) * limit;
     const calculatedLimit = currentPage * limit;
 
@@ -176,6 +177,187 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
 };
 
 
+//@desc get contact messages
+//@route GET /api/v1/messages/users/:userId
+//@access authentication
+const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { userId } = req.params;
+
+    const { cursor } = req.query;
+
+    // check if its valid mongodb id
+    const isValidMongodbId = isValidObjectId(userId);
+    if (!isValidMongodbId) {
+        throw new BadRequestError("Invalid ID");
+    };
+
+    // find current user
+    const profile = await Profile.findOne({ user: req.user?.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    };
+
+    // check if the user exist
+    const contact = await Profile.findOne({ user: userId });
+    if (!contact) {
+        throw new BadRequestError("Invalid contact");
+    };
+
+    // get cursor for infinite scroll
+    const cursorNum = !cursor || Number.isNaN(Number(cursor.toString()))
+        ? 1
+        : Number.parseInt(cursor.toString());
+
+
+    // limit messages per request
+    const limitMessages = 5;
+
+    const limit = limitMessages * cursorNum; // limit based on the cursor value
+    const skip = limitMessages * (cursorNum - 1); // how many messages to skip based on the cursor value
+
+
+    const [aggregationMessages] = await Message.aggregate([
+        {
+            // get only messages between the current user and the contact user
+            $match: {
+                $or: [
+                    {
+                        $and: [
+                            { user: profile.user._id },
+                            { receiver: contact.user._id }
+                        ]
+                    },
+                    {
+                        $and: [
+                            { user: contact.user._id },
+                            { receiver: profile.user._id }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            $facet: {
+                // add contact facet to get contact info and to calc total of messages
+                contact: [
+                    {
+                        $addFields: {
+                            contact: contact.user._id
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: contact.user._id,
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    }
+                ],
+                // get messages between the two
+                messages: [
+                    {
+                        $sort: {
+                            createdAt: -1
+                        }
+                    },
+                    {
+                        $limit: limit
+                    },
+                    {
+                        $skip: skip
+                    },
+                    {
+                        $sort: {
+                            createdAt: 1
+                        }
+                    },
+                    {
+                        $addFields: {
+                            isYouSender: {
+                                $cond: {
+                                    if: {
+                                        $eq: ["$user", profile.user._id]
+                                    },
+                                    then: true,
+                                    else: false
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            user: 1,
+                            receiver: 1,
+                            content: 1,
+                            delivered: 1,
+                            isYouSender: 1,
+                            createdAt: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                contact: {
+                    $first: "$contact"
+                }
+            }
+        },
+        {
+            // get the total messages between the two
+            $addFields: {
+                totalMessages: "$contact.count"
+            }
+        },
+        {
+            // return next cursor value if there is still messages for the next cursor else return undefined
+            $addFields: {
+                nextCursor: {
+                    $cond: {
+                        if: {
+                            $gt: ["$totalMessages", limit]
+                        },
+                        then: cursorNum + 1,
+                        else: undefined
+                    }
+                }
+            }
+        },
+        {
+            // populate profile to grab info such as (name, avatar)
+            $lookup: {
+                from: "profiles",
+                localField: "contact._id",
+                foreignField: "user",
+                as: "contact",
+            }
+        },
+        {
+            $addFields: {
+                contact: {
+                    $first: "$contact"
+                }
+            }
+        },
+        {
+            $project: {
+                messages: 1,
+                nextCursor: 1,
+                "contact._id": 1,
+                "contact.user": 1,
+                "contact.name": 1,
+                "contact.avatar": 1
+            }
+        }
+    ]);
+
+    res.status(StatusCodes.OK).json(aggregationMessages);
+}
+
 export {
-    getMessages
+    getMessages,
+    getContactMessages
 }

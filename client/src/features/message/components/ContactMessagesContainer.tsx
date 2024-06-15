@@ -1,23 +1,21 @@
-import React from "react";
 import Loading from "../../../components/Loading";
 import useGetContactMessagesQuery from "../hooks/useGetContactMessagesQuery";
+import SendMessageContainer from "./SendMessageContainer";
+import ContactNavbar from "./ContactNavbar";
+import ContactMessages from "./ContactMessages";
 
 const ContactMessagesContainer = () => {
     const getContactMessagesQuery = useGetContactMessagesQuery({
-        userId: ""
+        userId: "123"
     });
 
     return (
         getContactMessagesQuery.isLoading
             ? <Loading />
             : <section className="bg-white border rounded">
-                {getContactMessagesQuery.data!.pages.map((group, index) => (
-                    <React.Fragment key={index}>
-                        {group.messages.map(message => (
-                            <p key={message._id}>{message.content}</p>
-                        ))}
-                    </React.Fragment>
-                ))}
+                <ContactNavbar contact={getContactMessagesQuery.data!.pages[0].contact} />
+                <ContactMessages contactMessagesQuery={getContactMessagesQuery} />
+                <SendMessageContainer />
             </section>
     )
 }

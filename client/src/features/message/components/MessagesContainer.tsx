@@ -41,7 +41,7 @@ const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>)
               {props.isFetchingNextPage
                 ? <>
                   <span className="invisible flex">
-                    Load more messages
+                    Load more contacts
                   </span>
                   <TbLoader2 className="animate-spin absolute" size={20} />
                 </>

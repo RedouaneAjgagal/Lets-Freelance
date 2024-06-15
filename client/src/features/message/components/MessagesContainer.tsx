@@ -35,23 +35,23 @@ const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>)
             </React.Fragment>
             : <FoundNoMessagesError key={index} />
         ))}
+        {props.hasNextPage
+          ? <div className="p-4 w-full">
+            <button disabled={props.isFetchingNextPage} onClick={fetchNextPage} className={`p-2 rounded font-medium w-full flex items-center justify-center border border-slate-300 ${props.isFetchingNextPage ? "bg-blue-100/60" : "bg-blue-100/30"}`}>
+              {props.isFetchingNextPage
+                ? <>
+                  <span className="invisible flex">
+                    Load more messages
+                  </span>
+                  <TbLoader2 className="animate-spin absolute" size={20} />
+                </>
+                : "Load more messages"
+              }
+            </button>
+          </div>
+          : null
+        }
       </ul>
-      {props.hasNextPage
-        ? <div className="p-4 w-full">
-          <button disabled={props.isFetchingNextPage} onClick={fetchNextPage} className={`p-2 rounded font-medium w-full flex items-center justify-center border border-slate-300 ${props.isFetchingNextPage ? "bg-blue-100/60" : "bg-blue-100/30"}`}>
-            {props.isFetchingNextPage
-              ? <>
-                <span className="invisible flex">
-                  Load more messages
-                </span>
-                <TbLoader2 className="animate-spin absolute" size={20} />
-              </>
-              : "Load more messages"
-            }
-          </button>
-        </div>
-        : null
-      }
     </section >
   )
 }

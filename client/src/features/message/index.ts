@@ -1,3 +1,4 @@
+import ContactMessagesContainer from "./components/ContactMessagesContainer";
 import MessagesContainer from "./components/MessagesContainer";
 import useGetMessagesQuery from "./hooks/useGetMessagesQuery";
 import websocketMiddleware from "./middleware/websocketMiddleware";
@@ -17,7 +18,8 @@ export {
     connectWebsocket,
     disconnectWebsocket,
     sendWebsocketMessage,
-    useGetMessagesQuery
+    useGetMessagesQuery,
+    ContactMessagesContainer
 }
 
 export type {

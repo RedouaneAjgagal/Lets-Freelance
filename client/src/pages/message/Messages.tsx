@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Loading from "../../components/Loading";
-import { GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery } from "../../features/message"
+import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery } from "../../features/message"
 import useCustomSearchParams from "../../hooks/useCustomSearchParams";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "../../hooks/redux";
@@ -44,7 +44,7 @@ const Messages = () => {
             });
         }
     }, [messages.isRefetching]);
-    
+
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">
@@ -53,7 +53,11 @@ const Messages = () => {
             </h1>
             {messages.isLoading
                 ? <Loading />
-                : <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} />}
+                : <div className="flex flex-col gap-4">
+                    <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} />
+                    <ContactMessagesContainer />
+                </div>
+            }
         </main>
     )
 }

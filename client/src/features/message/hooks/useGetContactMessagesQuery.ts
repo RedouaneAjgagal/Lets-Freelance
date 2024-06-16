@@ -8,8 +8,9 @@ const useGetContactMessagesQuery = (payload: GetContactMessagesPayload) => {
     const contactMessages = getContactMessages(payload);
 
     const getContactMessagesQuery = useInfiniteQuery({
-        queryKey: ["contactMessages", userInfo!.userId, payload.userId],
+        queryKey: ["contactMessages", userInfo!.userId],
         queryFn: contactMessages,
+        enabled: false,
         retry: false,
         refetchOnWindowFocus: false,
         useErrorBoundary: true,

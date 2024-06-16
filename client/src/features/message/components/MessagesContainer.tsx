@@ -12,6 +12,8 @@ type MessagesContainerProps = {
   isFetchingNextPage: boolean;
   hasNextPage: boolean | undefined;
   search: string;
+  setUserIdHandler: (user: string) => void;
+  selectedUserId: string;
 }
 
 const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>) => {
@@ -30,7 +32,7 @@ const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>)
           group.messages.length
             ? <React.Fragment key={index}>
               {group.messages.map(message => (
-                <MessageItem key={message._id} messageContent={message} />
+                <MessageItem key={message._id} messageContent={message} setUserIdHandler={props.setUserIdHandler} selectedUserId={props.selectedUserId} />
               ))}
             </React.Fragment>
             : <FoundNoMessagesError key={index} />

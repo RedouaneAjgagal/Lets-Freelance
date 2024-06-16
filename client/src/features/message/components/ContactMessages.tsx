@@ -12,13 +12,13 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
     const messagesSectionRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
-        if (messagesSectionRef.current && props.contactMessagesQuery.isFetched) {
+        if (messagesSectionRef.current && props.contactMessagesQuery.isFetched && !props.contactMessagesQuery.isRefetching) {
             messagesSectionRef.current.scrollTo({
                 behavior: "instant",
                 top: messagesSectionRef.current.scrollHeight
             });
         }
-    }, [props.contactMessagesQuery.isFetched]);
+    }, [props.contactMessagesQuery.isRefetching]);
 
     return (
         <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-scroll">

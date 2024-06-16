@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery } from "../../features/message"
 import useCustomSearchParams from "../../hooks/useCustomSearchParams";
@@ -8,6 +8,12 @@ import { useAppSelector } from "../../hooks/redux";
 const Messages = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
     const queryClient = useQueryClient();
+
+    const [userId, setUserId] = useState("");
+
+    const setUserIdHandler = (user: string) => {
+        setUserId(user);
+    }
 
     const customSearchParams = useCustomSearchParams();
 
@@ -45,6 +51,11 @@ const Messages = () => {
         }
     }, [messages.isRefetching]);
 
+    useEffect(() => {
+        if (userId === "" && messages.isSuccess && messages.data.pages[0] && messages.data.pages[0].messages.length) {
+            setUserId(messages.data.pages[0].messages[0].profile.user);
+        }
+    }, [messages.isSuccess]);
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">
@@ -54,8 +65,15 @@ const Messages = () => {
             {messages.isLoading
                 ? <Loading />
                 : <div className="flex flex-col gap-4">
-                    <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} />
-                    <ContactMessagesContainer />
+                    <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} setUserIdHandler={setUserIdHandler} selectedUserId={userId} />
+                    {messages.data!.pages[0].messages.length
+                        ? <ContactMessagesContainer selectedUserId={userId !== ""
+                            ? userId
+                            : messages.data!.pages[0].messages[0].profile.user
+                        } />
+                        : null
+                    }
+
                 </div>
             }
         </main>

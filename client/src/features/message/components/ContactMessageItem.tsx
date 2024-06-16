@@ -1,4 +1,3 @@
-import formatPostedTime from "../../../utils/formatPostedTime";
 import { GetContactMessageType, GetContactMessagesResponse } from "../services/getContactMessages";
 
 type ContactMessageItemProps = {
@@ -8,12 +7,25 @@ type ContactMessageItemProps = {
 }
 
 const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps>) => {
+    const today = new Date(Date.now())
+        .setHours(0, 0, 0, 0);
 
-    const { diff, pluralize, unit } = formatPostedTime({
-        postedAt: props.message.createdAt
-    });
+    const sentDateTime = new Date(props.message.createdAt)
+        .setHours(0, 0, 0, 0);
 
-    const sentAt = `${diff} ${unit}${pluralize}`;
+    const formatDateOptions: Intl.DateTimeFormatOptions = {
+        hour: "numeric",
+        minute: "2-digit"
+    };
+
+    if (today !== sentDateTime) {
+        formatDateOptions.year = "numeric";
+        formatDateOptions.month = "short";
+        formatDateOptions.day = "numeric";
+    }
+
+    const sentAt = new Date(props.message.createdAt)
+        .toLocaleString("en-US", formatDateOptions);
 
     return (
         <li className={`mx-4 py-2 ${props.message.isYouSender ? "self-end" : "self-start"} ${props.isAttatched ? "-mt-2 ml-16" : ""}`}>
@@ -25,12 +37,12 @@ const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps
                         </img>
                     </div>
                 }
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col items-start gap-1">
                     {props.isAttatched
                         ? null
-                        : <span title={new Date(props.message.createdAt).toUTCString()} className={`text-sm text-slate-500 ${props.message.isYouSender ? "self-end" : "self-start"}`}>{sentAt}</span>
+                        : <span title={new Date(props.message.createdAt).toUTCString()} className={`text-[.8rem] text-slate-500 ${props.message.isYouSender ? "self-end" : "self-start"}`}>{sentAt}</span>
                     }
-                    <div className={`py-2 text-[.975rem] px-4 rounded-xl ${props.isAttatched ? "rounded-xl" : props.message.isYouSender ? "rounded-br-none" : "rounded-tl-none"} ${props.message.isYouSender ? "bg-stone-100/80" : "bg-blue-100/40"}`}>
+                    <div className={`py-2 text-[.975rem] px-4 rounded-xl ${props.isAttatched ? "rounded-xl" : props.message.isYouSender ? "rounded-br-none self-end" : "rounded-tl-none self-start"} ${props.message.isYouSender ? "bg-stone-100/80" : "bg-blue-100/40"}`}>
                         <span>{props.message.content}</span>
                     </div>
                 </div>

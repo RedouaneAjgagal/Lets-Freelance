@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import formatPostedTime from "../../../utils/formatPostedTime";
-import { MessageType } from "../services/getMessages"
+import { MessageType, MessagesResponse } from "../services/getMessages"
+import { useAppSelector } from "../../../hooks/redux";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 
 type MessageItemProps = {
     messageContent: MessageType;
@@ -8,6 +11,10 @@ type MessageItemProps = {
 }
 
 const MessageItem = (props: React.PropsWithoutRef<MessageItemProps>) => {
+    const { userInfo } = useAppSelector(state => state.authReducer);
+    const queryClient = useQueryClient();
+    const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
+
     const { diff, pluralize, unit } = formatPostedTime({
         postedAt: props.messageContent.message.createdAt
     });

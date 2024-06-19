@@ -1,19 +1,25 @@
 import { createSlice, createAction } from "@reduxjs/toolkit";
 
 type MessageType = {
-    senderId: string;
+    _id: string;
+    user: string;
+    receiver: string;
     content: string;
-    status: "error" | "success"
+    delivered: boolean;
+    createdAt: string;
+    isYouSender: boolean;
+    status: "success" | "error";
 };
+
 
 type WebSocketMessagesInitialStateType = {
     connected: boolean;
-    messages: MessageType[];
+    message: MessageType | undefined;
 }
 
 const webSocketMessagesInitialState: WebSocketMessagesInitialStateType = {
     connected: false,
-    messages: []
+    message: undefined
 }
 
 const websocketMessageSlice = createSlice({
@@ -29,12 +35,15 @@ const websocketMessageSlice = createSlice({
             return state;
         },
         websocketMessageReceived(state, action: {
-            payload: WebSocketMessagesInitialStateType["messages"][number],
+            payload: WebSocketMessagesInitialStateType["message"],
             type: string
         }) {
-            console.log(action.payload);
-
-            state.messages.push(action.payload);
+            state.message = action.payload;
+            return state;
+        },
+        clearMessage(state) {
+            state.message = undefined;
+            return state;
         }
     }
 });
@@ -42,6 +51,7 @@ const websocketMessageSlice = createSlice({
 export const connectWebsocket = createAction<{ userId: string }>("websocket/connect");
 export const disconnectWebsocket = createAction("websocket/disconnect");
 export const sendWebsocketMessage = createAction<{
+    id: string;
     receiver: string;
     content: string
 }>("websocket/send");

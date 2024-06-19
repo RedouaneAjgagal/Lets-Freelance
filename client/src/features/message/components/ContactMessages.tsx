@@ -1,8 +1,11 @@
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import FetchPrevMessages from "./FetchPrevMessages"
 import ContactMessageContainer from "./ContactMessageContainer"
-import { UseInfiniteQueryResult } from "@tanstack/react-query"
+import { InfiniteData, UseInfiniteQueryResult, useQueryClient } from "@tanstack/react-query"
 import { GetContactMessagesResponse } from "../services/getContactMessages"
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
+import { websocketMessageAction } from "../redux/websocketMessageSlice"
+import { MessagesResponse } from "../services/getMessages"
 
 type ContactMessagesProps = {
     contactMessagesQuery: UseInfiniteQueryResult<GetContactMessagesResponse, unknown>;
@@ -10,15 +13,32 @@ type ContactMessagesProps = {
 
 const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => {
     const messagesSectionRef = useRef<HTMLUListElement>(null);
+    const queryClient = useQueryClient();
+    const { userInfo } = useAppSelector(state => state.authReducer);
+    const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
+    const dispatch = useAppDispatch();
 
-    useEffect(() => {
+    const scrollToBottom = () => {
         if (messagesSectionRef.current && props.contactMessagesQuery.isFetched && !props.contactMessagesQuery.isRefetching) {
             messagesSectionRef.current.scrollTo({
                 behavior: "instant",
                 top: messagesSectionRef.current.scrollHeight
             });
         }
+    }
+
+    useEffect(() => {
+        scrollToBottom();
     }, [props.contactMessagesQuery.isRefetching]);
+
+    useEffect(() => {
+        if (!websocketMessages.message) {
+            scrollToBottom();
+            return;
+        };
+
+        
+    }, [websocketMessages.message]);
 
     return (
         <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-scroll">

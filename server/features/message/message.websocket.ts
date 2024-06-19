@@ -8,6 +8,17 @@ interface CustomIncomingMessage extends IncomingMessage {
     user?: User;
 };
 
+type SendMessageType = {
+    _id: string;
+    user: string;
+    receiver: string;
+    content: string;
+    delivered: boolean;
+    createdAt: string;
+    isYouSender: boolean;
+    status: "success" | "error";
+};
+
 
 const handleWebSocketMessages = (wss: WebSocket.Server) => {
     const connectedUser: { [key: string]: WebSocket } = {};
@@ -19,50 +30,56 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
 
         connectedUser[userId] = ws;
 
-        const undeliveredMessages = await Message.find({
-            receiver: new mongoose.Types.ObjectId(userId),
-            delivered: false
-        }).sort("createdAt");
+        // const undeliveredMessages = await Message.find({
+        //     receiver: new mongoose.Types.ObjectId(userId),
+        //     delivered: false
+        // }).sort("createdAt");
 
-        for (const undeliveredMessage of undeliveredMessages) {
-            const sendMessageContent = {
-                senderId: undeliveredMessage.user._id.toString(),
-                content: undeliveredMessage.content
-            };
+        // for (const undeliveredMessage of undeliveredMessages) {
+        //     const sendMessageContent: SendMessageType = {
+        //         senderId: undeliveredMessage.user._id.toString(),
+        //         content: undeliveredMessage.content
+        //     };
 
-            connectedUser[userId].send(JSON.stringify(sendMessageContent));
+        //     connectedUser[userId].send(JSON.stringify(sendMessageContent));
 
-            undeliveredMessage.delivered = true;
-            undeliveredMessage.save();
+        //     undeliveredMessage.delivered = true;
+        //     undeliveredMessage.save();
 
-            console.log(sendMessageContent);
-        };
+        //     console.log(sendMessageContent);
+        // };
 
         // Handle incoming messages
         ws.on('message', async (message) => {
-            const { receiver, content } = JSON.parse(message.toString());
+            const { receiver, content, id } = JSON.parse(message.toString());
 
 
-            const sendMessageContent = {
-                status: "success",
-                senderId: userId,
+            const sendMessageContent: SendMessageType = {
+                _id: id,
+                user: userId,
                 content,
+                receiver,
+                createdAt: new Date().toString(),
+                delivered: true,
+                isYouSender: false,
+                status: "success",
             };
 
             const isValidMongodbId = isValidObjectId(receiver);
             if (!isValidMongodbId) {
                 sendMessageContent.status = "error";
                 sendMessageContent.content = "Error. Couldn't send";
+                sendMessageContent.delivered = false;
 
                 ws.send(JSON.stringify(sendMessageContent));
                 return;
             }
 
             const messagePayload: MessageSchemaType = {
-                user: new mongoose.Types.ObjectId(userId),
-                receiver: new mongoose.Types.ObjectId(receiver),
+                user: new mongoose.Types.ObjectId(sendMessageContent.user),
+                receiver: new mongoose.Types.ObjectId(sendMessageContent.receiver),
                 delivered: true,
-                content
+                content: sendMessageContent.content
             };
 
 
@@ -80,8 +97,12 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
                 console.log(`User ${messagePayload.receiver._id.toString()} is not connected`);
             }
 
+            sendMessageContent.isYouSender = true;
             connectedUser[messagePayload.user._id.toString()]
                 .send(JSON.stringify(sendMessageContent));
+
+            console.log(messagePayload);
+
 
             await Message.create(messagePayload);
         });

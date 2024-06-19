@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
-import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery } from "../../features/message"
+import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery, websocketMessageAction, GetContactMessagesResponse } from "../../features/message"
 import useCustomSearchParams from "../../hooks/useCustomSearchParams";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { useAppSelector } from "../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 
 const Messages = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
     const queryClient = useQueryClient();
 
     const [userId, setUserId] = useState("");
+    const dispatch = useAppDispatch();
+
+    const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
 
     const setUserIdHandler = (user: string) => {
         setUserId(user);
@@ -26,16 +29,9 @@ const Messages = () => {
 
     if (search.trim() !== "") {
         messagePayload.search = search.trim();
-        // messagePayload.page = 1;
-
     };
 
     const messages = useGetMessagesQuery(messagePayload);
-
-
-    useEffect(() => {
-        messages.refetch({ refetchPage: (_, index) => index === 0 });
-    }, [search]);
 
 
     useEffect(() => {
@@ -49,13 +45,71 @@ const Messages = () => {
                 }
             });
         }
-    }, [messages.isRefetching]);
+
+        messages.refetch({ refetchPage: (_, index) => index === 0 });
+    }, [search]);
+
+
 
     useEffect(() => {
         if (userId === "" && messages.isSuccess && messages.data.pages[0] && messages.data.pages[0].messages.length) {
             setUserId(messages.data.pages[0].messages[0].profile.user);
         }
     }, [messages.isSuccess]);
+
+
+    useEffect(() => {
+        if (!websocketMessages.message) return;
+
+        queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>([
+            "contactMessages",
+            userInfo!.userId,
+            websocketMessages.message.isYouSender
+                ? websocketMessages.message.receiver
+                : websocketMessages.message.user
+        ], (data) => {
+            if (!data) return
+            data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
+            return data
+        });
+
+
+        queryClient.setQueryData<InfiniteData<MessagesResponse>>(["messages", userInfo!.userId], (data) => {
+            if (!data) return;
+
+            const pages = data.pages.map(page => {
+                const messageContent = page.messages.find(message => {
+                    const receiver = websocketMessages.message!.isYouSender
+                        ? websocketMessages.message!.receiver
+                        : websocketMessages.message!.user;
+
+                    if (message.profile.user === receiver) {
+                        return true
+                    };
+
+                    return false;
+                });
+
+                if (messageContent) {
+                    messageContent._id = websocketMessages.message!._id;
+                    messageContent.message = {
+                        content: websocketMessages.message!.content,
+                        createdAt: websocketMessages.message!.createdAt,
+                        isYouSender: websocketMessages.message!.isYouSender
+                    }
+                }
+
+                return page;
+            });
+
+            return {
+                pages: pages,
+                pageParams: data.pageParams,
+            }
+        });
+
+        dispatch(websocketMessageAction.clearMessage());
+    }, [websocketMessages.message])
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">

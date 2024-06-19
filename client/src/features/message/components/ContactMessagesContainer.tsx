@@ -22,21 +22,19 @@ const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesCo
     });
 
     useEffect(() => {
-        getContactMessagesQuery.refetch({ refetchPage: (_, index) => index === 0 });
-    }, [props.selectedUserId]);
-
-    useEffect(() => {
         if (!getContactMessagesQuery.isRefetching) {
-            queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>(["contactMessages", userInfo!.userId], (data) => {
+            queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>(["contactMessages", userInfo!.userId, props.selectedUserId], (data) => {
                 if (!data) return
-
+    
                 return {
                     pages: data.pages.slice(0, 1),
                     pageParams: data.pageParams.slice(0, 1)
                 }
             });
-        }
-    }, [getContactMessagesQuery.isRefetching]);
+        };
+        
+        getContactMessagesQuery.refetch({ refetchPage: (_, index) => index === 0 });
+    }, [props.selectedUserId]);
 
     return (
         getContactMessagesQuery.isLoading
@@ -50,7 +48,7 @@ const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesCo
                 }
                 <ContactNavbar contact={getContactMessagesQuery.data!.pages[0].contact} />
                 <ContactMessages contactMessagesQuery={getContactMessagesQuery} />
-                <SendMessageContainer />
+                <SendMessageContainer contactId={getContactMessagesQuery.data!.pages[0].contact.user} />
             </section>
     )
 }

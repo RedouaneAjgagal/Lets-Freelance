@@ -66,7 +66,7 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
             };
 
             const isValidMongodbId = isValidObjectId(receiver);
-            if (!isValidMongodbId) {
+            if (!isValidMongodbId || (!content || content.toString().trim() === "")) {
                 sendMessageContent.status = "error";
                 sendMessageContent.content = "Error. Couldn't send";
                 sendMessageContent.delivered = false;

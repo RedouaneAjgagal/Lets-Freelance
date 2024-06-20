@@ -24,7 +24,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
         : Number.parseInt(page.toString());
 
 
-    const limit = 6;
+    const limit = 2;
     const skip = (currentPage - 1) * limit;
     const calculatedLimit = currentPage * limit;
 

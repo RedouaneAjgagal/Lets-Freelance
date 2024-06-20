@@ -72,44 +72,49 @@ const Messages = () => {
             data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
             return data
         });
-
+        let isRefetch = false;
 
         queryClient.setQueryData<InfiniteData<MessagesResponse>>(["messages", userInfo!.userId], (data) => {
             if (!data) return;
 
-            const pages = data.pages.map(page => {
-                const messageContent = page.messages.find(message => {
-                    const receiver = websocketMessages.message!.isYouSender
-                        ? websocketMessages.message!.receiver
-                        : websocketMessages.message!.user;
 
-                    if (message.profile.user === receiver) {
-                        return true
-                    };
+            const messageContentIndex = data.pages[0].messages.findIndex((message) => {
+                const receiver = websocketMessages.message!.isYouSender
+                    ? websocketMessages.message!.receiver
+                    : websocketMessages.message!.user;
 
-                    return false;
-                });
+                if (message.profile.user === receiver) {
+                    return true
+                };
 
-                if (messageContent) {
-                    messageContent._id = websocketMessages.message!._id;
-                    messageContent.message = {
-                        content: websocketMessages.message!.content,
-                        createdAt: websocketMessages.message!.createdAt,
-                        isYouSender: websocketMessages.message!.isYouSender
-                    }
-                }
-
-                return page;
+                return false;
             });
 
-            return {
-                pages: pages,
-                pageParams: data.pageParams,
+            const messageContent = data.pages[0].messages[messageContentIndex];
+            if (messageContent) {
+                messageContent._id = websocketMessages.message!._id;
+                messageContent.message = {
+                    content: websocketMessages.message!.content,
+                    createdAt: websocketMessages.message!.createdAt,
+                    isYouSender: websocketMessages.message!.isYouSender
+                };
+
+                if (messageContentIndex !== 0) {
+                    const [message] = data.pages[0].messages.splice(messageContentIndex);
+                    data.pages[0].messages.unshift(message);
+                }
+            } else {
+                isRefetch = true;
             }
+            return data
         });
 
+        if (isRefetch) {
+            messages.refetch();
+        }
+
         dispatch(websocketMessageAction.clearMessage());
-    }, [websocketMessages.message])
+    }, [websocketMessages.message]);
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">

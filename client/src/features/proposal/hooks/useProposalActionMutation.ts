@@ -16,10 +16,15 @@ const useProposalActionMutation = () => {
         retry: false,
         onSuccess: (data) => {
             console.log(data);
-            
+
             if (data.status === "approved" && data.priceType === "fixed") {
                 window.open(data.url, "_blank", "noopener noreferrer");
                 return;
+            }
+
+
+            if (data.status === "interviewing") {
+                window.open("/profile/messages", "_blank", "noopener noreferrer");
             }
 
             queryClient.invalidateQueries({ queryKey: ["employerProposals", userInfo!.profileId, jobId] });

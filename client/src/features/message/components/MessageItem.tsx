@@ -1,9 +1,5 @@
-import { useEffect } from "react";
 import formatPostedTime from "../../../utils/formatPostedTime";
-import { MessageType, MessagesResponse } from "../services/getMessages"
-import { useAppSelector } from "../../../hooks/redux";
-import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-
+import { MessageType } from "../services/getMessages"
 type MessageItemProps = {
     messageContent: MessageType;
     setUserIdHandler: (user: string) => void;
@@ -11,19 +7,17 @@ type MessageItemProps = {
 }
 
 const MessageItem = (props: React.PropsWithoutRef<MessageItemProps>) => {
-    const { userInfo } = useAppSelector(state => state.authReducer);
-    const queryClient = useQueryClient();
-    const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
-
     const { diff, pluralize, unit } = formatPostedTime({
         postedAt: props.messageContent.message.createdAt
     });
 
     const sentAt = `${diff} ${unit}${pluralize}`;
 
-    const content = props.messageContent.message.isYouSender
-        ? `You: ${props.messageContent.message.content}`
-        : props.messageContent.message.content;
+    const content = props.messageContent.message.isSystem
+        ? `System: ${props.messageContent.message.content}`
+        : props.messageContent.message.isYouSender
+            ? `You: ${props.messageContent.message.content}`
+            : props.messageContent.message.content;
 
     const openChatHandler = () => {
         props.setUserIdHandler(props.messageContent.profile.user);

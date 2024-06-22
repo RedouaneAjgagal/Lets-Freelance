@@ -61,22 +61,10 @@ const Messages = () => {
     useEffect(() => {
         if (!websocketMessages.message) return;
 
-        queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>([
-            "contactMessages",
-            userInfo!.userId,
-            websocketMessages.message.isYouSender
-                ? websocketMessages.message.receiver
-                : websocketMessages.message.user
-        ], (data) => {
-            if (!data) return
-            data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
-            return data
-        });
         let isRefetch = false;
 
         queryClient.setQueryData<InfiniteData<MessagesResponse>>(["messages", userInfo!.userId], (data) => {
             if (!data) return;
-
 
             const messageContentIndex = data.pages[0].messages.findIndex((message) => {
                 const receiver = websocketMessages.message!.isYouSender
@@ -96,7 +84,8 @@ const Messages = () => {
                 messageContent.message = {
                     content: websocketMessages.message!.content,
                     createdAt: websocketMessages.message!.createdAt,
-                    isYouSender: websocketMessages.message!.isYouSender
+                    isYouSender: websocketMessages.message!.isYouSender,
+                    isSystem: false
                 };
 
                 if (messageContentIndex !== 0) {
@@ -106,7 +95,8 @@ const Messages = () => {
             } else {
                 isRefetch = true;
             }
-            return data
+
+            return data;
         });
 
         if (isRefetch) {

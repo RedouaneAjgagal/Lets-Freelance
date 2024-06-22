@@ -25,7 +25,8 @@ const ContactMessageContainer = (props: React.PropsWithoutRef<ContactMessageCont
         const recentMessageSentTime = new Date(recentMessage.createdAt)
             .setHours(recentMessageSentDate.getHours(), recentMessageSentDate.getMinutes(), 0, 0);
 
-        const isAttatched = recentMessage.user === message.user
+        const isAttatched = !recentMessage.isSystem
+            && recentMessage.user === message.user
             && currentMessageSentTime === recentMessageSentTime;
 
         return (

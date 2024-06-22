@@ -14,6 +14,7 @@ import stripe from "../../stripe/stripeConntect";
 import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
 import origin from "../../config/origin";
+import { messageModel as Message } from "../message";
 
 
 //@desc get all proposals related to job
@@ -275,7 +276,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("You have already took an action with this proposal");
     }
 
-    // create a contract (add later)
+    // create a contract
     if (status === "approved") {
         const refs = {
             freelancer: {
@@ -382,6 +383,36 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
         });
 
         await Contract.create(contractInfo);
+    }
+
+    // send interviewing message
+    if (status === "interviewing") {
+        const numOfMessages = await Message.countDocuments({
+            $or: [
+                {
+                    $and: [
+                        { user: profile.user._id },
+                        { receiver: proposal.user._id }
+                    ]
+                },
+                {
+                    $and: [
+                        { user: proposal.user._id },
+                        { receiver: profile.user._id }
+                    ]
+                }
+            ]
+        });
+
+        Message.create({
+            user: profile.user._id,
+            receiver: proposal.user._id,
+            isSystem: true,
+            isFirstMessage: numOfMessages
+                ? false
+                : true,
+            content: `Start interviewing chat for job "${proposal.job.title!}"`
+        });
     }
 
     // update the proposal status if its not approved

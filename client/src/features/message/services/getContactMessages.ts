@@ -4,7 +4,7 @@ import formatSearchQueries from "../../../utils/formatSearchQueries";
 
 export type GetContactMessagesPayload = {
     userId: string;
-    cursor?: number;
+    messageId?: string;
 };
 
 export type GetContactMessageType = {
@@ -13,8 +13,10 @@ export type GetContactMessageType = {
     receiver: string;
     content: string;
     delivered: boolean;
-    createdAt: string;
+    isSystem: boolean;
+    isFirstMessage: boolean;
     isYouSender: boolean;
+    createdAt: string;
 };
 
 export type GetContactMessagesResponse = {
@@ -24,13 +26,12 @@ export type GetContactMessagesResponse = {
         name: string;
         avatar: string;
     };
-    nextCursor: number | null;
     messages: GetContactMessageType[];
 }
 
 const getContactMessages = (payload: GetContactMessagesPayload) => {
-    return async ({ pageParam = 1 }) => {
-        const formatedSearchQueries = formatSearchQueries({ cursor: pageParam });
+    return async ({ pageParam = undefined }) => {
+        const formatedSearchQueries = formatSearchQueries({ messageId: pageParam });
 
         const response: AxiosResponse<Promise<GetContactMessagesResponse>> = await getRequest(`messages/users/${payload.userId}${formatedSearchQueries}`);
 

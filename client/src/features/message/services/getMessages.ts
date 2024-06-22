@@ -12,6 +12,7 @@ export type MessageType = {
     message: {
         content: string;
         createdAt: string;
+        isSystem: boolean;
         isYouSender: boolean;
     };
     profile: {

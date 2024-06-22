@@ -15,7 +15,14 @@ const useGetContactMessagesQuery = (payload: GetContactMessagesPayload) => {
         retry: false,
         refetchOnWindowFocus: false,
         useErrorBoundary: true,
-        getNextPageParam: (lastPage) => lastPage.nextCursor
+        getNextPageParam: (lastPage) => {
+            const isFirstMessage = lastPage.messages.some(message => message.isFirstMessage);
+            if (isFirstMessage) {
+                return undefined;
+            };
+
+            return lastPage.messages[0]._id;
+        }
     });
 
     return getContactMessagesQuery;

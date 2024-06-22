@@ -10,9 +10,11 @@ export type MessageSchemaType = {
     } & Partial<IUser>;
     content: string;
     delivered: boolean;
+    isSystem: boolean;
+    isFirstMessage: boolean;
 };
 
-const messageSchema = new mongoose.Schema<MessageSchemaType>({
+const messageSchema = new mongoose.Schema<MessageSchemaType & { createdAt: string; updatedAt: string; }>({
     user: {
         type: mongoose.Types.ObjectId,
         ref: "User",
@@ -29,6 +31,16 @@ const messageSchema = new mongoose.Schema<MessageSchemaType>({
         maxlength: 3000
     },
     delivered: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    isSystem: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    isFirstMessage: {
         type: Boolean,
         default: false,
         required: true

@@ -63,6 +63,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
                         output: {
                             content: "$content",
                             createdAt: "$createdAt",
+                            isSystem: "$isSystem",
                             isYouSender: {
                                 $cond: {
                                     if: {
@@ -183,7 +184,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
 const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { userId } = req.params;
 
-    const { cursor } = req.query;
+    const { cursor, messageId } = req.query;
 
     // check if its valid mongodb id
     const isValidMongodbId = isValidObjectId(userId);
@@ -203,17 +204,23 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
         throw new BadRequestError("Invalid contact");
     };
 
+    // find message
+    const isValidLastMessageId = isValidObjectId(messageId?.toString());
+    const lastMessage = isValidLastMessageId
+        ? await Message.findById(messageId?.toString())
+        : undefined;
+
     // get cursor for infinite scroll
-    const cursorNum = !cursor || Number.isNaN(Number(cursor.toString()))
-        ? 1
-        : Number.parseInt(cursor.toString());
+    // const cursorNum = !cursor || Number.isNaN(Number(cursor.toString()))
+    //     ? 1
+    //     : Number.parseInt(cursor.toString());
 
 
     // limit messages per request
     const limitMessages = 5;
 
-    const limit = limitMessages * cursorNum; // limit based on the cursor value
-    const skip = limitMessages * (cursorNum - 1); // how many messages to skip based on the cursor value
+    // const limit = limitMessages * cursorNum; // limit based on the cursor value
+    // const skip = limitMessages * (cursorNum - 1); // how many messages to skip based on the cursor value
 
 
     const [aggregationMessages] = await Message.aggregate([
@@ -238,35 +245,27 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
         },
         {
             $facet: {
-                // add contact facet to get contact info and to calc total of messages
-                contact: [
-                    {
-                        $addFields: {
-                            contact: contact.user._id
-                        }
-                    },
-                    {
-                        $group: {
-                            _id: contact.user._id,
-                            count: {
-                                $sum: 1
-                            }
-                        }
-                    }
-                ],
-                // get messages between the two
                 messages: [
+                    {
+                        $match: lastMessage
+                            ? {
+                                createdAt: {
+                                    $lt: lastMessage.createdAt
+                                }
+                            }
+                            : {}
+                    },
                     {
                         $sort: {
                             createdAt: -1
                         }
                     },
                     {
-                        $limit: limit
+                        $limit: limitMessages
                     },
-                    {
-                        $skip: skip
-                    },
+                    // {
+                    //     $skip: skip
+                    // },
                     {
                         $sort: {
                             createdAt: 1
@@ -293,10 +292,35 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
                             content: 1,
                             delivered: 1,
                             isYouSender: 1,
+                            isSystem: 1,
+                            isFirstMessage: 1,
                             createdAt: 1
                         }
                     }
+                ],
+                // add contact facet to get contact info and to calc total of messages
+                contact: [
+                    {
+                        $addFields: {
+                            contact: contact.user._id
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: contact.user._id,
+                            count: {
+                                $sum: 1
+                            }
+                        }
+                    }
                 ]
+            }
+        },
+        {
+            $addFields: {
+                targetMessage: {
+                    $first: "$targetMessage"
+                }
             }
         },
         {
@@ -312,20 +336,20 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
                 totalMessages: "$contact.count"
             }
         },
-        {
-            // return next cursor value if there is still messages for the next cursor else return undefined
-            $addFields: {
-                nextCursor: {
-                    $cond: {
-                        if: {
-                            $gt: ["$totalMessages", limit]
-                        },
-                        then: cursorNum + 1,
-                        else: undefined
-                    }
-                }
-            }
-        },
+        // {
+        //     // return next cursor value if there is still messages for the next cursor else return undefined
+        //     $addFields: {
+        //         nextCursor: {
+        //             $cond: {
+        //                 if: {
+        //                     $gt: ["$totalMessages", limit]
+        //                 },
+        //                 then: cursorNum + 1,
+        //                 else: undefined
+        //             }
+        //         }
+        //     }
+        // },
         {
             // populate profile to grab info such as (name, avatar)
             $lookup: {

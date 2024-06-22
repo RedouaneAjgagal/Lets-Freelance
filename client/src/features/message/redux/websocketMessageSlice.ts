@@ -8,6 +8,8 @@ type MessageType = {
     delivered: boolean;
     createdAt: string;
     isYouSender: boolean;
+    isSystem: boolean;
+    isFirstMessage: boolean;
     status: "success" | "error";
 };
 

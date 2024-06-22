@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef } from "react"
 import FetchPrevMessages from "./FetchPrevMessages"
 import ContactMessageContainer from "./ContactMessageContainer"
 import { InfiniteData, UseInfiniteQueryResult, useQueryClient } from "@tanstack/react-query"
 import { GetContactMessagesResponse } from "../services/getContactMessages"
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
-import { websocketMessageAction } from "../redux/websocketMessageSlice"
-import { MessagesResponse } from "../services/getMessages"
+import { useAppSelector } from "../../../hooks/redux"
 
 type ContactMessagesProps = {
     contactMessagesQuery: UseInfiniteQueryResult<GetContactMessagesResponse, unknown>;
@@ -16,7 +14,6 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
     const queryClient = useQueryClient();
     const { userInfo } = useAppSelector(state => state.authReducer);
     const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
-    const dispatch = useAppDispatch();
 
     const scrollToBottom = () => {
         if (messagesSectionRef.current && props.contactMessagesQuery.isFetched && !props.contactMessagesQuery.isRefetching) {
@@ -37,7 +34,18 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
             return;
         };
 
-        
+        queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>([
+            "contactMessages",
+            userInfo!.userId,
+            websocketMessages.message.isYouSender
+                ? websocketMessages.message.receiver
+                : websocketMessages.message.user
+        ], (data) => {
+            if (!data) return
+            data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
+            return data
+        });
+
     }, [websocketMessages.message]);
 
     return (

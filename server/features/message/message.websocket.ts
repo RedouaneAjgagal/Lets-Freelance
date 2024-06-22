@@ -16,6 +16,8 @@ type SendMessageType = {
     delivered: boolean;
     createdAt: string;
     isYouSender: boolean;
+    isSystem: boolean;
+    isFirstMessage: boolean;
     status: "success" | "error";
 };
 
@@ -61,6 +63,8 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
                 receiver,
                 createdAt: new Date().toString(),
                 delivered: true,
+                isFirstMessage: false,
+                isSystem: false,
                 isYouSender: false,
                 status: "success",
             };
@@ -78,8 +82,10 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
             const messagePayload: MessageSchemaType = {
                 user: new mongoose.Types.ObjectId(sendMessageContent.user),
                 receiver: new mongoose.Types.ObjectId(sendMessageContent.receiver),
+                content: sendMessageContent.content,
                 delivered: true,
-                content: sendMessageContent.content
+                isSystem: false,
+                isFirstMessage: false
             };
 
 

@@ -3,8 +3,9 @@ import Message, { MessageSchemaType } from "./message.model";
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import { Profile } from "../profile";
-import { BadRequestError, UnauthenticatedError } from "../../errors";
+import { BadRequestError, UnauthenticatedError, UnauthorizedError } from "../../errors";
 import mongoose, { isValidObjectId } from "mongoose";
+import { serviceModel as Service } from "../service";
 
 //@desc get messages
 //@route GET /api/v1/messages
@@ -381,7 +382,100 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
     res.status(StatusCodes.OK).json(aggregationMessages);
 }
 
+
+//@desc setup initial chatting message
+//@route POST /api/v1/messages/users/:userId
+//@access authentication (employers only)
+const setupInitialMessage: RequestHandler = async (req: CustomAuthRequest, res) => {
+    const { userId } = req.params;
+    const { serviceId } = req.body;
+
+    // check if valid userID
+    const isValidUserId = isValidObjectId(userId);
+    if (!isValidUserId) {
+        throw new BadRequestError("Invalid contact ID");
+    }
+
+    // check if contact exist
+    const contact = await Profile.findOne({ user: userId });
+    if (!contact) {
+        throw new BadRequestError("Invalid contact ID");
+    };
+
+    // contact must be a freelancer
+    if (contact.userAs !== "freelancer") {
+        throw new BadRequestError("Contact must be a freelancer");
+    };
+
+    // find current user
+    const profile = await Profile.findOne({ user: req.user?.userId });
+    if (!profile) {
+        throw new UnauthenticatedError("Found no user");
+    };
+
+    // current user must be an employer
+    if (profile.userAs !== "employer") {
+        throw new UnauthorizedError("You must be an employer to start the chat");
+    };
+
+    const numOfMessages = await Message.countDocuments({
+        $or: [
+            {
+                $and: [
+                    { user: profile.user._id },
+                    { receiver: contact.user._id }
+                ]
+            },
+            {
+                $and: [
+                    { user: contact.user._id },
+                    { receiver: profile.user._id }
+                ]
+            }
+        ]
+    });
+
+
+    const messageContent: MessageSchemaType = {
+        user: contact.user._id,
+        receiver: profile.user._id,
+        isSystem: true,
+        content: "Starting a new chat",
+        isFirstMessage: false,
+        delivered: false
+    };
+
+    // if its the first message between user and contact
+    if (!numOfMessages) {
+        messageContent.content = "Starting chat";
+        messageContent.isFirstMessage = true;
+    };
+
+    // check if serviceId provided
+    if (serviceId) {
+        // check if valid serviceID
+        const isValidServiceId = isValidObjectId(serviceId);
+        if (!isValidServiceId) {
+            throw new BadRequestError("Invalid service ID");
+        };
+
+        // find service
+        const service = await Service.findById(serviceId);
+        if (!service) {
+            throw new BadRequestError("Invalid service ID");
+        };
+
+        messageContent.content = `Starting chat for service "${service.title}"`;
+    };
+
+    // create the initial message
+    Message.create(messageContent);
+
+    res.status(StatusCodes.CREATED).json({ msg: messageContent.content });
+}
+
 export {
     getMessages,
-    getContactMessages
+    getContactMessages,
+    setupInitialMessage
 }

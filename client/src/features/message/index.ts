@@ -10,7 +10,7 @@ import websocketMessageReducer, {
 } from "./redux/websocketMessageSlice";
 import { GetMessagesPayload, MessagesResponse } from "./services/getMessages";
 import { GetContactMessagesResponse } from "./services/getContactMessages";
-
+import useSetInitialMessageMutation from "./hooks/useSetInitialMessageMutation";
 export {
     MessagesContainer,
     websocketMessageReducer,
@@ -20,7 +20,8 @@ export {
     disconnectWebsocket,
     sendWebsocketMessage,
     useGetMessagesQuery,
-    ContactMessagesContainer
+    ContactMessagesContainer,
+    useSetInitialMessageMutation
 }
 
 export type {

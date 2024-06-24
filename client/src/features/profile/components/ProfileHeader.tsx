@@ -1,10 +1,15 @@
 import { TbStar, TbLocation, TbCalendar } from "react-icons/tb"
 import { PrimaryButton } from "../../../layouts/brand";
 import formatDate from "../../../utils/formatDate";
+import { useAppSelector } from "../../../hooks/redux";
+import { useSetInitialMessageMutation } from "../../message";
+import toast from "react-hot-toast";
 
 interface Props {
     profile: "freelancer" | "employer";
     userInfo: {
+        _id: string;
+        user: string;
         name: string;
         avatar: string;
         jobTitle?: string;
@@ -17,12 +22,27 @@ interface Props {
 }
 
 const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
-    const inviteHandler = () => {
-        console.log("invite");
-    }
+    const setInitialMessageMutation = useSetInitialMessageMutation();
+
+    const { userInfo } = useAppSelector(state => state.authReducer);
 
     const messageHandler = () => {
-        console.log("message");
+        if (props.profile !== "freelancer" || setInitialMessageMutation.isLoading) return;
+
+        if (!userInfo) {
+            toast.error("Please login first", {
+                id: "error_setInitialMessage",
+                duration: 3000
+            });
+
+            return;
+        };
+
+        if (userInfo.userAs !== "employer") return;
+
+        setInitialMessageMutation.mutate({
+            userId: props.userInfo.user
+        });
     }
 
     const dateOfBirth = formatDate(props.userInfo.dateOfBirth || "");
@@ -67,17 +87,16 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                         </div>
                     </div>
                 </article>
-                {props.isCurrentUser ?
-                    null
-                    :
-                    <div className="flex gap-3">
-                        {props.profile === "freelancer" ?
-                            <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Invite" onClick={inviteHandler} disabled={false} />
-                            :
-                            null
-                        }
-                        <PrimaryButton style="solid" fullWith={false} justifyConent="start" type="button" x="lg" y="md" children="Message" onClick={messageHandler} disabled={false} />
-                    </div>
+                {props.profile === "freelancer" ?
+                    !userInfo || userInfo.userAs === "employer"
+                        ?
+                        <div>
+                            <PrimaryButton style="solid" fullWith={false} justifyConent="center" type="button" x="lg" y="md" onClick={messageHandler} disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading}>
+                                Message
+                            </PrimaryButton>
+                        </div>
+                        : null
+                    : null
                 }
             </div>
         </section>

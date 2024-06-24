@@ -9,8 +9,6 @@ const useCurrentUserMutation = () => {
     const currentUserMutation = useMutation({
         mutationFn: getCurrentUserRequest,
         onSuccess: ({ data }) => {
-            console.log(data);
-
             dispatch(connectWebsocket({
                 userId: data.profileId
             }));

@@ -38,6 +38,8 @@ const SingleProfileEmployer = (props: React.PropsWithoutRef<SingleProfileEmploye
     }
 
     const employerHeaderInfo = {
+        _id: props.employerDetails._id,
+        user: props.employerDetails.user,
         name: props.employerDetails.name,
         avatar: props.employerDetails.avatar,
         rating: props.employerDetails.rating.avgRate,

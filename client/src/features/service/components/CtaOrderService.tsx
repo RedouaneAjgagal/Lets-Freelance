@@ -4,15 +4,18 @@ import { PrimaryButton } from '../../../layouts/brand'
 import useOrderServiceMutation from '../hooks/useOrderServiceMutation';
 import { SingleServiceType } from '../services/getSingleService';
 import { OrderServicePayload } from '../services/orderService';
+import { useSetInitialMessageMutation } from '../../message';
 
 type CtaOrderServiceProps = {
     serviceId: SingleServiceType["_id"];
     selectedTier: "starter" | "standard" | "advanced";
-    profileId: SingleServiceType["profile"]["_id"];
+    userId: SingleServiceType["user"];
     selectedPackagePrice: number;
 }
 
 const CtaOrderService = (props: React.PropsWithoutRef<CtaOrderServiceProps>) => {
+    const setInitialMessageMutation = useSetInitialMessageMutation();
+
     const serviceAdOrderTrackers = useAppSelector(state => state.serviceAdOrderTrackerReducer);
 
     const [URLSearchParams] = useSearchParams();
@@ -37,8 +40,11 @@ const CtaOrderService = (props: React.PropsWithoutRef<CtaOrderServiceProps>) => 
     }
 
     const messageFreelancer = () => {
-        console.log({ profileId: props.profileId });
-    }
+        setInitialMessageMutation.mutate({
+            userId: props.userId,
+            serviceId: props.serviceId
+        });
+    };
 
     return (
         <div className="flex gap-3 fixed bottom-0 bg-white w-full left-1/2 -translate-x-1/2 p-4 border-t z-20">
@@ -46,7 +52,7 @@ const CtaOrderService = (props: React.PropsWithoutRef<CtaOrderServiceProps>) => 
                 <PrimaryButton disabled={orderServiceMutation.isLoading} fullWith justifyConent="center" style="solid" type="button" x="md" y="lg" onClick={orderServiceHandler}>{`Continue ($${props.selectedPackagePrice.toFixed(0)})`}</PrimaryButton>
             </div>
             <div className="flex">
-                <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="button" x="md" y="sm" onClick={messageFreelancer}>{`Message`}</PrimaryButton>
+                <PrimaryButton disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading} fullWith justifyConent="center" style="outline" type="button" x="md" y="sm" onClick={messageFreelancer}>{`Message`}</PrimaryButton>
             </div>
         </div>
     )

@@ -5,9 +5,13 @@ import { BsGenderMale, BsTranslate, BsPeople } from 'react-icons/bs'
 import { Link } from 'react-router-dom'
 import react from "react";
 import { IconType } from 'react-icons'
+import { useAppSelector } from '../../../hooks/redux'
+import toast from 'react-hot-toast'
+import { useSetInitialMessageMutation } from '../../message'
 
 type FreelancerDetails = {
     contactType: "freelancer";
+    userId: string;
     details: {
         hourlyRate: number;
         location: string | undefined;
@@ -49,10 +53,30 @@ type Employer = {
     "Website"?: Content;
 }
 
-const ContactSection = (props: React.PropsWithoutRef<FreelancerDetails | EmployerDetails>) => {
+type ContactSectionProps = FreelancerDetails | EmployerDetails;
+
+const ContactSection = (props: React.PropsWithoutRef<ContactSectionProps>) => {
+    const setInitialMessageMutation = useSetInitialMessageMutation();
+
+    const { userInfo } = useAppSelector(state => state.authReducer);
 
     const contactFreelancerHandler = () => {
-        console.log("contact me");
+        if (props.contactType !== "freelancer" || setInitialMessageMutation.isLoading) return;
+
+        if (!userInfo) {
+            toast.error("Please login first", {
+                id: "error_setInitialMessage",
+                duration: 3000
+            });
+
+            return;
+        };
+
+        if (userInfo.userAs !== "employer") return;
+
+        setInitialMessageMutation.mutate({
+            userId: props.userId
+        });
     }
 
     let details = {} as Freelancer | Employer;
@@ -128,7 +152,6 @@ const ContactSection = (props: React.PropsWithoutRef<FreelancerDetails | Employe
                 isLink: true
             }
         }
-
     }
 
     const title = `${props.contactType === "freelancer" ? `$${props.details.hourlyRate}` : `About me`}`;
@@ -160,12 +183,17 @@ const ContactSection = (props: React.PropsWithoutRef<FreelancerDetails | Employe
                         </react.Fragment>
                     )}
                 </div>
-                <div>
-                    <PrimaryButton style='solid' disabled={false} justifyConent='center' type='button' x='md' y='lg' onClick={contactFreelancerHandler} fullWith >
-                        Contact Me
-                        <BiArrowBack className="rotate-180 text-xl" />
-                    </PrimaryButton>
-                </div>
+                {props.contactType === "freelancer"
+                    ? !userInfo || userInfo.userAs === "employer"
+                        ? <div>
+                            <PrimaryButton style='solid' disabled={setInitialMessageMutation.isLoading} justifyConent='center' type='button' x='md' y='lg' onClick={contactFreelancerHandler} fullWith isLoading={setInitialMessageMutation.isLoading} >
+                                Contact Me
+                                <BiArrowBack className="rotate-180 text-xl" />
+                            </PrimaryButton>
+                        </div>
+                        : null
+                    : null
+                }
             </div>
         </section>
     )

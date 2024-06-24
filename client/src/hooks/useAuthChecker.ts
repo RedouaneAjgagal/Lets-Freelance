@@ -21,6 +21,7 @@ const useAuthChecker = () => {
         return () => clearTimeout(checkExpiration);
     }, [userInfo]);
 
+
     return null;
 }
 

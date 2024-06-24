@@ -25,7 +25,7 @@ const SingleServiceContent = (props: React.PropsWithoutRef<SingleServiceContentP
                     <SingleServiceGallery featuredImage={props.serviceInfo.featuredImage} gallery={props.serviceInfo.gallery} />
                 </div>
             </div>
-            <SelectServiceTierContainer tier={props.serviceInfo.tier} profileName={props.serviceInfo.profile.name} serviceId={props.serviceInfo._id} profileId={props.serviceInfo.profile._id} isPreview={props.isPreview} />
+            <SelectServiceTierContainer tier={props.serviceInfo.tier} profileName={props.serviceInfo.profile.name} serviceId={props.serviceInfo._id} userId={props.serviceInfo.user} isPreview={props.isPreview} />
             <ServiceDetails description={props.serviceInfo.description} />
         </div>
     )

@@ -2,11 +2,10 @@ import { useState } from "react";
 import { SingleServiceType } from "../services/getSingleService"
 import SelectServiceTierInput from "./SelectServiceTierInput";
 import SelectedPackage from "./SelectedPackage";
-import formatProfileName from "../../../utils/formatProfileName";
 import CtaOrderService from "./CtaOrderService";
 
 type SelectServiceTierContainerProps = {
-    profileId: SingleServiceType["profile"]["_id"];
+    userId: SingleServiceType["user"];
     serviceId: SingleServiceType["_id"];
     profileName: string;
     tier: SingleServiceType["tier"];
@@ -24,8 +23,6 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
 
     const selectedPackage = props.tier[selectedTier];
 
-    const [freelancerName] = formatProfileName(props.profileName).split(" ");
-
     return (
         <aside className="p-4 rounded border flex flex-col gap-4">
             <fieldset className="">
@@ -37,8 +34,8 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
             <hr />
             <SelectedPackage deliveryTime={selectedPackage.deliveryTime} includedIn={selectedPackage.includedIn} />
             {
-                !props.isPreview ?
-                    <CtaOrderService profileId={props.profileId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
+                props.isPreview ?
+                    <CtaOrderService userId={props.userId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
                     : null
             }
         </aside>

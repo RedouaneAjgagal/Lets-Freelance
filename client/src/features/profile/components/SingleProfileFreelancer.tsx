@@ -32,6 +32,8 @@ const SingleProfileFreelancer = (props: React.PropsWithoutRef<SingleProfileFreel
     }
 
     const freelancerHeaderInfo = {
+        _id: props.freelancerDetails._id,
+        user: props.freelancerDetails.user,
         name: props.freelancerDetails.name,
         avatar: props.freelancerDetails.avatar,
         jobTitle: props.freelancerDetails.roles.freelancer.jobTitle,
@@ -74,7 +76,7 @@ const SingleProfileFreelancer = (props: React.PropsWithoutRef<SingleProfileFreel
             <ProfileExperience experiences={props.freelancerDetails.roles.freelancer!.experience} />
             <ProfileServices services={props.freelancerDetails.services} profile={profileDetails} />
             <aside className='-mt-10'>
-                <ContactSection contactType="freelancer" details={freelancerDetail} />
+                <ContactSection contactType="freelancer" details={freelancerDetail} userId={props.freelancerDetails.user} />
                 <ProfileSkills skills={props.freelancerDetails.roles.freelancer!.skills} />
             </aside>
             {

@@ -6,8 +6,9 @@ import ContactMessages from "./ContactMessages";
 import { useEffect } from "react";
 import { TbLoader2 } from "react-icons/tb";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { GetContactMessagesResponse } from "../services/getContactMessages";
+import { websocketMessageAction } from "../redux/websocketMessageSlice";
 
 type ContactMessagesContainerProps = {
     selectedUserId: string;
@@ -16,23 +17,31 @@ type ContactMessagesContainerProps = {
 const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesContainerProps>) => {
     const queryClient = useQueryClient();
     const { userInfo } = useAppSelector(state => state.authReducer);
+    const { message } = useAppSelector(state => state.websocketMessageReducer);
+    const dispatch = useAppDispatch();
 
     const getContactMessagesQuery = useGetContactMessagesQuery({
         userId: props.selectedUserId
     });
+    
 
+    // to prevent duplicate refetch
+    let isRefetch = false;
     useEffect(() => {
+        if (isRefetch) return;
+        isRefetch = true;
         if (!getContactMessagesQuery.isRefetching) {
             queryClient.setQueryData<InfiniteData<GetContactMessagesResponse>>(["contactMessages", userInfo!.userId, props.selectedUserId], (data) => {
                 if (!data) return
-    
+
                 return {
                     pages: data.pages.slice(0, 1),
                     pageParams: data.pageParams.slice(0, 1)
                 }
             });
         };
-        
+
+        if (getContactMessagesQuery.isFetching) return;
         getContactMessagesQuery.refetch({ refetchPage: (_, index) => index === 0 });
     }, [props.selectedUserId]);
 

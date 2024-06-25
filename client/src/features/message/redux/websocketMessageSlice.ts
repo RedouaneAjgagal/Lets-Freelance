@@ -53,7 +53,6 @@ const websocketMessageSlice = createSlice({
 export const connectWebsocket = createAction<{ userId: string }>("websocket/connect");
 export const disconnectWebsocket = createAction("websocket/disconnect");
 export const sendWebsocketMessage = createAction<{
-    id: string;
     receiver: string;
     content: string
 }>("websocket/send");

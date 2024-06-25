@@ -53,11 +53,11 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
 
         // Handle incoming messages
         ws.on('message', async (message) => {
-            const { receiver, content, id } = JSON.parse(message.toString());
+            const { receiver, content } = JSON.parse(message.toString());
 
-
+            const _id = new mongoose.Types.ObjectId();
             const sendMessageContent: SendMessageType = {
-                _id: id,
+                _id: _id.toString(),
                 user: userId,
                 content,
                 receiver,
@@ -109,8 +109,7 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
 
             console.log(messagePayload);
 
-
-            await Message.create(messagePayload);
+            Message.create(messagePayload);
         });
 
         // Handle disconnection event

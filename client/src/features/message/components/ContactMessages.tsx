@@ -42,7 +42,11 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
                 : websocketMessages.message.user
         ], (data) => {
             if (!data) return
-            data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
+            const isExistMessage = data.pages[0].messages.find(message => message._id === websocketMessages.message?._id);
+            if (!isExistMessage) {
+                data.pages[0].messages = [...data.pages[0].messages, websocketMessages.message!];
+            }
+
             return data
         });
 
@@ -52,14 +56,7 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
         <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-scroll">
             {props.contactMessagesQuery.hasNextPage
                 ? <FetchPrevMessages fetchNextPage={props.contactMessagesQuery.fetchNextPage} hasNextPage={props.contactMessagesQuery.hasNextPage} isFetchingNextPage={props.contactMessagesQuery.isFetchingNextPage} />
-                : <div className="p-4 text-center">
-                    <p className="flex flex-col text-slate-600">
-                        Starting chat with
-                        <span className="font-medium text-slate-900">
-                            {props.contactMessagesQuery.data!.pages[0].contact.name}
-                        </span>
-                    </p>
-                </div>
+                : null
             }
             {props.contactMessagesQuery.data!.pages.map((group, index) => (
                 <React.Fragment key={index}>

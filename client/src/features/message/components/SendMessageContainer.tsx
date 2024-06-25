@@ -29,7 +29,6 @@ const SendMessageContainer = (props: React.PropsWithoutRef<SendMessageContainerP
         // handleTextareaHight();
         console.log(messageContent);
         dispatch(sendWebsocketMessage({
-            id: crypto.randomUUID(),
             content: messageContent,
             receiver: props.contactId
         }));

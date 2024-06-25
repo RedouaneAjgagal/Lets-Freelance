@@ -29,6 +29,17 @@ const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps
 
     return (
         <li className={`mx-4 py-2 ${props.message.isSystem ? "self-center" : props.message.isYouSender ? "self-end" : "self-start"} ${props.isAttatched ? "-mt-2 ml-16" : ""}`}>
+            {props.message.isFirstMessage ?
+                <div className="p-4 text-center">
+                    <p className="flex flex-col text-slate-600">
+                        Starting chat with
+                        <span className="font-medium text-slate-900">
+                            {props.contact.name}
+                        </span>
+                    </p>
+                </div>
+                : null
+            }
             <div className={`flex gap-2 items-start w-full`}>
                 {props.message.isSystem || props.message.isYouSender || props.isAttatched
                     ? null

@@ -40,7 +40,7 @@ const websocketMiddleware: Middleware = (store) => (next) => (action) => {
         socket = undefined;
         store.dispatch(websocketMessageAction.websocketDisconnected());
     } else if (sendWebsocketMessage.match(action)) {
-        if (socket !== undefined && socket.readyState === WebSocket.OPEN) {
+        if (socket !== undefined && socket.readyState === WebSocket.OPEN) {            
             socket.send(JSON.stringify(action.payload));
         }
     }

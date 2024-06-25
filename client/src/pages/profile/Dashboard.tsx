@@ -5,6 +5,10 @@ import { useAppSelector } from "../../hooks/redux";
 
 const Dashboard = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
+    const { message } = useAppSelector(state => state.websocketMessageReducer);
+
+    console.log(message);
+    
 
     return (
         <main className="p-4 bg-purple-100/30 flex flex-col gap-4">

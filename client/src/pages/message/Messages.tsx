@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
-import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery, websocketMessageAction, GetContactMessagesResponse } from "../../features/message"
+import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery, websocketMessageAction } from "../../features/message"
 import useCustomSearchParams from "../../hooks/useCustomSearchParams";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
@@ -33,6 +33,11 @@ const Messages = () => {
 
     const messages = useGetMessagesQuery(messagePayload);
 
+    useEffect(() => {
+        if (messages.isFetching) return;
+
+        messages.refetch({ refetchPage: (_, index) => index === 0 });
+    }, [search]);
 
     useEffect(() => {
         if (!messages.isRefetching) {
@@ -45,9 +50,7 @@ const Messages = () => {
                 }
             });
         }
-
-        messages.refetch({ refetchPage: (_, index) => index === 0 });
-    }, [search]);
+    }, [messages.isRefetching]);
 
 
 
@@ -105,6 +108,9 @@ const Messages = () => {
 
         dispatch(websocketMessageAction.clearMessage());
     }, [websocketMessages.message]);
+
+    // console.log("Messages");
+    
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">

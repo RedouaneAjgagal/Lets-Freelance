@@ -6,9 +6,8 @@ import ContactMessages from "./ContactMessages";
 import { useEffect } from "react";
 import { TbLoader2 } from "react-icons/tb";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "../../../hooks/redux";
 import { GetContactMessagesResponse } from "../services/getContactMessages";
-import { websocketMessageAction } from "../redux/websocketMessageSlice";
 
 type ContactMessagesContainerProps = {
     selectedUserId: string;
@@ -17,13 +16,10 @@ type ContactMessagesContainerProps = {
 const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesContainerProps>) => {
     const queryClient = useQueryClient();
     const { userInfo } = useAppSelector(state => state.authReducer);
-    const { message } = useAppSelector(state => state.websocketMessageReducer);
-    const dispatch = useAppDispatch();
 
     const getContactMessagesQuery = useGetContactMessagesQuery({
         userId: props.selectedUserId
     });
-    
 
     // to prevent duplicate refetch
     let isRefetch = false;

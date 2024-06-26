@@ -1,10 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import setInitialMessage from '../services/setInitialMessage';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { useAppSelector } from '../../../hooks/redux';
 
 
 const useSetInitialMessageMutation = () => {
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const {userInfo} = useAppSelector(state => state.authReducer);
+
     const setInitialMessageMutation = useMutation({
         mutationFn: setInitialMessage,
         retry: false,
@@ -14,7 +20,9 @@ const useSetInitialMessageMutation = () => {
                 duration: 3000
             });
 
-            window.open("/profile/messages", "noopener noreferrer");
+            queryClient.removeQueries({ queryKey: ["messages", userInfo!.userId] });
+            navigate("/profile/messages");
+            // window.open("/profile/messages", "noopener noreferrer");
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";

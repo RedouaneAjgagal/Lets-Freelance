@@ -21,35 +21,24 @@ type SendMessageType = {
     status: "success" | "error";
 };
 
+interface WebsocketConnectedUser extends WebSocket {
+    connectionCount: number;
+};
 
 const handleWebSocketMessages = (wss: WebSocket.Server) => {
-    const connectedUser: { [key: string]: WebSocket } = {};
+    const connectedUser: { [key: string]: WebsocketConnectedUser } = {};
 
-    wss.on("connection", async (ws, req: CustomIncomingMessage) => {
+    wss.on("connection", async (ws: WebsocketConnectedUser, req: CustomIncomingMessage) => {
         const userId = req.user!.userId;
 
         console.log(`User ${userId} connected`);
 
-        connectedUser[userId] = ws;
-
-        // const undeliveredMessages = await Message.find({
-        //     receiver: new mongoose.Types.ObjectId(userId),
-        //     delivered: false
-        // }).sort("createdAt");
-
-        // for (const undeliveredMessage of undeliveredMessages) {
-        //     const sendMessageContent: SendMessageType = {
-        //         senderId: undeliveredMessage.user._id.toString(),
-        //         content: undeliveredMessage.content
-        //     };
-
-        //     connectedUser[userId].send(JSON.stringify(sendMessageContent));
-
-        //     undeliveredMessage.delivered = true;
-        //     undeliveredMessage.save();
-
-        //     console.log(sendMessageContent);
-        // };
+        if (connectedUser[userId]) {
+            connectedUser[userId].connectionCount += 1;
+        } else {
+            connectedUser[userId] = ws;
+            connectedUser[userId].connectionCount = 1
+        };
 
         // Handle incoming messages
         ws.on('message', async (message) => {
@@ -114,9 +103,12 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
 
         // Handle disconnection event
         ws.on('close', () => {
-            console.log('Client disconnected');
+            connectedUser[userId].connectionCount -= 1;
 
-            delete connectedUser[userId];
+            if (!connectedUser[userId].connectionCount) {
+                console.log(`User ${userId} disconnected`);
+                delete connectedUser[userId];
+            }
         });
     });
 };

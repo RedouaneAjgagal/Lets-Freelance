@@ -3,6 +3,7 @@ import { IncomingMessage } from "http";
 import WebSocket from "ws";
 import mongoose, { isValidObjectId } from "mongoose";
 import Message, { MessageSchemaType } from "./message.model";
+import { Profile } from "../profile";
 
 interface CustomIncomingMessage extends IncomingMessage {
     user?: User;
@@ -37,7 +38,15 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
             connectedUser[userId].connectionCount += 1;
         } else {
             connectedUser[userId] = ws;
-            connectedUser[userId].connectionCount = 1
+            connectedUser[userId].connectionCount = 1;
+            
+            await Profile.findOneAndUpdate({
+                user: new mongoose.Types.ObjectId(userId)
+            }, {
+                $set: {
+                    "connection.isConnected": true
+                }
+            });
         };
 
         // Handle incoming messages
@@ -102,12 +111,21 @@ const handleWebSocketMessages = (wss: WebSocket.Server) => {
         });
 
         // Handle disconnection event
-        ws.on('close', () => {
+        ws.on('close', async () => {
             connectedUser[userId].connectionCount -= 1;
 
             if (!connectedUser[userId].connectionCount) {
                 console.log(`User ${userId} disconnected`);
                 delete connectedUser[userId];
+
+                await Profile.findOneAndUpdate({
+                    user: new mongoose.Types.ObjectId(userId)
+                }, {
+                    $set: {
+                        "connection.isConnected": false,
+                        "connection.disconnectedAt": Date.now(),
+                    }
+                });
             }
         });
     });

@@ -70,6 +70,10 @@ export interface IProfile {
         freelancer: IFreelancerRole | undefined;
         employer: IEmployerRole | undefined;
     };
+    connection: {
+        isConnected: boolean;
+        disconnectedAt: Date;
+    }
 }
 
 const profileSchema = new mongoose.Schema<IProfile>({
@@ -195,6 +199,17 @@ const profileSchema = new mongoose.Schema<IProfile>({
                 min: 0,
                 default: 0
             }
+        }
+    },
+    connection: {
+        isConnected: {
+            type: Boolean,
+            default: false,
+            required: true
+        },
+        disconnectedAt: {
+            type: Date,
+            default: Date.now
         }
     }
 }, { timestamps: true });

@@ -818,6 +818,37 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
             }
         },
         {
+            $addFields: {
+                status: {
+                    $cond: {
+                        if: {
+                            $eq: ["$connection.isConnected", true]
+                        },
+                        then: "online",
+                        else: {
+                            $cond: {
+                                if: {
+                                    $gt: [
+                                        {
+                                            $add: [
+                                                "$connection.disconnectedAt",
+                                                45 * 60 * 1000 // 45min
+                                            ]
+                                        },
+                                        {
+                                            $toDate: "$$NOW"
+                                        }
+                                    ]
+                                },
+                                then: "idle",
+                                else: "offline"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 name: 1,
@@ -833,7 +864,8 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
                 "roles.freelancer.englishLevel": 1,
                 "roles.freelancer.types": 1,
                 "roles.freelancer.skills": 1,
-                "isFavourite": 1
+                isFavourite: 1,
+                status: 1
             }
         },
     ];

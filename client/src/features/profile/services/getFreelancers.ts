@@ -38,6 +38,7 @@ export type SearchedTalentType = {
     description?: string;
     totalRevenue: number;
     isFavourite: 0 | 1;
+    status: "online" | "idle" | "offline";
 }
 
 export type GetFreelancersResponse = {

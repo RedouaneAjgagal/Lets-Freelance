@@ -91,11 +91,19 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
         console.log(`save profile ${props.talent._id}`);
     }
 
+    const connectionTypes = {
+        online: "before:bg-green-400",
+        idle: "before:bg-amber-400",
+        offline: "before:bg-slate-300",
+    } as const;
+
+    const connectionStyle = connectionTypes[props.talent.status];
+
     return (
         <li ref={talentCardRef} className="py-8 px-4 flex flex-col gap-5 border-b last:border-0 first:pt-4">
             <div className="flex items-center gap-3">
-                <div className="min-h-full max-w-full relative">
-                    <img className="rounded-full min-w-[4rem] min-h-[4rem] max-w-[4rem] max-h-[4rem] object-cover" src={props.talent.avatar} alt="Freelancer avatar" />
+                <div className={`min-h-full max-w-full relative before:h-4 before:w-4 before:absolute before:left-0 before:top-0 before:rounded-full before:border-[2px] before:border-white ${connectionStyle}`}>
+                    <img className="rounded-full min-w-[4rem] min-h-[4rem] max-w-[4rem] max-h-[4rem] object-cover " src={props.talent.avatar} alt="Freelancer avatar" />
                     {props.talent.roles.freelancer.badge !== "none" ?
                         <div className="absolute -right-0 bottom-0">
                             <Badge badge={props.talent.roles.freelancer.badge} size="md" minimized />

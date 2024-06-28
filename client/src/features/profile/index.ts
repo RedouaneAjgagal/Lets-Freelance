@@ -15,6 +15,7 @@ import { SingleProfile } from "./services/getSingleProfileInfo";
 import SearchFreelancersNav from "./components/SearchFreelancersNav";
 import SearchedFreelancers from "./components/SearchedFreelancers";
 import useInfiniteSearchTalentsQuery from "./hooks/useInfiniteSearchTalentsQuery";
+import { GetFreelancersResponse } from "./services/getFreelancers";
 
 export {
     PublicProfileForm,
@@ -36,5 +37,6 @@ export {
 }
 
 export type {
-    SingleProfile
+    SingleProfile,
+    GetFreelancersResponse
 }

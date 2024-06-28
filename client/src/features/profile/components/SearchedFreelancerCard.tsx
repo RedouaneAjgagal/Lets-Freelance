@@ -9,6 +9,7 @@ import { SearchedTalentType } from "../services/getFreelancers";
 import { BiArrowBack } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { FetchNextPageOptions } from "@tanstack/react-query";
+import { useFavoritesMutation } from "../../favorites";
 
 type SearchedFreelancerCardProps = {
     talent: SearchedTalentType;
@@ -18,6 +19,11 @@ type SearchedFreelancerCardProps = {
 }
 
 const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerCardProps>) => {
+    const favoritesMutation = useFavoritesMutation({
+        event: "profile",
+        target: props.talent._id
+    });
+
     const talentCardRef = useRef<HTMLLIElement>(null);
 
     const [isRefetch, setIsRefetch] = useState(false);
@@ -88,7 +94,11 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
     const description = props.talent.description || "Talent with no description";
 
     const saveProfileHandler = () => {
-        console.log(`save profile ${props.talent._id}`);
+        if (favoritesMutation.isLoading) return;
+        favoritesMutation.mutate({
+            event: "profile",
+            target: props.talent._id
+        });
     }
 
     const connectionTypes = {
@@ -170,8 +180,8 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
                     View Profile
                     <BiArrowBack className="rotate-[135deg]" />
                 </PrimaryButton>
-                <button onClick={saveProfileHandler} className={`border px-4 text-[.95rem] rounded-full flex gap-1 font-medium items-center justify-center ${props.talent.isFavourite ? "text-white border-purple-600 bg-purple-600" : "text-slate-700 border-slate-300"}`}>
-                    {false ?
+                <button onClick={saveProfileHandler} disabled={favoritesMutation.isLoading} className={`border px-4 text-[.95rem] rounded-full flex gap-1 font-medium items-center justify-center ${props.talent.isFavourite ? "text-white border-purple-600 bg-purple-600" : "text-slate-700 border-slate-300"}`}>
+                    {favoritesMutation.isLoading ?
                         <TbLoader2 className="animate-spin" />
                         : <TbHeart />
                     }

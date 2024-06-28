@@ -60,7 +60,7 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
             }
             {props.contactMessagesQuery.data!.pages.map((group, index) => (
                 <React.Fragment key={index}>
-                    <ContactMessageContainer key={index} contact={group.contact} messages={group.messages} />
+                    <ContactMessageContainer key={index} contact={props.contactMessagesQuery.data!.pages[props.contactMessagesQuery.data!.pages.length - 1].contact} messages={group.messages} />
                 </React.Fragment>
             )).reverse()}
         </ul>

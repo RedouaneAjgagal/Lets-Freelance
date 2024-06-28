@@ -51,7 +51,7 @@ const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesCo
                     </div>
                     : null
                 }
-                <ContactNavbar contact={getContactMessagesQuery.data!.pages[0].contact} />
+                <ContactNavbar contact={getContactMessagesQuery.data!.pages[getContactMessagesQuery.data!.pages.length - 1].contact} />
                 <ContactMessages contactMessagesQuery={getContactMessagesQuery} />
                 <SendMessageContainer contactId={getContactMessagesQuery.data!.pages[0].contact.user} />
             </section>

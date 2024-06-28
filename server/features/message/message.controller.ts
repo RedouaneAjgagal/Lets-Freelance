@@ -25,7 +25,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
         : Number.parseInt(page.toString());
 
 
-    const limit = 2;
+    const limit = 15;
     const skip = (currentPage - 1) * limit;
     const calculatedLimit = currentPage * limit;
 
@@ -106,9 +106,42 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         },
         {
+            // add status field where it display user as online, idle or offline
+            $addFields: {
+                status: {
+                    $cond: {
+                        if: {
+                            $eq: ["$profile.connection.isConnected", true]
+                        },
+                        then: "online",
+                        else: {
+                            $cond: {
+                                if: {
+                                    $gt: [
+                                        {
+                                            $add: [
+                                                "$profile.connection.disconnectedAt",
+                                                45 * 60 * 1000 // 45min
+                                            ]
+                                        },
+                                        {
+                                            $toDate: "$$NOW"
+                                        }
+                                    ]
+                                },
+                                then: "idle",
+                                else: "offline"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 message: 1,
+                "profile.status": "$status",
                 "profile._id": 1,
                 "profile.user": 1,
                 "profile.name": 1,
@@ -185,7 +218,7 @@ const getMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
 const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) => {
     const { userId } = req.params;
 
-    const { cursor, messageId } = req.query;
+    const { messageId } = req.query;
 
     // check if its valid mongodb id
     const isValidMongodbId = isValidObjectId(userId);
@@ -211,18 +244,9 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
         ? await Message.findById(messageId?.toString())
         : undefined;
 
-    // get cursor for infinite scroll
-    // const cursorNum = !cursor || Number.isNaN(Number(cursor.toString()))
-    //     ? 1
-    //     : Number.parseInt(cursor.toString());
-
 
     // limit messages per request
-    const limitMessages = 5;
-
-    // const limit = limitMessages * cursorNum; // limit based on the cursor value
-    // const skip = limitMessages * (cursorNum - 1); // how many messages to skip based on the cursor value
-
+    const limitMessages = 64;
 
     const [aggregationMessages] = await Message.aggregate([
         {
@@ -264,9 +288,6 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
                     {
                         $limit: limitMessages
                     },
-                    // {
-                    //     $skip: skip
-                    // },
                     {
                         $sort: {
                             createdAt: 1
@@ -337,20 +358,6 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
                 totalMessages: "$contact.count"
             }
         },
-        // {
-        //     // return next cursor value if there is still messages for the next cursor else return undefined
-        //     $addFields: {
-        //         nextCursor: {
-        //             $cond: {
-        //                 if: {
-        //                     $gt: ["$totalMessages", limit]
-        //                 },
-        //                 then: cursorNum + 1,
-        //                 else: undefined
-        //             }
-        //         }
-        //     }
-        // },
         {
             // populate profile to grab info such as (name, avatar)
             $lookup: {
@@ -374,7 +381,8 @@ const getContactMessages: RequestHandler = async (req: CustomAuthRequest, res) =
                 "contact._id": 1,
                 "contact.user": 1,
                 "contact.name": 1,
-                "contact.avatar": 1
+                "contact.avatar": 1,
+                "contact.connection": 1
             }
         }
     ]);

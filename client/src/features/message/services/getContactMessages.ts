@@ -25,6 +25,10 @@ export type GetContactMessagesResponse = {
         user: string;
         name: string;
         avatar: string;
+        connection: {
+            isConnected: boolean;
+            disconnectedAt: string;
+        };
     };
     messages: GetContactMessageType[];
 }

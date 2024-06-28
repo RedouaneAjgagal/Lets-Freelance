@@ -40,7 +40,7 @@ const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps
                 </div>
                 : null
             }
-            <div className={`flex gap-2 items-start w-full`}>
+            <div className={`flex gap-2 items-start w-full justify-center`}>
                 {props.message.isSystem || props.message.isYouSender || props.isAttatched
                     ? null
                     : <div>

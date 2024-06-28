@@ -14,10 +14,6 @@ const Messages = () => {
 
     const websocketMessages = useAppSelector(state => state.websocketMessageReducer);
 
-    const setUserIdHandler = (user: string) => {
-        setUserId(user);
-    }
-
     const customSearchParams = useCustomSearchParams();
 
     const messagePayload: GetMessagesPayload = {};
@@ -33,14 +29,17 @@ const Messages = () => {
 
     const messages = useGetMessagesQuery(messagePayload);
 
+    const setUserIdHandler = (user: string) => {
+        queryClient.invalidateQueries({ queryKey: ["messages"] });
+        setUserId(user);
+    };
+
+
     useEffect(() => {
         if (messages.isFetching) return;
 
-        messages.refetch({ refetchPage: (_, index) => index === 0 });
-    }, [search]);
-
-    useEffect(() => {
-        if (!messages.isRefetching) {
+        const fetch = async () => {
+            await messages.refetch({ refetchPage: (_, index) => index === 0 });
             queryClient.setQueryData<InfiniteData<MessagesResponse>>(["messages", userInfo!.userId], (data) => {
                 if (!data) return;
 
@@ -50,8 +49,9 @@ const Messages = () => {
                 }
             });
         }
-    }, [messages.isRefetching]);
 
+        fetch();
+    }, [search]);
 
 
     useEffect(() => {
@@ -108,9 +108,6 @@ const Messages = () => {
 
         dispatch(websocketMessageAction.clearMessage());
     }, [websocketMessages.message]);
-
-    // console.log("Messages");
-    
 
     return (
         <main className="p-4 flex flex-col gap-6 bg-purple-100/30">

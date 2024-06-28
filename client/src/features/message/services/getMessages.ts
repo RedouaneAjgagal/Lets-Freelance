@@ -20,6 +20,7 @@ export type MessageType = {
         user: string;
         name: string;
         avatar: string;
+        status: "online" | "idle" | "offline";
     };
 };
 

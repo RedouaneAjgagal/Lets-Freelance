@@ -20,14 +20,23 @@ const MessageItem = (props: React.PropsWithoutRef<MessageItemProps>) => {
             : props.messageContent.message.content;
 
     const openChatHandler = () => {
+        if (props.selectedUserId === props.messageContent.profile.user) return;
         props.setUserIdHandler(props.messageContent.profile.user);
     }
+
+    const connectionTypes = {
+        online: "before:bg-green-400",
+        idle: "before:bg-amber-400",
+        offline: "before:bg-slate-300",
+    } as const;
+
+    const connectionStyle = connectionTypes[props.messageContent.profile.status];
 
     return (
         <li>
             <button onClick={openChatHandler} className={`py-2 px-4 text-left w-full hover:bg-blue-100/30 ${props.selectedUserId === props.messageContent.profile.user ? "bg-blue-100/30" : "bg-white"}`}>
                 <div className="flex items-center gap-2">
-                    <div>
+                    <div className={`relative before:h-4 before:w-4 before:absolute before:left-0 before:top-0 before:rounded-full before:border-[2px] before:border-white ${connectionStyle}`}>
                         <img src={props.messageContent.profile.avatar} alt={`${props.messageContent.profile.name} avatar`} className="min-w-[3rem] max-w-[3rem] h-12 object-cover rounded-full" />
                     </div>
                     <div className="w-full">

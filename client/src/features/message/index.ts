@@ -11,6 +11,8 @@ import websocketMessageReducer, {
 import { GetMessagesPayload, MessagesResponse } from "./services/getMessages";
 import { GetContactMessagesResponse } from "./services/getContactMessages";
 import useSetInitialMessageMutation from "./hooks/useSetInitialMessageMutation";
+import LoadingMessages from "./components/LoadingMessages";
+
 export {
     MessagesContainer,
     websocketMessageReducer,
@@ -21,7 +23,8 @@ export {
     sendWebsocketMessage,
     useGetMessagesQuery,
     ContactMessagesContainer,
-    useSetInitialMessageMutation
+    useSetInitialMessageMutation,
+    LoadingMessages
 }
 
 export type {

@@ -8,6 +8,7 @@ import { TbLoader2 } from "react-icons/tb";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "../../../hooks/redux";
 import { GetContactMessagesResponse } from "../services/getContactMessages";
+import LoadingContactMessages from "./LoadingContactMessages";
 
 type ContactMessagesContainerProps = {
     selectedUserId: string;
@@ -43,7 +44,7 @@ const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesCo
 
     return (
         getContactMessagesQuery.isLoading
-            ? <Loading />
+            ? <LoadingContactMessages />
             : <section className="bg-white border rounded relative">
                 {getContactMessagesQuery.isRefetching
                     ? <div className="flex items-center justify-center absolute rounded w-full h-full top-0 left-0 bg-slate-100/50 z-40">

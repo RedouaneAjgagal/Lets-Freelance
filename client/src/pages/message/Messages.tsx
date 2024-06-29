@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import Loading from "../../components/Loading";
-import { ContactMessagesContainer, GetMessagesPayload, MessagesContainer, MessagesResponse, useGetMessagesQuery, websocketMessageAction } from "../../features/message"
+import { ContactMessagesContainer, GetMessagesPayload, LoadingMessages, MessagesContainer, MessagesResponse, useGetMessagesQuery, websocketMessageAction } from "../../features/message"
 import useCustomSearchParams from "../../hooks/useCustomSearchParams";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
@@ -115,7 +114,7 @@ const Messages = () => {
                 Messages
             </h1>
             {messages.isLoading
-                ? <Loading />
+                ? <LoadingMessages />
                 : <div className="flex flex-col gap-4">
                     <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} setUserIdHandler={setUserIdHandler} selectedUserId={userId} />
                     {messages.data!.pages[0].messages.length

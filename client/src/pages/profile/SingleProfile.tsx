@@ -12,7 +12,10 @@ const SingleProfile = () => {
 
     return (
         <main className="grid gap-4">
-            {singleProfileQuery.isLoading ? <Loading />
+            {singleProfileQuery.isLoading
+                ? <div className="p-4">
+                    <Loading type="singlePage" withImage />
+                </div>
                 :
                 (singleProfileQuery.data?.userAs === "freelancer" ?
                     <SingleProfileFreelancer freelancerDetails={singleProfileQuery.data!} profileId={profileId!} />

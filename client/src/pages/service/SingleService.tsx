@@ -31,8 +31,10 @@ const SingleService = () => {
     }, [serviceAdClickTrackers]);
 
     return (
-        singleServiceQuery.isLoading ?
-            <Loading />
+        singleServiceQuery.isLoading
+            ? <div className="p-4">
+                <Loading type="singlePage" withImage />
+            </div>
             :
             <SingleServiceContainer serviceInfo={singleServiceQuery.data!} />
     )

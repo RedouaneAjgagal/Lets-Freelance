@@ -7,7 +7,7 @@ const SingleJob = () => {
     return (
         <main className="p-4 flex flex-col gap-8">
             {singleJobQuery.isLoading ?
-                <Loading />
+                <Loading type="singlePage" />
                 : <>
                     <div className="flex flex-col gap-5">
                         <SingleJobContainer jobDetails={singleJobQuery.data!} />

@@ -45,7 +45,7 @@ const UserContracts = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-tight">My contracts</h1>
             <FilterContracts contractQueries={contractQueries} isSpecificContracts={isSpecificContracts} activityTitle={activityTitle} />
             {getUserContractsQuery.isLoading ?
-                <Loading />
+                <Loading type="table" />
                 : <UserContractsContainer contracts={getUserContractsQuery.data!} />
             }
         </main>

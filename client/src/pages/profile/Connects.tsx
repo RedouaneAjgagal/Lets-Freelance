@@ -11,7 +11,7 @@ const Connects = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">Connects</h1>
             {
                 profileInfo.isLoading ?
-                    <Loading />
+                    <Loading type="table" />
                     :
                     <ConnectsContainer connects={profileInfo.data!.data.roles.freelancer!.connects} />
             }

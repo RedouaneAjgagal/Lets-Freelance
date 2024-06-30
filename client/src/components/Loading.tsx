@@ -1,5 +1,5 @@
 type LoadingPropsWithOutImage = {
-    type?: undefined;
+    type?: "table" | undefined;
 };
 
 type LoadingPropsWithImage = {
@@ -79,7 +79,37 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                         </div>
                     ))}
                 </div>
-                : <p>Loading..</p>
+                : props.type === "table"
+                    ? <div className="animate-pulse">
+                        <div className="bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-6">
+                            <div className="flex gap-4 pb-4 pt-2">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div key={index} className="min-w-[10rem] p-2 pb-4 bg-slate-300 rounded h-9"></div>
+                                ))}
+                            </div>
+                            {Array.from({ length: 6 }, (_, index) => (
+                                <div key={index} className="flex">
+                                    {Array.from({ length: 4 }, (_, i) => (
+                                        <div key={i} className="border-t border-slate-200/70 pt-6 pr-4 flex flex-col gap-2">
+                                            {i === 3
+                                                ? <div className="flex gap-2 min-w-[10rem]">
+                                                    {Array.from({ length: 3 }, (_, btnIndex) => (
+                                                        <div key={btnIndex} className="h-8 w-8 bg-slate-200 rounded"></div>
+                                                    ))}
+                                                </div>
+                                                : <div className={`min-w-[10rem] h-5 bg-slate-200 rounded`}></div>
+                                            }
+                                            {i === 0
+                                                ? <div className="w-1/2 h-5 bg-slate-200 rounded"></div>
+                                                : null
+                                            }
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    : <p>Loading..</p>
     )
 }
 

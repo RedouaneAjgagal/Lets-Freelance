@@ -59,7 +59,7 @@ const EventReports = () => {
                 Event Reports
             </h1>
             {getEventReportsQuery.isLoading ?
-                <Loading />
+                <Loading type="table" />
                 : <EventReportsContainer eventReports={getEventReportsQuery.data!} isLoading={getEventReportsQuery.isLoading || getEventReportsQuery.isRefetching} />
             }
         </main>

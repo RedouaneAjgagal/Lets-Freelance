@@ -10,7 +10,7 @@ const FreelancerProposals = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">My Proposals</h1>
             {
                 freelancerProposals.isLoading ?
-                    <Loading />
+                    <Loading type="table" />
                     :
                     <FreelancerProposalsTable proposals={freelancerProposals.data!} />
             }

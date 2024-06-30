@@ -9,7 +9,7 @@ const Statements = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">Statements</h1>
             {
                 profileStatements.isLoading ?
-                    <Loading />
+                    <Loading type="table" />
                     :
                     <>
                         <StatementsCards cardsDetails={{

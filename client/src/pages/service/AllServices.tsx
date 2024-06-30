@@ -68,8 +68,8 @@ const AllServices = () => {
         <main className="p-4 flex flex-col gap-6">
             {
                 searchedServicesQuery.isLoading ?
-                    <Loading />
-                    :
+                    <Loading type="cards" display="grid" />
+                    : 
                     <ServicesContainer pages={searchedServicesQuery.data!.pages} onLoadMore={searchedServicesQuery.fetchNextPage} isFetchingNextPage={searchedServicesQuery.isFetchingNextPage} hasNextPage={searchedServicesQuery.hasNextPage} />
             }
         </main>

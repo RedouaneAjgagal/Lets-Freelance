@@ -9,7 +9,9 @@ const AllJobs = () => {
         <main className=" flex flex-col">
             <JobsHeader />
             {getJobsQuery.isLoading ?
-                <Loading />
+                <div className="p-4">
+                    <Loading type="cards" display="column" />
+                </div>
                 :
                 getJobsQuery.isSuccess ?
                     <>

@@ -12,7 +12,17 @@ type LoadingCards = {
     display: "grid" | "column";
 };
 
-type LoadingProps = (LoadingPropsWithImage | LoadingPropsWithOutImage | LoadingCards);
+type LoadingStatements = {
+    type?: "statements";
+    numOfCards: number;
+};
+
+type LoadingProps = (
+    LoadingPropsWithImage
+    | LoadingPropsWithOutImage
+    | LoadingCards
+    | LoadingStatements
+);
 
 const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
     return (
@@ -109,7 +119,23 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                             ))}
                         </div>
                     </div>
-                    : <p>Loading..</p>
+                    : props.type === "statements"
+                        ? <div className="animate-pulse">
+                            <div className="flex flex-col gap-4">
+                                {Array.from({ length: props.numOfCards }, (_, index) => (
+                                    <div key={index} className="bg-white p-4 rounded shadow-sm">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex flex-col gap-3">
+                                                <div className="bg-slate-200 rounded h-8 w-36"></div>
+                                                <div className="bg-slate-200/70 rounded h-5 w-24"></div>
+                                            </div>
+                                            <div className="w-14 h-14 rounded-full bg-slate-200"></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        : <p>Loading..</p>
     )
 }
 

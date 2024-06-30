@@ -11,7 +11,7 @@ const EmployerDashboard = () => {
 
   return (
     employerReports.isLoading ?
-      <Loading />
+      <Loading type="statements" numOfCards={6} />
       :
       <section className="flex flex-col gap-12">
         <EmployerDashboardJob jobDetails={employerReports.data!.job} />

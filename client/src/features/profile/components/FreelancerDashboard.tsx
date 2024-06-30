@@ -10,7 +10,7 @@ const FreelancerDashboard = () => {
 
     return (
         freelancerReports.isLoading ?
-            <Loading />
+            <Loading type="statements" numOfCards={6} />
             :
             <section className="flex flex-col gap-12">
                 <FreelancerDashboardService serviceDetails={freelancerReports.data!.service} />

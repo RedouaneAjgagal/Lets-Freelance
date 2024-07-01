@@ -950,8 +950,8 @@ const boughtServices: RequestHandler = async (req: CustomAuthRequest, res) => {
 //@access public
 const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => {
     const LIMIT = 8;
-    const getTrendingServicesAggregate = ({ match, limit }: { match: PipelineStage.Match["$match"]; limit: number }): [] => {
-        const aggregate = [
+    const getTrendingServicesAggregate = ({ match, limit }: { match: PipelineStage.Match["$match"]; limit: number }) => {
+        const aggregate: mongoose.PipelineStage[] = [
             {
                 $match: match
             },
@@ -970,7 +970,6 @@ const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => 
                 $group: {
                     _id: "$serviceInfo", // grouping by serviceId
                     contractCount: { $sum: 1 },  // count by created contracts with the same serviceId
-                    // contractIds: { $push: "$_id" }
                 }
             },
             {
@@ -1016,7 +1015,7 @@ const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => 
                 $limit: limit
             }
         ];
-        return aggregate as [];
+        return aggregate;
     }
 
     const ONE_WEEK_AGO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -1031,19 +1030,19 @@ const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => 
 
     let trendingServices: TrandingServices[] = await Contract.aggregate(trendingServicesAggregate);
 
-    // if the last week trending is not enough to be 8 then get 30 days trending as well
+    // if the last week trending is not enough to be 8 then get 365 days trending as well
     if (trendingServices.length !== 8) {
         const alreadySelectedServices = trendingServices.map(data => {
             return { "service.serviceInfo": new mongoose.Types.ObjectId(data.service._id) }
         });
 
-        const ONE_MONTH_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days
+        const ONE_YEAR_AGO = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000); // 365 days
 
         const trendingServicesAggregate = getTrendingServicesAggregate({
             match: alreadySelectedServices.length ?
                 {
                     $and: [
-                        { createdAt: { $gte: ONE_MONTH_AGO } }, // looking for contracts created in the last month
+                        { createdAt: { $gte: ONE_YEAR_AGO } }, // looking for contracts created in the last year
                         { activityType: "service" }
                     ],
                     $nor: alreadySelectedServices // dont select already selected services
@@ -1051,7 +1050,7 @@ const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => 
                 :
                 {
                     $and: [
-                        { createdAt: { $gte: ONE_MONTH_AGO } }, // looking for contracts created in the last month
+                        { createdAt: { $gte: ONE_YEAR_AGO } }, // looking for contracts created in the last year
                         { activityType: "service" }
                     ]
                 }
@@ -1059,9 +1058,9 @@ const trendingServices: RequestHandler = async (req: CustomAuthRequest, res) => 
             limit: LIMIT - trendingServices.length
         });
 
-        const oneMonthTrandingServices: TrandingServices[] = await Contract.aggregate(trendingServicesAggregate);
+        const oneYearTrandingServices: TrandingServices[] = await Contract.aggregate(trendingServicesAggregate);
 
-        trendingServices = [...trendingServices, ...oneMonthTrandingServices];
+        trendingServices = [...trendingServices, ...oneYearTrandingServices];
     }
 
     res.status(StatusCodes.OK).json(trendingServices);

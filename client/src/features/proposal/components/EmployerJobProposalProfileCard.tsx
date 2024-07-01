@@ -17,7 +17,7 @@ const EmployerJobProposalProfileCard = (props: React.PropsWithoutRef<EmployerJob
     return (
         <div className="flex items-center gap-3">
             <div className="min-h-full max-w-full">
-                <img className="rounded-full w-14 h-14 object-cover" src={props.avatar} alt="freelancer avatar" />
+                <img className="rounded-full min-w-[3.5rem] max-w-[3.5rem] h-14 object-cover" src={props.avatar} alt="freelancer avatar" />
             </div>
             <div className="flex flex-col gap-1">
                 <div className="flex flex-col">

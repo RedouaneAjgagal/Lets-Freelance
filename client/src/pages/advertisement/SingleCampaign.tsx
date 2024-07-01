@@ -17,7 +17,7 @@ const SingleCampaign = () => {
             <h1 className="text-3xl font-semibold p-4 mt-2">Campaign Details</h1>
             <div className="p-4">
                 {getSingleCampaign.isLoading ?
-                    <Loading />
+                    <Loading type="table" />
                     : <SingleCampaignContainer campaign={getSingleCampaign.data!} />
                 }
             </div>

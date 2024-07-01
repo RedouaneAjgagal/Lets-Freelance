@@ -125,7 +125,7 @@ type FreelancerSigleProfile = {
     };
     services: ServiceType[];
     projectSuccess: number;
-    totalService: number;
+    totalServices: number;
     completedService: number;
     inQueueService: number;
 }

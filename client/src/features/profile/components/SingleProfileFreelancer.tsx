@@ -45,7 +45,7 @@ const SingleProfileFreelancer = (props: React.PropsWithoutRef<SingleProfileFreel
 
     const serviceDetail = {
         projectSuccess: props.freelancerDetails.projectSuccess,
-        totalService: props.freelancerDetails.totalService,
+        totalServices: props.freelancerDetails.totalServices,
         completedService: props.freelancerDetails.completedService,
         inQueueService: props.freelancerDetails.inQueueService
     }

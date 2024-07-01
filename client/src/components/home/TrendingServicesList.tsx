@@ -9,7 +9,7 @@ const TrendingServicesList = () => {
 
     return (
         trendingServices.isLoading ?
-            <Loading />
+            <Loading type="cards" display="grid" numOfCards={1} />
             :
             <Slider isAutoPlay navigationClassName="services" isPagination slidesPerView={1}>
                 {trendingServices.data!.map(service =>

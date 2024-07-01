@@ -9,7 +9,9 @@ const Favorites = () => {
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">Favorites</h1>
             {
                 favorites.isLoading ?
-                    <Loading />
+                    <div className="p-4 bg-white border shadow-sm">
+                        <Loading type="cards" display="grid" numOfCards={4} />
+                    </div>
                     :
                     <FavoritesContainer favorites={favorites.data!} />
             }

@@ -11,7 +11,7 @@ const HighestRatedFreelancersList = () => {
         <div className="mt-4">
             {
                 highRatedFreelancers.isLoading ?
-                    <Loading />
+                    <Loading type="cards" display="grid" numOfCards={1} />
                     :
                     <Slider isPagination slidesPerView={1} isAutoPlay={false}>
                         {highRatedFreelancers.data!.map((freelancer) =>

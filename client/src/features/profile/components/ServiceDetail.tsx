@@ -3,7 +3,7 @@ import CustomIcon from "../../../components/CustomIcon";
 interface Props {
     freelancerServiceDetail: {
         projectSuccess: number;
-        totalService: number;
+        totalServices: number;
         completedService: number;
         inQueueService: number;
     }
@@ -21,7 +21,7 @@ const ServiceDetail = (props: React.PropsWithoutRef<Props>) => {
         },
         {
             title: `Total Services`,
-            value: props.freelancerServiceDetail.totalService,
+            value: props.freelancerServiceDetail.totalServices,
             iconSrc: "https://cdn-icons-png.flaticon.com/128/5267/5267775.png",
             iconAlt: "Target Icon"
         },

@@ -10,7 +10,7 @@ const AllJobs = () => {
             <JobsHeader />
             {getJobsQuery.isLoading ?
                 <div className="p-4">
-                    <Loading type="cards" display="column" />
+                    <Loading type="cards" display="column" numOfCards={4} />
                 </div>
                 :
                 getJobsQuery.isSuccess ?

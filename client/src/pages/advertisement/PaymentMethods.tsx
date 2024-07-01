@@ -1,5 +1,4 @@
-import { AdvertisementNavbar, PaymentMethodsContainer, useGetPaymentMethodsQuery } from "../../features/advertisement"
-import Loading from "../../components/Loading";
+import { AdvertisementNavbar, LoadingPaymentMethods, PaymentMethodsContainer, useGetPaymentMethodsQuery } from "../../features/advertisement"
 import AdverisementPrimaryLink from "../../features/advertisement/components/AdverisementPrimaryLink";
 
 const PaymentMethods = () => {
@@ -14,7 +13,7 @@ const PaymentMethods = () => {
             <div className="p-4">
                 {
                     getPaymentMethodsQuery.isLoading ?
-                        <Loading />
+                        <LoadingPaymentMethods numOfCards={3} />
                         : getPaymentMethodsQuery.data!.length ?
                             <PaymentMethodsContainer paymentMethods={getPaymentMethodsQuery.data!} />
                             : <div className="flex flex-col gap-2">

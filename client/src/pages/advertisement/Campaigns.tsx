@@ -13,7 +13,7 @@ const Campaigns = () => {
             <h1 className="text-3xl font-semibold p-4 mt-2">My Campaigns</h1>
             <div className="p-4">
                 {getCampaignsQuery.isLoading ?
-                    <Loading />
+                    <Loading type="table" />
                     : getCampaignsQuery.data?.length ?
                         <CampaignsContainer campaigns={getCampaignsQuery.data!} />
                         : <div className="flex flex-col gap-3">

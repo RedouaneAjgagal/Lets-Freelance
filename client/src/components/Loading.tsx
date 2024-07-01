@@ -1,3 +1,5 @@
+import { TbLoader2 } from "react-icons/tb";
+
 type LoadingPropsWithOutImage = {
     type?: "table" | undefined;
 };
@@ -10,6 +12,7 @@ type LoadingPropsWithImage = {
 type LoadingCards = {
     type?: "cards";
     display: "grid" | "column";
+    numOfCards: number;
 };
 
 type LoadingStatements = {
@@ -61,7 +64,7 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
             </div>
             : props.type === "cards"
                 ? <div className={`animate-pulse ${props.display === "column" ? "flex flex-col" : "grid grid-cols-1"} gap-6`}>
-                    {Array.from({ length: props.display === "column" ? 4 : 8 }, (_, index) => (
+                    {Array.from({ length: props.numOfCards }, (_, index) => (
                         <div key={index} className={`${props.display === "column" ? "border-b last:border-b-0 pb-6" : "border rounded"} border-slate-200/70`}>
                             {props.display === "grid"
                                 ? <div className="w-full h-56 rounded-t bg-slate-200"></div>
@@ -79,7 +82,7 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                                 </div>
                                 {props.display === "column"
                                     ? <div className="flex gap-2 flex-wrap">
-                                        {Array.from({ length: 4 }, (_, index) => (
+                                        {Array.from({ length: props.numOfCards }, (_, index) => (
                                             <div key={index} className="w-20 h-8 rounded-full bg-slate-200"></div>
                                         ))}
                                     </div>
@@ -135,7 +138,9 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                                 ))}
                             </div>
                         </div>
-                        : <p>Loading..</p>
+                        : <div className="flex items-center justify-center bg-slate-100 rounded min-h-[70vh] animate-pulse">
+                            <TbLoader2 className="animate-spin" size={36} />
+                        </div>
     )
 }
 

@@ -9,7 +9,10 @@ const EmployerJobProposals = () => {
     return (
         <main className="py-4">
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed px-4">Job proposals</h1>
-            {employerJobProposals.isLoading ? <Loading />
+            {employerJobProposals.isLoading
+                ? <div className="p-4">
+                    <Loading type="cards" display="column" numOfCards={4} />
+                </div>
                 : employerJobProposals.data!.length ?
                     <EmployerJobProposalsContainer proposals={employerJobProposals.data!} />
                     : <section className="flex flex-col gap-4 p-4 text-center items-center">

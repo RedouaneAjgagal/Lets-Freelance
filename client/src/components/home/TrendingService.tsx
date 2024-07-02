@@ -22,7 +22,7 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
                     <img src={props.serviceInfo.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
                 </div>
                 <div className="px-3 py-4 flex flex-col gap-2">
-                    <Link to={"/category"} className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceInfo.service.category}</Link>
+                    <span className="text-slate-500 hover:text-slate-900 duration-200 text-sm self-start">{props.serviceInfo.service.category}</span>
                     <h3 className="text-black font-semibold text-lg">{props.serviceInfo.service.title}</h3>
                     <div className="flex items-center gap-2 text-sm">
                         {
@@ -39,7 +39,7 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
                 </div>
                 <div className="px-3">
                     <div className="border-t flex items-center justify-between gap-2 flex-wrap py-4">
-                        <Link to={"/user"} className="flex items-center gap-2 text-sm hover:text-purple-800">
+                        <Link to={`/profiles/${props.serviceInfo.profile._id}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 text-sm hover:text-purple-800">
                             <img src={props.serviceInfo.profile.avatar} alt="user image" className="w-8 h-8 object-cover rounded-full" />
                             <span>{props.serviceInfo.profile.name}</span>
                         </Link>

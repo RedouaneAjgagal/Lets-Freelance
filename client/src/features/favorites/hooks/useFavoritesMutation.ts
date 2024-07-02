@@ -53,6 +53,10 @@ const useFavoritesMutation = (payload: FavoritesMutationPayload) => {
             });
 
             queryClient.invalidateQueries({ queryKey: ["favorites", userInfo!.profileId] });
+            
+            if (payload.event === "profile") {
+                queryClient.invalidateQueries({ queryKey: ["highRatedFreelancers"] });
+            }
         },
         onError: (e: AxiosError<{ msg: string }>) => {
             toast.error(e.response!.data.msg, {

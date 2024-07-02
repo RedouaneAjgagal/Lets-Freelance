@@ -1,45 +1,51 @@
 import TalentByCategory from "./TalentByCategory";
 import { SwiperSlide } from "swiper/react";
 import Slider from "../Slider";
+import designCreativeImg from "/design-creative.png";
+import digitalMarketingImg from "/digital-marketing.png";
+import financeAccountingImg from "/finance-accounting.png";
+import musicAudioImg from "/music-audio.png";
+import programmingTechImg from "/programming-tech.png";
+import videoAnimationImg from "/video-animation.png";
+import writingTranslationImg from "/writing-translation.png";
 
 const telentCategory = [
     {
         _id: "1",
-        img: "https://cdn-icons-png.flaticon.com/512/2010/2010990.png",
-        services: 8,
-        category: "Development & It"
+        img: programmingTechImg,
+        category: "programming & tech"
     },
     {
         _id: "2",
-        img: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png",
-        services: 11,
-        category: "Design & Creative"
+        img: designCreativeImg,
+        category: "design & creative"
     },
     {
         _id: "3",
-        img: "https://cdn-icons-png.flaticon.com/512/3141/3141158.png",
-        services: 36,
-        category: "Digital Marketing"
+        img: digitalMarketingImg,
+        category: "digital marketing"
     },
     {
         _id: "4",
-        img: "https://cdn-icons-png.flaticon.com/512/684/684831.png",
-        services: 102,
-        category: "Writing & Translation"
+        img: writingTranslationImg,
+        category: "writing & translation"
     },
     {
         _id: "5",
-        img: "https://cdn-icons-png.flaticon.com/512/9453/9453463.png",
-        services: 6,
-        category: "Video & Animation"
+        img: videoAnimationImg,
+        category: "video & animation"
     },
     {
         _id: "6",
-        img: "https://cdn-icons-png.flaticon.com/512/1570/1570887.png",
-        services: 2,
-        category: "Finance & Accounting"
+        img: financeAccountingImg,
+        category: "finance & accounting"
     },
-]
+    {
+        _id: "7",
+        img: musicAudioImg,
+        category: "music & audio"
+    },
+] as const;
 
 const TalentByCategoryList = () => {
     return (

@@ -1,6 +1,5 @@
 import { AiFillStar } from "react-icons/ai";
-import { BiArrowBack } from "react-icons/bi";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Tag from "./Tag";
 import formatProfileName from "../utils/formatProfileName";
 import FavoriteHeartButton from "./FavoriteHeartButton";
@@ -38,15 +37,17 @@ type FreelancerCardProps = {
 
 const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
     const navigate = useNavigate();
-    const favoritesMutation = useFavoritesMutation("profile");
+    const favoritesMutation = useFavoritesMutation({
+        event: "profile",
+        target: props.freelancerInfo._id
+    });
 
     const hourlyRate = `$${props.freelancerInfo.roles.freelancer.hourlyRate} / hr`;
 
     const freelancerName = formatProfileName(props.freelancerInfo.name);
 
     const tagNavigator = (value: string) => {
-        console.log({ to_category: value });
-        navigate(`/`);
+        navigate(`/profiles?search=${value}`);
     }
 
     const favoriteFreelancerToggle = () => {
@@ -88,11 +89,14 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                             null
                     }
                 </div>
-                <div className="flex items-center justify-center gap-2 flex-wrap text-sm font-medium">
-                    {props.freelancerInfo.roles.freelancer.skills?.slice(0, 4).map((tag, index) =>
-                        <Tag key={index} value={tag} clickable onClick={() => tagNavigator(tag)} />
-                    )}
-                </div>
+                {props.freelancerInfo.roles.freelancer.skills.length
+                    ? <div className="flex items-center justify-center gap-2 flex-wrap text-sm font-medium">
+                        {props.freelancerInfo.roles.freelancer.skills.slice(0, 4).map((tag, index) =>
+                            <Tag key={index} value={tag} clickable onClick={() => tagNavigator(tag)} />
+                        )}
+                    </div>
+                    : null
+                }
             </div>
             <hr className="border-b-0 w-full" />
             <div className="w-full flex flex-col gap-4">

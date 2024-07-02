@@ -8,7 +8,7 @@ type JobFormDescriptionReviewProps = {
     formData: {
         description: string;
         locationType: "remote" | "onsite";
-        tags: [];
+        tags: string[];
     };
     navigateToStep: (step: number) => void;
 }

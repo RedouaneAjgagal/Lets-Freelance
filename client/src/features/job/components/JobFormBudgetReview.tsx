@@ -5,8 +5,8 @@ type JobFormBudgetReviewProps = {
     formData: {
         priceType: "fixed" | "hourly";
         price: {
-            min: string;
-            max: string;
+            min: number;
+            max: number;
         };
     };
     navigateToStep: (step: number) => void;

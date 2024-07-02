@@ -3,12 +3,12 @@ import JobFormReviewWrapper from "./JobFormReviewWrapper";
 type JobFormWorkTimeReviewProps = {
     formData: {
         weeklyHours: {
-            min: string;
-            max: string;
+            min: number;
+            max: number;
         };
         duration: {
             dateType: "hours" | "days" | "months";
-            dateValue: string;
+            dateValue: number;
         };
     };
     navigateToStep: (step: number) => void;
@@ -16,7 +16,7 @@ type JobFormWorkTimeReviewProps = {
 
 const JobFormWorkTimeReview = (props: React.PropsWithoutRef<JobFormWorkTimeReviewProps>) => {
 
-    const jobDurationPluralizeType = props.formData.duration.dateValue === "1" ? "" : "s";
+    const jobDurationPluralizeType = props.formData.duration.dateValue === 1 ? "" : "s";
     const jobDuration = `${props.formData.duration.dateValue} ${props.formData.duration.dateType.slice(0, -1)}${jobDurationPluralizeType}`;
 
 

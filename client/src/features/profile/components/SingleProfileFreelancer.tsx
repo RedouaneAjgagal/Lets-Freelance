@@ -65,9 +65,12 @@ const SingleProfileFreelancer = (props: React.PropsWithoutRef<SingleProfileFreel
     return (
         <>
             <header>
-                <div className="p-4">
-                    <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} target={props.freelancerDetails._id} isFavorited={props.freelancerDetails.isFavorited} />
-                </div>
+                {!isCurrentUser
+                    ? <div className="p-4">
+                        <SingleActivityNavbar activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} target={props.freelancerDetails._id} isFavorited={props.freelancerDetails.isFavorited} hideShare />
+                    </div>
+                    : null
+                }
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <ServiceDetail freelancerServiceDetail={serviceDetail} />

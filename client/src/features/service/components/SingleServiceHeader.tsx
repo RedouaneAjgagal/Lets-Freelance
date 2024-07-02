@@ -13,7 +13,6 @@ type SingleServiceHeaderProps = {
         rating: SingleServiceType["profile"]["rating"];
         badge: SingleServiceType["profile"]["roles"]["freelancer"]["badge"];
     };
-    isPreview?: boolean;
 }
 
 const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderProps>) => {
@@ -24,20 +23,19 @@ const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderPro
         <article className="flex flex-col gap-4">
             <h1 className="text-3xl font-semibold">{props.title}</h1>
             <section className="flex justify-between items-center gap-2">
-                <div className="flex items-center gap-2">
-                    <div>
-                        <img src={props.profile.avatar} alt="freelancer's avatar" className="w-9 h-9 object-cover rounded-full" />
+                <Link to={`/profiles/${props.profile._id}`} className="flex items-center gap-2">
+                    <div className="relative">
+                        <img src={props.profile.avatar} alt="freelancer's avatar" className="w-10 h-10 object-cover rounded-full" />
+                        {props.profile.badge === "none" ?
+                            null
+                            :
+                            <div className="absolute -bottom-1 -right-1">
+                                <Badge badge={props.profile.badge} size="sm" minimized />
+                            </div>
+                        }
                     </div>
-                    {props.isPreview ?
-                        <span>{freelancerName}</span>
-                        : <Link to={`/profiles/${props.profile._id}`}>{freelancerName}</Link>
-                    }
-                    {props.profile.badge === "none" ?
-                        null
-                        :
-                        <Badge badge={props.profile.badge} size="sm" minimized />
-                    }
-                </div>
+                    <span>{freelancerName}</span>
+                </Link>
                 {props.profile.rating.avgRate ?
                     <div className="flex items-center gap-1 flex-wrap">
                         <TbStarFilled className="text-yellow-500" />

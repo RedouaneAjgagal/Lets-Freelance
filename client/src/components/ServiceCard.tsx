@@ -62,7 +62,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
     event: "service",
     target: props.serviceDetails.service._id
   });
-  
+
   const navigate = useNavigate();
 
   const serviceNavigator = () => {
@@ -150,7 +150,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
       </div>
       <div className="px-3 py-4 flex flex-col gap-2">
         <div>
-          <Link to={"/category"} className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceDetails.service.category}</Link>
+          <span className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceDetails.service.category}</span>
         </div>
         <h3 className="text-black font-semibold text-lg">{props.serviceDetails.service.title}</h3>
         <div className="flex items-center justify-between gap-2 text-sm mt-2">
@@ -170,14 +170,14 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
         </div>
       </div>
       <div className="px-3">
-        <div className="border-t py-4">
-          <div className="flex items-center gap-2">
+        <div className={`border-t py-4 ${props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ? "" : "flex"}`}>
+          <Link to={`/profiles/${props.serviceDetails.serviceBy._id}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
             <img src={props.serviceDetails.serviceBy.avatar} alt="user image" className="w-9 h-9 object-cover rounded-full" />
             <div className="w-full flex flex-col">
               <div className="flex gap-2 items-center justify-between flex-wrap gap-y-0">
-                <Link to={`/profiles/${props.serviceDetails.serviceBy._id}`} className="hover:underline">
+                <span className="hover:underline">
                   {freelancerName}
-                </Link>
+                </span>
                 {
                   props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ?
                     <div className="flex items-center gap-1 flex-wrap">
@@ -197,7 +197,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
                 </div>
               }
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </li>

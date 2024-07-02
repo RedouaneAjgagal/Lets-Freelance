@@ -62,9 +62,12 @@ const SingleProfileEmployer = (props: React.PropsWithoutRef<SingleProfileEmploye
     return (
         <>
             <header>
-                <div className="p-4">
-                    <SingleActivityNavbar target={props.employerDetails._id} activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} isFavorited={props.employerDetails.isFavorited} />
-                </div>
+                {!isCurrentUser
+                    ? <div className="p-4">
+                        <SingleActivityNavbar target={props.employerDetails._id} activity="profile" hideReport={isCurrentUser} hideSave={isCurrentUser} isFavorited={props.employerDetails.isFavorited} hideShare />
+                    </div>
+                    : null
+                }
                 <ProfileHeader profile='employer' userInfo={employerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
             <AboutProfile profile='employer' content={props.employerDetails.description || "Employer with no description"} />

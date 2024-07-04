@@ -30,8 +30,8 @@ const Navbar = () => {
   }
 
   return (
-    <div className="bg-white">
-      <nav className="flex items-center justify-between py-3 px-2 border-b h-16">
+    <div>
+      <nav className="flex items-center justify-between py-3 px-2 h-16 m-auto">
         <div className="flex items-center gap-2">
           <button onClick={menuHandler} className="text-[2.2rem] text-slate-700">
             {isMenuOpen ?

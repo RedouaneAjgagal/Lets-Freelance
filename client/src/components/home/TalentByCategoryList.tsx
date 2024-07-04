@@ -50,7 +50,7 @@ const telentCategory = [
 const TalentByCategoryList = () => {
     return (
         <div className="mt-4">
-            <Slider slidesPerView={2} isPagination isAutoPlay>
+            <Slider isAutoGenerateSlides startsWith={2} isPagination isAutoPlay>
                 {telentCategory.map((category) =>
                     <SwiperSlide key={category._id} tag="li">
                         <TalentByCategory categoryInfo={category} />

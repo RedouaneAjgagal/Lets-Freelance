@@ -17,7 +17,7 @@ const TrendingService = (props: React.PropsWithoutRef<Props>) => {
 
     return (
         <div className="pb-10">
-            <button onClick={onService} className="text-left border rounded">
+            <button onClick={onService} className="text-left border rounded w-full select-none">
                 <div>
                     <img src={props.serviceInfo.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
                 </div>

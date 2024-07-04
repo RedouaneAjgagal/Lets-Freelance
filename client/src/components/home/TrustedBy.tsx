@@ -7,9 +7,9 @@ import { BiArrowBack } from "react-icons/bi";
 import { Swiper } from "../../layouts/swiper";
 const TrustedBy = () => {
     return (
-        <div className="flex justify-center relative">
+        <div className="flex justify-center relative md:max-w-[420px]">
             <button className="prevTrustedBrand absolute left-0 z-20 w-7 h-7 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg"><BiArrowBack /></button>
-            <Swiper autoPlay={false} spaceBetween={20} slidesPerView={3} navigation pagination={false} nextEl="nextTrustedBrand" prevEl="prevTrustedBrand">
+            <Swiper autoPlay={false} spaceBetween={20} slidesPerView={3} navigation isAutoGenerateSlides={false} pagination={false} nextEl="nextTrustedBrand" prevEl="prevTrustedBrand">
                 <SwiperSlide>
                     <div className="flex justify-center items-center h-full select-none">
                         <img src={amazonBrand} alt="" className="w-full max-w-[6rem] h-full" />

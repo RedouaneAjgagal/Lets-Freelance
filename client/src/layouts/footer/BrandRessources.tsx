@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const BrandRessources = () => {
     return (
-        <div className="py-6 border-y border-slate-100/20 grid gap-8">
+        <div className="py-6 border-y border-slate-100/20 grid gap-8 md:grid-cols-4 md:items-start">
             <div className="flex flex-col gap-2 text-slate-200/80">
                 <h2 className="font-semibold text-white">Company</h2>
                 <Link to={"/"}>About Us</Link>

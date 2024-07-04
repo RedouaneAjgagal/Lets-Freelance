@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../layouts/navbar";
 import Footer from "../layouts/footer";
 import { Toaster } from "react-hot-toast";
@@ -11,14 +11,24 @@ import "swiper/swiper-bundle.esm.js"
 
 const Root = () => {
     useAuthChecker();
+
+    const { pathname } = useLocation();
+
     return (
-        <div>
+        <div className={pathname.startsWith("/profile/")
+            ? "bg-purple-100/30"
+            : "bg-white"
+        }>
             <Toaster />
-            <header>
-                <Navbar />
-            </header>
-            <Outlet />
-            <Footer />
+            <div className="border-b bg-white">
+                <header className="max-w-[80rem] m-auto">
+                    <Navbar />
+                </header>
+            </div>
+            <div className="max-w-[80rem] m-auto">
+                <Outlet />
+                <Footer />
+            </div>
             <ScrollToTop />
         </div>
     )

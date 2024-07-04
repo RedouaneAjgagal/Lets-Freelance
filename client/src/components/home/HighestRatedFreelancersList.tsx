@@ -13,7 +13,7 @@ const HighestRatedFreelancersList = () => {
                 highRatedFreelancers.isLoading ?
                     <Loading type="cards" display="grid" numOfCards={1} />
                     :
-                    <Slider isPagination slidesPerView={1} isAutoPlay={false}>
+                    <Slider isAutoGenerateSlides startsWith={1} isPagination isAutoPlay={false}>
                         {highRatedFreelancers.data!.map((freelancer) =>
                             <SwiperSlide key={freelancer._id} className="pb-10">
                                 <FreelancerCard freelancerInfo={freelancer} />

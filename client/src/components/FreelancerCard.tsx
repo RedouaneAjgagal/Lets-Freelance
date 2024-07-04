@@ -73,7 +73,7 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                 </div>
                 <div className="flex flex-col gap-2 items-center">
                     <h4 className="text-lg font-semibold">{freelancerName}</h4>
-                    <p className="text-slate-500 text-sm">{props.freelancerInfo.roles.freelancer.jobTitle || props.freelancerInfo.category}</p>
+                    <p className="text-slate-500 text-center text-sm">{props.freelancerInfo.roles.freelancer.jobTitle || props.freelancerInfo.category}</p>
                     {
                         props.freelancerInfo.rating?.avgRate ?
                             <div className="flex  items-center gap-2">

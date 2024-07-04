@@ -1,20 +1,47 @@
 import { Swiper as SwiperContainer } from "swiper/react";
 
-interface Props {
+type SwiperProps = {
     spaceBetween: number;
-    slidesPerView: number;
     navigation: boolean;
     nextEl?: string;
     prevEl?: string;
     pagination: boolean;
     autoPlay: boolean;
-}
+};
 
-const Swiper = (props: React.PropsWithChildren<Props>) => {
+type SwiperAutoGenerateSlides = {
+    isAutoGenerateSlides: true;
+    startsWith: number;
+} & SwiperProps;
+
+type SwiperWithSlides = {
+    isAutoGenerateSlides: false;
+    slidesPerView: number;
+} & SwiperProps;
+
+const Swiper = (props: React.PropsWithChildren<SwiperAutoGenerateSlides | SwiperWithSlides>) => {
+
     return (
         <SwiperContainer
             spaceBetween={props.spaceBetween}
-            slidesPerView={props.slidesPerView}
+            slidesPerView={props.isAutoGenerateSlides ? undefined : props.slidesPerView}
+            breakpoints={props.isAutoGenerateSlides
+                ? {
+                    0: {
+                        slidesPerView: props.startsWith,
+                    },
+                    540: {
+                        slidesPerView: 2,
+                    },
+                    880: {
+                        slidesPerView: 3,
+                    },
+                    1024: {
+                        slidesPerView: 4
+                    },
+                }
+                : undefined
+            }
             navigation={props.navigation ? { nextEl: `.${props.nextEl}`, prevEl: `.${props.prevEl}` } : false}
             pagination={props.pagination ? { clickable: true } : false}
             wrapperTag="ul"

@@ -11,7 +11,7 @@ const TrendingServicesList = () => {
         trendingServices.isLoading ?
             <Loading type="cards" display="grid" numOfCards={1} />
             :
-            <Slider isAutoPlay navigationClassName="services" isPagination slidesPerView={1}>
+            <Slider isAutoPlay={false} navigationClassName="services" isPagination isAutoGenerateSlides startsWith={1}>
                 {trendingServices.data!.map(service =>
                     <SwiperSlide tag="li" key={service.service._id}>
                         <TrendingService serviceInfo={service} />

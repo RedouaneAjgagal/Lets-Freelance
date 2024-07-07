@@ -14,9 +14,10 @@ interface Props {
 }
 
 const PrimaryButton = (props: React.PropsWithChildren<Props>) => {
-    const style = props.style === "outline" ? "border-2 border-purple-800 bg-transparent text-purple-800 transition-all duration-200 hover:bg-purple-800 hover:text-white"
+    const style = props.style === "outline"
+        ? "border-2 border-purple-800 bg-transparent text-purple-800 transition-all duration-200 hover:bg-purple-800 hover:text-white"
         : props.inactive ? "text-slate-500 bg-slate-200/60"
-            : "text-white bg-purple-800 transition-all duration-200 hover:translate-y-4";
+            : "text-white bg-purple-800 transition-all duration-200 hover:bg-purple-700";
 
     return (
         <button disabled={props.disabled} type={props.type} onClick={props.onClick} className={`${style} px-${props.x === "sm" && "1" || props.x === "md" && "2" || props.x === "lg" && "3"} py-${props.y === "sm" && "1" || props.y === "md" && "2" || props.y === "lg" && "3"} justify-${props.justifyConent} ${props.fullWith ? "w-full" : `self-${props.justifyConent}`} font-semibold flex items-center gap-2 rounded`}>

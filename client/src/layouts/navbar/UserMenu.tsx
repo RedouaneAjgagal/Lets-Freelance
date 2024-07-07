@@ -188,7 +188,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
     return (
         <>
             {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
-            <div className={`fixed h-screen top-0 w-5/6 flex flex-col gap-4 z-50 p-3 rounded-l bg-white overflow-y-scroll duration-200 ${props.isMenuOpen ? "right-0" : "-right-full"}`} ref={userMenuRef}>
+            <div className={`fixed h-screen top-0 w-5/6 flex flex-col gap-4 z-50 p-3 rounded-l bg-white overflow-y-scroll duration-200 sm:w-1/2 md:w-1/3 xl:w-1/4 ${props.isMenuOpen ? "right-0" : "-right-full"}`} ref={userMenuRef}>
                 <div className="flex justify-end">
                     <button onClick={closeMenuHandler} className="text-xl bg-slate-500 text-white rounded p-2"><TbX /></button>
                 </div>

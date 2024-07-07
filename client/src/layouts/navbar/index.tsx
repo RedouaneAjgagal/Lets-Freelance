@@ -1,6 +1,6 @@
 import { BiMenuAltRight, BiX, BiSearch } from "react-icons/bi";
-import { Logo } from "../brand";
-import { useState } from "react";
+import { Logo, PrimaryLink } from "../brand";
+import { useEffect, useState } from "react";
 import MenuModel from "./MenuModel";
 import SearchModel from "./SearchModel";
 import { Link } from "react-router-dom";
@@ -22,6 +22,26 @@ const Navbar = () => {
     setIsSearchOpen((isOpen) => !isOpen);
   }
 
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const checkBreakpoint = () => {
+      const isDesktopSize = window.matchMedia('(min-width: 880px)').matches;
+      if (isDesktopSize) {
+        closeNavbarHandler();
+      }
+    };
+
+    const resizeListener = () => {
+      checkBreakpoint();
+    };
+
+    window.addEventListener('resize', resizeListener);
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, [isMenuOpen]);
+
   useOverflow(isMenuOpen);
 
   const closeNavbarHandler = () => {
@@ -31,50 +51,29 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="flex items-center justify-between py-3 px-2 h-16 m-auto">
+      <nav className="flex items-center py-3 px-2 justify-between md:px-4 md:gap-0 md:w-full md:items-center">
         <div className="flex items-center gap-2">
-          <button onClick={menuHandler} className="text-[2.2rem] text-slate-700">
-            {isMenuOpen ?
-              <BiX />
-              :
-              <BiMenuAltRight />
-            }
+          <button onClick={menuHandler} className="text-[2.2rem] text-slate-700 md:hidden">
+            <BiMenuAltRight />
           </button>
           <Logo />
         </div>
-        <div className="relative">
-          {userInfo ?
-            (
-              isMenuOpen ?
-                <button onClick={searchHandler} className="flex p-1 text-2xl text-slate-700">
-                  <BiSearch />
-                </button>
-                :
-                <UserNav />
-            )
-            :
-            (
-              isMenuOpen ?
-                <button onClick={searchHandler} className="flex p-1 text-2xl text-slate-700">
-                  <BiSearch />
-                </button>
-                :
-                <Link to="/auth/register" className="p-2 font-medium text-slate-700">Sign Up</Link>
-            )
-          }
+        <div className="md:ml-3 xl:ml-6 w-full">
+          <MenuModel onSearch={searchHandler} isShown={isMenuOpen} onClick={menuHandler} />
         </div>
+        <div className="lg:relative">
+          <SearchModel isShown={isSearchOpen} closeSearchModal={searchHandler} closeNavbar={closeNavbarHandler} />
+        </div>
+        {userInfo
+          ? <div className="ml-3">
+            <UserNav />
+          </div>
+          : <div className="flex  items-centerfont-medium text-slate-600">
+            <Link to="/auth/login" className="hidden md:flex md:py-1 md:px-4 md:md:px-4 md:hover:text-slate-900 md:transition-all md:font-medium md:text-slate-600">Login</Link>
+            <PrimaryLink to="/auth/register" fullWith={false} justifyConent="center" x="lg" y="sm">Register</PrimaryLink>
+          </div>
+        }
       </nav>
-      <MenuModel isShown={isMenuOpen} onClick={menuHandler} />
-      {isMenuOpen ?
-        <SearchModel isShown={isSearchOpen} closeSearchModal={searchHandler} closeNavbar={closeNavbarHandler} />
-        :
-        null}
-      {userInfo ?
-        null
-        : <div className={`fixed bottom-0 w-full bg-white duration-150 ${isMenuOpen ? "left-0 z-[100]" : "-left-full"}`}>
-          <Link onClick={closeNavbarHandler} to={"/auth/register"} className="p-3 flex justify-center bg-purple-800 text-white text-lg tracking-wide font-medium rounded-t-lg">Register</Link>
-        </div>
-      }
     </div>
   )
 }

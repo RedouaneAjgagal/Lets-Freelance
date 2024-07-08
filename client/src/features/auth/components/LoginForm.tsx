@@ -83,12 +83,12 @@ const LoginForm = () => {
 
 
     return (
-        <form onSubmit={submitLoginHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
+        <form onSubmit={submitLoginHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm sm:px-5 md:p-7" noValidate>
             <InputContainer onChange={onChangeEmail} value={loginInfo.email.value} isError={isSubmitted && loginInfo.email.isError} errorMsg={loginInfo.email.error} name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />
             <InputContainer onChange={onChangePassword} value={loginInfo.password.value} isError={isSubmitted && loginInfo.password.isError} errorMsg={loginInfo.password.error} name="password" label="Password" placeholder="Password" type="password" requiredSign={false} />
             <div className='flex flex-col gap-2'>
                 <Link to={"/auth/forget-password"} className='self-start text-sm font-medium text-purple-600'>Forgotten Password?</Link>
-                <PrimaryButton style='solid' disabled={loginMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+                <PrimaryButton isLoading={loginMutation.isLoading} style='solid' disabled={loginMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                     Login
                     <BiArrowBack className="rotate-[135deg]" />
                 </PrimaryButton>

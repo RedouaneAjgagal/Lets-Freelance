@@ -61,12 +61,13 @@ const ForgetPasswordForm = () => {
 
     return (
         <>
-            {forgetPasswordMutation.isSuccess ?
-                <div className='px-3 py-7 text-center rounded bg-green-100 text-green-700'><p>{forgetPasswordMutation.data.data.msg}</p></div>
-                :
-                <form onSubmit={forgetPassowrdSubmitHandler} className="flex flex-col gap-5 bg-white py-7 px-3 rounded shadow-sm" noValidate>
+            {forgetPasswordMutation.isSuccess
+                ? <div className='px-3 py-7 text-center rounded bg-green-100 text-green-700 sm:px-5 lg:p-7'>
+                    <p>{forgetPasswordMutation.data.data.msg}</p>
+                </div>
+                : <form onSubmit={forgetPassowrdSubmitHandler} className="flex flex-col gap-8 bg-white py-7 px-3 rounded shadow-sm sm:px-5 md:p-7" noValidate>
                     <InputContainer onChange={onChangeEmail} isError={isSubmitted && forgetPasswordInfo.email.isError} errorMsg={forgetPasswordInfo.email.error} value={forgetPasswordInfo.email.value} name="email" label="Email" placeholder="Email address" type="email" requiredSign={false} />
-                    <PrimaryButton style='solid' disabled={forgetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+                    <PrimaryButton isLoading={forgetPasswordMutation.isLoading} style='solid' disabled={forgetPasswordMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                         Get New Password
                         <BiArrowBack className="rotate-[135deg]" />
                     </PrimaryButton>

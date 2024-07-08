@@ -95,8 +95,8 @@ const RegisterForm = () => {
     }
 
     return (
-        <form onSubmit={submitRegister} className="flex flex-col gap-9 bg-white py-7 px-3 rounded shadow-sm" noValidate>
-            <div className="flex items-center justify-center gap-2">
+        <form onSubmit={submitRegister} className="flex flex-col gap-9 bg-white py-7 px-3 rounded shadow-sm sm:px-5 md:p-7" noValidate>
+            <div className="flex items-center justify-center gap-2 md:justify-start">
                 <RoleButton value="Freelancer" role={userAs} onSelectRole={selectRoleHandler} />
                 <RoleButton value="Employer" role={userAs} onSelectRole={selectRoleHandler} />
             </div>
@@ -105,7 +105,7 @@ const RegisterForm = () => {
                 <InputContainer onChange={onChangeEmail} isError={isSubmitted && registerInfo.email.isError} errorMsg={registerInfo.email.error} value={registerInfo.email.value} name="email" label="Email" placeholder="Email address" type="email" requiredSign />
                 <InputContainer onChange={onChangePassword} isError={isSubmitted && registerInfo.password.isError} errorMsg={registerInfo.password.error} value={registerInfo.password.value} name="password" label="Password" placeholder="Password" type="password" requiredSign />
             </div>
-            <PrimaryButton style="solid" disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
+            <PrimaryButton isLoading={registerMutation.isLoading} style="solid" disabled={registerMutation.isLoading} type="submit" fullWith={true} justifyConent="center" x="md" y="lg">
                 Register Now
                 <BiArrowBack className="rotate-[135deg]" />
             </PrimaryButton>

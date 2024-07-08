@@ -15,7 +15,7 @@ const Root = () => {
     const { pathname } = useLocation();
 
     return (
-        <div className={pathname.startsWith("/profile/")
+        <div className={pathname.startsWith("/profile/") || pathname.startsWith("/auth/")
             ? "bg-purple-100/30"
             : "bg-white"
         }>
@@ -25,7 +25,7 @@ const Root = () => {
                     <Navbar />
                 </header>
             </div>
-            <div className="max-w-[80rem] m-auto">
+            <div className="max-w-[80rem] m-auto xl:pb-4">
                 <Outlet />
                 <Footer />
             </div>

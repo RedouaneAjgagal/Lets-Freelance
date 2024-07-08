@@ -8,25 +8,36 @@ import "swiper/css"
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import "swiper/swiper-bundle.esm.js"
+import UserMenuSidebar from "../components/UserMenuSidebar";
 
 const Root = () => {
     useAuthChecker();
 
     const { pathname } = useLocation();
 
+    const isProfileRoute = pathname.startsWith("/profile/");
+
     return (
-        <div className={pathname.startsWith("/profile/") || pathname.startsWith("/auth/")
+        <div className={isProfileRoute || pathname.startsWith("/auth/")
             ? "bg-purple-100/30"
             : "bg-white"
         }>
             <Toaster />
             <div className="border-b bg-white">
-                <header className="max-w-[80rem] m-auto">
+                <header className="max-w-[100rem] m-auto">
                     <Navbar />
                 </header>
             </div>
-            <div className="max-w-[80rem] m-auto xl:pb-4">
-                <Outlet />
+            <div className="max-w-[100rem] m-auto xl:pb-4">
+                <div className={isProfileRoute ? "lg:grid lg:grid-cols-12 lg:items-start" : ""}>
+                    {isProfileRoute
+                        ? <UserMenuSidebar />
+                        : null
+                    }
+                    <div className="lg:md:col-span-9 xl:md:col-span-9">
+                        <Outlet />
+                    </div>
+                </div>
                 <Footer />
             </div>
             <ScrollToTop />

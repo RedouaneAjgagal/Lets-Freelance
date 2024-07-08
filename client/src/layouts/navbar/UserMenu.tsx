@@ -16,14 +16,23 @@ type LinkMenuType = {
     accessRoles: ("user" | "admin" | "owner")[];
 };
 
-interface Props {
+type UserMenuType = {
+    isSidebar?: false;
     userInfo: User;
     isMenuOpen: boolean;
     onCloseMenu: () => void;
     role: "user" | "admin" | "owner";
+};
+
+type UserMenuSidebarType = {
+    isSidebar: true;
+    userInfo: User;
+    role: "user" | "admin" | "owner";
 }
 
-const UserMenu = (props: React.PropsWithoutRef<Props>) => {
+type UserMenuProps = UserMenuSidebarType | UserMenuType
+
+const UserMenu = (props: React.PropsWithoutRef<UserMenuProps>) => {
     const userMenuRef = useRef<HTMLDivElement>(null);
 
     const navigate = useNavigate();
@@ -34,14 +43,22 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
     }
 
     const closeMenuHandler = () => {
+        if (props.isSidebar) return;
         props.onCloseMenu();
     }
 
     const location = useLocation();
 
+    let useEffectArr: React.DependencyList = [];
+
+    if (!props.isSidebar) {
+        useEffectArr = [props.isMenuOpen]
+    }
+
     useEffect(() => {
+        if (props.isSidebar) return;
         if (props.isMenuOpen) userMenuRef.current!.scroll({ top: 0 });
-    }, [props.isMenuOpen]);
+    }, useEffectArr);
 
     const navigator = (url: string) => {
         navigate(url);
@@ -159,21 +176,21 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
         {
             value: "Contract Cancellations",
             icon: LuFileSignature,
-            to: "/contracts/cancelation",
+            to: "/profile/auth/contracts/cancelation",
             accessRoles: ["admin", "owner"],
             sort: 2
         },
         {
             value: "Refund Requests",
             icon: RiRefund2Line,
-            to: "/contracts/payments/refund",
+            to: "/profile/auth/contracts/payments/refund",
             accessRoles: ["admin", "owner"],
             sort: 3
         },
         {
             value: "Event Reports",
             icon: TbReport,
-            to: "/reports",
+            to: "/profile/auth/reports",
             accessRoles: ["admin", "owner"],
             sort: 4
         }
@@ -187,11 +204,16 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
 
     return (
         <>
-            {props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
-            <div className={`fixed h-screen top-0 w-5/6 flex flex-col gap-4 z-50 p-3 rounded-l bg-white overflow-y-scroll duration-200 sm:w-1/2 md:w-1/3 xl:w-1/4 ${props.isMenuOpen ? "right-0" : "-right-full"}`} ref={userMenuRef}>
-                <div className="flex justify-end">
-                    <button onClick={closeMenuHandler} className="text-xl bg-slate-500 text-white rounded p-2"><TbX /></button>
-                </div>
+            {!props.isSidebar && props.isMenuOpen ? <Overlay onClose={closeMenuHandler} /> : null}
+            <div className={props.isSidebar
+                ? "lg:h-[55rem] lg:sticky lg:top-0 lg:py-8 flex flex-col gap-4"
+                : `fixed h-screen top-0 w-5/6 flex flex-col gap-4 z-50 p-3 rounded-l bg-white overflow-y-scroll duration-200 sm:w-1/2 md:w-1/3 xl:w-1/4 ${props.isMenuOpen ? "right-0" : "-right-full"}`} ref={userMenuRef}>
+                {!props.isSidebar
+                    ? <div className="flex justify-end">
+                        <button onClick={closeMenuHandler} className="text-xl bg-slate-500 text-white rounded p-2"><TbX /></button>
+                    </div>
+                    : null
+                }
                 <div className="flex items-center gap-3 px-2 py-1">
                     <img src={props.userInfo.avatar} alt={`${props.userInfo.userName}'s profile avatar`} className="w-20 h-20 rounded-full object-cover" />
                     <div className="flex flex-col gap-1 text-slate-950 font-medium">
@@ -202,7 +224,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                         }
                     </div>
                 </div>
-                <div className="flex flex-col gap-3">
+                <div className={`flex flex-col gap-3 ${props.isSidebar ? "gap-4" : ""}`}>
                     {
                         userMenu.map(menu => (
                             <UserMenuLink key={menu.value} onClick={() => navigator(menu.to)} isActive={location.pathname === menu.to}>
@@ -211,7 +233,7 @@ const UserMenu = (props: React.PropsWithoutRef<Props>) => {
                         ))
                     }
                 </div>
-                <div className="text-red-600 border-t pt-2">
+                <div className="text-red-600 border-t pt-2 mt-2">
                     <UserMenuLink onClick={logoutHandler} isActive={false}>
                         <TbLogout className="text-2xl rotate-180" />Logout
                     </UserMenuLink>

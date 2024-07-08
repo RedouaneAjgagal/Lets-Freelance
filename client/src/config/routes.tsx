@@ -198,15 +198,15 @@ const router = createBrowserRouter([
                 element: <AuthenticatedRoute element={CreateCampaign} accessBy="freelancer" />
             },
             {
-                path: "/contracts/cancelation",
+                path: "/profile/auth/contracts/cancelation",
                 element: <AuthorizedRoute element={ContractCancellations} accessBy={["admin", "owner"]} />
             },
             {
-                path: "/contracts/payments/refund",
+                path: "/profile/auth/contracts/payments/refund",
                 element: <AuthorizedRoute element={RefundRequests} accessBy={["admin", "owner"]} />
             },
             {
-                path: "/reports",
+                path: "/profile/auth/reports",
                 element: <AuthorizedRoute element={EventReports} accessBy={["admin", "owner"]} />
             },
             {

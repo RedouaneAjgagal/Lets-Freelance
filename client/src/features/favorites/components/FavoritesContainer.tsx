@@ -29,7 +29,7 @@ const FavoritesContainer = (props: React.PropsWithoutRef<FavoritesContainerType>
     const favoriteElem = favoriteElems[favouriteType];
 
     return (
-        <section className="bg-white rounded shadow-sm">
+        <section className="bg-white rounded shadow-sm md:p-2">
             <div className="p-4">
                 <div className="flex items-center gap-x-4 flex-wrap border-b pb-3 gap-y-2">
                     {favourites.map((favourite, index) => <FavoriteButton key={index} value={favourite} isActive={favourite === favouriteType} onClick={favoriteNavigator} />)}

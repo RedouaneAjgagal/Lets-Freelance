@@ -8,7 +8,7 @@ import { FavoriteEmployerType } from '../features/favorites/services/getFavorite
 type Category = "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
 
 type Rating = {
-    avgRate: number | undefined;
+    avgRate?: number | undefined;
     numOfReviews: number;
 };
 
@@ -32,7 +32,10 @@ type EmployerCardProps = {
 }
 
 const EmployerCard = (props: React.PropsWithoutRef<EmployerCardProps>) => {
-    const favoritesMutation = useFavoritesMutation("profile");
+    const favoritesMutation = useFavoritesMutation({
+        event: "profile",
+        target: props.employer._id
+    });
 
     const favoriteEmployerToggle = () => {
         favoritesMutation.mutate({
@@ -61,7 +64,7 @@ const EmployerCard = (props: React.PropsWithoutRef<EmployerCardProps>) => {
     const detail = Object.values(details).join(" - ");
 
     return (
-        <article className="p-4 border rounded flex flex-col gap-3 relative">
+        <article className="p-4 border rounded flex flex-col gap-3 relative h-full sm:p-6">
             <FavoriteHeartButton fillHeart={props.employer.isFavorite === 1 ? true : false} onClick={favoriteEmployerToggle} />
             <div className="flex items-center gap-3">
                 <div>
@@ -85,8 +88,10 @@ const EmployerCard = (props: React.PropsWithoutRef<EmployerCardProps>) => {
             <div>
                 <p className="text-gray-500 font-medium text-sm">{detail}</p>
             </div>
-            <div>
-                <NavigatorLink to={`/profiles/${props.employer._id}`}>View Profile</NavigatorLink>
+            <div className="h-full flex items-end">
+                <div className='w-full'>
+                    <NavigatorLink to={`/profiles/${props.employer._id}`}>View Profile</NavigatorLink>
+                </div>
             </div>
         </article>
     )

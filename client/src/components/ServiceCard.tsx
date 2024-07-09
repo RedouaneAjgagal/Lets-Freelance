@@ -132,7 +132,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
   }, [isInView]);
 
   return (
-    <li ref={serviceRef} role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer">
+    <li ref={serviceRef} role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer flex flex-col">
       <div className="relative">
         {props.serviceDetails.service.sponsored ?
           <span className="absolute -top-3 left-2 bg-amber-200 font-semibold tracking-wide rounded-full p-[0.2rem] px-3 border text-sm flex items-center gap-1">
@@ -169,8 +169,8 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
           }
         </div>
       </div>
-      <div className="px-3">
-        <div className={`border-t py-4 ${props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ? "" : "flex"}`}>
+      <div className="px-3 h-full flex items-end">
+        <div className={`border-t py-4 w-full ${props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ? "" : "flex"}`}>
           <Link to={`/profiles/${props.serviceDetails.serviceBy._id}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
             <img src={props.serviceDetails.serviceBy.avatar} alt="user image" className="w-9 h-9 object-cover rounded-full" />
             <div className="w-full flex flex-col">

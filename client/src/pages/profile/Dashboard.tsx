@@ -7,7 +7,7 @@ const Dashboard = () => {
     const { userInfo } = useAppSelector(state => state.authReducer);
 
     return (
-        <main className="p-4 flex flex-col gap-4">
+        <main className="p-4 flex flex-col gap-4 lg:py-6">
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">Dashboard</h1>
             {userInfo!.role === "user"
                 ? userInfo!.userAs === "employer"

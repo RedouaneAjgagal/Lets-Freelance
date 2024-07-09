@@ -36,7 +36,7 @@ const StatementsCards = (props: React.PropsWithoutRef<StatementCardsProps>) => {
 
     return (
         <article className="flex flex-col gap-2">
-            <ul className="flex flex-col flex-wrap gap-4">
+            <ul className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 {cardsDetails.map((card, index) => <Card key={index} cardTitle={card.title} value={card.value} iconUrl={card.iconUrl} />)}
             </ul>
         </article>

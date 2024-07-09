@@ -7,7 +7,7 @@ type FavoriteServicesType = {
 
 const FavoriteServices = (props: React.PropsWithoutRef<FavoriteServicesType>) => {
     return (
-        <ul className="flex flex-col gap-6 p-4">
+        <ul className="grid gap-6 grid-cols-1 p-4 md:grid-cols-2 xl:grid-cols-3">
             {props.services.length ?
                 props.services.map(service => <ServiceCard key={service._id} serviceDetails={{
                     serviceBy: service.serviceBy,

@@ -7,7 +7,7 @@ type FavoriteEmployersProps = {
 
 const FavoriteEmployers = (props: React.PropsWithoutRef<FavoriteEmployersProps>) => {
   return (
-    <ul className="flex flex-col gap-6 p-4">
+    <ul className="grid grid-cols-1 gap-6 p-4 md:grid-cols-2 xl:grid-cols-3">
       {props.employers.length ?
         props.employers.map(employer => <FavoriteEmployer key={employer._id} employer={employer.profile} />)
         :

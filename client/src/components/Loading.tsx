@@ -63,7 +63,7 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                 </div>
             </div>
             : props.type === "cards"
-                ? <div className={`animate-pulse ${props.display === "column" ? "flex flex-col" : "grid grid-cols-1"} gap-6`}>
+                ? <div className={`animate-pulse ${props.display === "column" ? "flex flex-col" : "grid grid-cols-1"} gap-6 md:grid-cols-2 xl:md:grid-cols-3`}>
                     {Array.from({ length: props.numOfCards }, (_, index) => (
                         <div key={index} className={`${props.display === "column" ? "border-b last:border-b-0 pb-6" : "border rounded"} border-slate-200/70`}>
                             {props.display === "grid"
@@ -124,7 +124,7 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                     </div>
                     : props.type === "statements"
                         ? <div className="animate-pulse">
-                            <div className="flex flex-col gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 {Array.from({ length: props.numOfCards }, (_, index) => (
                                     <div key={index} className="bg-white p-4 rounded shadow-sm">
                                         <div className="flex items-center justify-between">

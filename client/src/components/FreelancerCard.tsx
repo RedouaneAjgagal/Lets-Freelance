@@ -10,7 +10,7 @@ import NavigatorLink from "./NavigatorLink";
 type Category = "digital marketing" | "design & creative" | "programming & tech" | "writing & translation" | "video & animation" | "finance & accounting" | "music & audio";
 
 type Rating = {
-    avgRate: number | undefined;
+    avgRate?: number | undefined;
     numOfReviews: number;
 };
 
@@ -58,7 +58,7 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
     }
 
     return (
-        <article className="border rounded p-4 flex flex-col gap-6 relative">
+        <article className="border rounded p-4 flex flex-col gap-6 relative h-full">
             <FavoriteHeartButton fillHeart={props.freelancerInfo.isFavourite === 1 ? true : false} onClick={favoriteFreelancerToggle} />
             <div className="w-full flex flex-col items-center gap-4">
                 <div className="flex  relative w-16 h-16">
@@ -99,7 +99,7 @@ const FreelancerCard = (props: React.PropsWithoutRef<FreelancerCardProps>) => {
                 }
             </div>
             <hr className="border-b-0 w-full" />
-            <div className="w-full flex flex-col gap-4">
+            <div className="w-full flex flex-col gap-4 h-full justify-between">
                 <div className="flex text-left gap-x-14 gap-y-2 flex-wrap">
                     <div className="flex flex-col gap-1">
                         <h5 className="font-medium">Location:</h5>

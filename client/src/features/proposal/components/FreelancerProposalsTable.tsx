@@ -15,7 +15,7 @@ const FreelancerProposalsTable = (props: React.PropsWithoutRef<FreelancerProposa
             {
                 props.proposals.length ?
                     <table className="text-left w-full">
-                        <TableHead tableHeads={tableHeads} />
+                        <TableHead tableHeads={tableHeads} width="wide" />
                         <tbody>
                             {
                                 props.proposals.map(proposal => <FreelancerProposalTable key={proposal._id} proposal={proposal} />)

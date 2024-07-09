@@ -27,7 +27,7 @@ const SetAsPaidConnectsContainer = (props: React.PropsWithoutRef<SetAsPaidConnec
     }
 
     return (
-        <div className={`${result.style} p-4 flex flex-col gap-2`}>
+        <div className={`${result.style} p-4 flex flex-col gap-2 rounded sm:p-6`}>
             <h2>{result.value}</h2>
             <div>
                 <button onClick={backNavigator} className="text-slate-700 flex items-center gap-1 border-b-2 border-slate-500">

@@ -48,11 +48,11 @@ const FreelancerProposalTable = (props: React.PropsWithoutRef<FreelancerProposal
                         {props.proposal.job.title}
                     </Link>
                     <span className="text-sm text-slate-600 flex items-center gap-1">
-                        <TbCategory size={18} />
+                        <TbCategory className="min-w-[1rem] text-base" />
                         {props.proposal.job.category}
                     </span>
                     <span className="text-sm text-slate-600 flex items-center gap-1">
-                        <TbLocation size={18} />
+                        <TbLocation className="min-w-[1rem] text-base" />
                         {props.proposal.job.locationType}
                     </span>
                 </div>

@@ -16,7 +16,7 @@ const ConnectsPayments = (props: React.PropsWithoutRef<ConnectsPaymentsProps>) =
             {props.payments.length ?
                 <section className="bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-2 text-left">
                     <table className="text-left w-full">
-                        <TableHead tableHeads={tableHeads} />
+                        <TableHead tableHeads={tableHeads} width="tight" />
                         <tbody>
                             {props.payments.map(payment => <ConnectsPaymentsRow key={payment.sessionId} payment={payment} />)}
                         </tbody>

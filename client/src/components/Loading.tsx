@@ -93,24 +93,24 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                     ))}
                 </div>
                 : props.type === "table"
-                    ? <div className="animate-pulse">
-                        <div className="bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-6">
-                            <div className="flex gap-4 pb-4 pt-2">
+                    ? <div className="animate-pulse overflow-x-scroll lg:overflow-auto">
+                        <div className="bg-white rounded p-6 shadow-sm grid gap-8 min-w-[40rem]">
+                            <div className="grid grid-cols-4 gap-4 py-2 xl:gap-10">
                                 {Array.from({ length: 4 }, (_, index) => (
-                                    <div key={index} className="min-w-[10rem] p-2 pb-4 bg-slate-300 rounded h-9"></div>
+                                    <div key={index} className="min-w-[3rem] max-w-[12rem] p-2 pb-4 bg-slate-300 rounded h-9"></div>
                                 ))}
                             </div>
                             {Array.from({ length: 6 }, (_, index) => (
-                                <div key={index} className="flex">
+                                <div key={index} className="grid grid-cols-4 border-t gap-4 xl:gap-10">
                                     {Array.from({ length: 4 }, (_, i) => (
-                                        <div key={i} className="border-t border-slate-200/70 pt-6 pr-4 flex flex-col gap-2">
+                                        <div key={i} className="pt-6 flex flex-col gap-2">
                                             {i === 3
-                                                ? <div className="flex gap-2 min-w-[10rem]">
+                                                ? <div className="flex gap-2 min-w-[3rem]">
                                                     {Array.from({ length: 3 }, (_, btnIndex) => (
                                                         <div key={btnIndex} className="h-8 w-8 bg-slate-200 rounded"></div>
                                                     ))}
                                                 </div>
-                                                : <div className={`min-w-[10rem] h-5 bg-slate-200 rounded`}></div>
+                                                : <div className={`min-w-[3rem] h-5 bg-slate-200 rounded`}></div>
                                             }
                                             {i === 0
                                                 ? <div className="w-1/2 h-5 bg-slate-200 rounded"></div>

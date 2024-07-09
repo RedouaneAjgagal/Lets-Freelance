@@ -28,7 +28,7 @@ const ActionModal = (props: React.PropsWithoutRef<Props>) => {
     return (
         createPortal(<>
             <Overlay onClose={props.onClose} />
-            <section className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-3">
+            <section className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-3 max-w-[45rem] sm:p-6">
                 <h3 className="text-2xl font-medium">{props.title}</h3>
                 <p className=" text-slate-600">{props.desc}</p>
                 <div className="flex items-center gap-3 ">

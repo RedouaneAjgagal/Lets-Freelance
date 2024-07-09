@@ -6,7 +6,7 @@ type TableHeadProps = {
 const TableHead = (props: React.PropsWithoutRef<TableHeadProps>) => {
 
     const widthTypes = {
-        tight: "min-w-[8rem]",
+        tight: "min-w-[10rem]",
         relaxed: "min-w-[12rem]",
         wide: "min-w-[14rem]",
         wider: "min-w-[15rem]",

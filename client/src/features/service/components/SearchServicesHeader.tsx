@@ -60,7 +60,7 @@ const SearchServicesHeader = (props: React.PropsWithoutRef<SearchServicesHeaderP
                         : `${props.numOfServices} service available`
                     }
                 </p>
-                <button onClick={openFilterModalHandler} className="flex items-center gap-1 text-slate-700 font-medium bg-purple-100 border py-2 px-3 rounded justify-center">
+                <button onClick={openFilterModalHandler} className="flex items-center gap-1 text-slate-700 font-medium bg-purple-100 border py-2 px-3 rounded justify-center lg:hidden">
                     Filter
                     <TbSortDescending size={24} />
                 </button>

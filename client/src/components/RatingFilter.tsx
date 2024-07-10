@@ -9,7 +9,7 @@ type RatingFilterProps = {
 const RatingFilter = (props: React.PropsWithoutRef<RatingFilterProps>) => {
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">Rating</h4>
+            <h4 className="text-black text-xl lg:font-semibold">Rating</h4>
             <div className="flex flex-col gap-2">
                 <label htmlFor="Any rating" className="flex gap-2">
                     <input type="radio" id="Any rating" value={0} name="rating" className="accent-purple-600" onChange={props.onSelectRate} checked={!props.rating} />

@@ -69,7 +69,7 @@ const SelectedFilters = () => {
         }
 
         return (
-            <button key={key} className="border rounded-full px-2 text-[0.8rem] border-slate-500 text-slate-700 flex items-center gap-1" onClick={() => removeFilterHanlder(key)}>
+            <button key={key} className="border rounded-full px-2 text-[0.8rem] border-slate-500 text-slate-700 flex items-center gap-1 lg:text-sm lg:py-1 lg:px-3" onClick={() => removeFilterHanlder(key)}>
                 {formatedValue}
                 <TbX size={18} className="text-slate-500" />
             </button>
@@ -81,12 +81,12 @@ const SelectedFilters = () => {
     }
 
     return (
-        <div className="flex items-start justify-between gap-1">
+        <div className="flex items-start justify-between gap-1 xl:items-center">
             <div className="flex items-center gap-2 flex-wrap">
                 {filters}
             </div>
             <div className="max-w-[5rem] w-full">
-                <button className="text-red-600 font-medium text-sm py-1 w-full" onClick={clearAllFiltersHandler}>Clear all</button>
+                <button className="text-red-600 font-medium text-sm py-1 w-full lg:text-base" onClick={clearAllFiltersHandler}>Clear all</button>
             </div>
         </div>
     )

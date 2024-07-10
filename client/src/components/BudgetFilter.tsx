@@ -29,7 +29,7 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
             setIsFilter(true);
         }
 
-        if (from >= toBudget) {
+        if (from >= Number(toBudget)) {
             setFromBudget(toBudget);
             fromRef.current?.classList.add("z-20");
             return;
@@ -45,7 +45,7 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
             setIsFilter(true);
         }
 
-        if (to <= fromBudget) {
+        if (to <= Number(fromBudget)) {
             setToBudget(fromBudget);
             fromRef.current?.classList.remove("z-20");
             return;
@@ -54,8 +54,8 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
     }
 
     const priceRange = convertBudgetToPriceRange({
-        from: Math.floor(fromBudget),
-        to: Math.floor(toBudget)
+        from: Math.floor(Number(fromBudget)),
+        to: Math.floor(Number(toBudget))
     });
 
     useEffect(() => {
@@ -84,7 +84,7 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">{props.title}</h4>
+            <h4 className="text-black text-xl lg:font-semibold">{props.title}</h4>
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center text-sm">
                     <span className="px-3 py-1 bg-purple-100/60 rounded text-purple-500">${fromBudget.toLocaleString()}</span>
@@ -101,9 +101,9 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
                     <input id="toBudget" name="toBudget" min={props.from} max={props.to} type="range" className="slider-thumb" onChange={toBudgetHandler} value={toBudget} step={props.step} style={{
                         background: `linear-gradient(to right,
                         ${colors.sliderColor} 0%,
-                        ${colors.sliderColor} ${100 - Math.abs(((fromBudget - props.to) / (rangeDistance)) * 100)}%,
+                        ${colors.sliderColor} ${100 - Math.abs(((Number(fromBudget) - props.to) / (rangeDistance)) * 100)}%,
                         ${colors.rangeColor} 0%,
-                        ${colors.rangeColor} ${100 - Math.abs(((toBudget - props.to) / rangeDistance) * 100)}%,
+                        ${colors.rangeColor} ${100 - Math.abs(((Number(toBudget) - props.to) / rangeDistance) * 100)}%,
                         ${colors.sliderColor} 0%,
                         ${colors.sliderColor} 100%)`
                     }} />

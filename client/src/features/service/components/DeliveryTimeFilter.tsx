@@ -54,7 +54,7 @@ const DeliveryTimeFilter = () => {
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">Delivery Time</h4>
+            <h4 className="text-black text-xl lg:font-semibold">Delivery Time</h4>
             <div className="flex flex-col gap-2">
                 {formatedDeliveryTimes}
             </div>

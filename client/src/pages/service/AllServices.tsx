@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { filterSearchedServicesAction } from "../../features/service/redux/filterSearchedServices";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import FilterServicesModal from "../../features/service/modals/FilterServicesModal";
 
 const AllServices = () => {
     const [URLSearchParams] = useSearchParams();
@@ -67,10 +68,20 @@ const AllServices = () => {
     return (
         <main className="p-4 flex flex-col gap-6">
             {
-                searchedServicesQuery.isLoading ?
-                    <Loading type="cards" display="grid" numOfCards={8} />
-                    : 
-                    <ServicesContainer pages={searchedServicesQuery.data!.pages} onLoadMore={searchedServicesQuery.fetchNextPage} isFetchingNextPage={searchedServicesQuery.isFetchingNextPage} hasNextPage={searchedServicesQuery.hasNextPage} />
+                <div className="grid grid-cols-1 lg:grid-cols-12 xl:gap-2">
+                    <div className="hidden lg:flex lg:col-span-3">
+                        <FilterServicesModal isDesktopLayout />
+                    </div>
+                    {searchedServicesQuery.isLoading ?
+                        <div className="col-span-1 lg:lg:col-span-9 lg:pl-4 xl:pl-0">
+                            <Loading type="cards" display="grid" numOfCards={8} />
+                        </div>
+                        :
+                        <div className="col-span-1 lg:lg:col-span-9 lg:pl-4 xl:pl-0">
+                            <ServicesContainer pages={searchedServicesQuery.data!.pages} onLoadMore={searchedServicesQuery.fetchNextPage} isFetchingNextPage={searchedServicesQuery.isFetchingNextPage} hasNextPage={searchedServicesQuery.hasNextPage} />
+                        </div>
+                    }
+                </div>
             }
         </main>
     )

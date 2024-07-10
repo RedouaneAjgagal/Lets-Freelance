@@ -132,7 +132,7 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
   }, [isInView]);
 
   return (
-    <li ref={serviceRef} role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer flex flex-col">
+    <li ref={serviceRef} role="link" onClick={serviceNavigator} className="text-left border rounded hover:cursor-pointer flex flex-col group hover:shadow-lg duration-300">
       <div className="relative">
         {props.serviceDetails.service.sponsored ?
           <span className="absolute -top-3 left-2 bg-amber-200 font-semibold tracking-wide rounded-full p-[0.2rem] px-3 border text-sm flex items-center gap-1">
@@ -141,35 +141,37 @@ const ServiceCard = (props: React.PropsWithoutRef<ServiceCardProps>) => {
           </span>
           : null
         }
-        <img src={props.serviceDetails.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover group-hover:scale-125 duration-500" />
+        <img src={props.serviceDetails.service.featuredImage} className="rounded-t w-full max-w-full min-h-full h-64 object-cover duration-500" />
         {!props.hideFavorite && props.favorite ?
           <FavoriteHeartButton onClick={() => favoriteServiceToggle()} fillHeart={props.favorite.isFavorite} />
           :
           null
         }
       </div>
-      <div className="px-3 py-4 flex flex-col gap-2">
+      <div className="px-3 py-4 flex flex-col gap-2 h-full">
         <div>
           <span className="text-slate-500 hover:text-slate-900 duration-200 text-sm">{props.serviceDetails.service.category}</span>
         </div>
-        <h3 className="text-black font-semibold text-lg">{props.serviceDetails.service.title}</h3>
-        <div className="flex items-center justify-between gap-2 text-sm mt-2">
-          <div className="text-sm text-slate-600">
-            <p>From: <span className="text-lg text-black font-medium">${props.serviceDetails.service.tier.starter.price}</span></p>
+        <h3 className="text-black font-semibold text-lg group-hover:text-purple-700 transition-all h-full">{props.serviceDetails.service.title}</h3>
+        <div className="mt-2 grid w-full h-full">
+          <div className="flex items-center justify-between gap-2 text-sm w-full self-end">
+            <div className="text-sm text-slate-600">
+              <p>From: <span className="text-lg text-black font-medium">${props.serviceDetails.service.tier.starter.price}</span></p>
+            </div>
+            {
+              props.serviceDetails.service.rating.avgRate ?
+                <div className="flex items-center gap-1 flex-wrap">
+                  <AiFillStar className="text-yellow-500 text-lg" />
+                  <span className="font-semibold text-black text-[1.05rem]">{props.serviceDetails.service.rating.avgRate || 0}</span>
+                  <span className="text-slate-500">{`(${props.serviceDetails.service.rating.numOfReviews} Reviews)`}</span>
+                </div>
+                :
+                null
+            }
           </div>
-          {
-            props.serviceDetails.service.rating.avgRate ?
-              <div className="flex items-center gap-1 flex-wrap">
-                <AiFillStar className="text-yellow-500 text-lg" />
-                <span className="font-semibold text-black text-[1.05rem]">{props.serviceDetails.service.rating.avgRate || 0}</span>
-                <span className="text-slate-500">{`(${props.serviceDetails.service.rating.numOfReviews} Reviews)`}</span>
-              </div>
-              :
-              null
-          }
         </div>
       </div>
-      <div className="px-3 h-full flex items-end">
+      <div className="px-3 flex items-end">
         <div className={`border-t py-4 w-full ${props.serviceDetails.serviceBy.rating && props.serviceDetails.serviceBy.rating.avgRate ? "" : "flex"}`}>
           <Link to={`/profiles/${props.serviceDetails.serviceBy._id}`} onClick={(e) => e.stopPropagation()} className="flex items-center gap-2">
             <img src={props.serviceDetails.serviceBy.avatar} alt="user image" className="w-9 h-9 object-cover rounded-full" />

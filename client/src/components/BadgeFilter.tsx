@@ -31,7 +31,7 @@ const BadgeFilter = (props: React.PropsWithoutRef<BadgeFilter>) => {
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">Talent Quality</h4>
+            <h4 className="text-black text-xl lg:font-semibold">Talent Quality</h4>
             <div className="flex flex-col gap-2">
                 {badgesInputs}
             </div>

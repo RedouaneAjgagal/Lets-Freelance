@@ -12,10 +12,17 @@ import SearchServicesCategoryFilter from "../components/SearchServicesCategoryFi
 import SearchServicesEnglishLevelFilter from "../components/SearchServicesEnglishLevelFilter";
 import SearchServicesLocationFilter from "../components/SearchServicesLocationFilter";
 
-type FilterServicesModalProps = {
+type FilterServicesModal = {
+    isDesktopLayout?: false;
     isModalOpen: boolean;
     onCloseModal: () => void;
-}
+};
+
+type FilterServicesDesktopLayout = {
+    isDesktopLayout: true;
+};
+
+type FilterServicesModalProps = FilterServicesModal | FilterServicesDesktopLayout;
 
 const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalProps>) => {
     const { badge } = useAppSelector(state => state.filterSearchedServicesReducer);
@@ -28,7 +35,9 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
         window.scroll({ top: 0 });
 
         // close modal because filters work automatically onClick
-        props.onCloseModal();
+        if (!props.isDesktopLayout) {
+            props.onCloseModal();
+        }
     }
 
 
@@ -44,27 +53,36 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
         dispatch(filterSearchedServicesAction.filterByBadge(badge));
     }
 
+    let effectArr: React.DependencyList = []
+    if (!props.isDesktopLayout) {
+        effectArr = [props.isModalOpen];
+    }
+
     useEffect(() => {
+        if (props.isDesktopLayout) return;
         if (props.isModalOpen) {
             modalRef.current!.scrollTop = 0;
         }
-    }, [props.isModalOpen]);
+    }, effectArr);
 
     return (
-        <section className="relative">
-            {props.isModalOpen ?
+        <aside className="relative w-full lg:border-r xl:border-r-0">
+            {!props.isDesktopLayout && props.isModalOpen ?
                 <Overlay onClose={props.onCloseModal} />
                 :
                 null
             }
-            <div className={`bg-white  h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll bottom-0 ${props.isModalOpen ? "left-0" : "-left-full"}`} ref={modalRef}>
-                <div className="flex items-center justify-between text-slate-700 pb-4 border-b">
-                    <h3>All Filters</h3>
-                    <button onClick={props.onCloseModal} className="bg-purple-100/70 rounded p-1">
-                        <BiX size={24} />
-                    </button>
-                </div>
-                <form onSubmit={filterServicesHandler} className="flex flex-col gap-8">
+            <div className={props.isDesktopLayout ? "py-4 pr-4" : `bg-white  h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll bottom-0 ${props.isModalOpen ? "left-0" : "-left-full"}`} ref={modalRef}>
+                {!props.isDesktopLayout
+                    ? <div className="flex items-center justify-between text-slate-700 pb-4 border-b">
+                        <h3>All Filters</h3>
+                        <button onClick={props.onCloseModal} className="bg-purple-100/70 rounded p-1">
+                            <BiX size={24} />
+                        </button>
+                    </div>
+                    : null
+                }
+                <form onSubmit={filterServicesHandler} className="flex flex-col gap-8 lg:sticky lg:top-0 lg:left-0">
                     <SearchServicesCategoryFilter SIZE={5} />
                     <DeliveryTimeFilter />
                     <SearchServicesBudgetFilter from={5} to={1000} step={5} />
@@ -73,13 +91,16 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                     <SearchServicesEnglishLevelFilter SIZE={4} />
                     <BadgeFilter onSelectBadge={badgeFilterHandler} badge={badge} />
                     <SearchServicesLocationFilter />
-                    <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
-                        Filter Services
-                        <BiArrowBack className="rotate-[135deg]" />
-                    </PrimaryButton>
+                    {!props.isDesktopLayout
+                        ? <PrimaryButton disabled={false} fullWith justifyConent="center" style="outline" type="submit" x="md" y="md">
+                            Filter Services
+                            <BiArrowBack className="rotate-[135deg]" />
+                        </PrimaryButton>
+                        : null
+                    }
                 </form>
             </div>
-        </section>
+        </aside>
     )
 }
 

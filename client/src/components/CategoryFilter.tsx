@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { filterSearchedServicesAction } from "../redux/filterSearchedServices";
 
 type Categories = "all-categories" | "programming-tech" | "design-creative" | "digital-marketing" | "writing-translation" | "video-animation" | "finance-accounting" | "music-audio";
 
@@ -89,7 +87,7 @@ const CategoryFilter = (props: React.PropsWithoutRef<CategoryFilterProps>) => {
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">Categories</h4>
+            <h4 className="text-black text-xl lg:font-semibold">Categories</h4>
             <div className="flex flex-col gap-2">
                 {formatedCategories}
                 <div>

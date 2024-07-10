@@ -51,7 +51,7 @@ const EnglishLevelFilter = (props: React.PropsWithoutRef<EnglishLevelFilterProps
 
     return (
         <div className="flex flex-col gap-3">
-            <h4 className="text-black text-xl">English Level</h4>
+            <h4 className="text-black text-xl lg:font-semibold">English Level</h4>
             <div className="flex flex-col gap-2">
                 {englishLevelsInputs}
             </div>

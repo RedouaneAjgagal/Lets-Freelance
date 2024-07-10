@@ -1,4 +1,4 @@
-import { BiMenuAltRight, BiX, BiSearch } from "react-icons/bi";
+import { BiMenuAltRight } from "react-icons/bi";
 import { Logo, PrimaryLink } from "../brand";
 import { useEffect, useState } from "react";
 import MenuModel from "./MenuModel";

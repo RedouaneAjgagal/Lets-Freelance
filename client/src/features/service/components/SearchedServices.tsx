@@ -16,7 +16,7 @@ const SearchedServices = (props: React.PropsWithoutRef<SearchedServicesProps>) =
     });
 
     return (
-        <ul className="flex flex-col gap-6">
+        <ul className="grid grid-cols-1 gap-6 min-[620px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
             {searchedServices}
         </ul>
     )

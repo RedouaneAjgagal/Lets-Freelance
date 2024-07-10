@@ -7,7 +7,7 @@ type CreateServiceWrapperProps = {
 const CreateServiceWrapper = (props: React.PropsWithChildren<CreateServiceWrapperProps>) => {
     return (
         <section className="flex flex-col gap-4">
-            <h2 className="font-medium text-xl border-b-2 pb-2 border-slate-500">{props.title}</h2>
+            <h2 className="font-medium text-xl border-b-2 pb-2 border-slate-500 flex sm:self-start sm:pr-12 sm:pb-0">{props.title}</h2>
             <div>
                 {props.children}
             </div>

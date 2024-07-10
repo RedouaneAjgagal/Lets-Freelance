@@ -193,10 +193,10 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
     }
 
     const stepContents: { [key: number]: string } = {
-        1: "Title",
-        2: "Description",
-        3: "Budget",
-        4: "Work time"
+        1: "title",
+        2: "description",
+        3: "budget",
+        4: "work time"
     }
 
     const submitFormButtonContent = props.formType === "create" ? "Create Job Post" : "Update Job Post";
@@ -230,11 +230,13 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
                 : null}
             {isReviewMode ?
                 <JobFormReview onChangeStep={changeStepHandler} />
-                : steps[currentStep]
+                : <div className="sm:bg-white sm:rounded sm:shadow-sm sm:p-4 md:p-8">
+                    {steps[currentStep]}
+                </div>
             }
             <div className="flex justify-end gap-4">
                 {currentStep > 1 ?
-                    <button type="button" onClick={getPrevStepHandler} className="border rounded border-purple-600 px-2 font-medium text-purple-600">Back</button>
+                    <button type="button" onClick={getPrevStepHandler} className="border rounded border-purple-600 px-2 font-medium text-purple-600 md:px-6">Back</button>
                     : null
                 }
                 <PrimaryButton isLoading={createJobMutation.isLoading || updateJobMutation.isLoading} disabled={createJobMutation.isLoading || updateJobMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md">{primaryButtonContent}</PrimaryButton>

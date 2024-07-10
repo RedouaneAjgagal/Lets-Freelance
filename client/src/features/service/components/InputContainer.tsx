@@ -4,6 +4,7 @@ type InputContainerProps = {
     error: string;
     id: string;
     label: string;
+    isErrorLeftSide?: boolean;
 }
 
 const InputContainer = (props: React.PropsWithChildren<InputContainerProps>) => {
@@ -14,7 +15,7 @@ const InputContainer = (props: React.PropsWithChildren<InputContainerProps>) => 
                 {props.children}
             </label>
             {props.error ?
-                <span className="absolute right-0 bottom-1 text-red-600 text-sm">{props.error}</span>
+                <span className={`absolute bottom-0 text-red-600 text-sm ${props.isErrorLeftSide ? "left-0" : "right-0"}`}>{props.error}</span>
                 : null
             }
         </div>

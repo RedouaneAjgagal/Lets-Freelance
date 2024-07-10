@@ -64,14 +64,14 @@ const JobFormTags = (props: React.PropsWithoutRef<JobFormTagsProps>) => {
             <div className="flex items-center gap-2">
                 <Input errorMsg="" isError={props.isError} id="job_tag_input" name="job_tag_input" includeLabel={true} labelContent="Add job tags" type="text" placeHolder="e.g. Web development" onChange={setTagValueHandler} onKeyDown={addTagHandlerByKeyDown} value={tagValue} />
                 {tags.length < 10 ?
-                    <button onClick={addTagHandler} type="button" className="bg-slate-200 py-[.4rem] rounded px-4 font-medium -mb-2">Add</button>
+                    <button onClick={addTagHandler} type="button" className="bg-slate-200 py-[.4rem] rounded px-4 font-medium -mb-2 sm:px-12 md:px-16">Add</button>
                     : null
                 }
                 <input type="text" name="job_tag" id="job_tag" value={getTagValues} readOnly className="sr-only" hidden />
             </div>
             <div className="flex items-center gap-2 flex-wrap">
                 {tags.map((tag) => (
-                    <button onClick={() => removeKeywordHandler(tag._id)} key={tag._id} type="button" className="flex items-center gap-1 text-sm rounded-full border py-1 px-2 border-slate-600 relative">
+                    <button onClick={() => removeKeywordHandler(tag._id)} key={tag._id} type="button" className="flex items-center gap-1 text-sm rounded-full border py-1 px-2 border-slate-600 relative md:px-3 md:text-base">
                         {tag.value.toLowerCase()}
                         <span className="bg-slate-400 rounded-full text-white h-4 w-4 flex items-center justify-center"><TbX /></span>
                     </button>

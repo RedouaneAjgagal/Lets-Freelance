@@ -13,7 +13,7 @@ const JobFormStepThree = () => {
     }
 
     return (
-        <section className="flex flex-col gap-2">
+        <section className="flex flex-col gap-2 md:gap-4">
             <JobFormPriceType setPriceType={onSetPriceType} priceType={priceType} isError={jobFormReducer.priceType.error.message !== ""} />
             <JobFormPrice priceType={priceType} isError={jobFormReducer.price.error.message !== ""} defaultValue={jobFormReducer.price.value} />
         </section>

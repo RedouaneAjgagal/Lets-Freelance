@@ -102,7 +102,8 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
         tier: previewTiers,
         title: createServiceInfo.title.value,
         updatedAt: new Date().toLocaleDateString(),
-        user: userInfo.userId
+        user: userInfo.userId,
+        isFavorited: false,
     };
 
     const createServiceHandler = () => {
@@ -148,20 +149,22 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
         createPortal(
             <div>
                 <Overlay onClose={props.onCloseModal} />
-                <section className="fixed w-[90%] flex flex-col gap-4 z-50 p-3 py-6 bg-white overflow-y-scroll duration-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] rounded pb-14">
+                <section className="fixed w-[90%] flex flex-col gap-4 z-50 p-3 py-6 bg-white overflow-y-scroll duration-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] rounded pb-14 sm:pt-4 sm:px-4 md:p-6 md:h-[80%] md:-translate-y-2/3 md:mt-16 md:max-w-[680px]">
                     <SingleServiceContent serviceInfo={serviceInfo} isPreview />
                 </section>
-                <div className="fixed z-50 bg-white w-full bottom-0 left-0 flex justify-between items-center p-4 border-t border-slate-300">
+                <div className="fixed z-50 bg-white w-full bottom-0 left-0 flex justify-between items-center p-4 border-t border-slate-300 md:py-6 md:px-24">
                     <button onClick={props.onCloseModal} className="font-medium text-slate-600 flex items-center gap-1 p-1">
                         <BiArrowBack size={16} />
                         Back
                     </button>
-                    <PrimaryButton disabled={createServiceMutation.isLoading} fullWith={false} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>
-                        {props.formType === "create" ?
-                            "Submit"
-                            : "Update"
-                        }
-                    </PrimaryButton>
+                    <div className="sm:min-w-[16rem]">
+                        <PrimaryButton isLoading={createServiceMutation.isLoading || updateServiceMutation.isLoading} disabled={createServiceMutation.isLoading || updateServiceMutation.isLoading} fullWith={true} justifyConent="center" style="solid" type="button" x="lg" y="md" onClick={createServiceHandler}>
+                            {props.formType === "create" ?
+                                "Submit"
+                                : "Update"
+                            }
+                        </PrimaryButton>
+                    </div>
                 </div>
             </div>
             , document.getElementById("overlay")!

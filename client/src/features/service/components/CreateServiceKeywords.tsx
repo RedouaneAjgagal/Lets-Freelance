@@ -63,7 +63,7 @@ const CreateServiceKeywords = (props: React.PropsWithoutRef<CreateServiceKeyword
                         </div>
                         : null
                     }
-                    <input id="keywords" type="text" placeholder={`${placeholderContent[props.keywords.length] || "Add more"}`} className={`outline-none min-w-[10rem] font-medium px-1 ${props.keywords.length === MAX_KEYWORDS ? "hidden" : ""}`} onChange={setTagHanlder} onKeyDown={handleKeyDown} value={keywordValue} disabled={props.keywords.length === MAX_KEYWORDS} />
+                    <input id="keywords" type="text" placeholder={`${placeholderContent[props.keywords.length] || "Add more"}`} className={`outline-none w-full font-medium px-1 ${props.keywords.length === MAX_KEYWORDS ? "hidden" : ""}`} onChange={setTagHanlder} onKeyDown={handleKeyDown} value={keywordValue} disabled={props.keywords.length === MAX_KEYWORDS} />
                 </div>
                 {props.error ?
                     <span className="absolute right-0 bottom-1 text-red-600 text-sm">{props.error}</span>

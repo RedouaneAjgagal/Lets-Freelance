@@ -37,11 +37,13 @@ const CreateServiceStepTwo = (props: React.PropsWithoutRef<CreateServiceStepTwoP
 
   return (
     <CreateServiceWrapper title="Details">
-      <DescriptionRichTextEditor error={description.error.msg} onChange={setDescriptionHandler} textValue={description.value} />
-      {props.formType === "create" ?
-        <CreateServiceKeywords error={keywords.error.msg} keywords={keywords.value} setKeyword={setKeywordHandler} onRemoveKeyword={removeKeywordHandler} />
-        : null
-      }
+      <div className="">
+        <DescriptionRichTextEditor error={description.error.msg} onChange={setDescriptionHandler} textValue={description.value} />
+        {props.formType === "create" ?
+          <CreateServiceKeywords error={keywords.error.msg} keywords={keywords.value} setKeyword={setKeywordHandler} onRemoveKeyword={removeKeywordHandler} />
+          : null
+        }
+      </div>
     </CreateServiceWrapper>
   )
 }

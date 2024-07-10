@@ -35,7 +35,7 @@ const JobFormPriceType = (props: React.PropsWithoutRef<JobFormPriceTypeProps>) =
         const isChecked = priceType.value === props.priceType;
 
         return (
-            <label key={priceType.value} className={`${isChecked ? "bg-purple-100/60 border-purple-500" : "bg-transparent"} relative border-2 rounded p-4 min-w-[11rem] cursor-pointer`} htmlFor={`job_priceType_${priceType.value}`}>
+            <label key={priceType.value} className={`${isChecked ? "bg-purple-100/60 border-purple-500" : "bg-transparent"} relative border-2 rounded p-4 min-w-[11rem] cursor-pointer md:min-w-[16rem]`} htmlFor={`job_priceType_${priceType.value}`}>
                 <div className="flex flex-col gap-2">
                     <priceType.icon size={20} />
                     <div className="absolute top-2 right-2 h-5 w-5">
@@ -51,7 +51,7 @@ const JobFormPriceType = (props: React.PropsWithoutRef<JobFormPriceTypeProps>) =
     })
 
     return (
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex gap-4 flex-wrap md:gap-6">
             {pricetypeInputs}
         </div>
     )

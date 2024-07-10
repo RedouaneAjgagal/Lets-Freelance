@@ -20,7 +20,7 @@ const SingleServiceContainer = (props: React.PropsWithoutRef<SingleServiceContai
                     ? <SingleActivityNavbar activity="service" hideReport={isBelongToCurrentUser} hideSave={isBelongToCurrentUser} target={props.serviceInfo._id} isFavorited={props.serviceInfo.isFavorited} hideShare />
                     : null
                 }
-                <SingleServiceContent serviceInfo={props.serviceInfo} isPreview={!userInfo || userInfo?.userAs === "employer"} />
+                <SingleServiceContent serviceInfo={props.serviceInfo} isPreview={userInfo?.userAs === "freelancer"} />
             </div>
             <ServiceFAQs />
             {

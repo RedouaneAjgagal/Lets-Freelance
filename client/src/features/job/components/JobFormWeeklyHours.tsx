@@ -22,7 +22,7 @@ const JobFormWeeklyHours = (props: React.PropsWithoutRef<JobFormWeeklyHoursProps
 
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-lg font-medium">Weekly hours</span>
+            <span className="text-lg font-medium cursor-default">Weekly hours</span>
             <div className="flex items-center gap-4">
                 {weeklyHoursInputs}
             </div>

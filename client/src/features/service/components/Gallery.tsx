@@ -50,7 +50,7 @@ const Gallery = () => {
     }
 
     return (
-        <InputContainer label="Gallery" error={gallery.error.msg} id="gallery">
+        <InputContainer label="Gallery" error={gallery.error.msg} id="gallery" isErrorLeftSide>
             {gallery.value.length ?
                 <ul className="flex items-center gap-4 flex-wrap">
                     {

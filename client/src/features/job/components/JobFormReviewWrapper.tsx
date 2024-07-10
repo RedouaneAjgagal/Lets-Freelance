@@ -13,7 +13,7 @@ const JobFormReviewWrapper = (props: React.PropsWithChildren<JobFormReviewWrappe
     }
 
     return (
-        <article className="flex flex-col gap-4 bg-white p-3 border rounded shadow-sm">
+        <article className="flex flex-col gap-4 bg-white p-3 border rounded shadow-sm md:px-5 md:py-4">
             <nav className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <small>{step}</small>

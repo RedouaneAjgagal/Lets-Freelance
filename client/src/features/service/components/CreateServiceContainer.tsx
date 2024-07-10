@@ -24,7 +24,7 @@ const CreateServiceContainer = (props: React.PropsWithoutRef<CreateServiceContai
     }, [currentStep]);
 
     return (
-        <div>
+        <div className="sm:p-4 sm:bg-white sm:rounded sm:shadow-sm md:p-8 xl:px-12 xl:py-10 xl:mt-4">
             {currentStepComponent}
         </div>
     )

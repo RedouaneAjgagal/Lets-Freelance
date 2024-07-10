@@ -26,7 +26,7 @@ const JobFormPrice = (props: React.PropsWithoutRef<JobFormPriceProps>) => {
                 : props.defaultValue[price];
 
         return (
-            <div key={price} className={`${props.priceType === "fixed" ? "w-full" : ""} flex flex-col gap-1`}>
+            <div key={price} className={`${props.priceType === "fixed" ? "w-full md:w-auto" : ""} flex flex-col gap-1`}>
                 <label htmlFor={`job_price_${price}`} className="text-lg font-medium">{priceContent}</label>
                 <div className="relative">
                     <div className="flex items-center gap-1">

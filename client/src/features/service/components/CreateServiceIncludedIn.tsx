@@ -64,9 +64,9 @@ const CreateServiceIncludedIn = (props: React.PropsWithoutRef<CreateServiceInclu
     };
 
     return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 md:gap-4">
             <button onClick={removeIncludedInHandler} className="text-red-600 self-center py-1">
-                <TbTrash size={20} />
+                <TbTrash className="text-xl md:text-2xl" />
             </button>
             <div className="col-span-2 flex items-center gap-1 w-full">
                 <div className="relative pb-6 flex flex-col gap-1 w-full">
@@ -77,15 +77,15 @@ const CreateServiceIncludedIn = (props: React.PropsWithoutRef<CreateServiceInclu
                 </div>
             </div>
             <div className="relative pb-6 flex flex-col gap-1 col-span-1">
-                <span className="font-medium">
+                <span role="button" onClick={toggleSelectHandler} className="font-medium cursor-default">
                     Select
                 </span>
-                <button onClick={toggleSelectHandler} className={`${error?.result.error.msg ? "border-red-300" : "border-slate-300"} flex justify-between items-center border-2 gap-1 h-full rounded px-2 text-slate-700`}>
+                <button onClick={toggleSelectHandler} className={`${error?.result.error.msg ? "border-red-300" : "border-slate-300"} flex justify-between items-center border-2 gap-1 h-full rounded px-2 text-slate-700 md:min-w-[8rem]`}>
                     <span>{selected[props.includedIn.result.value.toString()] || props.includedIn.result.value.toString()}</span>
                     <BsArrowDown size={20} className={`${isSelectOpen ? "-rotate-180" : "-rotate-0"} transition-all duration-300`} />
                 </button>
                 {isSelectOpen ?
-                    <div className="absolute z-10 right-0 -bottom-[7.3rem] bg-slate-50 border-2 rounded border-slate-300 min-w-[14rem] p-3 flex flex-col gap-2">
+                    <div className="absolute z-10 right-0 -bottom-[7.3rem] bg-slate-50 border-2 rounded border-slate-300 min-w-[14rem] p-3 flex flex-col gap-2 md:min-w-[18rem] md:p-4 md:-bottom-[7.8rem]">
                         <div className="flex gap-2 justify-center font-normal">
                             <button className="w-full bg-green-100 font-medium border border-green-200 rounded py-1 flex justify-center items-center" onClick={() => setResultHandler("true")} >
                                 {selected.true}

@@ -38,7 +38,7 @@ const FeaturedImage = () => {
     }
 
     return (
-        <InputContainer label="Featured image" error={featuredImage.error.msg} id="featuredImage">
+        <InputContainer label="Featured image" error={featuredImage.error.msg} id="featuredImage" isErrorLeftSide>
             {featuredImage.value ?
                 <div className="mb-1 max-w-[12rem] relative">
                     <img src={featuredImage.value} alt="Featured service image" className="rounded object-contain " />

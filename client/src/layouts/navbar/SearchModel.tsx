@@ -123,7 +123,7 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
                         {searchBy}
                         <BsArrowDown />
                     </button>
-                    <div className={`bg-white flex items-start gap-6 border-b text-slate-400 font-medium lg:flex-col lg:absolute lg:right-0 lg:-top-44 lg:w-44 lg:gap-0 lg:rounded lg:shadow-lg lg:border lg:border-slate-300 ${isDropmenuOpen ? "lg:top-10" : ""}`}>
+                    <div className={`bg-white flex items-start gap-6 border-b text-slate-400 font-medium lg:flex-col lg:absolute lg:right-0 lg:-top-44 lg:w-44 lg:gap-0 lg:z-50 lg:rounded lg:shadow-lg lg:border lg:border-slate-300 ${isDropmenuOpen ? "lg:top-10" : ""}`}>
                         {searchByValues.map(searchByValue => (
                             <SearchBy key={searchByValue} searchByHandler={searchByhandler} value={searchByValue} currentTarget={searchBy} closeDropdownHandler={() => setIsDropmenuOpen(false)} />
                         ))}

@@ -34,9 +34,9 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
             <hr />
             <SelectedPackage deliveryTime={selectedPackage.deliveryTime} includedIn={selectedPackage.includedIn} />
             {
-                props.isPreview ?
-                    <CtaOrderService userId={props.userId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
-                    : null
+                props.isPreview
+                    ? null
+                    : <CtaOrderService userId={props.userId} selectedTier={selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
             }
         </aside>
     )

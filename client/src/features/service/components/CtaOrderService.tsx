@@ -47,12 +47,12 @@ const CtaOrderService = (props: React.PropsWithoutRef<CtaOrderServiceProps>) => 
     };
 
     return (
-        <div className="flex gap-3 fixed bottom-0 bg-white w-full left-1/2 -translate-x-1/2 p-4 border-t z-20">
+        <div className="flex gap-3 fixed bottom-0 bg-white w-full left-1/2 -translate-x-1/2 p-4 border-t z-20 lg:relative lg:flex-col-reverse lg:px-0 lg:border-t-0">
             <div className="w-full order-1">
-                <PrimaryButton disabled={orderServiceMutation.isLoading} fullWith justifyConent="center" style="solid" type="button" x="md" y="lg" onClick={orderServiceHandler}>{`Continue ($${props.selectedPackagePrice.toFixed(0)})`}</PrimaryButton>
+                <PrimaryButton isLoading={orderServiceMutation.isLoading} disabled={orderServiceMutation.isLoading} fullWith justifyConent="center" style="solid" type="button" x="md" y="lg" onClick={orderServiceHandler}>{`Continue ($${props.selectedPackagePrice.toFixed(0)})`}</PrimaryButton>
             </div>
             <div className="flex">
-                <PrimaryButton disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading} fullWith justifyConent="center" style="outline" type="button" x="md" y="sm" onClick={messageFreelancer}>{`Message`}</PrimaryButton>
+                <PrimaryButton disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading} fullWith justifyConent="center" style="outline" type="button" x="md" y="md" onClick={messageFreelancer}>{`Message`}</PrimaryButton>
             </div>
         </div>
     )

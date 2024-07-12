@@ -8,15 +8,14 @@ type SingleServiceGalleryProps = {
 }
 
 const SingleServiceGallery = (props: React.PropsWithoutRef<SingleServiceGalleryProps>) => {
-
     const images = [props.featuredImage, ...props.gallery];
 
     return (
-        <section className="p-4 bg-slate-700 rounded">
-            <Slider isAutoPlay={false} isPagination={false} slidesPerView={1} navigationClassName="singleService">
+        <section className="flex bg-slate-700 p-3 flex-col gap-4 relative rounded sm:p-0 sm:bg-white">
+            <Slider subImages={images} isAutoGenerateSlides={false} isAutoPlay={false} isPagination={false} slidesPerView={1} navigationClassName="singleService">
                 {
-                    images.map((image, index) => <SwiperSlide key={index}>
-                        <img src={image} alt="service's images" className="w-full h-60 object-cover rounded" />
+                    images.map((image) => <SwiperSlide key={image}>
+                        <img src={image} alt="service's images" className="w-full h-64 min-h-full  object-cover rounded sm:h-[30rem] md:h-[36rem] xl:h-[40rem]" />
                     </SwiperSlide>)
                 }
             </Slider>

@@ -1,24 +1,28 @@
 import { TbLoader2 } from "react-icons/tb";
+type LoadingType = {
+    type?: undefined;
+    withoutBackground?: boolean;
+};
 
 type LoadingPropsWithOutImage = {
-    type?: "table" | undefined;
-};
+    type: "table";
+} | LoadingType;
 
 type LoadingPropsWithImage = {
-    type?: "singlePage";
+    type: "singlePage";
     withImage?: boolean;
-};
+} | LoadingType;
 
 type LoadingCards = {
-    type?: "cards";
+    type: "cards";
     display: "grid" | "column";
     numOfCards: number;
-};
+} | LoadingType;
 
 type LoadingStatements = {
-    type?: "statements";
+    type: "statements";
     numOfCards: number;
-};
+} | LoadingType;
 
 type LoadingProps = (
     LoadingPropsWithImage
@@ -138,7 +142,7 @@ const Loading = (props: React.PropsWithoutRef<LoadingProps>) => {
                                 ))}
                             </div>
                         </div>
-                        : <div className="flex items-center justify-center bg-slate-100 rounded min-h-[70vh] animate-pulse">
+                        : <div className={`flex items-center justify-center rounded animate-pulse ${props.withoutBackground ? "" : "bg-slate-100 min-h-[70vh]"}`}>
                             <TbLoader2 className="animate-spin" size={36} />
                         </div>
     )

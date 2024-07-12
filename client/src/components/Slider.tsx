@@ -5,6 +5,7 @@ interface SliderProps {
     navigationClassName?: string;
     isAutoPlay: boolean;
     isPagination: boolean;
+    subImages?: string[];
 };
 
 type SliderAutoGenerateSlides = {
@@ -21,7 +22,7 @@ const Slider = (props: React.PropsWithChildren<SliderAutoGenerateSlides | Slider
     const prevEl = `prev-${props.navigationClassName}`;
     const nextEl = `next-${props.navigationClassName}`;
     return (
-        <div className='relative'>
+        <div className={`relative ${props.subImages && props.subImages.length ? "[&>.swiper>.swiper-pagination]:hidden lg:[&>.swiper>.swiper-pagination]:flex [&>.swiper>.swiper-pagination]:relative [&>.swiper>.swiper-pagination]:text-left [&>.swiper>.swiper-pagination]:bottom-0 [&>.swiper>.swiper-pagination>.swiper-pagination-bullet]:ml-0 [&>.swiper>.swiper-pagination>.swiper-pagination-bullet]:m-4" : ""}`}>
             {props.navigationClassName ?
                 <button className={`${prevEl} absolute -left-3 top-[47%] -translate-y-1/2 z-20 w-9 h-9 flex justify-center items-center bg-white/90 rounded-full text-slate-500 shadow-lg`}>
                     <BiArrowBack />
@@ -29,10 +30,10 @@ const Slider = (props: React.PropsWithChildren<SliderAutoGenerateSlides | Slider
                 : null
             }
             {props.isAutoGenerateSlides
-                ? <Swiper navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={true} startsWith={props.startsWith} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
+                ? <Swiper subImages={props.subImages} navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={true} startsWith={props.startsWith} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
                     {props.children}
                 </Swiper>
-                : <Swiper navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={false} slidesPerView={props.slidesPerView} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
+                : <Swiper subImages={props.subImages} navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={false} slidesPerView={props.slidesPerView} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
                     {props.children}
                 </Swiper>
             }

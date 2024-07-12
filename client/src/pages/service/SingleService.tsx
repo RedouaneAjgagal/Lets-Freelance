@@ -32,11 +32,10 @@ const SingleService = () => {
 
     return (
         singleServiceQuery.isLoading
-            ? <div className="p-4">
+            ? <div className="p-4 xl:max-w-[95rem] xl:m-auto px-4">
                 <Loading type="singlePage" withImage />
             </div>
-            :
-            <SingleServiceContainer serviceInfo={singleServiceQuery.data!} />
+            : <SingleServiceContainer serviceInfo={singleServiceQuery.data!} />
     )
 }
 

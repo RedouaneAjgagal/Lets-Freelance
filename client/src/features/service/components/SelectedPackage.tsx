@@ -22,10 +22,10 @@ const SelectedPackage = (props: React.PropsWithoutRef<SelectedPackageProps>) => 
         <div className="flex flex-col gap-2">
             <IncludedInSelectedPackage includedIn={props.includedIn} deliveryTime={props.deliveryTime} />
             <div className="flex gap-1 items-start mt-4">
-                <div className="pt-1"><TbClock /></div>
+                <div className="pt-1 sm:text-lg"><TbClock /></div>
                 <div className="flex flex-col">
-                    <p className="text-[.95rem]"><span className="font-medium">{expectedDay}</span> delivery — {deliveryAt}</p>
-                    <p className="text-sm text-slate-500">Revisions may occur after this date.</p>
+                    <p className="text-[.95rem] sm:text-base"><span className="font-medium">{expectedDay}</span> delivery — {deliveryAt}</p>
+                    <p className="text-sm text-slate-500 sm:text-[.95rem]">Revisions may occur after this date.</p>
                 </div>
             </div>
         </div>

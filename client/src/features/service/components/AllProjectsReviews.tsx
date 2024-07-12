@@ -14,7 +14,7 @@ const AllProjectsReviews = (props: React.PropsWithoutRef<AllProjectsReviewsProps
 
     return (
         profileReviewsQuery.isLoading ?
-            <Loading />
+            <Loading withoutBackground />
             :
             profileReviewsQuery.data!.completedReviews.length ?
                 <ul className="flex flex-col gap-5">

@@ -21,15 +21,15 @@ const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderPro
 
     return (
         <article className="flex flex-col gap-4">
-            <h1 className="text-3xl font-semibold">{props.title}</h1>
-            <section className="flex justify-between items-center gap-2">
+            <h1 className="text-3xl font-semibold sm:text-4xl lg:text-5xl lg:font-medium">{props.title}</h1>
+            <section className="flex justify-between items-center gap-2 md:justify-start md:gap-6">
                 <Link to={`/profiles/${props.profile._id}`} className="flex items-center gap-2">
                     <div className="relative">
                         <img src={props.profile.avatar} alt="freelancer's avatar" className="w-10 h-10 object-cover rounded-full" />
                         {props.profile.badge === "none" ?
                             null
                             :
-                            <div className="absolute -bottom-1 -right-1">
+                            <div className="absolute -bottom-1 -right-1 md:hidden">
                                 <Badge badge={props.profile.badge} size="sm" minimized />
                             </div>
                         }
@@ -44,6 +44,12 @@ const SingleServiceHeader = (props: React.PropsWithoutRef<SingleServiceHeaderPro
                     </div>
                     :
                     null
+                }
+                {props.profile.badge !== "none"
+                    ? <div className="hidden md:flex">
+                        <Badge badge={props.profile.badge} size="lg" />
+                    </div>
+                    : null
                 }
             </section>
         </article >

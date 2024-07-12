@@ -87,6 +87,11 @@ const isInvalidGallery = (gallery: ServiceWithoutRefs["gallery"] | undefined) =>
         return error = "Unsupported gallery format";
     }
 
+    const MAX_GALLERY_SIZE = 4;
+    if (gallery.length > MAX_GALLERY_SIZE) {
+        return error = "4 is the max gallery images"
+    }
+
     const isValidGallery = gallery.every(img => img.toString().trim() !== "" && img.toString().startsWith("https://res.cloudinary.com/dqfrgtxde/image/upload"));
     if (!isValidGallery) {
         return error = "Invalid gallery images"

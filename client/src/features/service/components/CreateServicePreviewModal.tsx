@@ -7,7 +7,7 @@ import { PrimaryButton } from "../../../layouts/brand";
 import { BiArrowBack } from "react-icons/bi";
 import useCreateServiceMutation from "../hooks/useCreateServiceMutation";
 import { TierType } from "../services/createService";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useOverflow from "../../../hooks/useOverflow";
 import useUpdateServiceMutation from "../hooks/useUpdateServiceMutation";
@@ -145,12 +145,18 @@ const CreateServicePreviewModal = (props: React.PropsWithoutRef<CreateServicePre
 
     useOverflow(!updateServiceMutation.isSuccess);
 
+
+    const [selectedTier, setSelectedTier] = useState<"starter" | "standard" | "advanced">("starter");
+    const changeTierHandler = (tier: "starter" | "standard" | "advanced") => {
+        setSelectedTier(tier)
+    }
+
     return (
         createPortal(
             <div>
                 <Overlay onClose={props.onCloseModal} />
                 <section className="fixed w-[90%] flex flex-col gap-4 z-50 p-3 py-6 bg-white overflow-y-scroll duration-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90%] rounded pb-14 sm:pt-4 sm:px-4 md:p-6 md:h-[80%] md:-translate-y-2/3 md:mt-16 md:max-w-[680px]">
-                    <SingleServiceContent serviceInfo={serviceInfo} isPreview />
+                    <SingleServiceContent onChangeTier={changeTierHandler} selectedTier={selectedTier} serviceInfo={serviceInfo} isPreview />
                 </section>
                 <div className="fixed z-50 bg-white w-full bottom-0 left-0 flex justify-between items-center p-4 border-t border-slate-300 md:py-6 md:px-24">
                     <button onClick={props.onCloseModal} className="font-medium text-slate-600 flex items-center gap-1 p-1">

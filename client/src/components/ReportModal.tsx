@@ -53,8 +53,8 @@ const ReportModal = (props: React.PropsWithoutRef<Props>) => {
     return (
         <>
             <Overlay onClose={props.onCLose} />
-            <div className="fixed w-[90%] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-5 z-50 rounded flex flex-col gap-6">
-                <button onClick={props.onCLose} className="absolute right-0 top-0 p-1 text-3xl">
+            <div className="fixed w-[90%] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-5 z-50 rounded flex flex-col gap-6 max-w-[45rem]">
+                <button onClick={props.onCLose} className="absolute right-0 top-0 p-1 text-3xl sm:py-2 sm:px-4">
                     <BiX />
                 </button>
                 <h4 className="text-2xl font-medium">{reportTitle}</h4>
@@ -63,11 +63,13 @@ const ReportModal = (props: React.PropsWithoutRef<Props>) => {
                         <input type="text" placeholder="Subject *" name="reportSubject" id="subject" className={`${subjectError ? "border-red-600" : "border-slate-300"} border rounded w-full p-2`} ref={reportSubjectRef} />
                         {subjectError ? <p className="absolute -bottom-5 right-0 text-sm text-red-600">{subjectError}</p> : null}
                     </div>
-                    <textarea name="reportMessage" id="reportMessage" rows={3} placeholder="Message" className="border border-slate-300 rounded w-full p-2 resize-none" ref={reportMessageRef}></textarea>
-                    <PrimaryButton style="outline" fullWith x="md" y="md" justifyConent="center" type="submit" disabled={submitReportMutation.isLoading} isLoading={submitReportMutation.isLoading}>
-                        Send Report
-                        <BiArrowBack className="rotate-[135deg] text-2xl" />
-                    </PrimaryButton>
+                    <textarea name="reportMessage" id="reportMessage" rows={4} placeholder="Message" className="border border-slate-300 rounded w-full p-2 resize-none" ref={reportMessageRef}></textarea>
+                    <div className="lg:flex lg:self-start">
+                        <PrimaryButton style="outline" fullWith x="lg" y="md" justifyConent="center" type="submit" disabled={submitReportMutation.isLoading} isLoading={submitReportMutation.isLoading}>
+                            Send Report
+                            <BiArrowBack className="rotate-[135deg] text-2xl" />
+                        </PrimaryButton>
+                    </div>
                 </form>
             </div>
         </>

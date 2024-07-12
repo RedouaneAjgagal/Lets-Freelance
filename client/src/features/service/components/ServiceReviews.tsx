@@ -51,12 +51,12 @@ const ServiceReviews = (props: ServiceReviewsProps) => {
         serviceReviewsQuery.isLoading ?
           <Loading />
           :
-          <RatingTable ratings={serviceReviewsQuery.data!.map(review => ({ rating: review.rating }))} />
+          <RatingTable avgRate={props.rating.avgRate!} ratings={serviceReviewsQuery.data!.map(review => ({ rating: review.rating }))} />
       }
       <ReviewTabs tabs={tabs} currentTabOn={serviceReviewTab} onClick={clickTabHandler} />
       {
         serviceReviewsQuery.isLoading ?
-          <Loading />
+          <Loading withoutBackground />
           :
           content
       }

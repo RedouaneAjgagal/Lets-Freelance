@@ -14,7 +14,7 @@ const IncludedIn = (props: React.PropsWithoutRef<IncludedInProps>) => {
     });
 
     return (
-        <div className="flex items-end justify-between gap-2 text-[.95rem]">
+        <div className="flex items-end justify-between gap-2 text-[.95rem] sm:text-base">
             <span className="">{description}</span>
             <span className="font-medium">
                 {typeof props.result === "boolean" ?

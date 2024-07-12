@@ -7,12 +7,15 @@ import { SingleServiceType } from '../services/getSingleService'
 
 type SingleServiceContentProps = {
     serviceInfo: SingleServiceType;
+    hideCta?: boolean;
     isPreview?: boolean;
+    onChangeTier: (tier: "starter" | "standard" | "advanced") => void;
+    selectedTier: "starter" | "standard" | "advanced";
 }
 
 const SingleServiceContent = (props: React.PropsWithoutRef<SingleServiceContentProps>) => {
     return (
-        <div className="flex flex-col gap-6 py-3">
+        <div className="flex flex-col gap-8 py-3">
             <div>
                 <SingleServiceHeader title={props.serviceInfo.title} profile={{
                     _id: props.serviceInfo.profile._id,
@@ -25,7 +28,7 @@ const SingleServiceContent = (props: React.PropsWithoutRef<SingleServiceContentP
                     <SingleServiceGallery featuredImage={props.serviceInfo.featuredImage} gallery={props.serviceInfo.gallery} />
                 </div>
             </div>
-            <SelectServiceTierContainer tier={props.serviceInfo.tier} profileName={props.serviceInfo.profile.name} serviceId={props.serviceInfo._id} userId={props.serviceInfo.user} isPreview={props.isPreview} />
+            <SelectServiceTierContainer key={1} isDesktopSize={false} tier={props.serviceInfo.tier} profileName={props.serviceInfo.profile.name} serviceId={props.serviceInfo._id} userId={props.serviceInfo.user} hideCta={props.hideCta} onChangeTier={props.onChangeTier} selectedTier={props.selectedTier} />
             <ServiceDetails description={props.serviceInfo.description} />
         </div>
     )

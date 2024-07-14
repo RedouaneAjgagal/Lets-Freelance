@@ -16,7 +16,11 @@ const SetAsPaidService = () => {
     const trackId = URLSearchParams.get("track_id");
 
     if (!sessionId) {
-        return <SetServiceAsPaidContainer isError msg="Something went wrong!" />
+        return (
+            <main className="p-4 lg:flex lg:items-center lg:justify-center lg:min-h-[50vh]">
+                <SetServiceAsPaidContainer isError msg="Something went wrong!" />
+            </main>
+        )
     }
 
     const setServiceAsPaidPayload: SetServiceAsPaidPayload = {
@@ -36,10 +40,10 @@ const SetAsPaidService = () => {
     }, [setServiceAsPaidQuery.isSuccess]);
 
     return (
-        <main className="p-4">
+        <main className="p-4 lg:flex lg:items-center lg:justify-center lg:min-h-[50vh]">
             {
                 setServiceAsPaidQuery.isLoading ?
-                    <Loading />
+                    <Loading withoutBackground />
                     :
                     <SetServiceAsPaidContainer isError={setServiceAsPaidQuery.isError} msg={setServiceAsPaidQuery.data?.msg || "Something went wrong"} />
             }

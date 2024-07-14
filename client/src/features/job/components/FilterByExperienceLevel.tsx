@@ -52,7 +52,7 @@ const FilterByExperienceLevel = () => {
     }, [experience_level]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Experience Level</h4>
             <SelectOptions selectTitle={selectTitle} onSelect={selectExperienceLevelHandler} options={experienceLevelOptions} upperCaseEveryWord />
         </div>

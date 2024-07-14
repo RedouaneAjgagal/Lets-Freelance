@@ -4,7 +4,11 @@ import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { useSearchParams } from "react-router-dom";
 import getOnlyValidJobSearchedQueries from "../utils/getOnlyValidJobSearchedQueries";
 
-const FilterByLocationType = () => {
+type FilterByLocationTypeProps = {
+    isDesktopLayout?: boolean;
+}
+
+const FilterByLocationType = (props: React.PropsWithoutRef<FilterByLocationTypeProps>) => {
     const [isFetch, setIsFetch] = useState(false);
 
     const queryClient = useQueryClient();
@@ -27,10 +31,13 @@ const FilterByLocationType = () => {
             setIsFetch(true);
         }
 
+        const isChecked = location_type && location_type === option.toLowerCase() ? true : false;
+
         return (
             <div key={option} className="flex items-center gap-1">
-                <input type="radio" name="projectLocation" id={option.toLowerCase()} className="accent-purple-600" onChange={getProjectLocationHandler} value={option} checked={location_type && location_type === option.toLowerCase() ? true : false} />
-                <label htmlFor={option.toLowerCase()}>
+                <input type="radio" name="projectLocation" id={`${props.isDesktopLayout ? "desktop" : "mobile"}_${option.toLowerCase()}`} className="appearance-none invisible" onChange={getProjectLocationHandler} value={option} checked={isChecked} />
+                <label htmlFor={`${props.isDesktopLayout ? "desktop" : "mobile"}_${option.toLowerCase()}`} className="flex items-center gap-2">
+                    <div className={` flex items-center justify-center w-3 h-3 rounded-full outline outline-2  ${isChecked ? "outline-purple-500 bg-purple-500 outline-offset-2" : "outline-slate-300"}`}></div>
                     {option}
                 </label>
             </div>
@@ -44,7 +51,7 @@ const FilterByLocationType = () => {
     }, [location_type]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Project Location</h4>
             <fieldset className="flex flex-col gap-2">
                 {radioInputs}

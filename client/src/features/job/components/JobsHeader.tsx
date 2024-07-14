@@ -22,7 +22,7 @@ const JobsHeader = () => {
 
         const formData = new FormData(e.currentTarget);
         const searchValue = formData.get("search")?.toString();
-        
+
         customSearchParams.setSearchParams({
             key: "search",
             value: searchValue?.trim() || "",
@@ -59,19 +59,21 @@ const JobsHeader = () => {
     }
 
     return (
-        <header className="px-4 pt-7 flex flex-col gap-4">
+        <header className="px-4 pt-7 flex flex-col gap-4 lg:pt-2">
             <div className="flex items-center gap-2">
                 <SearchInput onSubmit={searchJobsHandler} searchValue={searchValue || ""} />
                 <div className="flex items-center justify-center">
-                    <button onClick={openFilterHandler} className="relative border-2 rounded-md p-1 border-purple-600 text-purple-700">
-                        <TbListSearch size={22} />
-                        {Object.keys(filters).length ?
-                            <span className="absolute flex  justify-center items-center h-5 w-5 rounded-full font-medium bg-purple-600 text-white text-sm -top-[.6rem] -right-[.7rem]">
-                                {Object.keys(filters).length}
-                            </span>
-                            : null
-                        }
-                    </button>
+                    <div className="flex lg:hidden">
+                        <button onClick={openFilterHandler} className="relative border-2 rounded-md p-1 border-purple-600 text-purple-700">
+                            <TbListSearch size={22} />
+                            {Object.keys(filters).length ?
+                                <span className="absolute flex  justify-center items-center h-5 w-5 rounded-full font-medium bg-purple-600 text-white text-sm -top-[.6rem] -right-[.7rem]">
+                                    {Object.keys(filters).length}
+                                </span>
+                                : null
+                            }
+                        </button>
+                    </div>
                     <FilterJobsMenu isMenuOpen={isFilterOpen} onCloseMenu={closeFilterHandler} />
                 </div>
             </div>

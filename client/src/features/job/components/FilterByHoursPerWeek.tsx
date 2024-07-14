@@ -4,8 +4,11 @@ import getOnlyValidJobSearchedQueries from "../utils/getOnlyValidJobSearchedQuer
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
+type FilterByHoursPerWeekProps = {
+    isDesktopLayout?: boolean;
+}
 
-const FilterByHoursPerWeek = () => {
+const FilterByHoursPerWeek = (props: React.PropsWithoutRef<FilterByHoursPerWeekProps>) => {
     const [isFetch, setIsFetch] = useState(false);
 
     const queryClient = useQueryClient();
@@ -33,10 +36,15 @@ const FilterByHoursPerWeek = () => {
             setIsFetch(true);
         }
 
+        const isChecked = hours_per_week && hours_per_week === validOptions[option] ? true : false;
+
         return (
             <div key={option} className="flex items-center gap-1">
-                <input type="radio" name="hoursPerWeek" id={`${option}_than_30`} className="accent-purple-600" onChange={getHoursPerWeekHandler} value={option} checked={hours_per_week && hours_per_week === validOptions[option] ? true : false} />
-                <label htmlFor={`${option}_than_30`}>{`${option} than 30 hrs/week`}</label>
+                <input type="radio" name="hoursPerWeek" id={`${props.isDesktopLayout ? "desktop" : "mobile"}_${option}_than_30`} className="appearance-none invisible" onChange={getHoursPerWeekHandler} value={option} checked={isChecked} />
+                <label htmlFor={`${props.isDesktopLayout ? "desktop" : "mobile"}_${option}_than_30`} className="flex items-center gap-2">
+                    <div className={` flex items-center justify-center w-3 h-3 rounded-full outline outline-2  ${isChecked ? "outline-purple-500 bg-purple-500 outline-offset-2" : "outline-slate-300"}`}></div>
+                    {`${option} than 30 hrs/week`}
+                </label>
             </div>
         )
     });
@@ -48,7 +56,7 @@ const FilterByHoursPerWeek = () => {
     }, [hours_per_week]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Hours Per Week</h4>
             <fieldset className="flex flex-col gap-2">
                 {radioInputs}

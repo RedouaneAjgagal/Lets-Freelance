@@ -54,7 +54,7 @@ const FilterByCategory = () => {
     }, [URLSearchParams.get("category")]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Category</h4>
             <SelectOptions selectTitle={selectedCategory.name || "Select categories"} options={options} onSelect={selectCategoryHandler} upperCaseEveryWord />
         </div>

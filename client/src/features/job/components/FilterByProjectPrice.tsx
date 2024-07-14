@@ -4,8 +4,11 @@ import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+type FilterByProjectPriceProps = {
+    isDesktopLayout?: boolean;
+}
 
-const FilterByProjectPrice = () => {
+const FilterByProjectPrice = (props: React.PropsWithoutRef<FilterByProjectPriceProps>) => {
     const [isFetch, setIsFetch] = useState(false);
 
     const customSearchParams = useCustomSearchParams();
@@ -46,8 +49,8 @@ const FilterByProjectPrice = () => {
         const getCurrentValue = projectPrice ? projectPrice[jobPrice === "min" ? 0 : 1] === "0" ? "" : projectPrice[jobPrice === "min" ? 0 : 1] : ""
 
         return (
-            <label key={jobPrice} htmlFor={`job_price_${jobPrice}`} className="relative">
-                <input id={`job_price_${jobPrice}`} type="number" className="border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full border-slate-300 outline-slate-400 pl-7" placeholder={jobPrice} onChange={setValueHanlder} value={getCurrentValue} />
+            <label key={jobPrice} htmlFor={`${props.isDesktopLayout ? "desktop" : "mobile"}_job_price_${jobPrice}`} className="relative">
+                <input id={`${props.isDesktopLayout ? "desktop" : "mobile"}_job_price_${jobPrice}`} type="number" className="border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full border-slate-300 outline-slate-400 pl-7" placeholder={jobPrice} onChange={setValueHanlder} value={getCurrentValue} />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold pointer-events-none">$</span>
             </label>
         )
@@ -65,7 +68,7 @@ const FilterByProjectPrice = () => {
     }, [project_price, isFetch]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Job Price</h4>
             <div className="flex items-center gap-2">
                 {jobPriceInputs}

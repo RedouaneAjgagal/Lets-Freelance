@@ -119,7 +119,7 @@ const FilterByProjectLength = () => {
     }, [project_length]);
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
             <h4 className="text-black text-xl">Project Length</h4>
             <SelectOptions options={comparisonOptions} onSelect={selectComparisonOptionsHandler} selectTitle={projectLength.comparison || "less - or - more"} upperCaseEveryWord />
             <div className="flex items-center gap-2">

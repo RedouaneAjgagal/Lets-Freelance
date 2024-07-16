@@ -14,7 +14,7 @@ const SingleJobProfileHistory = (props: React.PropsWithoutRef<SingleJobProfileHi
 
     return (
         employerWorkHistory.isLoading ?
-            <Loading />
+            <Loading withoutBackground />
             : <div>
                 <ProfileHistory completedJobs={employerWorkHistory.data!.completedReviews} inProgressJobs={[]} />
             </div>

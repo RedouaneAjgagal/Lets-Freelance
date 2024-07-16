@@ -12,6 +12,7 @@ import { GetMessagesPayload, MessagesResponse } from "./services/getMessages";
 import { GetContactMessagesResponse } from "./services/getContactMessages";
 import useSetInitialMessageMutation from "./hooks/useSetInitialMessageMutation";
 import LoadingMessages from "./components/LoadingMessages";
+import SingleJobHeader from "../job/components/SingleJobHeader";
 
 export {
     MessagesContainer,
@@ -24,7 +25,8 @@ export {
     useGetMessagesQuery,
     ContactMessagesContainer,
     useSetInitialMessageMutation,
-    LoadingMessages
+    LoadingMessages,
+    SingleJobHeader
 }
 
 export type {

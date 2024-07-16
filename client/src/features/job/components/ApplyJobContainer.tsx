@@ -7,7 +7,7 @@ type ApplyJobContainerProps = {
     connects: number;
     jobId: string;
     hasSubmitted: boolean;
-    isFavorited: boolean
+    isFavorited: boolean;
 }
 
 const ApplyJobContainer = (props: React.PropsWithoutRef<ApplyJobContainerProps>) => {

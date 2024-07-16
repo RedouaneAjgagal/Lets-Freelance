@@ -43,7 +43,7 @@ const SingleJobHeader = (props: React.PropsWithoutRef<SingleJobHeaderProps>) => 
                     </div>
                 }
             </div>
-            <h1 className="text-2xl font-semibold">{props.title}</h1>
+            <h1 className="text-3xl font-semibold sm:text-4xl lg:text-5xl lg:font-medium">{props.title}</h1>
             <div className="flex flex-col gap-2">
                 <span className="flex items-center gap-1 text-slate-700 font-medium">
                     <TbCategory size={20} />

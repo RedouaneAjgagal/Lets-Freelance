@@ -42,7 +42,7 @@ const AnalyticsWrapper = (props: React.PropsWithChildren<AnalyticsWrapperProps>)
                 : null
             }
             {props.children ?
-                <div className="pb-[75%] relative h-0" >
+                <div className="pb-[85%] relative h-0 sm:pb-[65%] md:pb-[50%] xl:pb-[45%]">
                     <div className="absolute top-0 left-0 w-full h-full py-4">
                         {props.isLoading ?
                             <div className=" bg-slate-900/80 absolute  flex items-center justify-center w-full top-0 left-0 h-full z-20">

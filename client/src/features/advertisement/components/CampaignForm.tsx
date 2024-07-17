@@ -195,7 +195,7 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
                             <span className={`text-sm font-medium text-red-500 self-end transition-all  ${campaignValues.budget.error.isError && campaignValues.budget.error.errorMsg !== "" ? "visible h-5 opacity-100" : "invisible h-0 opacity-0"}`}>{campaignValues.budget.error.errorMsg}</span>
                         </div>
                     </div>
-                    <div className="flex justify-between flex-col gap-4">
+                    <div className="flex justify-between flex-col gap-4 sm:flex-row">
                         {props.type === "create" ?
                             <div className="flex flex-col gap-[.1rem] w-full relative">
                                 <label htmlFor={`${props.type}_startDate`} className="text-[.9rem]">Start date</label>
@@ -234,7 +234,7 @@ const CampaignForm = (props: React.PropsWithoutRef<CampaignFormProps>) => {
                 </div>
                 : null
             }
-            <div className="flex gap-4">
+            <div className="flex gap-4 lg:justify-between">
                 {props.type === "update" ?
                     <button type="button" onClick={props.onCancel} className="font-medium text-slate-700">Cancel</button>
                     : null

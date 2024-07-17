@@ -134,8 +134,8 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
     }
 
     return (
-        <div className="flex flex-col gap-4 border-t border-slate-300 pt-6 first:border-0 first:pt-2">
-            <div className="flex items-center justify-between text-slate-600 font-medium">
+        <div className="grid grid-cols-2 gap-4 border-t border-slate-300 pt-6 first:border-0 first:pt-2">
+            <div className="col-span-2 flex items-center justify-between text-slate-600 font-medium">
                 {props.index ?
                     <h3>Ad set N:{props.index + 1}</h3>
                     : <h3>Ad set</h3>
@@ -147,7 +147,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
                     : null
                 }
             </div>
-            <div className="w-full flex flex-col">
+            <div className="col-span-2 w-full flex flex-col md:order-2 md:col-span-1">
                 <div className="flex flex-col gap-[.1rem] w-full relative">
                     <label htmlFor={`${props.type}_service_${props.adSet.ad}`} className="text-[.9rem]">Service</label>
                     <select id={`${props.type}_service_${props.adSet.ad}`} className={`px-2 py-[.3rem] bg-white border-2 focus:border-2 focus:border-blue-300 shadow-sm rounded outline-none w-full appearance-none pr-6 ${props.adSet.service.error.isError && props.adSet.service.error.errorMsg ? "border-red-400" : "border-white"}`} disabled={props.type === "update" && props.isServicesLoading} onChange={setServiceHandler} value={props.adSet.service.value._id}>
@@ -160,7 +160,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
                 </div>
                 <span className={`text-sm font-medium text-red-500 self-end transition-all  ${props.adSet.service.error.isError && props.adSet.service.error.errorMsg !== "" ? "visible h-5 opacity-100" : "invisible h-0 opacity-0"}`}>{props.adSet.service.error.errorMsg}</span>
             </div>
-            <div className="flex justify-between gap-4">
+            <div className="col-span-2 flex justify-between gap-4">
                 <div className="w-full flex flex-col">
                     <div className="flex flex-col gap-[.1rem] w-full relative">
                         <label htmlFor={`${props.type}_event_${props.adSet.ad}`} className="text-[.9rem]">Event</label>
@@ -180,7 +180,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
                     <span className={`text-sm font-medium text-red-500 self-end transition-all  ${props.adSet.bidAmount.error.isError && props.adSet.bidAmount.error.errorMsg !== "" ? "visible h-5 opacity-100" : "invisible h-0 opacity-0"}`}>{props.adSet.bidAmount.error.errorMsg}</span>
                 </div>
             </div>
-            <div className="w-full flex flex-col">
+            <div className="col-span-2 w-full flex flex-col md:order-2 md:col-span-1">
                 <div className="flex flex-col gap-[.1rem] w-full relative">
                     <label htmlFor={`${props.type}_category_${props.adSet.ad}`} className="text-[.9rem]">Category</label>
                     <select id={`${props.type}_category_${props.adSet.ad}`} className={`px-2 py-[.3rem] bg-white border-2 focus:border-2 focus:border-blue-300 shadow-sm rounded outline-none w-full appearance-none group ${props.adSet.category.error.isError && props.adSet.category.error.errorMsg ? "border-red-400" : "border-white"}`} onChange={setCategoryHandler} value={props.adSet.category.value}>
@@ -192,7 +192,7 @@ const AdSetInputContainer = (props: React.PropsWithoutRef<AdSetInputContainerPro
                 </div>
                 <span className={`text-sm font-medium text-red-500 self-end transition-all  ${props.adSet.category.error.isError && props.adSet.category.error.errorMsg !== "" ? "visible h-5 opacity-100" : "invisible h-0 opacity-0"}`}>{props.adSet.category.error.errorMsg}</span>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="col-span-2 flex flex-col gap-3 md:order-3">
                 <div className="flex flex-col w-full">
                     <div className="relative">
                         <div className="flex flex-col gap-[.1rem]">

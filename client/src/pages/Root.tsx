@@ -15,12 +15,14 @@ const Root = () => {
 
     const { pathname } = useLocation();
 
-    const isProfileRoute = pathname.startsWith("/profile/");
+    const isProfileRoute = pathname.startsWith("/profile/")
 
     return (
-        <div className={isProfileRoute || pathname.startsWith("/auth/")
+        <div className={(isProfileRoute && !pathname.startsWith("/profile/freelancer/advertisements/")) || (pathname.startsWith("/auth/") && !pathname.startsWith("/profile/freelancer/advertisements/"))
             ? "bg-purple-100/30"
-            : "bg-white"
+            : pathname.startsWith("/profile/freelancer/advertisements/")
+                ? "bg-slate-200/70"
+                : "bg-white"
         }>
             <Toaster />
             <div className="border-b bg-white">

@@ -139,12 +139,12 @@ const SingleAd = (props: React.PropsWithoutRef<SingleAdProps>) => {
         createPortal(
             <>
                 <Overlay onClose={props.onClose} />
-                <div className="fixed w-[90%] bg-stone-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 rounded shadow-lg flex flex-col gap-3">
+                <div className="fixed w-[90%] bg-stone-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 rounded shadow-lg flex flex-col gap-3 max-w-[45rem]">
                     <form onSubmit={submitAdHandler} className="flex flex-col gap-4 max-h-[30rem] overflow-y-scroll relative" noValidate>
                         <div className="p-4">
                             <AdSetInputContainer adSet={campaignForm.ads[0]} adsLength={1} index={0} services={freelancerServices.data} isServicesLoading={freelancerServices.isLoading} type={props.type} />
                         </div>
-                        <div className="flex gap-4 sticky left-0 bottom-0 bg-white w-full py-3 px-4 border-t border-slate-300 rounded-b">
+                        <div className="flex gap-4 sticky left-0 bottom-0 bg-white w-full py-3 px-4 border-t border-slate-300 rounded-b lg:justify-between">
                             <button className="font-medium text-slate-700" type="button" onClick={props.onClose}>Cancel</button>
                             <AdverisementPrimaryButton type="submit" isLoading={props.submitAd.isLoading} fullWidth>
                                 {props.type === "update" ?

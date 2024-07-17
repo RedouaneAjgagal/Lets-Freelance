@@ -15,13 +15,13 @@ type AdverisementPrimarySubmitButtonProps = {
 
 const AdverisementPrimaryButton = (props: React.PropsWithChildren<AdverisementPrimaryButtonProps | AdverisementPrimarySubmitButtonProps>) => {
     return (
-        <button onClick={props.type !== "submit" ? props.onClick : undefined} type={props.type} disabled={props.isLoading} className={`flex justify-center items-center border-2 border-slate-600 font-semibold h-10 rounded bg-amber-500 relative px-2 ${props.fullWidth ? "w-full" : "w-auto"}`}>
+        <button onClick={props.type !== "submit" ? props.onClick : undefined} type={props.type} disabled={props.isLoading} className={`flex justify-center items-center border-2 border-slate-600 font-semibold h-10 rounded bg-amber-500 relative px-2 ${props.fullWidth ? "w-full" : "w-fit"} lg:w-fit lg:px-4`}>
             {props.isLoading ?
                 <>
-                    <span className="invisible absolute">
+                    <span className="invisible flex">
                         {props.children}
                     </span>
-                    <TbLoader size={24} className="animate-spin" />
+                    <TbLoader size={24} className="animate-spin absolute" />
                 </>
                 : props.children
             }

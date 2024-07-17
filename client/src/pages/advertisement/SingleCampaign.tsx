@@ -10,7 +10,7 @@ const SingleCampaign = () => {
     });
 
     return (
-        <main className="bg-slate-200/70 flex flex-col">
+        <main className="flex flex-col">
             <div className="mt-6">
                 <AdvertisementNavbar />
             </div>

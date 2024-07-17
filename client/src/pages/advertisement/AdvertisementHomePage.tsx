@@ -3,7 +3,7 @@ import { AdvertisementNavbar } from "../../features/advertisement"
 
 const AdvertisementHomePage = () => {
     return (
-        <main className="bg-purple-100/30 flex flex-col gap-4 pb-8">
+        <main className="flex flex-col gap-4 pb-8">
             <h1 className="p-4 text-3xl font-semibold text-purple-800 leading-relaxed">Advertisements</h1>
             <AdvertisementNavbar />
             <div className="p-4 flex flex-col gap-2">

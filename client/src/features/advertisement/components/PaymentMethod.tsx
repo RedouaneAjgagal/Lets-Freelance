@@ -33,7 +33,7 @@ const PaymentMethod = (props: React.PropsWithoutRef<PaymentMethodProps>) => {
                         •••
                     </button>
                     <div className="group-focus-within:visible group-focus-within:top-8 group-focus-within:opacity-100 opacity-0 invisible top-4 absolute right-0 z-10 bg-white min-w-[8rem] rounded border shadow-lg font-medium transition-all duration-200">
-                        <button onClick={deletePaymentMethodHandler} className="py-1 px-2 w-full text-left text-red-600">
+                        <button onClick={deletePaymentMethodHandler} className="py-1 px-2 w-full text-left text-red-600 lg:py-2 lg:w-36">
                             {deletePaymentMethodMutation.isLoading ? "Deleting.." : "Delete"}
                         </button>
                     </div>

@@ -53,7 +53,7 @@ const EditCampaign = (props: React.PropsWithoutRef<EditCampaignProps>) => {
     return (
         <>
             <Overlay onClose={props.onClose} />
-            <div className={`fixed w-[90%] bg-stone-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-3`}>
+            <div className={`fixed w-[90%] bg-stone-200 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-3 max-w-[45rem]`}>
                 <CampaignForm type="update" onCancel={props.onClose} submit={updateCampaignMutation} campaignId={campaignId!} />
             </div>
         </>

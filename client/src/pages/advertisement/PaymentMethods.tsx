@@ -5,12 +5,12 @@ const PaymentMethods = () => {
     const getPaymentMethodsQuery = useGetPaymentMethodsQuery();
 
     return (
-        <main className="bg-slate-200/70 flex flex-col">
+        <main className="flex flex-col">
             <div className="mt-6">
                 <AdvertisementNavbar />
             </div>
             <h1 className="text-3xl font-semibold p-4">My Payment Methods</h1>
-            <div className="p-4">
+            <div className="p-4 lg:w-[35rem]">
                 {
                     getPaymentMethodsQuery.isLoading ?
                         <LoadingPaymentMethods numOfCards={3} />

@@ -56,7 +56,7 @@ const PaymentMethodForm = () => {
     }, [createPaymentMethodMutation.isLoading, defaultPaymentAndPayUnpaidInvoicesMutation.isSuccess, defaultPaymentAndPayUnpaidInvoicesMutation.isError]);
 
     return (
-        <form onSubmit={createPaymentMethodHandler} className='flex flex-col gap-4'>
+        <form onSubmit={createPaymentMethodHandler} className='flex flex-col gap-4 w-full lg:w-[35rem]'>
             <PaymentElement />
             <AdverisementPrimaryButton type="submit" fullWidth isLoading={isLoading}>
                 ADD PAYMENT METHOD

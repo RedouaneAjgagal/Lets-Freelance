@@ -32,7 +32,10 @@ const SetPaidFixedPriceProposal = () => {
     return (
         <main className="p-4">
             {markAsPaidProposalQuery.isLoading ?
-                <Loading />
+                <div className="flex flex-col items-center gap-3 py-10">
+                    <h3 className="font-medium text-xl text-slate-600">Verifying..</h3>
+                    <Loading withoutBackground />
+                </div>
                 : markAsPaidProposalQuery.isSuccess ?
                     <MarkAsPaidProposal message={markAsPaidProposalQuery.data.msg} status="success" backTo={backTo} />
                     : <MarkAsPaidProposal message={(markAsPaidProposalQuery.error as AxiosError<{ msg: string }>).response?.data.msg || "Something went wrong"} status="error" backTo={backTo} />

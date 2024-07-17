@@ -50,7 +50,7 @@ const FilterContracts = (props: React.PropsWithoutRef<FilterContractsProps>) => 
         return (
             <div key={status.value} className="flex items-center gap-1">
                 <input className="sr-only appearance-none invisible" onChange={filterStatusHandler} type="radio" name="contractStatus" id={status.value} checked={status.value === getStatus} />
-                <label htmlFor={status.value} className={`border-2 rounded py-1 px-2 min-w-[3rem] text-center text-sm font-medium ${status.value === getStatus ? "text-slate-900 border-slate-500" : "text-slate-600 border-slate-200"}`}>{status.name}</label>
+                <label htmlFor={status.value} className={`border-2 rounded py-1 px-2 min-w-[3rem] text-center text-sm font-medium cursor-pointer ${status.value === getStatus ? "text-slate-900 border-slate-500" : "text-slate-600 border-slate-200"}`}>{status.name}</label>
             </div>
         )
     });

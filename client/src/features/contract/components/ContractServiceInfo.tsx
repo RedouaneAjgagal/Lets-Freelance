@@ -22,7 +22,7 @@ const ContractServiceInfo = (props: React.PropsWithoutRef<ContractServiceInfoPro
                 <h3 className="text-lg font-medium leading-5">Contract title: <span className="text-base text-slate-700">"{props.service.title}"</span>
                 </h3>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">Description:</h3>
                 <button onClick={() => setIsDescriptionOpen(true)} className="underline">View</button>
                 {isDescriptionOpen ?
@@ -30,7 +30,7 @@ const ContractServiceInfo = (props: React.PropsWithoutRef<ContractServiceInfoPro
                     : null
                 }
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">{toUpperCase({ value: props.service.tierName })} tier: </h3>
                 <em>${props.service.tier.price.toFixed(2)} </em>
             </div>

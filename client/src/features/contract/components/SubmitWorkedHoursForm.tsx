@@ -56,7 +56,7 @@ const SubmitWorkedHoursForm = (props: React.PropsWithoutRef<SubmitWorkedHoursFor
     }
 
     return (
-        <form onSubmit={submitWorkedHoursHandler} className="p-3 bg-slate-100 rounded" noValidate>
+        <form onSubmit={submitWorkedHoursHandler} className="p-3 bg-slate-200/20 border rounded lg:p-5" noValidate>
             <span className="text-slate-700 text-sm flex mb-1">${props.hourlyPrice.toFixed(2)} /hr</span>
             <Input errorMsg={workedHoursError} id="worked_hours" includeLabel={true} labelContent="Worked hours" isError={workedHoursError !== ""} name="worked_hours" type="number" defaultValue={""} />
             <div className="flex items-center justify-between">

@@ -31,9 +31,9 @@ const EmployerJobProposalsNav = (props: React.PropsWithoutRef<EmployerJobProposa
   ];
 
   return (
-    <nav className="p-4 flex justify-end items-center gap-2">
-      <span className="font-medium text-slate-700">Filter by status</span>
-      <div className="max-w-[9rem] w-full">
+    <nav className="p-4 flex items-center gap-2">
+      <span className="font-medium text-slate-700 w-full">Filter by status</span>
+      <div className="max-w-[9rem] min-w-[9rem]">
         <SelectOptions options={filterOptions} onSelect={props.onSelect} selectTitle={props.selectedName} isError={false} upperCaseEveryWord />
       </div>
     </nav>

@@ -14,7 +14,7 @@ type SingleContractSectionWrapperPropsWithCreatedAt = {
 
 const SingleContractSectionWrapper = (props: React.PropsWithChildren<SingleContractSectionWrapperProps | SingleContractSectionWrapperPropsWithCreatedAt>) => {
     return (
-        <section className="flex flex-col gap-3 text-slate-900 p-3 bg-slate-50 shadow-sm rounded">
+        <section className="flex flex-col gap-3 text-slate-900 p-3 bg-slate-200/20 border rounded lg:p-5">
             {props.hasDate ?
                 <div className="flex items-center gap-1 text-slate-800">
                     <TbCalendar size={18} />

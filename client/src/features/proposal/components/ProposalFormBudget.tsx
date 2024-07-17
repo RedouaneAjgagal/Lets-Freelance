@@ -17,7 +17,7 @@ const ProposalFormBudget = (props: React.PropsWithoutRef<ProposalFormBudgetProps
             <label className="text-lg font-medium" htmlFor="submitProposal_price">{
                 `Budget (${props.priceType})`
             }</label>
-            <div className="p-3 rounded bg-slate-100 grid grid-cols-6 items-center gap-3 text-slate-600">
+            <div className="p-3 rounded bg-slate-100 grid grid-cols-6 items-center gap-3 text-slate-600 xl:bg-white xl:p-0">
                 <span className="text-[.95rem] col-span-4">{suggestByJobPostPrice}</span>
                 <div className="relative col-span-2">
                     <input placeholder="Price" type="number" name="submitProposal_price" id="submitProposal_price" className={`${props.errorMsg === "" ? "border-slate-300" : "border-red-300"} border-2 px-2 py-1 rounded flex items-center gap-1 justify-between w-full outline-slate-400 pl-7`} />

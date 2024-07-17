@@ -85,7 +85,7 @@ const ContractForm = (props: React.PropsWithoutRef<ContractFormProps>) => {
     return (
         <>
             {!props.contractMutation.isLoading && props.contractMutation.isSuccess ?
-                <div className="p-4 bg-green-100 rounded flex flex-col gap-2">
+                <div className="p-4 bg-green-100 rounded flex flex-col gap-2 ">
                     <h2 className="text-green-700 font-medium text-lg">Success</h2>
                     <p className="text-green-700">{props.contractMutation.data.msg}</p>
                     <Link to={`/profile/contracts/${contractId!}`} className="flex items-center gap-1 text-green-800 self-start">
@@ -93,7 +93,7 @@ const ContractForm = (props: React.PropsWithoutRef<ContractFormProps>) => {
                         Back
                     </Link>
                 </div>
-                : <form onSubmit={submitContractHandler} className="p-3 bg-slate-100 rounded">
+                : <form onSubmit={submitContractHandler} className="p-3 bg-slate-200/20 border rounded lg:p-5">
                     <Input errorMsg={errors.subject} id="_subject" includeLabel isError={errors.subject !== ""} labelContent="Subject" name="_subject" type="text" defaultValue="" />
                     <div className="flex flex-col gap-1 relative pb-6">
                         <label htmlFor="_reason" className="text-lg font-medium">Reason</label>

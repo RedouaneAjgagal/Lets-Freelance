@@ -22,7 +22,7 @@ const ContractPayments = (props: React.PropsWithoutRef<ContractPaymentsProps>) =
     return (
         <div className="bg-white rounded p-6 shadow-sm overflow-auto flex flex-col gap-2">
             <table className="w-full text-left">
-                <TableHead width="wider" tableHeads={tableHeads} />
+                <TableHead width="relaxed" tableHeads={tableHeads} />
                 <tbody>
                     {props.payments.map(payment => <ContractPaymentTableBody key={payment._id} priceType={props.priceType} payment={payment} contractId={props.contractId} />)}
                 </tbody>

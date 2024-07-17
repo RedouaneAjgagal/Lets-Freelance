@@ -7,8 +7,8 @@ const EmployerJobProposals = () => {
     const employerJobProposals = useEmployerJobProposalsQuery();
 
     return (
-        <main className="py-4">
-            <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed px-4">Job proposals</h1>
+        <main className="py-4 flex flex-col lg:gap-6">
+            <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed mx-4">Job proposals</h1>
             {employerJobProposals.isLoading
                 ? <div className="p-4">
                     <Loading type="cards" display="column" numOfCards={4} />

@@ -43,7 +43,7 @@ const ProposalFormEstimatedDuration = (props: React.PropsWithoutRef<ProposalForm
     return (
         <div className="flex flex-col gap-2">
             <label className="text-lg font-medium" htmlFor="submitProposal_estimatedTime">Estimated duration</label>
-            <div className="p-3 rounded bg-slate-100 grid grid-cols-9 items-center gap-3 text-slate-600 w-full">
+            <div className="p-3 rounded bg-slate-100 grid grid-cols-9 items-center gap-3 text-slate-600 w-full xl:bg-white xl:p-0 xl:items-start xl:gap-6">
                 <span className="text-[.95rem] col-span-5">{suggestByJobPostDuration}</span>
                 <div className="col-span-4 flex flex-col gap-2">
                     <SelectOptions options={estimatedDurationOptions} selectTitle={durationType} isError={props.errorMsg.durationType !== ""} onSelect={selectEstimatedDurationHandler} withoutDash />

@@ -15,7 +15,7 @@ const ContractRequestModal = (props: React.PropsWithoutRef<ContractRequestModalP
         createPortal(
             <>
                 <Overlay onClose={props.onClose} />
-                <section className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-2 max-h-[80%]">
+                <section className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-2 max-h-[80%] max-w-[45rem]">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-xl font-semibold">Refund request</h2>
                         <button onClick={props.onClose} className="p-1"><TbX size={20} /></button>

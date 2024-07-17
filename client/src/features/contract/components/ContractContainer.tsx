@@ -60,10 +60,12 @@ const ContractContainer = (props: React.PropsWithoutRef<ContractContainerProps>)
                 <small>Contract ID: {props.contract._id}</small>
             </div>
             <article className="flex flex-col gap-4">
-                {aboutContract}
-                <SingleContractSectionWrapper sectionTitle="Contract status" hasDate={props.contract.completedAt ? true : false} dateTitle="Completed At:" date={completedAt}>
-                    <ContractStatusInfo freelancer={props.contract.freelancer} employer={props.contract.employer} />
-                </SingleContractSectionWrapper>
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                    {aboutContract}
+                    <SingleContractSectionWrapper sectionTitle="Contract status" hasDate={props.contract.completedAt ? true : false} dateTitle="Completed At:" date={completedAt}>
+                        <ContractStatusInfo freelancer={props.contract.freelancer} employer={props.contract.employer} />
+                    </SingleContractSectionWrapper>
+                </div>
                 {props.contract.cancelRequest.status ?
                     <SingleContractSectionWrapper sectionTitle="Cancel request" hasDate={false}>
                         <ContractCancelRequest cancelRequest={props.contract.cancelRequest} freelancerStatus={props.contract.freelancer.status} employerStatus={props.contract.employer.status} />

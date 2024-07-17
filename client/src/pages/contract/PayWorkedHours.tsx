@@ -21,8 +21,6 @@ const PayWorkedHours = () => {
         session_id
     });
 
-    console.log();
-
 
     return (
         <main className="flex flex-col gap-4 p-4">

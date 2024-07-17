@@ -109,7 +109,7 @@ const SubmitProposalForm = (props: React.PropsWithoutRef<SubmitProposalFormProps
 
     return (
         <section className="border rounded bg-white shadow-sm">
-            <h2 className="p-4 border-b text-2xl font-semibold text-slate-900">Create your proposal</h2>
+            <h2 className="p-4 border-b text-2xl font-semibold text-slate-900 xl:bg-slate-50/70">Create your proposal</h2>
             <form noValidate onSubmit={createProposalHandler} className="px-3 py-4 flex flex-col gap-4">
                 <ProposalFormBudget price={props.price} priceType={props.priceType} errorMsg={errorFormState.price} />
                 <ProposalFormEstimatedDuration duration={props.duration} errorMsg={{

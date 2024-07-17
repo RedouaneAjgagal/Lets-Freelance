@@ -27,7 +27,7 @@ const ContractJobInfo = (props: React.PropsWithoutRef<ContractJobInfoProps>) => 
                 <h3 className="text-lg font-medium leading-5">Contract title: <span className="text-base text-slate-700">"{props.job.title}"</span>
                 </h3>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">Description:</h3>
                 <button onClick={() => setIsDescriptionOpen(true)} className="underline">View</button>
                 {isDescriptionOpen ?
@@ -35,11 +35,11 @@ const ContractJobInfo = (props: React.PropsWithoutRef<ContractJobInfoProps>) => 
                     : null
                 }
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">{toUpperCase({ value: props.job.priceType })} price: </h3>
                 <em>${props.job.price.toFixed(2)}</em>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">Cover letter:</h3>
                 <button onClick={() => setIsCoverLetter(true)} className="underline">View</button>
                 {isCoverLetter ?
@@ -47,7 +47,7 @@ const ContractJobInfo = (props: React.PropsWithoutRef<ContractJobInfoProps>) => 
                     : null
                 }
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
                 <h3 className="text-lg font-medium leading-5">Estimated duration:</h3>
                 <p>{props.job.estimatedTime.timeValue} {props.job.estimatedTime.timeType.slice(0, -1)}{estimatedPluralize}</p>
             </div>

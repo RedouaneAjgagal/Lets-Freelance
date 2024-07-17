@@ -39,14 +39,16 @@ const EmployerJobProposalsContainer = (props: React.PropsWithoutRef<EmployerJobP
     const hasApprovedProposals = props.proposals.filter(proposal => proposal.status === "approved").length !== 0;
 
     return (
-        <div>
-            <EmployerJobProposalsNav onSelect={filterHandler} selectedName={selectedFilter.name} />
-            {hasApprovedProposals ?
-                <div className="px-4 pb-4 flex justify-end">
-                    <Link className="underline" to={`/profile/contracts?job_id=${jobId}`}>View job contracts</Link>
-                </div>
-                : null
-            }
+        <div className="lg:mx-4 lg:p-4 lg:bg-white lg:shadow-sm lg:rounded">
+            <div className="flex items-center justify-between flex-wrap pb-4">
+                <EmployerJobProposalsNav onSelect={filterHandler} selectedName={selectedFilter.name} />
+                {hasApprovedProposals ?
+                    <div className="px-4">
+                        <Link className="underline" to={`/profile/contracts?job_id=${jobId}`}>View job contracts</Link>
+                    </div>
+                    : null
+                }
+            </div>
             {proposals.length ?
                 <EmployerJobProposalsList proposals={proposals} />
                 : <section className="flex flex-col gap-4 p-4 text-center items-center">

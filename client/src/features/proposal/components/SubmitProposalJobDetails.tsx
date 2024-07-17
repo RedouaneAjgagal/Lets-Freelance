@@ -17,10 +17,10 @@ const SubmitProposalJobDetails = (props: React.PropsWithoutRef<SubmitProposalJob
 
     return (
         <section className="border rounded bg-white shadow-sm">
-            <h2 className="p-4 border-b text-2xl font-semibold text-slate-900">Job details</h2>
-            <div className="px-3 py-4 flex flex-col gap-4">
-                <h3 className="text-lg font-semibold text-slate-800">{props.jobDetails.title}</h3>
-                <div className="flex flex-col gap-2">
+            <h2 className="p-4 border-b text-2xl font-semibold text-slate-900 xl:bg-slate-50/70">Job details</h2>
+            <div className="px-3 py-4 flex flex-col gap-4 lg:gap-6">
+                <h3 className="text-lg font-semibold text-slate-800 lg:text-xl">{props.jobDetails.title}</h3>
+                <div className="flex flex-col gap-2 lg:gap-4">
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="bg-slate-100 py-[.05rem] text-[.95rem] px-3 rounded-full border font-medium text-slate-600">
                             {category}

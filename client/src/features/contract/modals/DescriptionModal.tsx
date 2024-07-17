@@ -14,7 +14,7 @@ const DescriptionModal = (props: React.PropsWithoutRef<DescriptionModalProps>) =
         createPortal(
             <>
                 <Overlay onClose={props.onClose} />
-                <div className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-4 max-h-[80%]">
+                <div className="fixed w-[90%] bg-white left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 p-4 rounded shadow-lg flex flex-col gap-4 max-h-[80%] max-w-[45rem]">
                     <div className="flex items-center justify-between">
                         <h3 className="font-semibold">{props.title ? props.title : "Description:"}</h3>
                         <button onClick={props.onClose}><TbX size={20} /></button>

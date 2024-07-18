@@ -53,7 +53,7 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
     }, [websocketMessages.message]);
 
     return (
-        <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-scroll">
+        <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-auto">
             {props.contactMessagesQuery.hasNextPage
                 ? <FetchPrevMessages fetchNextPage={props.contactMessagesQuery.fetchNextPage} hasNextPage={props.contactMessagesQuery.hasNextPage} isFetchingNextPage={props.contactMessagesQuery.isFetchingNextPage} />
                 : null

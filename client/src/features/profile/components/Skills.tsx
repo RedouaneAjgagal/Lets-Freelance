@@ -40,10 +40,18 @@ const Skills = (props: React.PropsWithoutRef<Props>) => {
         setSkillValue(e.currentTarget.value);
     }
 
+    const addSkillOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            if (skills.length >= 10) return;
+
+            e.preventDefault();
+            addSkillhandler();
+        }
+    }
 
     return (
         <EditSection title="Skills" titleColor="black">
-            <InputContainer onChange={skillOnChange} value={skillValue} isError={false} errorMsg="" label='Add New Skill' name='skills' type='text' withBtn onConfirm={skills.length < 10 ? addSkillhandler : undefined} btnContent="Add Skill" disabled={skills.length >= 10} />
+            <InputContainer onChange={skillOnChange} value={skillValue} isError={false} errorMsg="" label='Add New Skill' name='skills' type='text' withBtn onKeyDown={addSkillOnKeyDown} onConfirm={skills.length < 10 ? addSkillhandler : undefined} btnContent="Add Skill" disabled={skills.length >= 10} />
             <SkillsList />
         </EditSection>
     )

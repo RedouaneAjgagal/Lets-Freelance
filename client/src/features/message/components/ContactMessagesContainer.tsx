@@ -1,4 +1,3 @@
-import Loading from "../../../components/Loading";
 import useGetContactMessagesQuery from "../hooks/useGetContactMessagesQuery";
 import SendMessageContainer from "./SendMessageContainer";
 import ContactNavbar from "./ContactNavbar";
@@ -43,19 +42,22 @@ const ContactMessagesContainer = (props: React.PropsWithoutRef<ContactMessagesCo
     }, [props.selectedUserId]);
 
     return (
-        getContactMessagesQuery.isLoading
-            ? <LoadingContactMessages />
-            : <section className="bg-white border rounded relative">
-                {getContactMessagesQuery.isRefetching
-                    ? <div className="flex items-center justify-center absolute rounded w-full h-full top-0 left-0 bg-slate-100/50 z-40">
-                        <TbLoader2 className="animate-spin text-blue-500 relative" size={48} />
-                    </div>
-                    : null
-                }
-                <ContactNavbar contact={getContactMessagesQuery.data!.pages[getContactMessagesQuery.data!.pages.length - 1].contact} />
-                <ContactMessages contactMessagesQuery={getContactMessagesQuery} />
-                <SendMessageContainer contactId={getContactMessagesQuery.data!.pages[0].contact.user} />
-            </section>
+        <div className="col-span-1 xl:col-span-2">
+            {getContactMessagesQuery.isLoading
+                ? <LoadingContactMessages />
+                : <section className="bg-white border rounded relative">
+                    {getContactMessagesQuery.isRefetching
+                        ? <div className="flex items-center justify-center absolute rounded w-full h-full top-0 left-0 bg-slate-100/50 z-40">
+                            <TbLoader2 className="animate-spin text-blue-500 relative" size={48} />
+                        </div>
+                        : null
+                    }
+                    <ContactNavbar contact={getContactMessagesQuery.data!.pages[getContactMessagesQuery.data!.pages.length - 1].contact} />
+                    <ContactMessages contactMessagesQuery={getContactMessagesQuery} />
+                    <SendMessageContainer contactId={getContactMessagesQuery.data!.pages[0].contact.user} />
+                </section>
+            }
+        </div>
     )
 }
 

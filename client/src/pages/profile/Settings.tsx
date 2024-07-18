@@ -9,16 +9,14 @@ const Settings = () => {
   const profileInfoQuery = useProfileInfoQuery();
 
   return (
-    <main className="p-4 bg-purple-100/30 grid gap-4">
+    <main className="p-4 grid gap-4">
       <EditProfileNavbar isAccountSettings={isAccountSettings} />
       <h1 className="text-3xl font-semibold text-purple-800 leading-[1.3]">Edit Profile</h1>
-      {profileInfoQuery.isLoading ?
-        <Loading />
-        :
-        isAccountSettings ?
-          <AccountForm />
-          :
-          <PublicProfileForm profileInfo={profileInfoQuery.data!.data} />
+      {profileInfoQuery.isLoading
+        ? <Loading withoutBackground />
+        : isAccountSettings
+          ? <AccountForm />
+          : <PublicProfileForm profileInfo={profileInfoQuery.data!.data} />
       }
     </main>
   )

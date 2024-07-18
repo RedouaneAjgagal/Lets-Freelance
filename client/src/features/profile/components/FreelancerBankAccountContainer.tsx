@@ -12,11 +12,11 @@ const FreelancerBankAccountContainer = () => {
     });
 
     return (
-        bankAccountsQuery!.isLoading ?
-            <Loading />
+        bankAccountsQuery!.isLoading
+            ? <Loading withoutBackground />
             : <div>
-                {bankAccountsQuery!.data?.bankAccounts.length ?
-                    <FreelancerBankAccounts bankAccountDetails={bankAccountsQuery!.data} />
+                {bankAccountsQuery!.data?.bankAccounts.length
+                    ? <FreelancerBankAccounts bankAccountDetails={bankAccountsQuery!.data} />
                     : <FreelancerBankAccountForm externalAccountOnly={false} submit={setBankAccountMutation} />
                 }
             </div>

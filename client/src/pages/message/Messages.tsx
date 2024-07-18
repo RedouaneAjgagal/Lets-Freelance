@@ -109,24 +109,25 @@ const Messages = () => {
     }, [websocketMessages.message]);
 
     return (
-        <main className="p-4 flex flex-col gap-6 bg-purple-100/30">
+        <main className="p-4 flex flex-col gap-6">
             <h1 className="text-3xl font-semibold text-purple-800 leading-relaxed">
                 Messages
             </h1>
-            {messages.isLoading
-                ? <LoadingMessages />
-                : <div className="flex flex-col gap-4">
-                    <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} setUserIdHandler={setUserIdHandler} selectedUserId={userId} />
-                    {messages.data!.pages[0].messages.length
-                        ? <ContactMessagesContainer selectedUserId={userId !== ""
-                            ? userId
-                            : messages.data!.pages[0].messages[0].profile.user
-                        } />
-                        : null
-                    }
-
-                </div>
-            }
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+                {messages.isLoading
+                    ? <LoadingMessages />
+                    : <>
+                        <MessagesContainer messages={messages.data!} fetchNextPage={messages.fetchNextPage} hasNextPage={messages.hasNextPage} isFetchingNextPage={messages.isFetchingNextPage} search={search} setUserIdHandler={setUserIdHandler} selectedUserId={userId} />
+                        {messages.data!.pages[0].messages.length
+                            ? <ContactMessagesContainer selectedUserId={userId !== ""
+                                ? userId
+                                : messages.data!.pages[0].messages[0].profile.user
+                            } />
+                            : null
+                        }
+                    </>
+                }
+            </div>
         </main>
     )
 }

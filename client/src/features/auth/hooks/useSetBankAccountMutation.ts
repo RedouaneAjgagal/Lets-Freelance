@@ -22,11 +22,6 @@ const useSetBankAccountMutation = () => {
             if (data.addExtraInfoUrl) {
                 window.open(data.addExtraInfoUrl, "_blank", "noopener noreferrer");
             }
-
-            window.scrollTo({
-                top: 0,
-                behavior: "instant"
-            });
         },
         onError: (error: AxiosError<{ msg: string }>) => {
             const errorMsg = error.response?.data.msg || "Something went wrong";

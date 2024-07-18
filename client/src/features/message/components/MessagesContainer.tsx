@@ -25,9 +25,9 @@ const MessagesContainer = (props: React.PropsWithoutRef<MessagesContainerProps>)
   }
 
   return (
-    <section className="bg-white border rounded">
+    <section className="bg-white border rounded col-span-1">
       <SearchMessagesInput />
-      <ul className="py-3 max-h-[16rem] overflow-y-scroll">
+      <ul className="py-3 max-h-[16rem] overflow-y-auto xl:max-h-[33rem]">
         {props.messages.pages.map((group, index) => (
           group.messages.length
             ? <React.Fragment key={index}>

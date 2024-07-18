@@ -76,7 +76,6 @@ const MyProfile = (props: React.PropsWithoutRef<Props>) => {
                     <InputContainer name="website" label="Website" type="text" isError={props.profileInputInfo.website!.isError} errorMsg={props.profileInputInfo.website!.reason} defaultValue={props.profileInfo.roles.employer!.website} />
                 </>
             }
-            <SelectInputContainer name="showProfile" label="Show my Profile" options={["show", "hide"]} defaultValue={props.profileInfo.showProfile ? "show" : "hide"} isError={props.profileInputInfo.showProfile.isError} error={props.profileInputInfo.showProfile.reason} />
             <div className="flex flex-col gap-1">
                 <label htmlFor="description">Description</label>
                 <textarea name="description" id="description" autoComplete="false" maxLength={1000} defaultValue={props.profileInfo.description} className="border-slate-300 border text-slate-600 rounded py-2 px-3 outline-none focus:border-slate-500 w-full resize-none min-h-[10rem]"></textarea>

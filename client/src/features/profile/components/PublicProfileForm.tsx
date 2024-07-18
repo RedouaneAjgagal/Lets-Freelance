@@ -12,7 +12,7 @@ import { useIsMutating } from "@tanstack/react-query";
 import EducationContainer from "./EducationContainer";
 import ExperienceContainer from "./ExperienceContainer";
 
-type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description" | "showProfile";
+type GeneralUpdatedKeys = "avatar" | "name" | "phoneNumber" | "country" | "category" | "description";
 
 type ProfileInputError = {
     isError: boolean;
@@ -23,7 +23,6 @@ type GeneralInputError = {
     avatar: ProfileInputError;
     avatarUploader: ProfileInputError;
     name: ProfileInputError;
-    showProfile: ProfileInputError;
     country: ProfileInputError;
     phoneNumber: ProfileInputError;
     description: ProfileInputError;
@@ -91,7 +90,6 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
         country: errorInfo,
         description: errorInfo,
         phoneNumber: errorInfo,
-        showProfile: errorInfo,
         companyName: errorInfo,
         dateOfBirth: errorInfo,
         employees: errorInfo,
@@ -162,8 +160,7 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
             phoneNumber: Number(formData.get("phoneNumber")!.toString()),
             country: formData.get("country")!.toString(),
             category: formData.get("category")!.toString(),
-            description: formData.get("description")!.toString(),
-            showProfile: formData.get("showProfile")!.toString() === "hide" ? false : true
+            description: formData.get("description")!.toString()
         }
 
         const freelancer = {
@@ -238,15 +235,20 @@ const PublicProfileForm = (props: React.PropsWithoutRef<Props>) => {
     return (
         <form onSubmit={updateProfileHandler} className="flex flex-col gap-4 mb-4">
             <MyProfile profileInfo={props.profileInfo} profileInputInfo={profileInputInfo} />
-            {props.profileInfo.userAs === "freelancer" ?
-                <>
+            {props.profileInfo.userAs === "freelancer"
+                ? <>
                     <EducationContainer fetchedEducationList={props.profileInfo.roles.freelancer!.education.map(education => ({ ...education, id: crypto.randomUUID() }))} educationErrors={formErrors.educationError} />
                     <ExperienceContainer fetchedExperience={props.profileInfo.roles!.freelancer!.experience.map(experience => ({ ...experience, id: crypto.randomUUID() }))} experienceErrors={formErrors.experienceError} />
                     <Skills fetchedSkills={props.profileInfo.roles.freelancer!.skills} />
                 </>
-                :
-                null}
-            <PrimaryButton style="solid" disabled={updateProfileMutation.isLoading || isUploadingAvatar === 1} fullWith={false} justifyConent="start" type="submit" x="md" y="md">Save Profile <BiArrowBack className="rotate-[135deg]" size="1.1rem" /></PrimaryButton>
+                : null
+            }
+            <div>
+                <PrimaryButton isLoading={updateProfileMutation.isLoading} style="solid" disabled={updateProfileMutation.isLoading || isUploadingAvatar === 1} fullWith={false} justifyConent="center" type="submit" x="lg" y="md">
+                    Save Profile
+                    <BiArrowBack className="rotate-[135deg]" size="1.1rem" />
+                </PrimaryButton>
+            </div>
         </form>
     )
 }

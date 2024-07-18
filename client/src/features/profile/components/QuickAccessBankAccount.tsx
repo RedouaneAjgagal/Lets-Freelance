@@ -43,7 +43,7 @@ const QuickAccessBankAccount = (props: React.PropsWithoutRef<QuickAccessBankAcco
                 }
 
                 return (
-                    <button disabled={isLoading} onClick={setBankAccountHandler} className="flex items-center justify-center self-start py-1 px-2 rounded bg-white border font-medium shadow-sm" key={bankAccount.currency} type="button">
+                    <button disabled={isLoading} onClick={setBankAccountHandler} className="flex items-center justify-center self-start py-1 px-2 rounded bg-slate-50 border-2 border-slate-400 font-medium" key={bankAccount.currency} type="button">
                         {isLoading && currency === bankAccount.currency ?
                             <>
                                 <span className="invisible">

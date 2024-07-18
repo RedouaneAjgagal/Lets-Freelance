@@ -139,7 +139,7 @@ const FreelancerBankAccountForm = (props: React.PropsWithoutRef<FreelancerBankAc
     }
 
     return (
-        <form onSubmit={setBankAccoountHandler} className="flex flex-col gap-8 bg-slate-200/50 px-3 py-4 rounded" noValidate>
+        <form onSubmit={setBankAccoountHandler} className="flex flex-col gap-8 shadow-sm px-3 py-4 border  bg-slate-200/50 rounded lg:p-6" noValidate>
             <div className="flex flex-col gap-4">
                 <button onClick={() => setIsQuickAccessOpen(prev => !prev)} type="button" className="text-slate-700 font-medium flex items-center gap-1 self-start border-b-2 border-slate-500">Quick Access
                     <BsArrowDown className={`stroke-1 text-slate-500 transition-all duration-300 ${isQuickAccessOpen ? "-rotate-180" : "rotate-0"}`} />

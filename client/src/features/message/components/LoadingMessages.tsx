@@ -1,7 +1,7 @@
 
 const LoadingMessages = () => {
-    const contactsAnimation = Array.from({ length: 3 }, (_, index) => (
-        <div key={index} className="py-2 px-4">
+    const contactsAnimation = Array.from({ length: 5 }, (_, index) => (
+        <div key={index} className="py-3 px-4">
             <div className="flex items-center gap-2">
                 <div className="min-w-[3rem] max-w-[3rem] h-12 rounded-full bg-slate-200"></div>
                 <div className="w-full flex flex-col gap-1">
@@ -17,7 +17,7 @@ const LoadingMessages = () => {
 
 
     return (
-        <div className="bg-white border rounded">
+        <div className="bg-white border rounded xl:min-h-[33rem] xl:max-h-[33rem]">
             <div className="animate-pulse">
                 <div className="p-4">
                     <div className="bg-slate-200 h-11 rounded"></div>

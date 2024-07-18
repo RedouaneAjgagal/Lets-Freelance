@@ -20,7 +20,7 @@ const FreelancerBankAccount = (props: React.PropsWithoutRef<FreelancerBankAccoun
     }
 
     return (
-        <li className="border-b last:border-b-0 border-slate-300 p-3 flex items-center gap-1 justify-between">
+        <li className="border-b last:border-b-0 border-slate-300 p-3 flex items-center gap-1 justify-between lg:py-4 lg:px-6">
             <div className="flex items-center gap-2 min-h-[2.25rem]">
                 <div>
                     <BsBank />
@@ -57,8 +57,8 @@ const FreelancerBankAccount = (props: React.PropsWithoutRef<FreelancerBankAccoun
                         <button className="py-[.2rem] px-2 border border-slate-400/70 rounded text-slate-600 shadow-sm shadow-slate-300">
                             <TbDots />
                         </button>
-                        <div className="group-focus-within:visible group-focus-within:top-8 group-focus-within:opacity-100 opacity-0 invisible top-4 absolute right-0 z-10 bg-white min-w-[8rem] rounded border shadow-lg font-medium transition-all duration-200">
-                            <button onClick={removeExternalBankAccountHanlder} className="py-1 px-2 w-full text-left text-red-600">
+                        <div className="group-focus-within:visible group-focus-within:top-8 group-focus-within:opacity-100 opacity-0 invisible top-4 absolute right-0 z-10 bg-white min-w-[8rem] rounded border shadow-lg font-medium transition-all duration-200 lg:min-w-[10rem]">
+                            <button onClick={removeExternalBankAccountHanlder} className="py-1 px-2 w-full text-left text-red-600 lg:py-2 lg:px-3">
                                 {removeExternalBankAccountMutation.isLoading || removeExternalBankAccountMutation.isSuccess ? "Removing.."
                                     : "Remove"}
                             </button>

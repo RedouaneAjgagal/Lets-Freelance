@@ -7,9 +7,15 @@ const ClearAllQueriesButton = () => {
     const customSearchParams = useCustomSearchParams();
 
     const clearAllQueriesHandler = () => {
+        const search = customSearchParams.getSearchParams({
+            key: "search"
+        });
+
+        const isSearchExist = search && search.trim() !== "";
+
         customSearchParams.setSearchParams({
-            key: "",
-            value: "",
+            key: isSearchExist ? "search" : "",
+            value: isSearchExist ? search : "",
             removePrev: true
         });
 

@@ -39,7 +39,7 @@ const Badge = (props: React.PropsWithoutRef<BadgesProps>) => {
 
     return (
         <div className="flex items-center gap-1">
-            <span className={`${badge.color} flex justify-center items-center p-[.2rem] rounded-md text-white`}>
+            <span className={`${badge.color} flex justify-center items-center p-1 rounded-md text-white`}>
                 <badge.icon size={size} />
             </span>
             {props.minimized ?

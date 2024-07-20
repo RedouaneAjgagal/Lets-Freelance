@@ -753,8 +753,6 @@ const getAllFreelancers: RequestHandler = async (req, res) => {
     // search by telent type
     const getTalentType = searchFreelancersQueryValidator.isValidTalentType(talent_type);
     if (getTalentType) {
-        console.log(getTalentType);
-
         match.$and!.push({
             "roles.freelancer.types": getTalentType
         });

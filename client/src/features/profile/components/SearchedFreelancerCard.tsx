@@ -1,8 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Badge from "../../../layouts/brand/Badge"
 import formatProfileName from "../../../utils/formatProfileName"
 import { MdOutlinePerson4 } from "react-icons/md";
-import { PrimaryButton } from "../../../layouts/brand";
+import { PrimaryLink } from "../../../layouts/brand";
 import { BsStarFill } from "react-icons/bs";
 import { TbHeart, TbLoader2, TbWorld } from "react-icons/tb";
 import { SearchedTalentType } from "../services/getFreelancers";
@@ -10,6 +10,7 @@ import { BiArrowBack } from "react-icons/bi";
 import { useEffect, useRef, useState } from "react";
 import { FetchNextPageOptions } from "@tanstack/react-query";
 import { useFavoritesMutation } from "../../favorites";
+import InfoModal from "../../../layouts/brand/InfoModal";
 
 type SearchedFreelancerCardProps = {
     talent: SearchedTalentType;
@@ -67,13 +68,7 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
         }
     }, [isRefetch]);
 
-
-    const navigate = useNavigate();
     const profileName = formatProfileName(props.talent.name);
-
-    const navigateToProfile = () => {
-        navigate(`/profiles/${props.talent._id}`)
-    }
 
     const hourlyBudget = `$${(props.talent.roles.freelancer.hourlyRate).toFixed(2)}/hr`;
 
@@ -109,14 +104,20 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
 
     const connectionStyle = connectionTypes[props.talent.status];
 
+
+
     return (
-        <li ref={talentCardRef} className="py-8 px-4 flex flex-col gap-5 border-b last:border-0 first:pt-4">
-            <div className="flex items-center gap-3">
+        <li ref={talentCardRef} className="py-8 px-4 grid grid-cols-1 gap-5 border-b last:border-0 first:pt-4 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+
+            <div className="flex items-center gap-3 md:col-span-2 md:order-1 lg:col-span-1 lg:order-1 xl:col-span-2 xl:order-1">
                 <div className={`min-h-full max-w-full relative before:h-4 before:w-4 before:absolute before:left-0 before:top-0 before:rounded-full before:border-[2px] before:border-white ${connectionStyle}`}>
                     <img className="rounded-full min-w-[4rem] min-h-[4rem] max-w-[4rem] max-h-[4rem] object-cover " src={props.talent.avatar} alt="Freelancer avatar" />
-                    {props.talent.roles.freelancer.badge !== "none" ?
-                        <div className="absolute -right-0 bottom-0">
+                    {props.talent.roles.freelancer.badge !== "none"
+                        ? <div className="absolute group -right-0 top-11">
                             <Badge badge={props.talent.roles.freelancer.badge} size="md" minimized />
+                            <div className="capitalize">
+                                <InfoModal content={props.talent.roles.freelancer.badge} position="center" width="md" mobileLayoutAuto />
+                            </div>
                         </div>
                         : null
                     }
@@ -130,7 +131,7 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
                         }
                     </div>
                     <div>
-                        <h3 className="font-medium line-clamp-1">
+                        <h3 className="font-medium line-clamp-1 text-slate-800 lg:text-lg">
                             {props.talent.roles.freelancer.jobTitle ?
                                 props.talent.roles.freelancer.jobTitle
                                 : "Talent with no job title"
@@ -147,7 +148,7 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
                     }
                 </div>
             </div>
-            <div className="flex items-center flex-wrap gap-x-6 gap-y-3 text-slate-500 font-medium text-[1.05rem]">
+            <div className="flex items-center flex-wrap gap-x-6 gap-y-3 text-slate-500 font-medium text-[1.05rem] md:col-span-3 md:order-3 lg:col-span-1 lg:order-2 xl:col-span-3 xl:order-3">
                 <span className="">{hourlyBudget}</span>
                 {props.talent.totalRevenue !== 0 ?
                     <span className="text">{totalRevenue}+ earned</span>
@@ -163,7 +164,7 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
                 </span>
             </div>
             {props.talent.roles.freelancer.skills.length ?
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap md:col-span-3 md:order-4 lg:col-span-1 lg:order-3 xl:col-span-3 xl:order-4">
                     {skills}
                     {hasMoreSkills ?
                         <span className="capitalize bg-slate-200/80 px-3 py-[0.1rem] rounded-full font-medium text-slate-600">{hasMoreSkills}</span>
@@ -172,15 +173,15 @@ const SearchedFreelancerCard = (props: React.PropsWithoutRef<SearchedFreelancerC
                 </div>
                 : null
             }
-            <div>
+            <div className="md:col-span-3 md:order-5 lg:col-span-1 lg:order-4 xl:col-span-3 xl:order-5">
                 <p className="line-clamp-2" dangerouslySetInnerHTML={{ __html: description }}></p>
             </div>
-            <div className="flex gap-2">
-                <PrimaryButton fullWith={true} justifyConent="center" x="md" y="md" style="outline" disabled={false} type="button" isLoading={false} onClick={navigateToProfile}>
+            <div className="flex items-center gap-2 col-span-1 xl:col-span-1 md:col-span-1 md:order-2 lg:col-span-1 lg:order-5 xl:order-2">
+                <PrimaryLink to={`/profiles/${props.talent._id}`} outline fullWith={true} justifyConent="center" x="md" y="md">
                     View Profile
                     <BiArrowBack className="rotate-[135deg]" />
-                </PrimaryButton>
-                <button onClick={saveProfileHandler} disabled={favoritesMutation.isLoading} className={`border px-4 text-[.95rem] rounded-full flex gap-1 font-medium items-center justify-center ${props.talent.isFavourite ? "text-white border-purple-600 bg-purple-600" : "text-slate-700 border-slate-300"}`}>
+                </PrimaryLink>
+                <button onClick={saveProfileHandler} disabled={favoritesMutation.isLoading} className={`border px-4 text-[.95rem] rounded-full flex gap-1 py-2 font-medium items-center justify-center ${props.talent.isFavourite ? "text-white border-purple-600 bg-purple-600" : "text-slate-700 border-slate-300"}`}>
                     {favoritesMutation.isLoading ?
                         <TbLoader2 className="animate-spin" />
                         : <TbHeart />

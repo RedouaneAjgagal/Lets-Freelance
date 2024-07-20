@@ -4,14 +4,15 @@ type InfoModalProps = {
     content: string;
     position: "left" | "center" | "right";
     width: "sm" | "md" | "lg";
+    mobileLayoutAuto?: boolean;
 }
 
 const InfoModal = (props: React.PropsWithoutRef<InfoModalProps>) => {
 
     const positions = {
-        left: "right-0",
-        center: "left-1/2 -translate-x-1/2",
-        right: "left-0"
+        left: `${props.mobileLayoutAuto ? "left-0 lg:right-0" : "right-0"}`,
+        center: `${props.mobileLayoutAuto ? "left-0 translate-x-0 lg:left-1/2 lg:-translate-x-1/2" : "left-1/2 -translate-x-1/2"}`,
+        right: `${props.mobileLayoutAuto ? "left-0 lg:left-0" : "left-0"}`
     };
 
     const position = positions[props.position];

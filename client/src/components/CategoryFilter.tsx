@@ -68,8 +68,8 @@ const CategoryFilter = (props: React.PropsWithoutRef<CategoryFilterProps>) => {
             return;
         }
         return (
-            <label key={category.label} htmlFor={category.label} className="flex gap-2">
-                <input type="radio" id={category.label} value={category.value} name="category" className="accent-purple-600" onChange={selectCategoryHandler} checked={props.category ? category.value === props.category : category.value === "all-categories"} />
+            <label key={category.label} className="flex gap-2">
+                <input type="radio" value={category.value} className="accent-purple-600" onChange={selectCategoryHandler} checked={props.category ? category.value === props.category : category.value === "all-categories"} />
                 {category.label}
             </label>
         )

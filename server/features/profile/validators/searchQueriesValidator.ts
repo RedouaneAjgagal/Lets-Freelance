@@ -60,7 +60,7 @@ const isValidEnglishLevel = (englishLevel: any) => {
 
 const isValidTalentType = (talentType: any) => {
     const talentTypes = {
-        "agency": "agency freelancers",
+        "agency-freelancers": "agency freelancers",
         "independent-freelancers": "independent freelancers",
         "single-freelancer": "single freelancer"
     } as const;

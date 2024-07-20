@@ -11,14 +11,14 @@ const RatingFilter = (props: React.PropsWithoutRef<RatingFilterProps>) => {
         <div className="flex flex-col gap-3">
             <h4 className="text-black text-xl lg:font-semibold">Rating</h4>
             <div className="flex flex-col gap-2">
-                <label htmlFor="Any rating" className="flex gap-2">
-                    <input type="radio" id="Any rating" value={0} name="rating" className="accent-purple-600" onChange={props.onSelectRate} checked={!props.rating} />
+                <label className="flex gap-2">
+                    <input type="radio" value={0} className="accent-purple-600" onChange={props.onSelectRate} checked={!props.rating} />
                     Any rating
                 </label>
                 {
                     props.rates.map(rate => (
-                        <label key={rate} htmlFor={`${rate} rating`} className="flex gap-2">
-                            <input type="radio" id={`${rate} rating`} value={rate} name="rating" className="accent-purple-600" onChange={props.onSelectRate} checked={props.rating === rate} />
+                        <label key={rate} className="flex gap-2">
+                            <input type="radio" value={rate} className="accent-purple-600" onChange={props.onSelectRate} checked={props.rating === rate} />
                             <div className="flex items-center">
                                 <Ratings maxStars={5} rate={rate} size="text-base" />
                             </div>

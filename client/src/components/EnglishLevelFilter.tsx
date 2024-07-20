@@ -32,8 +32,8 @@ const EnglishLevelFilter = (props: React.PropsWithoutRef<EnglishLevelFilterProps
         const label = `${englishLevel.slice(0, 1).toUpperCase()}${englishLevel.slice(1).toLowerCase()}`;
 
         return (
-            <label key={label} htmlFor={label} className="flex gap-2">
-                <input type="radio" id={label} name="englishLevel" className="accent-purple-600" value={englishLevel} checked={englishLevel === "Any level" ? !props.englishLevel : props.englishLevel === englishLevel} onChange={englishLevelFilterHandler} />
+            <label key={label} className="flex gap-2">
+                <input type="radio" className="accent-purple-600" value={englishLevel} checked={englishLevel === "Any level" ? !props.englishLevel : props.englishLevel === englishLevel} onChange={englishLevelFilterHandler} />
                 {label}
             </label>
         );

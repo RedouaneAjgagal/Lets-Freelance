@@ -36,8 +36,8 @@ const FreelancerTypeFilter = (props: React.PropsWithoutRef<FreelancerTypeFilterP
             <h4 className="text-black text-xl">Talent Type</h4>
             <div className="flex flex-col gap-2">
                 {talentTypes.map(talentType => (
-                    <label key={talentType.value} htmlFor={talentType.label} className="flex gap-2">
-                        <input type="radio" name="talentType" id={talentType.label} value={talentType.value} className="accent-purple-600" onChange={() => props.onChange(talentType.value as TalentTypes)} checked={talentType.value === "any-talent" ? !props.talentType : props.talentType === talentType.value} />
+                    <label key={talentType.value} className="flex gap-2">
+                        <input type="radio" value={talentType.value} className="accent-purple-600" onChange={() => props.onChange(talentType.value as TalentTypes)} checked={talentType.value === "any-talent" ? !props.talentType : props.talentType === talentType.value} />
                         {talentType.icon ?
                             <div className="flex items-center gap-1">
                                 <span className="bg-purple-500 flex justify-center items-center p-[.2rem] rounded-md text-white">

@@ -7,9 +7,13 @@ import useCustomSearchParams from "../../../hooks/useCustomSearchParams";
 import { isValidSearchKeyword } from "../validators/searchTalentsValidators";
 import { useQueryClient } from "@tanstack/react-query";
 import useSearchedTalentsQueries from "../hooks/useSearchedTalentsQueries";
+import SelectedTalentFiltersContainer from "./SelectedTalentFiltersContainer";
 
+type SearchFreelancersNavProps = {
+    isDesktopLayout?: boolean;
+}
 
-const SearchFreelancersNav = () => {
+const SearchFreelancersNav = (props: React.PropsWithoutRef<SearchFreelancersNavProps>) => {
     const queryClient = useQueryClient();
 
     const customSearch = useCustomSearchParams();
@@ -17,10 +21,12 @@ const SearchFreelancersNav = () => {
 
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const openFilterOptionsHandler = () => {
+        if (props.isDesktopLayout) return;
         setIsFilterMenuOpen(true);
     }
 
     const closeFilterOptionsHandler = () => {
+        if (props.isDesktopLayout) return;
         setIsFilterMenuOpen(false);
     }
 
@@ -60,12 +66,12 @@ const SearchFreelancersNav = () => {
     delete searchedTalentsQueries.search;
 
     const numOfFilters = Object.keys(searchedTalentsQueries).length;
-    
+
     return (
         <header className="py-6 px-4 flex flex-col gap-4">
             <div className="flex items-center gap-2">
                 <SearchInput onSubmit={searchProfilesHandler} searchValue={searchKeyword || ""} />
-                <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center lg:hidden">
                     <button onClick={openFilterOptionsHandler} className="relative border-2 rounded-md p-1 border-purple-600 text-purple-700">
                         <TbListSearch size={22} />
                         {numOfFilters ?
@@ -78,9 +84,14 @@ const SearchFreelancersNav = () => {
                 </div>
             </div>
             <FilterTalentsMenu isOpen={isFilterMenuOpen} onClose={closeFilterOptionsHandler} />
-            <h1 className="text-[1.7rem] leading-9 font-semibold text-slate-900 border-b pb-2 border-slate-300">
-                {title}
-            </h1>
+            <div className="border-b pb-4 border-slate-300 flex flex-col gap-3">
+                <h1 className="text-[1.7rem] leading-9 font-semibold text-slate-900">
+                    {title}
+                </h1>
+                <div className="hidden lg:flex">
+                    <SelectedTalentFiltersContainer />
+                </div>
+            </div>
         </header>
     )
 }

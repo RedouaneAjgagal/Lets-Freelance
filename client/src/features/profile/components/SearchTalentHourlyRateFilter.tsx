@@ -57,8 +57,8 @@ const SearchTalentHourlyRateFilter = () => {
             <h4 className="text-black text-xl">Hourly Rate</h4>
             <div className="flex flex-col gap-2">
                 {hourlyRates.map(hourlyRate => (
-                    <label key={hourlyRate.label} htmlFor={hourlyRate.label} className="flex gap-2">
-                        <input type="radio" id={hourlyRate.label} name="hourly-rate" className="accent-purple-600" value={hourlyRate.value} onChange={() => setHourlyRateHandler(hourlyRate.value)} checked={hourlyRate.value === "0" ? !talentHourlyRate : hourlyRate.value === talentHourlyRate} />
+                    <label key={hourlyRate.label} className="flex gap-2">
+                        <input type="radio" className="accent-purple-600" value={hourlyRate.value} onChange={() => setHourlyRateHandler(hourlyRate.value)} checked={hourlyRate.value === "0" ? !talentHourlyRate : hourlyRate.value === talentHourlyRate} />
                         {hourlyRate.label}
                     </label>
                 ))}

@@ -13,8 +13,8 @@ const BadgeFilter = (props: React.PropsWithoutRef<BadgeFilter>) => {
         const badgeLabel = badgeInput.split("-").map(word => `${word.slice(0, 1).toUpperCase()}${word.slice(1).toLowerCase()}`).join(" ");
 
         return (
-            <label key={badgeInput} htmlFor={badgeInput} className="flex gap-2">
-                <input type="radio" id={badgeInput} name="badgeInput" value={badgeInput} className="accent-purple-600" onChange={props.onSelectBadge} checked={
+            <label key={badgeInput} className="flex gap-2">
+                <input type="radio" value={badgeInput} className="accent-purple-600" onChange={props.onSelectBadge} checked={
                     badgeInput === "any-talent" ?
                         !props.badge
                         : props.badge === badgeInput

@@ -97,8 +97,8 @@ const BudgetFilter = (props: React.PropsWithoutRef<BudgetFilterProps>) => {
                     </span>
                 </div>
                 <div className="relative">
-                    <input onChange={fromBudgetHandler} id="fromBudget" name="fromBudget" min={props.from} max={props.to} type="range" className="slider-thumb bg-transparent" value={fromBudget} ref={fromRef!} step={props.step} />
-                    <input id="toBudget" name="toBudget" min={props.from} max={props.to} type="range" className="slider-thumb" onChange={toBudgetHandler} value={toBudget} step={props.step} style={{
+                    <input onChange={fromBudgetHandler} min={props.from} max={props.to} type="range" className="slider-thumb bg-transparent" value={fromBudget} ref={fromRef!} step={props.step} />
+                    <input min={props.from} max={props.to} type="range" className="slider-thumb" onChange={toBudgetHandler} value={toBudget} step={props.step} style={{
                         background: `linear-gradient(to right,
                         ${colors.sliderColor} 0%,
                         ${colors.sliderColor} ${100 - Math.abs(((Number(fromBudget) - props.to) / (rangeDistance)) * 100)}%,

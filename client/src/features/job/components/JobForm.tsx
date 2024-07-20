@@ -48,7 +48,6 @@ const JobForm = (props: React.PropsWithoutRef<JobFormProps>) => {
             },
             2: {
                 description: form.get("job_description")?.toString(),
-                plainDescription: form.get("job_plainDescription")?.toString(),
                 locationType: form.get("job_locationType")?.toString(),
                 tags: form.get("job_tag")?.toString() === "" ? [] : form.get("job_tag")?.toString().split("***"),
             },

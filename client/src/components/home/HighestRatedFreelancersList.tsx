@@ -9,17 +9,15 @@ const HighestRatedFreelancersList = () => {
 
     return (
         <div className="mt-4">
-            {
-                highRatedFreelancers.isLoading ?
-                    <Loading type="cards" display="grid" numOfCards={1} />
-                    :
-                    <Slider isAutoGenerateSlides startsWith={1} isPagination isAutoPlay={false}>
-                        {highRatedFreelancers.data!.map((freelancer) =>
-                            <SwiperSlide key={freelancer._id} className="pb-10">
-                                <FreelancerCard freelancerInfo={freelancer} />
-                            </SwiperSlide>
-                        )}
-                    </Slider>
+            {highRatedFreelancers.isLoading
+                ? <Loading type="cards" display="grid" numOfCards={3} />
+                : <Slider isAutoGenerateSlides startsWith={1} isPagination isAutoPlay={false}>
+                    {highRatedFreelancers.data!.map((freelancer) =>
+                        <SwiperSlide key={freelancer._id} className="pb-10">
+                            <FreelancerCard freelancerInfo={freelancer} />
+                        </SwiperSlide>
+                    )}
+                </Slider>
             }
         </div>
     )

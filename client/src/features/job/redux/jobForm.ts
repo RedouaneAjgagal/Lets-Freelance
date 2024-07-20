@@ -9,7 +9,6 @@ type StepOnePayload = {
 
 type StepTwoPayload = {
     description: string | undefined;
-    plainDescription: string | undefined;
     locationType: string | undefined;
     tags: string[] | undefined;
 }

@@ -41,8 +41,8 @@ const isInvalidExperienceLevel = (experienceLevel: string | undefined) => {
 }
 
 
-const isInvalidDescription = ({ description, plainDescription }: { description: string | undefined; plainDescription: string | undefined }) => {
-    if (!plainDescription || plainDescription.toString().trim() === "" || !description) {
+const isInvalidDescription = ({ description }: { description: string | undefined }) => {
+    if (!description || description.toString().trim() === "") {
         return "Job description is required";
     }
 
@@ -190,16 +190,14 @@ const createJobValidationStepOne = ({ title, category, experienceLevel }: { titl
     }
 }
 
-const createJobValidationStepTwo = ({ description, plainDescription, locationType, tags }: {
+const createJobValidationStepTwo = ({ description, locationType, tags }: {
     description: string | undefined,
-    plainDescription: string | undefined,
     locationType: string | undefined,
     tags: string[] | undefined
 }) => {
 
     const invalidDescription = isInvalidDescription({
-        description,
-        plainDescription
+        description
     });
     const invalidLocationType = isInvalidLocationType(locationType);
     const invalidTags = isInvalidTags(tags);

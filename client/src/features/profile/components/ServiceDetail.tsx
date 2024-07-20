@@ -41,7 +41,7 @@ const ServiceDetail = (props: React.PropsWithoutRef<Props>) => {
 
     return (
         <article className="p-4">
-            <ul className="grid grid-cols-2 gap-x-2 gap-y-8">
+            <ul className="grid grid-cols-1 gap-x-2 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
                 {servicesDetails.map((service, index) =>
                     <li key={index} className="flex items-center gap-6">
                         <div>

@@ -61,7 +61,7 @@ const Navbar = () => {
         <div className="md:ml-3 xl:ml-6 w-full">
           <MenuModel onSearch={searchHandler} isShown={isMenuOpen} onClick={menuHandler} />
         </div>
-        <div className="lg:relative">
+        <div className="xl:relative">
           <SearchModel isShown={isSearchOpen} closeSearchModal={searchHandler} closeNavbar={closeNavbarHandler} />
         </div>
         {userInfo

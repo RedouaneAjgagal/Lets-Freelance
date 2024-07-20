@@ -75,12 +75,17 @@ const SingleProfileEmployer = (props: React.PropsWithoutRef<SingleProfileEmploye
                 <hr />
             </div>
             <OpenJobs jobs={props.employerDetails.openJobs} profileDetails={profileDetails} />
-            <aside>
+            <div className='px-24'>
+                <hr />
+            </div>
+            <div className="min-w-[20rem] lg:max-w-[38rem]">
                 <ContactSection contactType='employer' details={employerDetail} />
-            </aside>
+            </div>
             {
-                profileHistory.isLoading ?
-                    <Loading />
+                profileHistory.isLoading
+                    ? <div className='p-4'>
+                        <Loading withoutBackground />
+                    </div>
                     : <div className="px-4">
                         <ProfileHistory completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
                     </div>

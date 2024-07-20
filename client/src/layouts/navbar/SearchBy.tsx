@@ -15,7 +15,7 @@ const SearchBy = (props: React.PropsWithoutRef<Props>) => {
         props.closeDropdownHandler();
     }
     return (
-        <button onClick={searchByhandler} value={props.value.toLowerCase()} className={`${props.value.toLowerCase() === props.currentTarget ? "border-b-2 border-slate-800 text-slate-950 lg:border-b-0 lg:bg-slate-100" : "lg:font-normal lg:text-slate-600"} lg:w-full lg:text-left lg:px-3 lg:py-2`}>{props.value}</button>
+        <button onClick={searchByhandler} value={props.value.toLowerCase()} className={`${props.value.toLowerCase() === props.currentTarget ? "border-b-2 border-slate-800 text-slate-950 xl:border-b-0 xl:bg-slate-100" : "xl:font-normal xl:text-slate-600"} xl:w-full xl:text-left xl:px-3 xl:py-2`}>{props.value}</button>
     )
 }
 

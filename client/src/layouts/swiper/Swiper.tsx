@@ -14,6 +14,7 @@ type SwiperProps = {
 type SwiperAutoGenerateSlides = {
     isAutoGenerateSlides: true;
     startsWith: number;
+    endsWith?: number;
 } & SwiperProps;
 
 type SwiperWithSlides = {
@@ -48,7 +49,7 @@ const Swiper = (props: React.PropsWithChildren<SwiperAutoGenerateSlides | Swiper
                         slidesPerView: 3,
                     },
                     1024: {
-                        slidesPerView: 4
+                        slidesPerView: props.endsWith ? props.endsWith : 4
                     },
                 }
                 : undefined

@@ -158,7 +158,7 @@ const ContactSection = (props: React.PropsWithoutRef<ContactSectionProps>) => {
 
     return (
         <section className='p-4'>
-            <div className='flex flex-col gap-8 border rounded px-4 py-6'>
+            <div className='flex flex-col gap-8 border rounded px-4 py-6 xl:shadow-sm xl:p-6'>
                 <div className='flex items-center gap-2 font-semibold'>
                     <h2 className='text-4xl text-slate-700'>{title}</h2>
                     {props.contactType === "freelancer" ? <span className='text-sm'>/ hr</span> : null}

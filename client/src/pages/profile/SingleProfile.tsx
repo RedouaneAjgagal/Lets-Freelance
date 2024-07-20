@@ -11,7 +11,7 @@ const SingleProfile = () => {
     });
 
     return (
-        <main className="grid gap-4">
+        <main className="grid gap-4 xl:max-w-[95rem] xl:m-auto lg:gap-8">
             {singleProfileQuery.isLoading
                 ? <div className="p-4">
                     <Loading type="singlePage" withImage />

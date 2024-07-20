@@ -11,6 +11,7 @@ interface SliderProps {
 type SliderAutoGenerateSlides = {
     isAutoGenerateSlides: true;
     startsWith: number;
+    endsWith?: number;
 } & SliderProps;
 
 type SliderWithSlides = {
@@ -30,7 +31,7 @@ const Slider = (props: React.PropsWithChildren<SliderAutoGenerateSlides | Slider
                 : null
             }
             {props.isAutoGenerateSlides
-                ? <Swiper subImages={props.subImages} navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={true} startsWith={props.startsWith} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
+                ? <Swiper subImages={props.subImages} navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={true} startsWith={props.startsWith} endsWith={props.endsWith} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >
                     {props.children}
                 </Swiper>
                 : <Swiper subImages={props.subImages} navigation={props.navigationClassName ? true : false} autoPlay={props.isAutoPlay} pagination={props.isPagination} isAutoGenerateSlides={false} slidesPerView={props.slidesPerView} spaceBetween={10} prevEl={prevEl} nextEl={nextEl} >

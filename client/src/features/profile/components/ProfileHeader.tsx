@@ -46,18 +46,21 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
     }
 
     const dateOfBirth = formatDate(props.userInfo.dateOfBirth || "");
+
     return (
-        <section className="bg-purple-100/30">
-            <div className="px-4 py-8 flex flex-col gap-8">
-                <article className="flex items-center gap-6">
-                    <img src={props.userInfo.avatar} alt={`${props.userInfo.name}'s avatar`} className="w-28 h-28 object-cover rounded-full" />
+        <section className={`bg-purple-100/40 xl:rounded-xl xl:mx-4 xl:p-4 ${props.isCurrentUser ? "mt-0 py-6 xl:mt-8" : ""}`}>
+            <div className="px-4 py-8 flex flex-col gap-8 xl:flex-row xl:justify-between xl:justify-self-center xl:items-center">
+                <article className="flex items-start gap-6 lg:items-center">
+                    <img src={props.userInfo.avatar} alt={`${props.userInfo.name}'s avatar`} className="w-20 h-20 object-cover rounded-full lg:w-24 lg:h-24" />
                     <div className="flex flex-col gap-4 font-medium">
                         <div className="flex flex-col gap-1">
                             <h3 className="text-2xl">{props.userInfo.name}</h3>
-                            {props.userInfo.jobTitle ?
-                                <p className="text-slate-700 font-normal">{props.userInfo.jobTitle}</p>
-                                :
-                                null}
+                            {props.userInfo.jobTitle
+                                ? <p className="text-slate-700 font-normal">
+                                    {props.userInfo.jobTitle}
+                                </p>
+                                : null
+                            }
                         </div>
                         <div className="flex flex-wrap gap-y-2 gap-x-3">
                             <div className="flex items-center flex-wrap gap-2">
@@ -90,8 +93,8 @@ const ProfileHeader = (props: React.PropsWithoutRef<Props>) => {
                 {props.profile === "freelancer" ?
                     !userInfo || userInfo.userAs === "employer"
                         ?
-                        <div>
-                            <PrimaryButton style="solid" fullWith={false} justifyConent="center" type="button" x="lg" y="md" onClick={messageHandler} disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading}>
+                        <div className="flex sm:self-start xl:self-center">
+                            <PrimaryButton style="solid" fullWith={true} justifyConent="center" type="button" x="lg" y="md" onClick={messageHandler} disabled={setInitialMessageMutation.isLoading} isLoading={setInitialMessageMutation.isLoading}>
                                 Message
                             </PrimaryButton>
                         </div>

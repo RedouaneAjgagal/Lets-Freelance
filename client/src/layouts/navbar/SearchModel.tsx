@@ -97,21 +97,21 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
     }, [props.isShown]);
 
     return (
-        <div ref={dropdownLaptopRef} className={`bg-white min-h-screen fixed top-0 w-full duration-150 ${props.isShown ? "right-0 z-[100] md:z-[20] md:top-14 md:right-20 md:absolute" : "right-full md:absolute md:-top-52"} md:duration-0 md:min-h-min md:w-[16.3rem] md:border md:rounded md:shadow-lg lg:static lg:shadow-none lg:border-none xl:w-96`}>
-            <div className="px-4 py-3 flex flex-col gap-3 md:flex-col-reverse lg:flex-row lg:p-0">
-                <div className="flex items-center gap-3 lg:w-full">
+        <div ref={dropdownLaptopRef} className={`bg-white min-h-screen fixed top-0 w-full duration-150 ${props.isShown ? "right-0 z-[100] md:z-[20] md:top-14 md:right-20 md:absolute" : "right-full md:absolute md:-top-52"} md:duration-0 md:min-h-min md:w-[16.3rem] md:border md:rounded md:shadow-lg xl:static xl:shadow-none xl:border-none xl:w-96`}>
+            <div className="px-4 py-3 flex flex-col gap-3 md:flex-col-reverse xl:flex-row xl:p-0">
+                <div className="flex items-center gap-3 xl:w-full">
                     <button onClick={props.closeSearchModal} className="text-2xl md:hidden">
                         <BiArrowBack />
                     </button>
                     <form onSubmit={searchHandler} className="w-full flex flex-col gap-2">
-                        <div className="flex items-center border border-slate-800 rounded h-8 md:border-slate-400 md:focus-within:border-slate-700 lg:relative w-full">
+                        <div className="flex items-center border border-slate-800 rounded h-8 md:border-slate-400 md:focus-within:border-slate-700 xl:relative w-full">
                             <button onClick={searchHandler} className="h-full px-2 text-lg">
                                 <BiSearch className="-mb-[0.1rem]" />
                             </button>
-                            <input onChange={onSearch} value={search} type="search" placeholder={`search ${searchBy}`} name="search" className="rounded bg-transparent outline-none w-full h-full placeholder:font-medium placeholder:text-slate-500 lg:pr-[6.5rem] placeholder:capitalize" />
+                            <input onChange={onSearch} value={search} type="search" placeholder={`search ${searchBy}`} name="search" className="rounded bg-transparent outline-none w-full h-full placeholder:font-medium placeholder:text-slate-500 xl:pr-[6.5rem] placeholder:capitalize" />
 
                         </div>
-                        <div className="hidden md:flex lg:hidden">
+                        <div className="hidden md:flex xl:hidden">
                             <PrimaryButton disabled={false} fullWith={false} justifyConent="center" style="solid" type="submit" x="lg" y="md" >
                                 Search
                             </PrimaryButton>
@@ -119,11 +119,11 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
                     </form>
                 </div>
                 <div ref={dropdownRef}>
-                    <button onClick={() => setIsDropmenuOpen(prev => !prev)} className="hidden lg:absolute lg:right-0 lg:top-0 lg:border lg:border-slate-300 lg:h-8 lg:w-28 lg:pl-3 lg:pr-1 lg:capitalize lg:bg-slate-100  lg:rounded-r lg:font-medium lg:flex lg:items-center lg:gap-1 lg:z-10 lg:justify-between">
+                    <button onClick={() => setIsDropmenuOpen(prev => !prev)} className="hidden xl:absolute xl:right-0 xl:top-0 xl:border xl:border-slate-300 xl:h-8 xl:w-28 xl:pl-3 xl:pr-1 xl:capitalize xl:bg-slate-100  xl:rounded-r xl:font-medium xl:flex xl:items-center xl:gap-1 xl:z-10 xl:justify-between">
                         {searchBy}
                         <BsArrowDown />
                     </button>
-                    <div className={`bg-white flex items-start gap-6 border-b text-slate-400 font-medium lg:flex-col lg:absolute lg:right-0 lg:-top-44 lg:w-44 lg:gap-0 lg:z-50 lg:rounded lg:shadow-lg lg:border lg:border-slate-300 ${isDropmenuOpen ? "lg:top-10" : ""}`}>
+                    <div className={`bg-white flex items-start gap-6 border-b text-slate-400 font-medium xl:flex-col xl:absolute xl:right-0 xl:-top-44 xl:w-44 xl:gap-0 xl:z-50 xl:rounded xl:shadow-lg xl:border xl:border-slate-300 ${isDropmenuOpen ? "xl:top-10" : ""}`}>
                         {searchByValues.map(searchByValue => (
                             <SearchBy key={searchByValue} searchByHandler={searchByhandler} value={searchByValue} currentTarget={searchBy} closeDropdownHandler={() => setIsDropmenuOpen(false)} />
                         ))}
@@ -135,20 +135,3 @@ const SearchModel = (props: React.PropsWithoutRef<Props>) => {
 }
 
 export default SearchModel
-
-
-
-
-
-
-
-{/* <label htmlFor="searchBtn" className="hidden lg:absolute lg:right-0 lg:top-0 lg:border lg:border-slate-300 lg:h-8 lg:pl-3 lg:pr-1 lg:capitalize lg:bg-slate-100  lg:rounded-r lg:font-medium lg:flex lg:items-center lg:gap-1 lg:z-10 lg:cursor-pointer">
-                    {searchBy}
-                    <BsArrowDown />
-                </label>
-                <input type="checkbox" id="searchBtn" name="searchBtn" className="appearance-none invisible peer/search" hidden />
-                <div className="bg-white flex items-start gap-6 border-b text-slate-400 font-medium lg:flex-col lg:absolute lg:right-0 lg:-top-44 lg:w-44 lg:gap-0 lg:rounded lg:shadow-lg peer-checked/search:lg:top-10">
-                    {searchByValues.map(searchByValue => (
-                        <SearchBy key={searchByValue} searchByHandler={searchByhandler} value={searchByValue} currentTarget={searchBy} />
-                    ))}
-                </div> */}

@@ -73,20 +73,27 @@ const SingleProfileFreelancer = (props: React.PropsWithoutRef<SingleProfileFreel
                 }
                 <ProfileHeader profile='freelancer' userInfo={freelancerHeaderInfo} isCurrentUser={isCurrentUser} />
             </header>
-            <ServiceDetail freelancerServiceDetail={serviceDetail} />
-            <AboutProfile profile='freelancer' content={props.freelancerDetails.description || "Freelancer with no description"} />
-            <ProfileEducation educations={props.freelancerDetails.roles.freelancer!.education} />
-            <ProfileExperience experiences={props.freelancerDetails.roles.freelancer!.experience} />
-            <ProfileServices services={props.freelancerDetails.services} profile={profileDetails} />
-            <aside className='-mt-10'>
-                <ContactSection contactType="freelancer" details={freelancerDetail} userId={props.freelancerDetails.user} />
-                <ProfileSkills skills={props.freelancerDetails.roles.freelancer!.skills} />
-            </aside>
+            <div className="grid grid-cols-1 xl:grid-cols-12">
+                <div className="grid gap-4 col-span-1 xl:col-span-8">
+                    <ServiceDetail freelancerServiceDetail={serviceDetail} />
+                    <AboutProfile profile='freelancer' content={props.freelancerDetails.description || "Freelancer with no description"} />
+                    <ProfileEducation educations={props.freelancerDetails.roles.freelancer!.education} />
+                    <ProfileExperience experiences={props.freelancerDetails.roles.freelancer!.experience} />
+                    <ProfileServices services={props.freelancerDetails.services} profile={profileDetails} />
+                </div>
+                <div className='col-span-1 xl:col-span-4'>
+                    <aside className="xl:sticky xl:top-0">
+                        <ContactSection contactType="freelancer" details={freelancerDetail} userId={props.freelancerDetails.user} />
+                        <ProfileSkills skills={props.freelancerDetails.roles.freelancer!.skills} />
+                    </aside>
+                </div>
+            </div>
             {
-                profileHistory.isLoading ?
-                    <Loading />
-                    :
-                    <div className="p-4">
+                profileHistory.isLoading
+                    ? <div className='p-4'>
+                        <Loading withoutBackground />
+                    </div>
+                    : <div className="p-4">
                         <ProfileHistory completedJobs={profileHistory.data!.completedReviews} inProgressJobs={profileHistory.data!.inProgressReviews} />
                     </div>
             }

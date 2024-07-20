@@ -1,18 +1,20 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
     skills: string[];
 }
 
 const ProfileSkills = (props: React.PropsWithoutRef<Props>) => {
+    const navigate = useNavigate();
 
     const searchSkill = (skill: string) => {
-        console.log(skill);
+        navigate(`/profiles?search=${skill}`);
     }
 
     return (
         <section className='p-4'>
-            <div className='flex flex-col gap-4 border px-4 py-6 rounded'>
+            <div className='flex flex-col gap-4 border px-4 py-6 rounded xl:shadow-sm xl:p-6'>
                 <h3 className='font-medium text-2xl'>My Skills</h3>
                 <div className='flex items-center flex-wrap gap-x-2 gap-y-3'>
                     {props.skills.length ?

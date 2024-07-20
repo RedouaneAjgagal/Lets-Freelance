@@ -32,7 +32,7 @@ const MenuModel = (props: React.PropsWithoutRef<Props>) => {
                     <Link onClick={props.onClick} to="/jobs" className="py-2 px-4 xl:px-4 flex md:px-3 md:hover:text-purple-700 md:transition-all">Find Work</Link>
                 </li>
                 <li className="md:ml-auto md:flex md:items-center md:gap-2">
-                    <button onClick={props.onSearch} className="flex text-2xl text-slate-700 hover:text-slate-900 transition-all absolute top-3 right-2 p-2 md:static lg:hidden">
+                    <button onClick={props.onSearch} className="flex text-2xl text-slate-700 hover:text-slate-900 transition-all absolute top-3 right-2 p-2 md:static xl:hidden">
                         <BiSearch />
                     </button>
                     {!userInfo

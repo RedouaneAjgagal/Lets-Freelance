@@ -28,12 +28,13 @@ const OpenJobs = (props: React.PropsWithoutRef<Props>) => {
 
         return <JobItem jobInfo={jobInfo} tags={tags} key={job._id} />
     });
+    
     return (
         <article className='p-4'>
             <h2 className="font-medium text-2xl">Open Jobs</h2>
             {
                 props.jobs.length ?
-                    <ul className='mt-4 grid gap-5'>
+                    <ul className='mt-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
                         {jobs}
                     </ul>
                     :

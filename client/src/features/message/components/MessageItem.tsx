@@ -39,12 +39,12 @@ const MessageItem = (props: React.PropsWithoutRef<MessageItemProps>) => {
                     <div className={`relative before:h-4 before:w-4 before:absolute before:left-0 before:top-0 before:rounded-full before:border-[2px] before:border-white ${connectionStyle}`}>
                         <img src={props.messageContent.profile.avatar} alt={`${props.messageContent.profile.name} avatar`} className="min-w-[3rem] max-w-[3rem] h-12 object-cover rounded-full" />
                     </div>
-                    <div className="w-full">
+                    <div className="grid w-full">
                         <div className="flex items-center flex-wrap-reverse justify-between">
                             <span className="font-medium text-lg">{props.messageContent.profile.name}</span>
                             <span className="text-slate-500 text-sm">{sentAt}</span>
                         </div>
-                        <p className="line-clamp-1 text-slate-700">{content}</p>
+                        <p className="truncate text-slate-700">{content}</p>
                     </div>
                 </div>
             </button>

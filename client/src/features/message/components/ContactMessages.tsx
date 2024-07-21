@@ -53,16 +53,18 @@ const ContactMessages = (props: React.PropsWithoutRef<ContactMessagesProps>) => 
     }, [websocketMessages.message]);
 
     return (
-        <ul ref={messagesSectionRef} className="flex flex-col w-full max-h-[30rem] min-h-[30rem] overflow-y-auto">
+        <ul ref={messagesSectionRef} className="flex flex-col max-h-[30rem] min-h-[30rem] overflow-auto">
             {props.contactMessagesQuery.hasNextPage
                 ? <FetchPrevMessages fetchNextPage={props.contactMessagesQuery.fetchNextPage} hasNextPage={props.contactMessagesQuery.hasNextPage} isFetchingNextPage={props.contactMessagesQuery.isFetchingNextPage} />
                 : null
             }
-            {props.contactMessagesQuery.data!.pages.map((group, index) => (
-                <React.Fragment key={index}>
-                    <ContactMessageContainer key={index} contact={props.contactMessagesQuery.data!.pages[props.contactMessagesQuery.data!.pages.length - 1].contact} messages={group.messages} />
-                </React.Fragment>
-            )).reverse()}
+            <div className="flex flex-col w-full">
+                {props.contactMessagesQuery.data!.pages.map((group, index) => (
+                    <React.Fragment key={index}>
+                        <ContactMessageContainer key={index} contact={props.contactMessagesQuery.data!.pages[props.contactMessagesQuery.data!.pages.length - 1].contact} messages={group.messages} />
+                    </React.Fragment>
+                )).reverse()}
+            </div>
         </ul>
     )
 }

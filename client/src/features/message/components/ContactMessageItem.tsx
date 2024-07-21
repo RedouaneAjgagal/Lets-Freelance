@@ -28,7 +28,7 @@ const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps
         .toLocaleString("en-US", formatDateOptions);
 
     return (
-        <li className={`mx-4 py-2 ${props.message.isSystem ? "self-center" : props.message.isYouSender ? "self-end" : "self-start"} ${props.isAttatched ? "-mt-2 ml-16" : ""}`}>
+        <li className={`mx-4 py-2 grid ${props.message.isSystem ? "self-center" : props.message.isYouSender ? "self-end" : "self-start"} ${props.isAttatched ? "-mt-2 ml-16" : ""}`}>
             {props.message.isFirstMessage ?
                 <div className="p-4 text-center">
                     <p className="flex flex-col text-slate-600">
@@ -53,8 +53,8 @@ const ContactMessageItem = (props: React.PropsWithoutRef<ContactMessageItemProps
                         ? null
                         : <span title={new Date(props.message.createdAt).toUTCString()} className={`text-[.8rem] text-slate-500 ${props.message.isSystem ? "self-center" : props.message.isYouSender ? "self-end" : "self-start"}`}>{sentAt}</span>
                     }
-                    <div className={`py-2 text-[.975rem] px-4 rounded-xl ${props.message.isSystem || props.isAttatched ? "rounded-xl" : props.message.isYouSender ? "rounded-br-none self-end" : "rounded-tl-none self-start"} ${props.message.isSystem ? "bg-purple-100/80 text-purple-600 font-medium text-center text-base" : props.message.isYouSender ? "bg-stone-100/80" : "bg-blue-100/40"}`}>
-                        <span>{props.message.content}</span>
+                    <div className={`py-2 text-[.975rem] px-4 rounded-xl ${props.message.isSystem || props.isAttatched ? "rounded-xl" : props.message.isYouSender ? "rounded-br-none self-end" : "rounded-tl-none self-start"} ${props.message.isSystem ? "bg-purple-100/80 text-purple-600 font-medium text-center text-base" : `max-w-[13.5rem] min-[375px]:max-w-[17rem] sm:max-w-[27rem] md:max-w-[30rem] ${props.message.isYouSender ? "bg-stone-100/80" : "bg-blue-100/40"}`}`}>
+                        <p className="break-words whitespace-pre-wrap">{props.message.content}</p>
                     </div>
                 </div>
             </div>

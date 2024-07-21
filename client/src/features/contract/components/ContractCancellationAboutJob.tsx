@@ -18,8 +18,6 @@ const ContractCancellationAboutJob = (props: React.PropsWithoutRef<ContractCance
         setIsDisplayFullDescription(prev => !prev);
     }
 
-    const coverLetterContent = props.jobContract.coverLetter.replace(/\n/g, "<br>");
-
     return (
         <div className="flex flex-col gap-2">
             <div className="flex flex-col">
@@ -57,7 +55,7 @@ const ContractCancellationAboutJob = (props: React.PropsWithoutRef<ContractCance
             <div className="flex flex-col">
                 <h5 className="font-medium">Cover letter:</h5>
                 <div className="p-3 bg-slate-200/50 rounded">
-                    <i className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: coverLetterContent }}></i>
+                    <i className="text-slate-700 leading-relaxed whitespace-pre-line break-words">{props.jobContract.coverLetter}</i>
                 </div>
             </div>
         </div>

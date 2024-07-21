@@ -26,7 +26,7 @@ const ContractServiceInfo = (props: React.PropsWithoutRef<ContractServiceInfoPro
                 <h3 className="text-lg font-medium leading-5">Description:</h3>
                 <button onClick={() => setIsDescriptionOpen(true)} className="underline">View</button>
                 {isDescriptionOpen ?
-                    <DescriptionModal onClose={() => setIsDescriptionOpen(false)} description={props.service.description} />
+                    <DescriptionModal isDangerouslySetInnerHTML onClose={() => setIsDescriptionOpen(false)} description={props.service.description} />
                     : null
                 }
             </div>

@@ -6,6 +6,7 @@ type DescriptionModalProps = {
     title?: string;
     description: string;
     onClose: () => void;
+    isDangerouslySetInnerHTML?: boolean;
 }
 
 const DescriptionModal = (props: React.PropsWithoutRef<DescriptionModalProps>) => {
@@ -19,8 +20,12 @@ const DescriptionModal = (props: React.PropsWithoutRef<DescriptionModalProps>) =
                         <h3 className="font-semibold">{props.title ? props.title : "Description:"}</h3>
                         <button onClick={props.onClose}><TbX size={20} /></button>
                     </div>
-                    <div className="p-3 bg-slate-200/50 rounded min-h-[6rem] max-h-[24rem] overflow-y-scroll">
-                        <div dangerouslySetInnerHTML={{ __html: props.description }}></div>
+                    <div className="p-3 bg-slate-200/50 rounded min-h-[6rem] max-h-[24rem] overflow-y-auto">
+                        {props.isDangerouslySetInnerHTML
+                            ? <div dangerouslySetInnerHTML={{ __html: props.description }}></div>
+                            : <div className="break-words whitespace-pre-line">{props.description}</div>
+                        }
+
                     </div>
                 </div>
             </>

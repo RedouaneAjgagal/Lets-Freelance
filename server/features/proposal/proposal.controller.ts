@@ -118,6 +118,12 @@ const getProposals: RequestHandler = async (req: CustomAuthRequest, res) => {
             }
         },
         {
+            $sort: {
+                "boostProposal.spentConnects": -1,
+                createdAt: 1,
+            }
+        },
+        {
             $project: {
                 _id: 1,
                 "profile._id": 1,

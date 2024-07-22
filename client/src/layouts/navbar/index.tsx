@@ -6,7 +6,7 @@ import SearchModel from "./SearchModel";
 import { Link } from "react-router-dom";
 import { useAppSelector } from "../../hooks/redux";
 import UserNav from "./UserNav";
-import useOverflow from "../../hooks/useOverflow";
+
 
 const Navbar = () => {
   const { userInfo } = useAppSelector(state => state.authReducer);
@@ -42,7 +42,18 @@ const Navbar = () => {
     };
   }, [isMenuOpen]);
 
-  useOverflow(isMenuOpen);
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 880px)').matches) {
+      document.body.style.overflow = "auto";
+      return;
+    };
+
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isMenuOpen]);
 
   const closeNavbarHandler = () => {
     setIsMenuOpen(false);

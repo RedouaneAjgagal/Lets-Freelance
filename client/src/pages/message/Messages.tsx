@@ -91,8 +91,11 @@ const Messages = () => {
                 };
 
                 if (messageContentIndex !== 0) {
-                    const [message] = data.pages[0].messages.splice(messageContentIndex);
-                    data.pages[0].messages.unshift(message);
+                    const messages = data.pages[0].messages.filter((_, index) => index !== messageContentIndex);
+
+                    messages.unshift(messageContent);
+
+                    data.pages[0].messages = messages;
                 }
             } else {
                 isRefetch = true;

@@ -2,6 +2,52 @@
 
 "Let's Freelance" is a full-stack web application built using the MERN stack, created as a portfolio project.
 
+## Table of contents
+- [About the Platform](#about-the-platform)
+    - [Overview](#overview)
+        - [Auth](#auth)
+        - [Profiles](#profiles)
+        - [Services](#services)
+        - [Jobs](#jobs)
+        - [Contracts](#contracts)
+        - [Advertisements](#advertisements)
+    - [Unauthenticated User Features](#unauthenticated-user-features)
+        - [Auth](#auth-1)
+        - [Profiles](#profiles-1)
+        - [Services](#services-1)
+        - [Jobs](#jobs-1)
+        - [Reviews](#reviews)
+        - [Advertisement](#advertisement)
+    - [Authenticated User Features](#authenticated-user-features)
+        - [Auth](#auth-2)
+        - [Profiles](#profiles-2)
+        - [Services](#services-2)
+        - [Jobs](#jobs-2)
+        - [Proposals](#proposals)
+        - [Reviews](#reviews-1)
+        - [Contracts](#contracts-1)
+        - [Advertisement](#advertisement-1)
+        - [Reports](#reports)
+        - [Favorites](#favorites)
+        - [Messages](#messages)
+    - [Authenticated User Features (Admin)](#authenticated-user-features-admin)
+        - [Profiles](#profiles-3)
+        - [Services](#services-3)
+        - [Jobs](#jobs-3)
+        - [Reports](#reports-1)
+        - [Proposals](#proposals-1)
+        - [Contracts](#contracts-2)
+        - [Advertisement](#advertisements-1)
+    - [Authenticated User Features (Owner)](#authenticated-user-features-owner)
+        - [Revenues](#revenues)
+- [Tech Stack](#tech-stack)
+    - [Server Side](#server-side)
+    - [Client Side](#client-side)
+- [What Went Wrong](#what-went-wrong)
+- [Nice To Implement](#nice-to-implement)
+- [FAQs](#faqs)
+- [Socials](#socials)
+
 ## About the Platform
 
 ### Overview
@@ -312,7 +358,7 @@ Using [Stripe Webhooks](https://docs.stripe.com/webhooks) to ensure whether an i
  - Update reviews
  - Delete reviews
 
-#### Contacts
+#### Contracts
 
  - Display user's contracts
  - View contract details

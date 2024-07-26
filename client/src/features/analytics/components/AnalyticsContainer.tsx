@@ -1,7 +1,6 @@
 import { useState } from "react";
 import UsersAnalyticsContainer from "./users/UsersAnalyticsContainer";
 import AnalyticsNavbar from "./AnalyticsNavbar";
-import { AccessAnalyticsTypes, AnalyticsTypes } from "../utils/validAccessAnalytics";
 import ServicesAnalyticsContainer from "./services/ServicesAnalyticsContainer";
 import JobsAnalyticsContainer from "./jobs/JobsAnalyticsContainer";
 import ReportsAnalyticsContainer from "./reports/ReportsAnalyticsContainer";
@@ -9,6 +8,18 @@ import ProposalsAnalyticsContainer from "./proposals/ProposalsAnalyticsContainer
 import ContractsAnalyticsContainer from "./contracts/ContractsAnalyticsContainer";
 import AdvertisementsContainer from "./advertisements/AdvertisementsContainer";
 import RevenuesAnalyticsContainer from "./revenues/RevenuesAnalyticsContainer";
+
+export type AnalyticsTypes = "profiles" | "services" | "jobs" | "reports" | "proposals" | "contracts" | "advertisements" | "revenues";
+
+export type AnalyticsType = {
+    _id: string;
+    count: number;
+}
+
+export type AccessAnalyticsTypes = {
+    value: AnalyticsTypes;
+    accessBy: ("admin" | "owner")[];
+};
 
 type AnalyticsContainerProps = {
     role: "admin" | "owner";

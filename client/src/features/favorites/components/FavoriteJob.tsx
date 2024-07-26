@@ -7,7 +7,10 @@ type FavoriteJobProps = {
 }
 
 const FavoriteJob = (props: React.PropsWithoutRef<FavoriteJobProps>) => {
-  const favoriteMutation = useFavoritesMutation("job");
+  const favoriteMutation = useFavoritesMutation({
+    event: "job",
+    target: props.job._id
+  });
 
   const favoriteJobToggle = () => {
     favoriteMutation.mutate({

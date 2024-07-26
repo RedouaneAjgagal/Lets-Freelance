@@ -9,7 +9,10 @@ type ServiceAdClickTracker = {
     order_id?: string;
 }
 
-const initialState: ServiceAdClickTracker = {};
+const initialState: ServiceAdClickTracker = {
+    ad_id: "",
+    track_id: ""
+};
 
 const serviceAdOrderTrackerSlice = createSlice({
     name: "serviceAdOrderTracker",

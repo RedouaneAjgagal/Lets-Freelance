@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query';
-import React from 'react'
 import submitReport from '../services/submitReport';
 import { AxiosError } from 'axios';
 import toast from 'react-hot-toast';

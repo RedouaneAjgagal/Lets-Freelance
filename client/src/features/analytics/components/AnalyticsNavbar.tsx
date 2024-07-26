@@ -1,6 +1,6 @@
 import { MdArrowBackIos } from "react-icons/md"
 import { TbBrandGoogleAnalytics } from "react-icons/tb"
-import { AccessAnalyticsTypes, AnalyticsTypes } from "../utils/validAccessAnalytics";
+import { AnalyticsTypes, AccessAnalyticsTypes } from "./AnalyticsContainer";
 import { useState } from "react";
 
 type AnalyticsNavbarProps = {

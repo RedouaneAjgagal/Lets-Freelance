@@ -1,10 +1,7 @@
-import Navbar from "../layouts/navbar"
-import Footer from "../layouts/footer"
 import error_notFound from "/error_404.png";
 import error from "/error.png";
 import { useRouteError, } from "react-router-dom"
 import { AxiosError } from "axios"
-import { useAppSelector } from "../hooks/redux";
 
 
 type ErrorResponse = {

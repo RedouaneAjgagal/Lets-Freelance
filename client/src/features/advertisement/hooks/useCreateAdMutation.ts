@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import React from 'react'
 import createAd from '../services/createAd';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '../../../hooks/redux';
+import { AxiosError } from 'axios';
 
 type CreateAdMutationPayload = {
     campaignId: string;

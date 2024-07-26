@@ -41,7 +41,7 @@ export type ContractAnalyticsResponse = {
     cancellations: ContractAnalyticsCancellationsType[];
 };
 
-const contractAnalytics = async (payload) => {
+const contractAnalytics = async (payload: ContractAnalyticsPayload) => {
     const formatQueries = formatSearchQueries(payload);
 
     const response: AxiosResponse<Promise<ContractAnalyticsResponse>> = await getRequest(`contracts/analysis/contract${formatQueries}`);

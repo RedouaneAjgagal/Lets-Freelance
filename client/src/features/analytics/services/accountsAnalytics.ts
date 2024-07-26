@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import { getRequest } from "../../../services/api";
 import formatSearchQueries from "../../../utils/formatSearchQueries";
-import { AnalyticsType } from "../utils/validAccessAnalytics";
+import { AnalyticsType } from "../components/AnalyticsContainer";
 
 type Duration = "day" | "week" | "month" | "year";
 
@@ -18,7 +18,7 @@ export type AccountsAnalyticsResponse = {
 
 const accountsAnalytics = async (payload: AccountsAnalyticsPayload) => {
     const searchQueries = formatSearchQueries(payload);
-    
+
     const response: AxiosResponse<Promise<AccountsAnalyticsResponse>> = await getRequest(`auth/users${searchQueries}`);
 
     const data = await response.data;

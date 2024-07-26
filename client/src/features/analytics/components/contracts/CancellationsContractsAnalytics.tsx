@@ -19,13 +19,13 @@ const CancellationsContractsAnalytics = (props: React.PropsWithoutRef<Cancellati
 
             extraAnalytics.push({
                 ...value,
-                _id: value._id === "inProgress" ? "in progress" : value._id,
+                _id: value._id,
                 percentage: Number(value.percentage.toFixed(2)),
                 color: color.bgColor || "bg-blue-300"
             });
 
             return {
-                name: value._id === "inProgress" ? "in progress" : value._id,
+                name: value._id,
                 value: value.count,
                 color: color.hex || "#eee"
             }

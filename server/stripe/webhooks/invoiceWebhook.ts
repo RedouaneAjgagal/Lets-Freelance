@@ -1,10 +1,11 @@
-import { RequestHandler } from "express";
+import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import stripe from "../stripeConntect";
 import Stripe from "stripe";
 import { advertisementModels } from "../../features/advertisement";
 import mongoose from "mongoose";
 import { Profile } from "../../features/profile";
+import { RawBodyRequest } from "../stripe.router";
 
 type SetUnpaidInvoice = {
     userId: string;
@@ -78,8 +79,7 @@ export const setUnpaidInvoiceToProfile = (payload: SetUnpaidInvoice) => {
     ]);
 }
 
-
-const invoiceWebhook: RequestHandler = (req, res) => {
+const invoiceWebhook = (req: RawBodyRequest, res: Response) => {
     const sig = req.headers['stripe-signature']!;
 
     let event: Stripe.Event;

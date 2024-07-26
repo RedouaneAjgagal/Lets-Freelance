@@ -26,7 +26,7 @@ const getValidUpdatedAdInputs = (input: any) => {
 
     const invalidKeywords = isInvalidKeywords(input.keywords);
     if (!invalidKeywords) {
-        updatedAdDetails.keywords = input.keywords.map(keyword => keyword.toLowerCase());
+        updatedAdDetails.keywords = (input.keywords as string[]).map(keyword => keyword.toLowerCase());
     }
 
     const invalidCountry = isInvalidCountry(input.country);

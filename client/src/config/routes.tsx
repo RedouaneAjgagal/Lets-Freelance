@@ -19,11 +19,13 @@ import { AdvertisementHomePage, Campaigns, CreateCampaign, CreatePaymentMethod, 
 import AuthorizedRoute from "../components/AuthorizedRoute";
 import { EventReports } from "../pages/report";
 import { Messages } from "../pages/message";
+import ErrorPage from "../components/ErrorPage";
 
 const router = createBrowserRouter([
     {
         path: "/",
         element: <Root />,
+        errorElement: <ErrorPage />,
         children: [
             {
                 index: true,

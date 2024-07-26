@@ -348,7 +348,7 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
                 // },
                 client_reference_id: profile.user._id.toString(),
                 success_url: `${origin}/profile/employer/proposals/${proposal._id.toJSON()}/pay/fixed-price?session_id={CHECKOUT_SESSION_ID}&job_id=${proposal.job._id.toString()}`,
-                cancel_url: "http://localhost:5173",
+                cancel_url: origin,
                 metadata: {
                     productId: jobProduct.id,
                     proposalId: proposal._id.toString(),

@@ -487,8 +487,8 @@ const buyConnects: RequestHandler = async (req: CustomAuthRequest, res) => {
                 quantity: connects
             }
         ],
-        success_url: `http://localhost:5173/profile/freelancer/connects/buy?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: "http://localhost:5173",
+        success_url: `${origin}/profile/freelancer/connects/buy?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: origin,
         customer_email: profile.user.email,
         metadata: {
             freelancerId: profile.user._id.toString(),

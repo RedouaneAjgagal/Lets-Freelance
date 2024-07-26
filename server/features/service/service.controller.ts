@@ -709,7 +709,7 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
         customer_email: profile.user.email,
         client_reference_id: profile.user._id.toString(),
         success_url: `${origin}/services/${service._id.toString()}/order?session_id={CHECKOUT_SESSION_ID}${isValidTrackId ? `&track_id=${trackId}` : ""}`,
-        cancel_url: "http://localhost:5173",
+        cancel_url: origin,
         metadata: {
             productId: serviceProduct.id,
             serviceId: service._id.toString(),

@@ -19,6 +19,7 @@ import createConnectedAccountValidator from "../../stripe/validators/createConne
 import Stripe from "stripe";
 import mongoose, { isValidObjectId } from "mongoose";
 import isValidExternalAccountValues from "../../stripe/helpers/isValidExternalAccountValues";
+import origin from "../../config/origin";
 
 
 type AuthInfoType = {
@@ -551,8 +552,8 @@ const createBankAccount: RequestHandler = async (req: CustomAuthRequest, res) =>
         const { url } = await stripe.accountLinks.create({
             account: conntectedAccount.id,
             type: "account_onboarding",
-            refresh_url: "http://localhost:5173",
-            return_url: "http://localhost:5173"
+            refresh_url: origin,
+            return_url: origin
         });
         addExtraInfoUrl = url;
     }

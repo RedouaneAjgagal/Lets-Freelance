@@ -20,7 +20,7 @@ const attachCookieToResponse = ({ cookieName, expiresInMs, payload, res }: Tttac
         expires: new Date(Date.now() + expiresInMs),
         httpOnly: true,
         signed: true,
-        sameSite: "lax",
+        sameSite: "strict",
         secure: process.env.NODE_ENV === "production"
     });
 }
@@ -30,7 +30,7 @@ const destroyCookie = ({ cookieName, res }: { cookieName: string; res: Response 
         expires: new Date(Date.now()),
         httpOnly: true,
         signed: true,
-        sameSite: "lax",
+        sameSite: "strict",
         secure: process.env.NODE_ENV === "production"
     })
 }

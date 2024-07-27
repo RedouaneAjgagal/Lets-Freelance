@@ -4,6 +4,6 @@
 
 const baseURL = "https://lets-freelance.onrender.com/api/v1";
 export const noApiBaseUrl = "lets-freelance.onrender.com"
-export const clientURL = "https://lets-freelance.netlify.app";
+export const clientURL = "https://lets-freelance-client.onrender.com";
 
 export default baseURL;

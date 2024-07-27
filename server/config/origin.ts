@@ -1,3 +1,3 @@
 // const origin = "http://localhost:5173"
-const origin = "https://lets-freelance.netlify.app"
+const origin = "https://lets-freelance-client.onrender.com"
 export default origin;

@@ -16,7 +16,7 @@ const websocketMiddleware: Middleware = (store) => (next) => (action) => {
             socket.close();
         };
 
-        const websocketUrl = `ws://${noApiBaseUrl}/messages`;
+        const websocketUrl = `wss://${noApiBaseUrl}/messages`;
 
         socket = new WebSocket(websocketUrl);
 

@@ -54,7 +54,7 @@ const FilterJobsMenu = (props: React.PropsWithoutRef<FilterJobsMenuProps>) => {
             }
             <div className={`[&>div>h4]:lg:font-semibold flex flex-col gap-6 ${props.isDesktopLayout
                 ? "p-8 px-4 lg:pr-6 lg:border-r lg:h-full"
-                : `bg-white h-screen fixed w-full p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll bottom-0 ${props.isMenuOpen ? "left-0" : "-left-full"}
+                : `bg-white min-h-screen inset-0 fixed w-full p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll ${props.isMenuOpen ? "" : "-left-full"}
                 `}`} ref={filterMenuRef}>
                 {!props.isDesktopLayout
                     ? <div className="flex items-center justify-between text-slate-700 pb-4 border-b">

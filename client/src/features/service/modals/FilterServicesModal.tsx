@@ -72,7 +72,10 @@ const FilterServicesModal = (props: React.PropsWithoutRef<FilterServicesModalPro
                 :
                 null
             }
-            <div className={props.isDesktopLayout ? "py-4 pr-4" : `bg-white  h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll bottom-0 ${props.isModalOpen ? "left-0" : "-left-full"}`} ref={modalRef}>
+            <div className={props.isDesktopLayout
+                ? "py-4 pr-4"
+                : `bg-white min-h-screen fixed w-full flex flex-col gap-6 p-4 transition-all text-slate-600 font-medium z-[90] overflow-y-scroll inset-0 ${props.isModalOpen ? "" : "-left-full"}
+                `} ref={modalRef}>
                 {!props.isDesktopLayout
                     ? <div className="flex items-center justify-between text-slate-700 pb-4 border-b">
                         <h3>All Filters</h3>

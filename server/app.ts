@@ -47,6 +47,8 @@ import errorHandlerMiddleware from "./middlewares/handleErrors";
 // websocket
 import websockets from "./websockets";
 import { handleWebSocketMessages } from "./features/message";
+import restartServerJob from "./crons/requestingServer";
+
 
 
 cloudinary.config({
@@ -100,6 +102,11 @@ app.use("/api/v1/stripe-webhook", stripeRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
+
+
+// restart the server every 14 min to avoid sleeping server
+restartServerJob();
+
 
 const port = process.env.PORT || 5000;
 

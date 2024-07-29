@@ -8,7 +8,7 @@ type SendEmail = {
 
 const sendEmail = ({ to, subject, html }: SendEmail) => {
     return nodemailerConfig.sendMail({
-        from: "Let's Freelance App, <support@letsfreelance.io>",
+        from: '"Lets Freelance Platform" <support@letsfreelance.io>',
         to,
         subject,
         html

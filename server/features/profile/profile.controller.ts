@@ -18,6 +18,7 @@ import "./badge_upgrade/upgrades";
 import searchFreelancersQueryValidator from "./validators/searchQueriesValidator";
 import createHash from "../../utils/createHash";
 import getUserPayload from "../../utils/getUserPayload";
+import origin from "../../config/origin";
 
 type Freelancer = {
     projectSuccess: number;

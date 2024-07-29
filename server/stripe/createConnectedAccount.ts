@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import stripe from "./stripeConntect";
+import origin from "../config/origin";
 
 type CreateConnectedAccount = {
     userId: string;
@@ -40,7 +41,7 @@ const createConnectedAccount = async ({ email, userId, profileId, country, exter
             }
         },
         business_profile: {
-            url: `https://github.com/profiles/${profileId}`, // set github.com to the production url once its live
+            url: `${origin}/profiles/${profileId}`,
             mcc: "7379" // initial mcc for now
         },
         metadata: {

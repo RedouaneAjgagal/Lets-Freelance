@@ -402,6 +402,11 @@ const deleteProfile: RequestHandler = async (req: CustomAuthRequest, res) => {
         throw new BadRequestError("Owner roles cannot be deleted");
     }
 
+    const isDeleteProfileDisabled = true;
+    if (isDeleteProfileDisabled) {
+        throw new BadRequestError("account deletions are temporarily disabled");
+    }
+
     // delete profile
     await profile.deleteOne();
 
@@ -443,6 +448,11 @@ const deleteSingleProfile: RequestHandler = async (req: CustomAuthRequest, res) 
     // only delete users but owner can delete any
     if (ressourceProfile.user.role !== "user" && profile.user.role !== "owner" || ressourceProfile.user.role === "owner") {
         throw new UnauthorizedError(`You dont have access to delete ${ressourceProfile.user.role} roles.`);
+    }
+
+    const isDeleteProfileDisabled = true;
+    if (isDeleteProfileDisabled) {
+        throw new BadRequestError("Account deletions are temporarily disabled");
     }
 
     // delete profile

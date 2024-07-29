@@ -37,7 +37,7 @@ const AdvertisementRevenueAnalyticsContainer = () => {
     return (
         <div>
             <div className="mt-4">
-                <ChartsNavbar filterValue={filterBy} isFilter={true} onSelectFilter={selectFilterHandler} title="Connects revenue overview" />
+                <ChartsNavbar filterValue={filterBy} isFilter={true} onSelectFilter={selectFilterHandler} title="Advertisements revenue overview" />
             </div>
             <AdvertisementRevenueAnalytics barDataKey="Paid amount" filterBy={filterBy} isLoading={advertisementRevenueAnalyticsQuery.isLoading} payments={advertisementRevenueAnalyticsQuery.data?.paidAmount} title={`Paid amount ${formatedTitle}`} />
             <AdvertisementRevenueAnalytics barDataKey="Pending amount" filterBy={filterBy} isLoading={advertisementRevenueAnalyticsQuery.isLoading} payments={advertisementRevenueAnalyticsQuery.data?.unpaidAmount} title={`Pending amount ${formatedTitle}`} />

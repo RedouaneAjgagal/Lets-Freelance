@@ -1,21 +1,21 @@
 import { ExternalAccountFormData, SetBankAccountPayload } from "../services/setBankAccount";
 
 type ExternalBankAccountQuickAccessType = {
-    usd: ExternalAccountFormData;
+    // usd: ExternalAccountFormData;
     eur: ExternalAccountFormData;
     gbp: ExternalAccountFormData;
     dkk: ExternalAccountFormData;
 }
 
 const externalBankAccounts: ExternalBankAccountQuickAccessType = {
-    usd: {
-        accountNumber: "000123456789",
-        routingNumber: "084009519",
-        accountHolderName: "freelancer demo",
-        accountHolderType: "individual",
-        accountCountry: "US",
-        currency: "usd"
-    },
+    // usd: {
+    //     accountNumber: "000123456789",
+    //     routingNumber: "084009519",
+    //     accountHolderName: "freelancer demo",
+    //     accountHolderType: "individual",
+    //     accountCountry: "US",
+    //     currency: "usd"
+    // },
     eur: {
         accountNumber: "FR1420041010050500013M02606",
         accountHolderName: "freelancer demo",
@@ -42,25 +42,25 @@ const externalBankAccounts: ExternalBankAccountQuickAccessType = {
 
 
 const generalBankAccounts: SetBankAccountPayload[] = [
-    {
-        ...externalBankAccounts.usd,
-        firstName: "freelancer",
-        lastName: "demo",
-        email: "freelancer_demo@letsfreelancer.io",
-        dob: {
-            day: 10,
-            month: 8,
-            year: 1995
-        },
-        address: {
-            country: "US",
-            city: "New York",
-            state: "New York",
-            postal_code: "10010",
-            line1: "99 W. 00th Street"
-        },
-        phoneNumber: "+15555555555"
-    },
+    // {
+    //     ...externalBankAccounts.usd,
+    //     firstName: "freelancer",
+    //     lastName: "demo",
+    //     email: "freelancer_demo@letsfreelancer.io",
+    //     dob: {
+    //         day: 10,
+    //         month: 8,
+    //         year: 1995
+    //     },
+    //     address: {
+    //         country: "US",
+    //         city: "New York",
+    //         state: "New York",
+    //         postal_code: "10010",
+    //         line1: "99 W. 00th Street"
+    //     },
+    //     phoneNumber: "+15555555555"
+    // },
     {
         ...externalBankAccounts.eur,
         firstName: "freelancer",

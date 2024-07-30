@@ -563,6 +563,10 @@ Initially, everything was small and manageable. However, as I kept adding more f
 
 I haven't created any unit testing files for this platform yet, as I haven't learned about unit testing. My next learning goal is React testing using Jest to begin incorporating unit tests into my projects.
 
+### Notification System
+
+Besides emails, it is currently difficult to know if you have a new order, proposal, message, etc. A notification system would significantly improve the user experience.
+
 ### Admins Can See User Messages
 
 Currently, if a user requests a refund or contract cancellation, admins can review the contract information but cannot review the chat between the two parties. Implementing this feature would be straightforward since messages are stored in the database with references to both the freelancer and employer.

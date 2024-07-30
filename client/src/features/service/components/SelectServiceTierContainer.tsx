@@ -33,7 +33,7 @@ const SelectServiceTierContainer = (props: React.PropsWithoutRef<SelectServiceTi
             {
                 props.isPreview || props.hideCta
                     ? null
-                    : <CtaOrderService userId={props.userId} selectedTier={props.selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} />
+                    : <CtaOrderService userId={props.userId} selectedTier={props.selectedTier} serviceId={props.serviceId} selectedPackagePrice={selectedPackage.price} isDesktopSize={props.isDesktopSize} />
             }
         </div>
     )

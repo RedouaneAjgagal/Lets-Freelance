@@ -17,6 +17,10 @@ const isInvalidConnect = (connects: any | undefined) => {
         return error = "Must be an integer number";
     }
 
+    if (connects > 100) {
+        return error = "Maximum to 100 connects per session";
+    }
+
     return error;
 }
 

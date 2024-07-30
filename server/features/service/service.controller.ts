@@ -21,6 +21,7 @@ import getServicePriceAfterFees from "./utils/getServicePriceAfterFees";
 import origin from "../../config/origin";
 import { GetSponsoredServicesPayload, advertisementModels } from "../advertisement";
 import getUserPayload from "../../utils/getUserPayload";
+import paymentLimit from "../../helpers/paymentLimit";
 
 
 type SearchServiceType = {
@@ -680,6 +681,11 @@ const orderService: RequestHandler = async (req: CustomAuthRequest, res) => {
     // add stripe payment (add later)
     const employerPaidAmount = service.tier[selectedTier].price;
     console.log({ employerPaidAmount });
+
+    // add a payment limit
+    if (employerPaidAmount > paymentLimit) {
+        throw new BadRequestError(`The limit for a single payment is $${paymentLimit.toLocaleString()}`);
+    }
 
     // create stripe product
     const serviceProduct = await stripe.products.create({

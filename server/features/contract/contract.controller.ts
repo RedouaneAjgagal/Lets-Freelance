@@ -20,6 +20,7 @@ import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import hasPeriodExpired from "../../utils/hasPeriodExpired";
 import refundContractValidator from "./validators/refundContractValidator";
 import origin from "../../config/origin";
+import paymentLimit from "../../helpers/paymentLimit";
 
 
 //@desc get all contracts related to the current user
@@ -144,8 +145,8 @@ const getSingleContract: RequestHandler = async (req: CustomAuthRequest, res) =>
         throw new UnauthenticatedError("Found no user");
     }
 
-    const otherUser = profile.userAs === "employer" ? "freelancer" : "employer";    
-    
+    const otherUser = profile.userAs === "employer" ? "freelancer" : "employer";
+
     // find contract
     const [contract] = await Contract.aggregate([
         {
@@ -706,8 +707,14 @@ const submitWorkedHours: RequestHandler = async (req: CustomAuthRequest, res) =>
         throw new BadRequestError("You cant submit a new payment until all payments are paid");
     }
 
-    // set worked hours for a new pending payment
     const amount = workedHours * contract.job!.price;
+    
+    // add a payment limit
+    if (amount > paymentLimit) {
+        throw new BadRequestError(`The limit for a single payment is $${paymentLimit.toLocaleString()}`);
+    }
+    
+    // set worked hours for a new pending payment
     const now = new Date();
     contract.payments.push({
         workedHours,

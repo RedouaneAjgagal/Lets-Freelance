@@ -38,7 +38,7 @@ const useProposalActionMutation = () => {
             const errorMsg = error.response?.data.msg || "Something went wrong";
             toast.error(errorMsg, {
                 id: "error_proposalAction",
-                duration: 500
+                duration: 5000
             });
         }
     });

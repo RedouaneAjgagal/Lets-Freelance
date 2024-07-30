@@ -15,6 +15,7 @@ import transferToStripeAmount from "../../stripe/utils/transferToStripeAmount";
 import jobFeeTiers from "../job/utils/jobFeeTiers";
 import origin from "../../config/origin";
 import { messageModel as Message } from "../message";
+import paymentLimit from "../../helpers/paymentLimit";
 
 
 //@desc get all proposals related to job
@@ -313,7 +314,15 @@ const actionProposal: RequestHandler = async (req: CustomAuthRequest, res) => {
 
         // make employer pay the fixed price
         if (proposal.priceType === "fixed") {
-            const feesAmount = jobFees.creatingJobFees.type === "percent" ? (contractInfo.job.price / 100) * jobFees.creatingJobFees.amount : jobFees.creatingJobFees.amount;
+            // add a payment limit
+            if (contractInfo.job.price > paymentLimit) {
+                throw new BadRequestError(`The limit for a single payment is $${paymentLimit.toLocaleString()}`);
+            }
+
+            const feesAmount = jobFees.creatingJobFees.type === "percent"
+                ? (contractInfo.job.price / 100) * jobFees.creatingJobFees.amount
+                : jobFees.creatingJobFees.amount;
+
             const employerFeesAmount = transferToStripeAmount(feesAmount);
             const paymentAmountWithFees = contractInfo.job.price + feesAmount;
             const employerPaymentAmount = transferToStripeAmount(paymentAmountWithFees);

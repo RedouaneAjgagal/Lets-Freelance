@@ -21,6 +21,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 import fileUpload from "express-fileupload";
+import rateLimiter from "express-rate-limit";
 import http from "http";
 
 // routes
@@ -49,7 +50,7 @@ import websockets from "./websockets";
 import { handleWebSocketMessages } from "./features/message";
 import restartServerJob from "./crons/requestingServer";
 
-
+app.set("trust proxy", 4);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
@@ -71,6 +72,10 @@ app.use(helmet());
 app.use(mongoSanitize());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(fileUpload({ useTempFiles: true, safeFileNames: true }));
+app.use(rateLimiter({
+    windowMs: 30 * 60 * 1000, // 30 min
+    limit: 500
+}));
 
 
 // websocket

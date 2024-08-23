@@ -1,7 +1,6 @@
 import nodeSchedule from "node-schedule";
 import https from "https";
-
-const backendUrl = "https://lets-freelance.onrender.com";
+import { backendUrl } from "../config/origin";
 
 const requestingServerHandler = () => {
     console.log("Restarting the server..");
